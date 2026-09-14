@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://k7es6xs2olod"]
+
+[ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://main.gd" id="1_ig7tw"]
+
+[node name="Main" type="Node2D" unique_id=896853765]
+position = Vector2(490, 328)
+script = ExtResource("1_ig7tw")
+
+[node name="Label" type="Label" parent="." unique_id=1814219449]
+offset_left = -72.0
+offset_top = -81.0
+offset_right = 75.0
+offset_bottom = -32.0
+text = "Meu jogo Stickman
+"
