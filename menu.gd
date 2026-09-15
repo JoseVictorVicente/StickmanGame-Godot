@@ -9,7 +9,6 @@ signal equipamentos_alterados
 signal classe_heroi_alterada(indice: int, classe: ClasseData)
 signal janela_solta
 signal ouro_obtido(quantidade: int)
-signal largura_menus_alterada
 signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
 const INVENTARIO_COLUNAS := 10
@@ -305,28 +304,18 @@ func obter_retangulos_clicaveis() -> Array[Rect2]:
 func largura_para_janela() -> int:
 	var extra_esq := 0
 	var extra_dir := 0
-	if painel_armazem and painel_armazem.visible:
+	if painel_armazem:
 		extra_esq = 8 + int(painel_armazem.custom_minimum_size.x)
-	if painel_ferraria and painel_ferraria.visible:
-		extra_dir = 8 + int(painel_ferraria.custom_minimum_size.x)
-	if painel_mundos and painel_mundos.visible:
-		extra_dir = 8 + int(painel_mundos.custom_minimum_size.x)
+	if painel_ferraria:
+		extra_dir = maxi(extra_dir, 8 + int(painel_ferraria.custom_minimum_size.x))
+	if painel_mundos:
+		extra_dir = maxi(extra_dir, 8 + int(painel_mundos.custom_minimum_size.x))
 	return 40 + int(painel.custom_minimum_size.x) + 2 * maxi(extra_esq, extra_dir)
-
-
-func _avisar_largura_menus() -> void:
-	call_deferred("_emitir_largura_menus")
-
-
-func _emitir_largura_menus() -> void:
-	_alinhar_paineis_laterais()
-	largura_menus_alterada.emit()
 
 
 func _alinhar_paineis_laterais() -> void:
 	if painel == null or area_menus == null:
 		return
-	painel.reset_size()
 	var tam_painel := painel.get_combined_minimum_size()
 	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
 	if painel.size != tam_painel:
@@ -345,7 +334,6 @@ func _alinhar_paineis_laterais() -> void:
 func _posicionar_painel_lateral(lado: Control, na_esquerda: bool, y: float, altura: float) -> void:
 	if lado == null or not lado.visible:
 		return
-	lado.reset_size()
 	var largura := maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x)
 	var tam := Vector2(largura, maxf(altura, lado.get_combined_minimum_size().y))
 	if lado.size != tam:
@@ -841,13 +829,13 @@ func _on_ferraria_visibilidade_alterada(aberta: bool) -> void:
 	if not aberta:
 		_definir_selecao(null)
 		_restaurar_estilo_botao_ferraria()
-		_avisar_largura_menus()
+		_alinhar_paineis_laterais()
 		return
 	var estilo := _criar_estilo_botao_ferraria_ativo()
 	botao_ferraria.add_theme_stylebox_override("normal", estilo)
 	botao_ferraria.add_theme_stylebox_override("hover", estilo)
 	botao_ferraria.add_theme_stylebox_override("pressed", estilo)
-	_avisar_largura_menus()
+	_alinhar_paineis_laterais()
 
 
 func _on_armazem_visibilidade_alterada(aberta: bool) -> void:
@@ -856,13 +844,13 @@ func _on_armazem_visibilidade_alterada(aberta: bool) -> void:
 		botao_armazem.add_theme_stylebox_override("normal", estilo)
 		botao_armazem.add_theme_stylebox_override("hover", estilo)
 		botao_armazem.add_theme_stylebox_override("pressed", estilo)
-		_avisar_largura_menus()
+		_alinhar_paineis_laterais()
 		return
 	for nome in _estilos_botao_armazem.keys():
 		botao_armazem.add_theme_stylebox_override(str(nome), _estilos_botao_armazem[nome])
 	botao_armazem.release_focus()
 	botao_armazem.set_pressed_no_signal(false)
-	_avisar_largura_menus()
+	_alinhar_paineis_laterais()
 
 
 func _restaurar_estilo_botao_ferraria() -> void:
@@ -891,13 +879,13 @@ func _on_mundos_visibilidade_alterada(aberta: bool) -> void:
 		botao_mundo.add_theme_stylebox_override("normal", estilo)
 		botao_mundo.add_theme_stylebox_override("hover", estilo)
 		botao_mundo.add_theme_stylebox_override("pressed", estilo)
-		_avisar_largura_menus()
+		_alinhar_paineis_laterais()
 		return
 	for nome in _estilos_botao_mundo.keys():
 		botao_mundo.add_theme_stylebox_override(str(nome), _estilos_botao_mundo[nome])
 	botao_mundo.release_focus()
 	botao_mundo.set_pressed_no_signal(false)
-	_avisar_largura_menus()
+	_alinhar_paineis_laterais()
 
 
 func _on_fase_iniciada(mundo: int, fase: int, dificuldade: int) -> void:

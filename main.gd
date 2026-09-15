@@ -66,7 +66,6 @@ func _ready() -> void:
 	menu_inventario.fechado.connect(_fechar_inventario)
 	menu_inventario.janela_solta.connect(_aplicar_direcao_do_menu)
 	menu_inventario.ouro_obtido.connect(_on_ouro_obtido_menu)
-	menu_inventario.largura_menus_alterada.connect(_ajustar_largura_janela)
 	timer_ataque.wait_time = INTERVALO_ATAQUE_INIMIGO
 	timer_ataque.timeout.connect(_on_inimigo_atacou)
 	timer_ataque.start()
@@ -540,23 +539,23 @@ func _alternar_inventario() -> void:
 
 func _abrir_inventario() -> void:
 	_aplicar_direcao_do_menu()
+	_ajustar_largura_janela(true)
 	menu_inventario.show()
 	area_botao_menu.show()
-	_ajustar_largura_janela()
 	_atualizar_click_through()
 
 
 func _fechar_inventario() -> void:
 	menu_inventario.hide()
 	area_botao_menu.show()
-	_ajustar_largura_janela()
+	_ajustar_largura_janela(false)
 	_atualizar_click_through()
 	SaveSystem.salvar()
 
 
-func _ajustar_largura_janela() -> void:
+func _ajustar_largura_janela(abrir_inventario: bool = false) -> void:
 	var desejada := LARGURA_JANELA
-	if menu_inventario.visible:
+	if abrir_inventario or menu_inventario.visible:
 		desejada = maxi(LARGURA_JANELA, menu_inventario.largura_para_janela())
 	var tela := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
 	desejada = mini(desejada, tela.size.x)
