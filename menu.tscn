@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://b6sat1v5h8j2d"]
+[gd_scene load_steps=14 format=3 uid="uid://b6sat1v5h8j2d"]
 
 [ext_resource type="Script" uid="uid://cx4p8q2n7km3w" path="res://menu.gd" id="1_menu"]
 [ext_resource type="Script" path="res://ui_selecao_equipe.gd" id="2_equipe"]
 [ext_resource type="PackedScene" path="res://ferraria.tscn" id="3_ferraria"]
 [ext_resource type="PackedScene" path="res://armazem.tscn" id="4_armazem"]
+[ext_resource type="PackedScene" path="res://painel_mundos.tscn" id="5_mundos"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
 content_margin_left = 8.0
@@ -429,7 +430,8 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Conquistas"
 
-[node name="BotaoConfiguracoes" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+[node name="BotaoMundo" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
@@ -437,7 +439,13 @@ theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "Configurações"
+text = "Mundo"
+
+[node name="PainelArmazem" parent="Centralizar/AreaMenus" instance=ExtResource("4_armazem")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="PainelFerraria" parent="Centralizar/AreaMenus" instance=ExtResource("3_ferraria")]
 unique_name_in_owner = true
@@ -445,7 +453,7 @@ visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PainelArmazem" parent="Centralizar/AreaMenus" instance=ExtResource("4_armazem")]
+[node name="PainelMundos" parent="Centralizar/AreaMenus" instance=ExtResource("5_mundos")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

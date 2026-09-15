@@ -22,6 +22,7 @@ const BOTAO_TAMANHO := 80
 @onready var barra_vida: ProgressBar = %BarraVidaInimigo
 @onready var label_nivel: Label = %LabelNivel
 @onready var label_dano: Label = %LabelDano
+@onready var botao_repetir_fase: Button = %BotaoRepetirFase
 @onready var label_aviso: Label = %LabelAviso
 @onready var palco: Control = $HudBatalha/Palco
 @onready var chao: ColorRect = %Chao
@@ -34,6 +35,11 @@ var ouro: int = 0
 var dano_base: int = DANO_BASE
 var dano_total: int = DANO_BASE
 var onda: int = 1
+var mundo: int = 1
+var fase: int = 1
+var dificuldade: int = ProgressaoMundos.Dificuldade.FACIL
+var fases_liberadas: Array[int] = [1, 1, 1]
+var repetir_fase: bool = false
 var inimigo_atual: Inimigo
 var _drops := GerenciadorDrops.new()
 var _tween_aviso: Tween
@@ -64,6 +70,11 @@ func _ready() -> void:
 	menu_inventario.equipamentos_alterados.connect(recalcular_atributos)
 	menu_inventario.personagem_alterado.connect(_on_personagem_alterado)
 	menu_inventario.classe_heroi_alterada.connect(_on_classe_heroi_alterada)
+	menu_inventario.fase_iniciada.connect(iniciar_fase)
+	botao_repetir_fase.icon = _criar_icone_repetir()
+	botao_repetir_fase.add_theme_constant_override("icon_max_width", 18)
+	botao_repetir_fase.pressed.connect(_on_botao_repetir_pressed)
+	_atualizar_visual_repetir()
 
 	party.obter_dano_equip = obter_dano_equip_slot
 	party.heroi_atacou.connect(_on_heroi_atacou)
@@ -74,6 +85,7 @@ func _ready() -> void:
 	if not SaveSystem.carregar():
 		menu_inventario.preencher_item_inicial_se_vazio()
 
+	menu_inventario.atualizar_progressao_mundos(mundo, fase, dificuldade, fases_liberadas)
 	_gerar_inimigo()
 	recalcular_atributos()
 	palco.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -132,13 +144,36 @@ func _on_heroi_atacou(_slot_index: int, dano: int) -> void:
 	_atualizar_hud()
 
 
+func iniciar_fase(novo_mundo: int, nova_fase: int, nova_dificuldade: int) -> void:
+	var m := clampi(novo_mundo, 1, ProgressaoMundos.TOTAL_MUNDOS)
+	var f := clampi(nova_fase, 1, ProgressaoMundos.FASES_POR_MUNDO)
+	var d := clampi(nova_dificuldade, 0, 2)
+	if not ProgressaoMundos.dificuldade_liberada(d, fases_liberadas):
+		return
+	if ProgressaoMundos.indice(m, f) > fases_liberadas[d]:
+		return
+	mundo = m
+	fase = f
+	dificuldade = d
+	_resolvendo_morte = false
+	party.combate_pausado = false
+	_gerar_inimigo()
+	inimigo_visual.aparecer()
+	barra_vida.aparecer()
+	menu_inventario.atualizar_progressao_mundos(mundo, fase, dificuldade, fases_liberadas)
+	_atualizar_hud()
+	SaveSystem.salvar()
+
+
 func _gerar_inimigo() -> void:
+	var stats := ProgressaoMundos.stats_inimigo(mundo, fase, dificuldade)
+	onda = int(stats["nivel"])
 	inimigo_atual = Inimigo.new()
 	inimigo_atual.configurar(
-		"Monstro Lv. %d" % onda,
-		20 + (onda - 1) * 12,
-		3 + onda,
-		5 + onda * 2
+		str(stats["nome"]),
+		int(stats["vida"]),
+		int(stats["ouro"]),
+		int(stats["xp"])
 	)
 	barra_vida.inicializar_barra(inimigo_atual.vida_maxima)
 
@@ -163,13 +198,111 @@ func _resolver_morte() -> void:
 	AudioManager.tocar_som_moeda()
 	_aplicar_xp(inimigo_atual.xp_recompensa)
 	_tentar_drop_item()
-	onda += 1
+	_avancar_fase()
 	_gerar_inimigo()
 	inimigo_visual.aparecer()
 	barra_vida.aparecer()
 	_resolvendo_morte = false
 	party.combate_pausado = false
 	SaveSystem.salvar()
+
+
+func _avancar_fase() -> void:
+	var progresso_antes := fases_liberadas[dificuldade]
+	fases_liberadas[dificuldade] = ProgressaoMundos.aplicar_conclusao(progresso_antes, mundo, fase)
+	var mundo_anterior := mundo
+	if not repetir_fase:
+		var proximo := ProgressaoMundos.proximo(mundo, fase)
+		mundo = proximo.x
+		fase = proximo.y
+	menu_inventario.atualizar_progressao_mundos(mundo, fase, dificuldade, fases_liberadas)
+	if ProgressaoMundos.dificuldade_concluida(fases_liberadas[dificuldade]) and not ProgressaoMundos.dificuldade_concluida(progresso_antes):
+		if dificuldade < int(ProgressaoMundos.Dificuldade.INFERNO):
+			_mostrar_aviso("%s liberado!" % ProgressaoMundos.nome_dificuldade(dificuldade + 1))
+		else:
+			_mostrar_aviso("Inferno concluído!")
+	elif not repetir_fase and mundo > mundo_anterior:
+		_mostrar_aviso("Mundo %d liberado!" % mundo)
+	elif repetir_fase:
+		var seguinte := ProgressaoMundos.proximo(mundo_anterior, fase)
+		if seguinte.x > mundo_anterior and progresso_antes < ProgressaoMundos.indice(seguinte.x, 1):
+			_mostrar_aviso("Mundo %d liberado!" % seguinte.x)
+
+
+func _on_botao_repetir_pressed() -> void:
+	repetir_fase = not repetir_fase
+	_atualizar_visual_repetir()
+	SaveSystem.salvar()
+
+
+func _atualizar_visual_repetir() -> void:
+	var estilo := StyleBoxFlat.new()
+	estilo.content_margin_left = 3
+	estilo.content_margin_top = 3
+	estilo.content_margin_right = 3
+	estilo.content_margin_bottom = 3
+	estilo.set_corner_radius_all(4)
+	estilo.set_border_width_all(2)
+	if repetir_fase:
+		estilo.bg_color = Color(0.32, 0.24, 0.16, 1)
+		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+		botao_repetir_fase.tooltip_text = "Avançar para a próxima fase"
+	else:
+		estilo.bg_color = Color(0.16, 0.13, 0.1, 1)
+		estilo.border_color = Color(0.62, 0.5, 0.28, 1)
+		botao_repetir_fase.tooltip_text = "Repetir a fase atual"
+	botao_repetir_fase.add_theme_stylebox_override("normal", estilo)
+	botao_repetir_fase.add_theme_stylebox_override("hover", estilo)
+	botao_repetir_fase.add_theme_stylebox_override("pressed", estilo)
+
+
+func _criar_icone_repetir() -> Texture2D:
+	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var cor := Color(0.95, 0.88, 0.7, 1)
+	var centro := Vector2(16, 16)
+	_desenhar_arco(img, centro, 11.0, deg_to_rad(-20.0), deg_to_rad(150.0), cor)
+	_desenhar_arco(img, centro, 11.0, deg_to_rad(160.0), deg_to_rad(330.0), cor)
+	_desenhar_seta(img, centro + Vector2(10.2, 3.2), Vector2(0.35, 1), cor)
+	_desenhar_seta(img, centro + Vector2(-10.2, -3.2), Vector2(-0.35, -1), cor)
+	return ImageTexture.create_from_image(img)
+
+
+func _desenhar_arco(img: Image, centro: Vector2, raio: float, angulo_ini: float, angulo_fim: float, cor: Color) -> void:
+	var passos := 28
+	for i in passos + 1:
+		var t := float(i) / float(passos)
+		var ang: float = lerpf(angulo_ini, angulo_fim, t)
+		var p: Vector2 = centro + Vector2(cos(ang), sin(ang)) * raio
+		for ox in range(-1, 2):
+			for oy in range(-1, 2):
+				_pixel_icone(img, int(p.x) + ox, int(p.y) + oy, cor)
+
+
+func _desenhar_seta(img: Image, ponta: Vector2, direcao: Vector2, cor: Color) -> void:
+	var dir := direcao.normalized()
+	var perp := Vector2(-dir.y, dir.x)
+	var a := ponta
+	var b := ponta - dir * 6.0 + perp * 4.0
+	var c := ponta - dir * 6.0 - perp * 4.0
+	_linha_icone(img, a, b, cor)
+	_linha_icone(img, a, c, cor)
+	_linha_icone(img, b, c, cor)
+
+
+func _linha_icone(img: Image, a: Vector2, b: Vector2, cor: Color) -> void:
+	var passos := maxi(1, int(a.distance_to(b)))
+	for i in passos + 1:
+		var p: Vector2 = a.lerp(b, float(i) / float(passos))
+		for ox in range(-1, 2):
+			for oy in range(-1, 2):
+				_pixel_icone(img, int(p.x) + ox, int(p.y) + oy, cor)
+
+
+func _pixel_icone(img: Image, x: int, y: int, cor: Color) -> void:
+	if x < 0 or y < 0 or x >= img.get_width() or y >= img.get_height():
+		return
+	img.set_pixel(x, y, cor)
 
 
 func _alinhar_combate() -> void:
@@ -325,7 +458,10 @@ func _on_ouro_obtido_menu(quantidade: int) -> void:
 
 func _atualizar_hud() -> void:
 	if inimigo_atual:
-		label_inimigo.text = inimigo_atual.nome
+		label_inimigo.text = "%s  %s" % [
+			inimigo_atual.nome,
+			ProgressaoMundos.nome_dificuldade(dificuldade),
+		]
 	menu_inventario.atualizar_ouro(ouro)
 	var progresso: Dictionary = _progresso[menu_inventario.indice_personagem_atual()]
 	label_nivel.text = "Nv.%d  %d/%d" % [
@@ -412,6 +548,11 @@ func coletar_save() -> Dictionary:
 	return {
 		"ouro": ouro,
 		"onda": onda,
+		"mundo": mundo,
+		"fase": fase,
+		"dificuldade": dificuldade,
+		"fases_liberadas": fases_liberadas.duplicate(),
+		"repetir_fase": repetir_fase,
 		"personagem_atual": menu_inventario.indice_personagem_atual(),
 		"progresso": _progresso.duplicate(true),
 		"inventario": menu_inventario.serializar_inventario(),
@@ -424,6 +565,16 @@ func coletar_save() -> Dictionary:
 func aplicar_save(dados: Dictionary) -> void:
 	ouro = int(dados.get("ouro", 0))
 	onda = maxi(1, int(dados.get("onda", 1)))
+	mundo = clampi(int(dados.get("mundo", 1)), 1, ProgressaoMundos.TOTAL_MUNDOS)
+	fase = clampi(int(dados.get("fase", 1)), 1, ProgressaoMundos.FASES_POR_MUNDO)
+	dificuldade = clampi(int(dados.get("dificuldade", 0)), 0, 2)
+	var liberadas: Variant = dados.get("fases_liberadas", [1, 1, 1])
+	fases_liberadas = [1, 1, 1]
+	if liberadas is Array:
+		for i in mini(liberadas.size(), 3):
+			fases_liberadas[i] = clampi(int(liberadas[i]), 1, ProgressaoMundos.PROGRESSO_COMPLETO)
+	while dificuldade > 0 and not ProgressaoMundos.dificuldade_liberada(dificuldade, fases_liberadas):
+		dificuldade -= 1
 	var progresso: Variant = dados.get("progresso", [])
 	if progresso is Array:
 		for i in mini(progresso.size(), _progresso.size()):
@@ -443,4 +594,7 @@ func aplicar_save(dados: Dictionary) -> void:
 	menu_inventario.selecionar_personagem(int(dados.get("personagem_atual", 0)))
 	var atual: Dictionary = _progresso[menu_inventario.indice_personagem_atual()]
 	menu_inventario.atualizar_nivel_exibido(int(atual["nivel"]))
+	menu_inventario.atualizar_progressao_mundos(mundo, fase, dificuldade, fases_liberadas)
+	repetir_fase = bool(dados.get("repetir_fase", false))
+	_atualizar_visual_repetir()
 	_atualizar_hud()

@@ -36,6 +36,11 @@ func salvar() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("jogo", "ouro", int(dados.get("ouro", 0)))
 	cfg.set_value("jogo", "onda", int(dados.get("onda", 1)))
+	cfg.set_value("jogo", "mundo", int(dados.get("mundo", 1)))
+	cfg.set_value("jogo", "fase", int(dados.get("fase", 1)))
+	cfg.set_value("jogo", "dificuldade", int(dados.get("dificuldade", 0)))
+	cfg.set_value("jogo", "fases_liberadas", JSON.stringify(dados.get("fases_liberadas", [1, 1, 1])))
+	cfg.set_value("jogo", "repetir_fase", bool(dados.get("repetir_fase", false)))
 	cfg.set_value("jogo", "personagem_atual", int(dados.get("personagem_atual", 0)))
 	cfg.set_value("progresso", "personagens", JSON.stringify(dados.get("progresso", [])))
 	cfg.set_value("inventario", "itens", JSON.stringify(dados.get("inventario", [])))
@@ -58,6 +63,11 @@ func carregar() -> bool:
 	var dados := {
 		"ouro": int(cfg.get_value("jogo", "ouro", 0)),
 		"onda": int(cfg.get_value("jogo", "onda", 1)),
+		"mundo": int(cfg.get_value("jogo", "mundo", 1)),
+		"fase": int(cfg.get_value("jogo", "fase", 1)),
+		"dificuldade": int(cfg.get_value("jogo", "dificuldade", 0)),
+		"fases_liberadas": _parse_json(str(cfg.get_value("jogo", "fases_liberadas", "[1,1,1]")), [1, 1, 1]),
+		"repetir_fase": bool(cfg.get_value("jogo", "repetir_fase", false)),
 		"personagem_atual": int(cfg.get_value("jogo", "personagem_atual", 0)),
 		"progresso": _parse_json(str(cfg.get_value("progresso", "personagens", "[]")), []),
 		"inventario": _parse_json(str(cfg.get_value("inventario", "itens", "[]")), []),

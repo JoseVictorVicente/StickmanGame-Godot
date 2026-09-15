@@ -10,6 +10,7 @@ signal classe_heroi_alterada(indice: int, classe: ClasseData)
 signal janela_solta
 signal ouro_obtido(quantidade: int)
 signal largura_menus_alterada
+signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
 const INVENTARIO_COLUNAS := 10
 const INVENTARIO_LINHAS := 5
@@ -40,8 +41,10 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var area_menus: HBoxContainer = %AreaMenus
 @onready var painel_ferraria: Ferraria = %PainelFerraria
 @onready var painel_armazem: PainelArmazem = %PainelArmazem
+@onready var painel_mundos: PainelMundos = %PainelMundos
 @onready var botao_ferraria: Button = %BotaoFerraria
 @onready var botao_armazem: Button = %BotaoArmazem
+@onready var botao_mundo: Button = %BotaoMundo
 @onready var label_ouro: Label = %LabelOuro
 @onready var painel_ouro: Control = %PainelOuro
 @onready var espaco_ouro: Control = %EspacoOuro
@@ -75,6 +78,7 @@ var _slots_inventario: Array[SlotItem] = []
 var _slot_selecionado: SlotItem = null
 var _estilos_botao_ferraria: Dictionary = {}
 var _estilos_botao_armazem: Dictionary = {}
+var _estilos_botao_mundo: Dictionary = {}
 
 
 func _ready() -> void:
@@ -88,10 +92,15 @@ func _ready() -> void:
 	painel.gui_input.connect(_on_cabecalho_gui_input)
 	painel_ferraria.configurar(self)
 	painel_armazem.configurar(self)
+	painel_mundos.configurar(self)
 	area_menus.move_child(painel_armazem, 0)
+	area_menus.move_child(painel_ferraria, area_menus.get_child_count() - 1)
+	area_menus.move_child(painel_mundos, area_menus.get_child_count() - 1)
 	botao_ferraria.pressed.connect(_on_botao_ferraria_pressed)
 	painel_ferraria.visibilidade_alterada.connect(_on_ferraria_visibilidade_alterada)
 	painel_armazem.visibilidade_alterada.connect(_on_armazem_visibilidade_alterada)
+	painel_mundos.visibilidade_alterada.connect(_on_mundos_visibilidade_alterada)
+	painel_mundos.fase_iniciada.connect(_on_fase_iniciada)
 	painel_ferraria.ouro_obtido.connect(_on_ouro_ferraria)
 	visibility_changed.connect(_on_visibilidade_menu_alterada)
 	if grade_personagens:
@@ -100,7 +109,11 @@ func _ready() -> void:
 	_estilos_botao_armazem["normal"] = botao_armazem.get_theme_stylebox("normal").duplicate()
 	_estilos_botao_armazem["hover"] = botao_armazem.get_theme_stylebox("hover").duplicate()
 	_estilos_botao_armazem["pressed"] = botao_armazem.get_theme_stylebox("pressed").duplicate()
+	_estilos_botao_mundo["normal"] = botao_mundo.get_theme_stylebox("normal").duplicate()
+	_estilos_botao_mundo["hover"] = botao_mundo.get_theme_stylebox("hover").duplicate()
+	_estilos_botao_mundo["pressed"] = botao_mundo.get_theme_stylebox("pressed").duplicate()
 	botao_armazem.pressed.connect(_on_botao_armazem_pressed)
+	botao_mundo.pressed.connect(_on_botao_mundo_pressed)
 	botao_armazem.icon = _criar_icone_bau()
 	botao_armazem.add_theme_constant_override("icon_max_width", 56)
 	if painel_ouro:
@@ -285,6 +298,8 @@ func largura_para_janela() -> int:
 	var largura := 40 + int(painel.custom_minimum_size.x)
 	if painel_armazem and painel_armazem.visible:
 		largura += 8 + int(painel_armazem.custom_minimum_size.x)
+	if painel_mundos and painel_mundos.visible:
+		largura += 8 + int(painel_mundos.custom_minimum_size.x)
 	if painel_ferraria and painel_ferraria.visible:
 		largura += 8 + int(painel_ferraria.custom_minimum_size.x)
 	return largura
@@ -598,6 +613,11 @@ func aplicar_inventario(lista: Array) -> void:
 		_slots_inventario[i].definir_item(item)
 
 
+func atualizar_progressao_mundos(mundo: int, fase: int, dificuldade: int, liberadas: Array) -> void:
+	if painel_mundos:
+		painel_mundos.definir_estado(mundo, fase, dificuldade, liberadas)
+
+
 func serializar_armazem() -> Dictionary:
 	return painel_armazem.serializar() if painel_armazem else {}
 
@@ -710,13 +730,33 @@ func _guardar_estilos_botao_ferraria() -> void:
 
 
 func _on_botao_ferraria_pressed() -> void:
-	painel_ferraria.alternar()
+	if painel_ferraria.esta_aberta():
+		painel_ferraria.fechar()
+	else:
+		_fechar_paineis_direita(painel_ferraria)
+		painel_ferraria.abrir()
 	botao_ferraria.release_focus()
 
 
 func _on_botao_armazem_pressed() -> void:
 	painel_armazem.alternar()
 	botao_armazem.release_focus()
+
+
+func _on_botao_mundo_pressed() -> void:
+	if painel_mundos.esta_aberta():
+		painel_mundos.fechar()
+	else:
+		_fechar_paineis_direita(painel_mundos)
+		painel_mundos.abrir()
+	botao_mundo.release_focus()
+
+
+func _fechar_paineis_direita(exceto: Control = null) -> void:
+	if painel_ferraria and painel_ferraria != exceto and painel_ferraria.esta_aberta():
+		painel_ferraria.fechar()
+	if painel_mundos and painel_mundos != exceto and painel_mundos.esta_aberta():
+		painel_mundos.fechar()
 
 
 func _criar_icone_bau() -> Texture2D:
@@ -792,6 +832,25 @@ func _criar_estilo_botao_ferraria_ativo() -> StyleBoxFlat:
 	return estilo
 
 
+func _on_mundos_visibilidade_alterada(aberta: bool) -> void:
+	if aberta:
+		var estilo := _criar_estilo_botao_ferraria_ativo()
+		botao_mundo.add_theme_stylebox_override("normal", estilo)
+		botao_mundo.add_theme_stylebox_override("hover", estilo)
+		botao_mundo.add_theme_stylebox_override("pressed", estilo)
+		_avisar_largura_menus()
+		return
+	for nome in _estilos_botao_mundo.keys():
+		botao_mundo.add_theme_stylebox_override(str(nome), _estilos_botao_mundo[nome])
+	botao_mundo.release_focus()
+	botao_mundo.set_pressed_no_signal(false)
+	_avisar_largura_menus()
+
+
+func _on_fase_iniciada(mundo: int, fase: int, dificuldade: int) -> void:
+	fase_iniciada.emit(mundo, fase, dificuldade)
+
+
 func _on_ouro_ferraria(quantidade: int) -> void:
 	ouro_obtido.emit(quantidade)
 
@@ -800,6 +859,7 @@ func _on_visibilidade_menu_alterada() -> void:
 	if not visible:
 		painel_ferraria.fechar()
 		painel_armazem.fechar()
+		painel_mundos.fechar()
 
 
 func _on_botao_sair_pressed() -> void:
