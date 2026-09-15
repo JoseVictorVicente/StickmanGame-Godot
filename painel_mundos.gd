@@ -16,6 +16,8 @@ const TAMANHO_CHEFE := 48.0
 @onready var lista_mundos: VBoxContainer = %ListaMundos
 @onready var botao_dificuldade: Button = %BotaoDificuldade
 @onready var opcoes_dificuldade: VBoxContainer = %OpcoesDificuldade
+@onready var menu_dificuldade: PanelContainer = %MenuDificuldade
+@onready var fundo_menu_dificuldade: ColorRect = %FundoMenuDificuldade
 @onready var painel_mapa: Control = %PainelMapaFases
 @onready var mapa_fases: MapaFases = %MapaFases
 
@@ -37,6 +39,7 @@ func _ready() -> void:
 	botao_fechar.pressed.connect(fechar)
 	botao_voltar.pressed.connect(_mostrar_lista_mundos)
 	botao_dificuldade.pressed.connect(_alternar_opcoes_dificuldade)
+	fundo_menu_dificuldade.gui_input.connect(_on_fundo_dificuldade_gui_input)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
 	mapa_fases.resized.connect(_posicionar_fases)
@@ -95,7 +98,7 @@ func abrir() -> void:
 
 
 func fechar() -> void:
-	opcoes_dificuldade.hide()
+	_fechar_menu_dificuldade()
 	hide()
 	visibilidade_alterada.emit(false)
 
@@ -123,7 +126,9 @@ func _criar_opcoes_dificuldade() -> void:
 	for i in ProgressaoMundos.NOMES_DIFICULDADE.size():
 		var botao := Button.new()
 		botao.text = ProgressaoMundos.NOMES_DIFICULDADE[i]
-		botao.custom_minimum_size = Vector2(108, 30)
+		botao.custom_minimum_size = Vector2(0, 32)
+		botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		botao.clip_text = true
 		botao.add_theme_font_size_override("font_size", 12)
 		botao.pressed.connect(_escolher_dificuldade.bind(i))
 		opcoes_dificuldade.add_child(botao)
@@ -159,7 +164,7 @@ func _criar_mapa_fases() -> void:
 
 
 func _mostrar_lista_mundos() -> void:
-	opcoes_dificuldade.hide()
+	_fechar_menu_dificuldade()
 	botao_voltar.hide()
 	titulo.text = "MUNDOS"
 	painel_lista.show()
@@ -169,7 +174,7 @@ func _mostrar_lista_mundos() -> void:
 
 func _abrir_mapa_mundo(mundo: int) -> void:
 	_mundo_aberto = clampi(mundo, 1, ProgressaoMundos.TOTAL_MUNDOS)
-	opcoes_dificuldade.hide()
+	_fechar_menu_dificuldade()
 	botao_voltar.show()
 	titulo.text = "MUNDO %d" % _mundo_aberto
 	painel_lista.hide()
@@ -184,15 +189,56 @@ func _on_mapa_visibilidade_alterada() -> void:
 
 
 func _alternar_opcoes_dificuldade() -> void:
-	opcoes_dificuldade.visible = not opcoes_dificuldade.visible
+	if menu_dificuldade.visible:
+		_fechar_menu_dificuldade()
+		return
 	_atualizar_opcoes_dificuldade()
+	fundo_menu_dificuldade.show()
+	menu_dificuldade.show()
+	call_deferred("_posicionar_menu_dificuldade")
+
+
+func _fechar_menu_dificuldade() -> void:
+	if menu_dificuldade:
+		menu_dificuldade.hide()
+	if fundo_menu_dificuldade:
+		fundo_menu_dificuldade.hide()
+
+
+func _posicionar_menu_dificuldade() -> void:
+	if not menu_dificuldade.visible:
+		return
+	menu_dificuldade.reset_size()
+	var largura := botao_dificuldade.size.x
+	var altura_item := botao_dificuldade.size.y
+	for botao in _botoes_opcao_dificuldade:
+		botao.custom_minimum_size = Vector2(largura - 4.0, altura_item)
+	menu_dificuldade.reset_size()
+	var tam := Vector2(largura, menu_dificuldade.get_combined_minimum_size().y)
+	menu_dificuldade.size = tam
+	var camada := menu_dificuldade.get_parent() as Control
+	var botao_rect := botao_dificuldade.get_global_rect()
+	var local_end := botao_rect.end - camada.get_global_rect().position
+	var pos := Vector2(
+		local_end.x - menu_dificuldade.size.x,
+		local_end.y - botao_dificuldade.size.y - 4.0 - menu_dificuldade.size.y
+	)
+	pos.x = clampf(pos.x, 0.0, maxf(0.0, camada.size.x - menu_dificuldade.size.x))
+	pos.y = clampf(pos.y, 0.0, maxf(0.0, camada.size.y - menu_dificuldade.size.y))
+	menu_dificuldade.position = pos
+
+
+func _on_fundo_dificuldade_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_fechar_menu_dificuldade()
+		fundo_menu_dificuldade.accept_event()
 
 
 func _escolher_dificuldade(valor: int) -> void:
 	if not ProgressaoMundos.dificuldade_liberada(valor, _liberadas):
 		return
 	_dificuldade = clampi(valor, 0, 2)
-	opcoes_dificuldade.hide()
+	_fechar_menu_dificuldade()
 	_atualizar_botao_dificuldade()
 	_atualizar_lista_mundos()
 	_atualizar_mapa()
@@ -252,10 +298,10 @@ func _atualizar_opcoes_dificuldade() -> void:
 		var liberada := ProgressaoMundos.dificuldade_liberada(i, _liberadas)
 		var texto := ProgressaoMundos.NOMES_DIFICULDADE[i]
 		if not liberada:
-			texto += "  🔒"
+			texto += " 🔒"
 		_botoes_opcao_dificuldade[i].text = texto
 		_botoes_opcao_dificuldade[i].disabled = not liberada
-		_pintar_botao(_botoes_opcao_dificuldade[i], i == _dificuldade, not liberada)
+		_pintar_botao(_botoes_opcao_dificuldade[i], i == _dificuldade, not liberada, true)
 
 
 func _posicionar_fases() -> void:
@@ -280,12 +326,13 @@ func _posicionar_fases() -> void:
 	mapa_fases.queue_redraw()
 
 
-func _pintar_botao(botao: Button, ativo: bool = false, bloqueado: bool = false) -> void:
+func _pintar_botao(botao: Button, ativo: bool = false, bloqueado: bool = false, compacto: bool = false) -> void:
 	var estilo := StyleBoxFlat.new()
-	estilo.content_margin_left = 10
-	estilo.content_margin_top = 8
-	estilo.content_margin_right = 10
-	estilo.content_margin_bottom = 8
+	var margem := 6 if compacto else 10
+	estilo.content_margin_left = margem
+	estilo.content_margin_top = 6 if compacto else 8
+	estilo.content_margin_right = margem
+	estilo.content_margin_bottom = 6 if compacto else 8
 	estilo.set_corner_radius_all(4)
 	estilo.set_border_width_all(2)
 	if bloqueado:

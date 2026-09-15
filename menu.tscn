@@ -155,18 +155,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="AreaMenus" type="HBoxContainer" parent="Centralizar"]
+[node name="AreaMenus" type="Control" parent="Centralizar"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-theme_override_constants/separation = 8
-alignment = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="Painel" type="PanelContainer" parent="Centralizar/AreaMenus"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(580, 0)
-layout_mode = 2
+layout_mode = 0
 mouse_filter = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
 
@@ -444,17 +443,14 @@ text = "Mundo"
 [node name="PainelArmazem" parent="Centralizar/AreaMenus" instance=ExtResource("4_armazem")]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 0
 
 [node name="PainelFerraria" parent="Centralizar/AreaMenus" instance=ExtResource("3_ferraria")]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 0
 
 [node name="PainelMundos" parent="Centralizar/AreaMenus" instance=ExtResource("5_mundos")]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 0

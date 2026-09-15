@@ -38,7 +38,7 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var nivel_personagem: Label = %NivelPersonagem
 @onready var foto_personagem: TextureRect = %FotoPersonagem
 @onready var ui_equipe: UiSelecaoEquipe = %AreaEquipe
-@onready var area_menus: HBoxContainer = %AreaMenus
+@onready var area_menus: Control = %AreaMenus
 @onready var painel_ferraria: Ferraria = %PainelFerraria
 @onready var painel_armazem: PainelArmazem = %PainelArmazem
 @onready var painel_mundos: PainelMundos = %PainelMundos
@@ -79,6 +79,7 @@ var _slot_selecionado: SlotItem = null
 var _estilos_botao_ferraria: Dictionary = {}
 var _estilos_botao_armazem: Dictionary = {}
 var _estilos_botao_mundo: Dictionary = {}
+var _menus_abaixo: bool = false
 
 
 func _ready() -> void:
@@ -93,9 +94,8 @@ func _ready() -> void:
 	painel_ferraria.configurar(self)
 	painel_armazem.configurar(self)
 	painel_mundos.configurar(self)
-	area_menus.move_child(painel_armazem, 0)
-	area_menus.move_child(painel_ferraria, area_menus.get_child_count() - 1)
-	area_menus.move_child(painel_mundos, area_menus.get_child_count() - 1)
+	area_menus.resized.connect(_alinhar_paineis_laterais)
+	painel.resized.connect(_alinhar_paineis_laterais)
 	botao_ferraria.pressed.connect(_on_botao_ferraria_pressed)
 	painel_ferraria.visibilidade_alterada.connect(_on_ferraria_visibilidade_alterada)
 	painel_armazem.visibilidade_alterada.connect(_on_armazem_visibilidade_alterada)
@@ -119,6 +119,7 @@ func _ready() -> void:
 	if painel_ouro:
 		painel_ouro.resized.connect(_alinhar_espaco_ouro)
 		_alinhar_espaco_ouro()
+	call_deferred("_alinhar_paineis_laterais")
 
 
 func _criar_equipamentos_dos_personagens() -> void:
@@ -278,31 +279,39 @@ func atualizar_nivel_exibido(nivel: int) -> void:
 
 
 func definir_abaixo_do_combate(abaixo: bool) -> void:
+	_menus_abaixo = abaixo
 	if abaixo:
 		centralizar.offset_top = 228.0
 		centralizar.offset_bottom = -8.0
-		area_menus.size_flags_vertical = Control.SIZE_SHRINK_END
 	else:
 		centralizar.offset_top = 8.0
 		centralizar.offset_bottom = -228.0
-		area_menus.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_alinhar_paineis_laterais()
 
 
 func obter_retangulos_clicaveis() -> Array[Rect2]:
 	if not visible:
 		return []
-	return [area_menus.get_global_rect().grow(4.0)]
+	var rects: Array[Rect2] = [painel.get_global_rect().grow(4.0)]
+	if painel_armazem and painel_armazem.visible:
+		rects.append(painel_armazem.get_global_rect().grow(4.0))
+	if painel_ferraria and painel_ferraria.visible:
+		rects.append(painel_ferraria.get_global_rect().grow(4.0))
+	if painel_mundos and painel_mundos.visible:
+		rects.append(painel_mundos.get_global_rect().grow(4.0))
+	return rects
 
 
 func largura_para_janela() -> int:
-	var largura := 40 + int(painel.custom_minimum_size.x)
+	var extra_esq := 0
+	var extra_dir := 0
 	if painel_armazem and painel_armazem.visible:
-		largura += 8 + int(painel_armazem.custom_minimum_size.x)
-	if painel_mundos and painel_mundos.visible:
-		largura += 8 + int(painel_mundos.custom_minimum_size.x)
+		extra_esq = 8 + int(painel_armazem.custom_minimum_size.x)
 	if painel_ferraria and painel_ferraria.visible:
-		largura += 8 + int(painel_ferraria.custom_minimum_size.x)
-	return largura
+		extra_dir = 8 + int(painel_ferraria.custom_minimum_size.x)
+	if painel_mundos and painel_mundos.visible:
+		extra_dir = 8 + int(painel_mundos.custom_minimum_size.x)
+	return 40 + int(painel.custom_minimum_size.x) + 2 * maxi(extra_esq, extra_dir)
 
 
 func _avisar_largura_menus() -> void:
@@ -310,7 +319,44 @@ func _avisar_largura_menus() -> void:
 
 
 func _emitir_largura_menus() -> void:
+	_alinhar_paineis_laterais()
 	largura_menus_alterada.emit()
+
+
+func _alinhar_paineis_laterais() -> void:
+	if painel == null or area_menus == null:
+		return
+	painel.reset_size()
+	var tam_painel := painel.get_combined_minimum_size()
+	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
+	if painel.size != tam_painel:
+		painel.size = tam_painel
+	var y := 0.0
+	if _menus_abaixo:
+		y = maxf(0.0, area_menus.size.y - painel.size.y)
+	var pos_painel := Vector2((area_menus.size.x - painel.size.x) * 0.5, y)
+	if painel.position != pos_painel:
+		painel.position = pos_painel
+	_posicionar_painel_lateral(painel_armazem, true, y, painel.size.y)
+	_posicionar_painel_lateral(painel_ferraria, false, y, painel.size.y)
+	_posicionar_painel_lateral(painel_mundos, false, y, painel.size.y)
+
+
+func _posicionar_painel_lateral(lado: Control, na_esquerda: bool, y: float, altura: float) -> void:
+	if lado == null or not lado.visible:
+		return
+	lado.reset_size()
+	var largura := maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x)
+	var tam := Vector2(largura, maxf(altura, lado.get_combined_minimum_size().y))
+	if lado.size != tam:
+		lado.size = tam
+	var pos: Vector2
+	if na_esquerda:
+		pos = Vector2(painel.position.x - 8.0 - lado.size.x, y)
+	else:
+		pos = Vector2(painel.position.x + painel.size.x + 8.0, y)
+	if lado.position != pos:
+		lado.position = pos
 
 
 func slots_inventario() -> Array[SlotItem]:
@@ -860,6 +906,8 @@ func _on_visibilidade_menu_alterada() -> void:
 		painel_ferraria.fechar()
 		painel_armazem.fechar()
 		painel_mundos.fechar()
+		return
+	call_deferred("_alinhar_paineis_laterais")
 
 
 func _on_botao_sair_pressed() -> void:
