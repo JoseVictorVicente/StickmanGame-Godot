@@ -11,19 +11,15 @@ config_version=5
 [application]
 
 config/name="TESTE JOGO STICKMAN IDDLE"
-run/main_scene="res://main.tscn"
+run/main_scene="res://cenas/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-AudioManager="*res://audio_manager.gd"
-ItemDatabase="*res://item_database.gd"
-SaveSystem="*res://save_system.gd"
-
-[gui]
-
-timers/tooltip_delay_sec=0.0
+AudioManager="*res://autoload/audio_manager.gd"
+ItemDatabase="*res://autoload/item_database.gd"
+SaveSystem="*res://autoload/save_system.gd"
 
 [display]
 
@@ -35,6 +31,10 @@ window/size/transparent=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/per_pixel_transparency/allowed=true
+
+[gui]
+
+timers/tooltip_delay_sec=0.0
 
 [physics]
 

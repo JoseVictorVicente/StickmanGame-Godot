@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c8mundos0001"]
 
-[ext_resource type="Script" path="res://painel_mundos.gd" id="1_mundos"]
-[ext_resource type="Script" path="res://mapa_fases.gd" id="2_mapa"]
+[ext_resource type="Script" uid="uid://c8painmun001" path="res://mundos/painel_mundos.gd" id="1_mundos"]
+[ext_resource type="Script" uid="uid://c8mapafas001" path="res://mundos/mapa_fases.gd" id="2_mapa"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
 content_margin_left = 12.0

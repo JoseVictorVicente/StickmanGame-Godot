@@ -241,7 +241,7 @@ func _garantir_posicoes() -> void:
 
 
 func _criar_herois_visuais() -> void:
-	var script_stick := load("res://stickman.gd")
+	var script_stick := load("res://combate/stickman.gd")
 	for i in SLOTS:
 		var sprite := AnimatedSprite2D.new()
 		sprite.name = "Heroi_%d" % (i + 1)

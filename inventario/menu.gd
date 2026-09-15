@@ -9,6 +9,7 @@ signal equipamentos_alterados
 signal classe_heroi_alterada(indice: int, classe: ClasseData)
 signal janela_solta
 signal ouro_obtido(quantidade: int)
+signal largura_menus_alterada
 signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
 const INVENTARIO_COLUNAS := 10
@@ -302,49 +303,12 @@ func obter_retangulos_clicaveis() -> Array[Rect2]:
 
 
 func largura_para_janela() -> int:
-	var extra_esq := 0
-	var extra_dir := 0
-	if painel_armazem:
-		extra_esq = 8 + int(painel_armazem.custom_minimum_size.x)
-	if painel_ferraria:
-		extra_dir = maxi(extra_dir, 8 + int(painel_ferraria.custom_minimum_size.x))
-	if painel_mundos:
-		extra_dir = maxi(extra_dir, 8 + int(painel_mundos.custom_minimum_size.x))
-	return 40 + int(painel.custom_minimum_size.x) + 2 * maxi(extra_esq, extra_dir)
+	return LayoutPaineis.largura_janela(painel, painel_armazem, painel_ferraria, painel_mundos)
 
 
 func _alinhar_paineis_laterais() -> void:
-	if painel == null or area_menus == null:
-		return
-	var tam_painel := painel.get_combined_minimum_size()
-	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
-	if painel.size != tam_painel:
-		painel.size = tam_painel
-	var y := 0.0
-	if _menus_abaixo:
-		y = maxf(0.0, area_menus.size.y - painel.size.y)
-	var pos_painel := Vector2((area_menus.size.x - painel.size.x) * 0.5, y)
-	if painel.position != pos_painel:
-		painel.position = pos_painel
-	_posicionar_painel_lateral(painel_armazem, true, y, painel.size.y)
-	_posicionar_painel_lateral(painel_ferraria, false, y, painel.size.y)
-	_posicionar_painel_lateral(painel_mundos, false, y, painel.size.y)
-
-
-func _posicionar_painel_lateral(lado: Control, na_esquerda: bool, y: float, altura: float) -> void:
-	if lado == null or not lado.visible:
-		return
-	var largura := maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x)
-	var tam := Vector2(largura, maxf(altura, lado.get_combined_minimum_size().y))
-	if lado.size != tam:
-		lado.size = tam
-	var pos: Vector2
-	if na_esquerda:
-		pos = Vector2(painel.position.x - 8.0 - lado.size.x, y)
-	else:
-		pos = Vector2(painel.position.x + painel.size.x + 8.0, y)
-	if lado.position != pos:
-		lado.position = pos
+	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo)
+	largura_menus_alterada.emit()
 
 
 func slots_inventario() -> Array[SlotItem]:

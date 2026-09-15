@@ -19,7 +19,7 @@ func _ready() -> void:
 	animation_finished.connect(_on_animacao_terminou)
 	play("Idle")
 	_pos_base = position
-	_barra = (load("res://barra_vida_heroi.gd") as GDScript).new()
+	_barra = (load("res://combate/barra_vida_heroi.gd") as GDScript).new()
 	_barra.position = Vector2(0, -34)
 	add_child(_barra)
 

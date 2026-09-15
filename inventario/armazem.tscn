@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c8arma0em01"]
 
-[ext_resource type="Script" path="res://armazem.gd" id="1_armazem"]
+[ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://inventario/armazem.gd" id="1_armazem"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
 content_margin_left = 12.0

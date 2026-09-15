@@ -1,10 +1,10 @@
 [gd_scene load_steps=14 format=3 uid="uid://b6sat1v5h8j2d"]
 
-[ext_resource type="Script" uid="uid://cx4p8q2n7km3w" path="res://menu.gd" id="1_menu"]
-[ext_resource type="Script" path="res://ui_selecao_equipe.gd" id="2_equipe"]
-[ext_resource type="PackedScene" path="res://ferraria.tscn" id="3_ferraria"]
-[ext_resource type="PackedScene" path="res://armazem.tscn" id="4_armazem"]
-[ext_resource type="PackedScene" path="res://painel_mundos.tscn" id="5_mundos"]
+[ext_resource type="Script" uid="uid://cx4p8q2n7km3w" path="res://inventario/menu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://u7nsljsgk78f" path="res://inventario/ui_selecao_equipe.gd" id="2_equipe"]
+[ext_resource type="PackedScene" uid="uid://c8ferraria01" path="res://inventario/ferraria.tscn" id="3_ferraria"]
+[ext_resource type="PackedScene" uid="uid://c8arma0em01" path="res://inventario/armazem.tscn" id="4_armazem"]
+[ext_resource type="PackedScene" uid="uid://c8mundos0001" path="res://mundos/painel_mundos.tscn" id="5_mundos"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
 content_margin_left = 8.0

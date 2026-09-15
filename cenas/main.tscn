@@ -1,11 +1,11 @@
 [gd_scene load_steps=14 format=3 uid="uid://k7es6xs2olod"]
 
-[ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://main.gd" id="1_ig7tw"]
-[ext_resource type="PackedScene" uid="uid://b6sat1v5h8j2d" path="res://menu.tscn" id="2_menu"]
-[ext_resource type="Script" path="res://barra_vida_inimigo.gd" id="3_barra"]
-[ext_resource type="Script" path="res://party_manager.gd" id="4_party"]
-[ext_resource type="Script" path="res://inimigo_visual.gd" id="5_inimigo"]
-[ext_resource type="Script" path="res://efeito_moedas.gd" id="6_moedas"]
+[ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://cenas/main.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://b6sat1v5h8j2d" path="res://inventario/menu.tscn" id="2_menu"]
+[ext_resource type="Script" uid="uid://c5fkhl0gp8uc6" path="res://combate/barra_vida_inimigo.gd" id="3_barra"]
+[ext_resource type="Script" uid="uid://cys44jv0wfx00" path="res://combate/party_manager.gd" id="4_party"]
+[ext_resource type="Script" uid="uid://b71mobneq8wgw" path="res://combate/inimigo_visual.gd" id="5_inimigo"]
+[ext_resource type="Script" uid="uid://d3eb0eg6ln5cl" path="res://ui/efeito_moedas.gd" id="6_moedas"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
 bg_color = Color(0.18, 0.16, 0.14, 1)
@@ -97,9 +97,6 @@ offset_right = 75.0
 offset_bottom = -32.0
 text = "Meu jogo Stickman
 "
-
-[node name="TimerAtaque" type="Timer" parent="."]
-wait_time = 1.35
 
 [node name="HudBatalha" type="CanvasLayer" parent="."]
 layer = 12
@@ -256,14 +253,14 @@ visible = false
 layer = 20
 
 [node name="AreaBotaoMenu" type="ColorRect" parent="HudBotao" unique_id=2100456782]
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -96.0
+offset_left = 384.0
 offset_top = -96.0
-offset_right = -16.0
+offset_right = 464.0
 offset_bottom = -16.0
 grow_horizontal = 0
 grow_vertical = 0

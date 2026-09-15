@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c8ferraria01"]
 
-[ext_resource type="Script" path="res://ferraria.gd" id="1_ferraria"]
+[ext_resource type="Script" uid="uid://dxep2fv4y12m4" path="res://inventario/ferraria.gd" id="1_ferraria"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
 content_margin_left = 12.0
