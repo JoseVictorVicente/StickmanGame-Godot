@@ -4,6 +4,7 @@ extends Node2D
 
 const DANO_BASE := 5
 const INTERVALO_ATAQUE := 1.0
+const INTERVALO_ATAQUE_INIMIGO := 1.35
 const XP_BASE_NIVEL := 20
 const LARGURA_JANELA := 960
 const ALTURA_JANELA := 860
@@ -44,6 +45,7 @@ var inimigo_atual: Inimigo
 var _drops := GerenciadorDrops.new()
 var _tween_aviso: Tween
 var _resolvendo_morte: bool = false
+var _resolvendo_derrota: bool = false
 var _arrastando_janela: bool = false
 var _offset_arraste: Vector2i = Vector2i.ZERO
 var _combate_no_topo: bool = false
@@ -65,7 +67,9 @@ func _ready() -> void:
 	menu_inventario.janela_solta.connect(_aplicar_direcao_do_menu)
 	menu_inventario.ouro_obtido.connect(_on_ouro_obtido_menu)
 	menu_inventario.largura_menus_alterada.connect(_ajustar_largura_janela)
-	timer_ataque.stop()
+	timer_ataque.wait_time = INTERVALO_ATAQUE_INIMIGO
+	timer_ataque.timeout.connect(_on_inimigo_atacou)
+	timer_ataque.start()
 	# Sempre que equipar/desequipar (ou trocar de personagem), o dano é recalculado.
 	menu_inventario.equipamentos_alterados.connect(recalcular_atributos)
 	menu_inventario.personagem_alterado.connect(_on_personagem_alterado)
@@ -77,6 +81,8 @@ func _ready() -> void:
 	_atualizar_visual_repetir()
 
 	party.obter_dano_equip = obter_dano_equip_slot
+	party.obter_vida_equip = obter_vida_equip_slot
+	party.obter_nivel = obter_nivel_slot
 	party.heroi_atacou.connect(_on_heroi_atacou)
 	party.dps_alterado.connect(_on_dps_alterado)
 	menu_inventario.configurar_equipe(party)
@@ -88,6 +94,7 @@ func _ready() -> void:
 	menu_inventario.atualizar_progressao_mundos(mundo, fase, dificuldade, fases_liberadas)
 	_gerar_inimigo()
 	recalcular_atributos()
+	party.curar_equipe()
 	palco.mouse_filter = Control.MOUSE_FILTER_STOP
 	palco.gui_input.connect(_on_area_arraste_gui_input)
 	painel_batalha.gui_input.connect(_on_area_arraste_gui_input)
@@ -114,6 +121,16 @@ func obter_dano_equip_slot(slot_index: int) -> int:
 	return menu_inventario.obter_dano_equipado(slot_index)
 
 
+func obter_vida_equip_slot(slot_index: int) -> int:
+	return menu_inventario.obter_vida_equipada(slot_index)
+
+
+func obter_nivel_slot(slot_index: int) -> int:
+	if slot_index < 0 or slot_index >= _progresso.size():
+		return 1
+	return maxi(1, int(_progresso[slot_index]["nivel"]))
+
+
 func recalcular_atributos() -> void:
 	party.recalcular_status()
 	dano_total = party.dano_total_grupo()
@@ -130,7 +147,7 @@ func _on_classe_heroi_alterada(_indice: int, _classe: ClasseData) -> void:
 
 
 func _on_heroi_atacou(_slot_index: int, dano: int) -> void:
-	if _resolvendo_morte:
+	if _resolvendo_morte or _resolvendo_derrota:
 		return
 	if inimigo_atual == null or inimigo_atual.esta_morto():
 		_gerar_inimigo()
@@ -142,6 +159,26 @@ func _on_heroi_atacou(_slot_index: int, dano: int) -> void:
 	if morreu:
 		await _resolver_morte()
 	_atualizar_hud()
+
+
+func _on_inimigo_atacou() -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if party.combate_pausado:
+		return
+	if inimigo_atual == null or inimigo_atual.esta_morto():
+		return
+	var alvo := party.indice_alvo_direita()
+	if alvo < 0:
+		await _resolver_derrota()
+		return
+	if inimigo_visual.has_method("tocar_ataque"):
+		inimigo_visual.tocar_ataque()
+	AudioManager.tocar_som_ataque()
+	party.aplicar_dano_no_heroi(alvo, inimigo_atual.dano)
+	AudioManager.tocar_som_dano()
+	if party.indice_alvo_direita() < 0:
+		await _resolver_derrota()
 
 
 func iniciar_fase(novo_mundo: int, nova_fase: int, nova_dificuldade: int) -> void:
@@ -156,7 +193,9 @@ func iniciar_fase(novo_mundo: int, nova_fase: int, nova_dificuldade: int) -> voi
 	fase = f
 	dificuldade = d
 	_resolvendo_morte = false
+	_resolvendo_derrota = false
 	party.combate_pausado = false
+	party.curar_equipe()
 	_gerar_inimigo()
 	inimigo_visual.aparecer()
 	barra_vida.aparecer()
@@ -173,12 +212,15 @@ func _gerar_inimigo() -> void:
 		str(stats["nome"]),
 		int(stats["vida"]),
 		int(stats["ouro"]),
-		int(stats["xp"])
+		int(stats["xp"]),
+		int(stats.get("dano", 1))
 	)
 	barra_vida.inicializar_barra(inimigo_atual.vida_maxima)
 
 
 func _resolver_morte() -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
 	_resolvendo_morte = true
 	party.combate_pausado = true
 	AudioManager.tocar_som_morte()
@@ -199,12 +241,29 @@ func _resolver_morte() -> void:
 	_aplicar_xp(inimigo_atual.xp_recompensa)
 	_tentar_drop_item()
 	_avancar_fase()
+	party.curar_equipe()
 	_gerar_inimigo()
 	inimigo_visual.aparecer()
 	barra_vida.aparecer()
 	_resolvendo_morte = false
 	party.combate_pausado = false
 	SaveSystem.salvar()
+
+
+func _resolver_derrota() -> void:
+	if _resolvendo_derrota or _resolvendo_morte:
+		return
+	_resolvendo_derrota = true
+	party.combate_pausado = true
+	AudioManager.tocar_som_morte()
+	_mostrar_aviso("Equipe derrotada!")
+	await get_tree().create_timer(1.15).timeout
+	party.curar_equipe()
+	_gerar_inimigo()
+	inimigo_visual.aparecer()
+	barra_vida.aparecer()
+	_resolvendo_derrota = false
+	party.combate_pausado = false
 
 
 func _avancar_fase() -> void:

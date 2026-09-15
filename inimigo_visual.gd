@@ -1,8 +1,13 @@
 extends Sprite2D
 ## Sprite do monstro: hit, fade na morte e reaparece no próximo.
 
+const AVANCO_ATAQUE := 28.0
+const DURACAO_AVANCO := 0.09
+const DURACAO_RETORNO := 0.12
+
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween: Tween
+var _tween_ataque: Tween
 
 
 func _ready() -> void:
@@ -12,9 +17,21 @@ func _ready() -> void:
 	_pos_base = position
 
 
+func tocar_ataque() -> void:
+	if _tween_ataque:
+		_tween_ataque.kill()
+	position = _pos_base
+	_tween_ataque = create_tween()
+	_tween_ataque.set_trans(Tween.TRANS_QUAD)
+	_tween_ataque.tween_property(self, "position:x", _pos_base.x - AVANCO_ATAQUE, DURACAO_AVANCO).set_ease(Tween.EASE_OUT)
+	_tween_ataque.tween_property(self, "position:x", _pos_base.x, DURACAO_RETORNO).set_ease(Tween.EASE_IN)
+
+
 func piscar_hit() -> void:
 	if _tween:
 		_tween.kill()
+	if _tween_ataque:
+		_tween_ataque.kill()
 	modulate = Color(1.6, 0.4, 0.35, 1)
 	position = _pos_base + Vector2(10, 0)
 	_tween = create_tween()
@@ -25,6 +42,8 @@ func piscar_hit() -> void:
 func esmaecer() -> void:
 	if _tween:
 		_tween.kill()
+	if _tween_ataque:
+		_tween_ataque.kill()
 	_tween = create_tween()
 	_tween.tween_property(self, "modulate:a", 0.0, 0.35)
 
@@ -32,6 +51,8 @@ func esmaecer() -> void:
 func aparecer() -> void:
 	if _tween:
 		_tween.kill()
+	if _tween_ataque:
+		_tween_ataque.kill()
 	position = _pos_base
 	modulate = Color(1, 1, 1, 0)
 	_tween = create_tween()

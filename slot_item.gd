@@ -7,6 +7,12 @@ signal item_duplo_clique(slot: SlotItem)
 signal item_botao_direito(slot: SlotItem)
 signal item_solto(destino: SlotItem, item: ItemData, origem: SlotItem)
 
+const MARGEM_LEGENDA := 8.0
+
+static var _camada_legenda: CanvasLayer
+static var _caixa_legenda: PanelContainer
+static var _slot_legenda: SlotItem
+
 var item: ItemData = null
 var tipo_aceitavel: ItemData.Tipo = ItemData.Tipo.ARMA
 var aceita_qualquer: bool = true
@@ -14,6 +20,13 @@ var nome_slot: String = ""
 var icone_rect: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
+
+
+func _ready() -> void:
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
+	visibility_changed.connect(_on_visibilidade_alterada)
+	tree_exiting.connect(_ocultar_legenda)
 
 
 func configurar(p_icone: TextureRect, p_tipo: ItemData.Tipo = ItemData.Tipo.ARMA, p_qualquer: bool = true) -> void:
@@ -49,7 +62,12 @@ func atualizar_visual(selecionado: bool = _selecionado) -> void:
 		else:
 			_label_sigla.text = ""
 			_label_sigla.visible = false
-	tooltip_text = item.texto_tooltip() if item else nome_slot
+	tooltip_text = ""
+	if _slot_legenda == self:
+		if item:
+			_mostrar_legenda()
+		else:
+			_ocultar_legenda()
 
 
 func aceita(candidato: ItemData) -> bool:
@@ -74,13 +92,73 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
-func _make_custom_tooltip(_texto: String) -> Object:
-	if item == null:
-		return null
-	var caixa := PanelContainer.new()
+func _on_mouse_entered() -> void:
+	_mostrar_legenda()
+
+
+func _on_mouse_exited() -> void:
+	_ocultar_legenda()
+
+
+func _on_visibilidade_alterada() -> void:
+	if not is_visible_in_tree():
+		_ocultar_legenda()
+
+
+func _mostrar_legenda() -> void:
+	if item == null or not is_visible_in_tree():
+		_ocultar_legenda()
+		return
+	_slot_legenda = self
+	var caixa := _garantir_caixa_legenda()
+	_preencher_legenda(caixa, item)
+	caixa.show()
+	caixa.move_to_front()
+	_posicionar_legenda()
+	call_deferred("_posicionar_legenda")
+
+
+func _ocultar_legenda() -> void:
+	if _slot_legenda != null and _slot_legenda != self:
+		return
+	_slot_legenda = null
+	if _caixa_legenda and is_instance_valid(_caixa_legenda):
+		_caixa_legenda.hide()
+
+
+func _posicionar_legenda() -> void:
+	if _slot_legenda != self or item == null:
+		return
+	if _caixa_legenda == null or not is_instance_valid(_caixa_legenda):
+		return
+	_caixa_legenda.reset_size()
+	var tam := _caixa_legenda.get_combined_minimum_size()
+	if _caixa_legenda.size.x > tam.x:
+		tam = _caixa_legenda.size
+	_caixa_legenda.size = tam
+	var quadrado := get_global_rect()
+	_caixa_legenda.global_position = Vector2(quadrado.position.x - tam.x - MARGEM_LEGENDA, quadrado.position.y)
+
+
+func _garantir_caixa_legenda() -> PanelContainer:
+	if _camada_legenda == null or not is_instance_valid(_camada_legenda):
+		_camada_legenda = CanvasLayer.new()
+		_camada_legenda.layer = 128
+		_camada_legenda.name = "CamadaLegendaItem"
+		get_tree().root.add_child(_camada_legenda)
+	if _caixa_legenda == null or not is_instance_valid(_caixa_legenda):
+		_caixa_legenda = PanelContainer.new()
+		_caixa_legenda.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_camada_legenda.add_child(_caixa_legenda)
+	return _caixa_legenda
+
+
+func _preencher_legenda(caixa: PanelContainer, dados: ItemData) -> void:
+	while caixa.get_child_count() > 0:
+		caixa.get_child(0).free()
 	var fundo := StyleBoxFlat.new()
 	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
-	fundo.border_color = item.cor_raridade()
+	fundo.border_color = dados.cor_raridade()
 	fundo.set_border_width_all(2)
 	fundo.set_corner_radius_all(4)
 	fundo.content_margin_left = 10
@@ -90,21 +168,22 @@ func _make_custom_tooltip(_texto: String) -> Object:
 	caixa.add_theme_stylebox_override("panel", fundo)
 
 	var coluna := VBoxContainer.new()
+	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	coluna.add_theme_constant_override("separation", 3)
-	coluna.add_child(_rotulo_tooltip(item.nome, item.cor_raridade(), 13, true))
-	coluna.add_child(_rotulo_tooltip(item.nome_raridade(), item.cor_raridade(), 11, false))
-	coluna.add_child(_rotulo_tooltip("Dano Bônus: +%d" % item.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
-	if item.vida_bonus != 0:
-		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % item.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
-	if item.classe_requerida != ItemData.ClasseRequerida.TODAS:
-		coluna.add_child(_rotulo_tooltip("Classe: %s" % item.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
+	coluna.add_child(_rotulo_tooltip(dados.nome, dados.cor_raridade(), 13, true))
+	coluna.add_child(_rotulo_tooltip(dados.nome_raridade(), dados.cor_raridade(), 11, false))
+	coluna.add_child(_rotulo_tooltip("Dano Bônus: +%d" % dados.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
+	if dados.vida_bonus != 0:
+		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
+	if dados.classe_requerida != ItemData.ClasseRequerida.TODAS:
+		coluna.add_child(_rotulo_tooltip("Classe: %s" % dados.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
 	caixa.add_child(coluna)
-	return caixa
 
 
 func _rotulo_tooltip(texto: String, cor: Color, tamanho: int, negrito: bool) -> Label:
 	var rotulo := Label.new()
 	rotulo.text = texto
+	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rotulo.add_theme_color_override("font_color", cor)
 	rotulo.add_theme_font_size_override("font_size", tamanho)
 	if negrito:
@@ -114,6 +193,7 @@ func _rotulo_tooltip(texto: String, cor: Color, tamanho: int, negrito: bool) -> 
 
 
 func _get_drag_data(_posicao: Vector2) -> Variant:
+	_ocultar_legenda()
 	if item == null:
 		return null
 	var preview := TextureRect.new()

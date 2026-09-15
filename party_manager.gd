@@ -8,17 +8,24 @@ signal dps_alterado(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
+const HP_POR_NIVEL := 4
 
 var equipe_ativa: Array = [null, null, null]
 var classes_desbloqueadas: Array[ClasseData] = []
 var combate_pausado: bool = false
 ## Callable (slot: int) -> int  com o dano_bonus dos itens daquele herói.
 var obter_dano_equip: Callable
+## Callable (slot: int) -> int  com o vida_bonus dos itens daquele herói.
+var obter_vida_equip: Callable
+## Callable (slot: int) -> int  com o nível daquele herói.
+var obter_nivel: Callable
 
 var _catalogo: Array[ClasseData] = []
 var _sprites: Array[AnimatedSprite2D] = []
 var _timers: Array[Timer] = []
 var _posicoes: Array[Marker2D] = []
+var _vida_atual: Array[int] = [0, 0, 0]
+var _vida_max: Array[int] = [0, 0, 0]
 
 
 func _ready() -> void:
@@ -48,8 +55,14 @@ func escalar_personagem(slot_index: int, nova_classe: ClasseData = null) -> void
 			return
 		if ocupado >= 0:
 			var anterior: Variant = equipe_ativa[slot_index]
+			var hp_slot := _vida_atual[slot_index]
+			var hp_outro := _vida_atual[ocupado]
 			equipe_ativa[slot_index] = nova_classe
 			equipe_ativa[ocupado] = anterior
+			_vida_atual[slot_index] = hp_outro
+			_vida_atual[ocupado] = hp_slot
+			_atualizar_vida_max_slot(slot_index, false)
+			_atualizar_vida_max_slot(ocupado, false)
 			_atualizar_sprite_slot(slot_index)
 			_atualizar_timer_slot(slot_index)
 			_atualizar_sprite_slot(ocupado)
@@ -58,6 +71,7 @@ func escalar_personagem(slot_index: int, nova_classe: ClasseData = null) -> void
 			equipe_alterada.emit()
 			return
 	equipe_ativa[slot_index] = nova_classe
+	_atualizar_vida_max_slot(slot_index, true)
 	_atualizar_sprite_slot(slot_index)
 	_atualizar_timer_slot(slot_index)
 	_emitir_dps()
@@ -88,7 +102,7 @@ func dano_do_heroi(slot_index: int) -> int:
 func dano_total_grupo() -> int:
 	var total := 0
 	for i in SLOTS:
-		if equipe_ativa[i] != null:
+		if heroi_vivo(i):
 			total += dano_do_heroi(i)
 	return total
 
@@ -96,7 +110,7 @@ func dano_total_grupo() -> int:
 func dps_grupo() -> float:
 	var dps := 0.0
 	for i in SLOTS:
-		if equipe_ativa[i] == null:
+		if not heroi_vivo(i):
 			continue
 		var classe: ClasseData = equipe_ativa[i]
 		var intervalo := INTERVALO_BASE / maxf(0.25, classe.velocidade_ataque)
@@ -104,9 +118,71 @@ func dps_grupo() -> float:
 	return dps
 
 
+func vida_maxima_do_heroi(slot_index: int) -> int:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return 0
+	var classe: Variant = equipe_ativa[slot_index]
+	if classe == null or not (classe is ClasseData):
+		return 0
+	var extra := 0
+	if obter_vida_equip.is_valid():
+		extra = int(obter_vida_equip.call(slot_index))
+	var nivel := 1
+	if obter_nivel.is_valid():
+		nivel = maxi(1, int(obter_nivel.call(slot_index)))
+	return maxi(1, (classe as ClasseData).vida_base + extra + (nivel - 1) * HP_POR_NIVEL)
+
+
+func heroi_vivo(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return false
+	if equipe_ativa[slot_index] == null:
+		return false
+	return _vida_atual[slot_index] > 0
+
+
+func indice_alvo_direita() -> int:
+	for i in range(SLOTS - 1, -1, -1):
+		if heroi_vivo(i):
+			return i
+	return -1
+
+
+func aplicar_dano_no_heroi(slot_index: int, quantidade: int) -> bool:
+	if not heroi_vivo(slot_index):
+		return false
+	_vida_atual[slot_index] = maxi(0, _vida_atual[slot_index] - maxi(0, quantidade))
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite.has_method("piscar_dano"):
+		sprite.piscar_dano()
+	_atualizar_barra_slot(slot_index)
+	if _vida_atual[slot_index] <= 0:
+		_marcar_caido(slot_index, true)
+		_emitir_dps()
+		return true
+	return false
+
+
+func curar_equipe() -> void:
+	for i in SLOTS:
+		if equipe_ativa[i] == null:
+			_vida_atual[i] = 0
+			_vida_max[i] = 0
+			_marcar_caido(i, false)
+			_atualizar_barra_slot(i)
+			continue
+		_atualizar_vida_max_slot(i, true)
+		_marcar_caido(i, false)
+		_atualizar_sprite_slot(i)
+		_atualizar_timer_slot(i)
+	_emitir_dps()
+
+
 func recalcular_status() -> void:
 	for i in SLOTS:
+		_atualizar_vida_max_slot(i, false)
 		_atualizar_timer_slot(i)
+		_atualizar_barra_slot(i)
 	_emitir_dps()
 
 
@@ -188,17 +264,24 @@ func _atualizar_sprite_slot(slot_index: int) -> void:
 	var classe: Variant = equipe_ativa[slot_index]
 	if classe == null:
 		sprite.visible = false
+		_marcar_caido(slot_index, false)
+		_atualizar_barra_slot(slot_index)
 		return
 	sprite.visible = true
-	sprite.position = _posicoes[slot_index].position
+	if sprite.has_method("definir_posicao_base"):
+		sprite.definir_posicao_base(_posicoes[slot_index].position)
+	else:
+		sprite.position = _posicoes[slot_index].position
 	if sprite.has_method("aplicar_classe"):
 		sprite.aplicar_classe(classe)
+	_marcar_caido(slot_index, not heroi_vivo(slot_index))
+	_atualizar_barra_slot(slot_index)
 
 
 func _atualizar_timer_slot(slot_index: int) -> void:
 	var timer: Timer = _timers[slot_index]
 	var classe: Variant = equipe_ativa[slot_index]
-	if classe == null:
+	if classe == null or not heroi_vivo(slot_index):
 		timer.stop()
 		return
 	var dados: ClasseData = classe
@@ -207,10 +290,44 @@ func _atualizar_timer_slot(slot_index: int) -> void:
 		timer.start()
 
 
+func _atualizar_vida_max_slot(slot_index: int, resetar: bool) -> void:
+	var novo_max := vida_maxima_do_heroi(slot_index)
+	if novo_max <= 0:
+		_vida_max[slot_index] = 0
+		_vida_atual[slot_index] = 0
+		return
+	if resetar:
+		_vida_max[slot_index] = novo_max
+		_vida_atual[slot_index] = novo_max
+		return
+	if _vida_atual[slot_index] > 0 and novo_max > _vida_max[slot_index]:
+		_vida_atual[slot_index] += novo_max - _vida_max[slot_index]
+	_vida_max[slot_index] = novo_max
+	_vida_atual[slot_index] = clampi(_vida_atual[slot_index], 0, novo_max)
+
+
+func _atualizar_barra_slot(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite.has_method("atualizar_vida"):
+		sprite.atualizar_vida(_vida_atual[slot_index], _vida_max[slot_index])
+
+
+func _marcar_caido(slot_index: int, caido: bool) -> void:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite.has_method("definir_caido"):
+		sprite.definir_caido(caido)
+	if caido:
+		_timers[slot_index].stop()
+
+
 func _on_timer_heroi(slot_index: int) -> void:
 	if combate_pausado:
 		return
-	if equipe_ativa[slot_index] == null:
+	if not heroi_vivo(slot_index):
 		return
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	if sprite.has_method("tocar_ataque"):

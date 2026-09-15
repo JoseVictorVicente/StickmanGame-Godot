@@ -584,6 +584,13 @@ func obter_dano_equipado(indice: int) -> int:
 	return total
 
 
+func obter_vida_equipada(indice: int) -> int:
+	var total := 0
+	for item in obter_itens_equipados(indice):
+		total += item.vida_bonus
+	return total
+
+
 func configurar_equipe(party: PartyManager) -> void:
 	ui_equipe.configurar(party, _indice_personagem)
 	if not ui_equipe.slot_selecionado.is_connected(selecionar_personagem):

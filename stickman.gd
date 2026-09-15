@@ -8,6 +8,9 @@ const DURACAO_RETORNO := 0.12
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween_ataque: Tween
 var _tween_flash: Tween
+var _cor_classe: Color = Color.WHITE
+var _caido: bool = false
+var _barra: Node2D
 
 
 func _ready() -> void:
@@ -16,30 +19,67 @@ func _ready() -> void:
 	animation_finished.connect(_on_animacao_terminou)
 	play("Idle")
 	_pos_base = position
+	_barra = (load("res://barra_vida_heroi.gd") as GDScript).new()
+	_barra.position = Vector2(0, -34)
+	add_child(_barra)
+
+
+func definir_posicao_base(pos: Vector2) -> void:
+	_pos_base = pos
+	if _tween_ataque:
+		_tween_ataque.kill()
+	position = pos
 
 
 func tocar_ataque() -> void:
+	if _caido:
+		return
 	play("Ataque")
 	_deslizar_ataque()
 
 
 func aplicar_classe(classe: ClasseData) -> void:
 	if classe == null:
-		modulate = Color.WHITE
+		_cor_classe = Color.WHITE
+		self_modulate = Color.WHITE
 		return
-	modulate = classe.cor
+	_cor_classe = classe.cor
+	if not _caido:
+		self_modulate = _cor_classe
 	if not is_playing():
 		play("Idle")
 
 
-## Pisca vermelho por 0.1s (hit no Stickman) e volta ao normal.
+func atualizar_vida(atual: int, maximo: int) -> void:
+	if _barra:
+		_barra.visible = maximo > 0
+		_barra.atualizar(atual, maximo)
+
+
+func definir_caido(caido: bool) -> void:
+	_caido = caido
+	if _tween_ataque:
+		_tween_ataque.kill()
+	position = _pos_base
+	if caido:
+		if _tween_flash:
+			_tween_flash.kill()
+		self_modulate = Color(_cor_classe.r * 0.4, _cor_classe.g * 0.4, _cor_classe.b * 0.4, 0.55)
+		play("Idle")
+	else:
+		self_modulate = _cor_classe
+
+
+## Pisca vermelho por 0.1s (hit no Stickman) e volta à cor da classe.
 func piscar_dano() -> void:
+	if _caido:
+		return
 	if _tween_flash:
 		_tween_flash.kill()
-	modulate = Color.RED
+	self_modulate = Color.RED
 	_tween_flash = create_tween()
 	_tween_flash.tween_interval(0.1)
-	_tween_flash.tween_property(self, "modulate", Color.WHITE, 0.08)
+	_tween_flash.tween_property(self, "self_modulate", _cor_classe, 0.08)
 
 
 func _deslizar_ataque() -> void:

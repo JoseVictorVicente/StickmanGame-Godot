@@ -99,7 +99,7 @@ text = "Meu jogo Stickman
 "
 
 [node name="TimerAtaque" type="Timer" parent="."]
-wait_time = 1.0
+wait_time = 1.35
 
 [node name="HudBatalha" type="CanvasLayer" parent="."]
 layer = 12
