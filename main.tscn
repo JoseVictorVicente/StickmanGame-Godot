@@ -1,15 +1,318 @@
-[gd_scene format=3 uid="uid://k7es6xs2olod"]
+[gd_scene load_steps=14 format=3 uid="uid://k7es6xs2olod"]
 
 [ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://b6sat1v5h8j2d" path="res://menu.tscn" id="2_menu"]
+[ext_resource type="Script" path="res://barra_vida_inimigo.gd" id="3_barra"]
+[ext_resource type="Script" path="res://party_manager.gd" id="4_party"]
+[ext_resource type="Script" path="res://inimigo_visual.gd" id="5_inimigo"]
+[ext_resource type="Script" path="res://efeito_moedas.gd" id="6_moedas"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
+bg_color = Color(0.18, 0.16, 0.14, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.78, 0.62, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
+bg_color = Color(0.28, 0.25, 0.2, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.92, 0.72, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
+bg_color = Color(0.12, 0.11, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7, 0.64, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.09, 0.08, 0.07, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 6
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_batalha"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.09, 0.08, 0.07, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_quadrado"]
+bg_color = Color(0.93, 0.86, 0.7, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [node name="Main" type="Node2D" unique_id=896853765]
 position = Vector2(490, 328)
 script = ExtResource("1_ig7tw")
 
 [node name="Label" type="Label" parent="." unique_id=1814219449]
+visible = false
 offset_left = -72.0
 offset_top = -81.0
 offset_right = 75.0
 offset_bottom = -32.0
 text = "Meu jogo Stickman
 "
+
+[node name="TimerAtaque" type="Timer" parent="."]
+wait_time = 1.0
+
+[node name="HudBatalha" type="CanvasLayer" parent="."]
+layer = 12
+
+[node name="Palco" type="Control" parent="HudBatalha"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -240.0
+offset_top = -232.0
+offset_right = 240.0
+offset_bottom = -108.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 0
+
+[node name="Chao" type="ColorRect" parent="HudBatalha/Palco"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.22, 0.16, 0.1, 0.94)
+
+[node name="Combate" type="Node2D" parent="HudBatalha"]
+
+[node name="PartyManager" type="Node2D" parent="HudBatalha/Combate"]
+script = ExtResource("4_party")
+
+[node name="Posicao1" type="Marker2D" parent="HudBatalha/Combate/PartyManager"]
+position = Vector2(-118, -46)
+
+[node name="Posicao2" type="Marker2D" parent="HudBatalha/Combate/PartyManager"]
+position = Vector2(-72, -46)
+
+[node name="Posicao3" type="Marker2D" parent="HudBatalha/Combate/PartyManager"]
+position = Vector2(-26, -46)
+
+[node name="InimigoVisual" type="Sprite2D" parent="HudBatalha/Combate"]
+position = Vector2(102, -46)
+scale = Vector2(1.45, 1.45)
+script = ExtResource("5_inimigo")
+
+[node name="PainelBatalha" type="PanelContainer" parent="HudBatalha"]
+custom_minimum_size = Vector2(320, 0)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -108.0
+offset_right = 160.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_batalha")
+
+[node name="InfoBatalha" type="VBoxContainer" parent="HudBatalha/PainelBatalha"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="LabelInimigo" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Inimigo"
+horizontal_alignment = 1
+
+[node name="BarraVidaInimigo" type="ProgressBar" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false
+script = ExtResource("3_barra")
+
+[node name="LabelHP" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/BarraVidaInimigo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "20 / 20"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LinhaStatus" type="HBoxContainer" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="LabelNivel" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/LinhaStatus"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Nv. 1   XP 0/20"
+
+[node name="LabelDano" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/LinhaStatus"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "Dano  5"
+
+[node name="LabelAviso" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+visible = false
+text = ""
+
+[node name="CamadaEfeitos" type="Control" parent="HudBatalha"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_moedas")
+
+[node name="HudInventario" type="CanvasLayer" parent="." unique_id=2100456780]
+layer = 10
+
+[node name="MenuInventario" parent="HudInventario" unique_id=2100456790 instance=ExtResource("2_menu")]
+visible = false
+
+[node name="HudBotao" type="CanvasLayer" parent="." unique_id=2100456781]
+layer = 20
+
+[node name="AreaBotaoMenu" type="ColorRect" parent="HudBotao" unique_id=2100456782]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -96.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="BotaoAbrirInventario" type="Button" parent="HudBotao/AreaBotaoMenu" unique_id=2100456783]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+
+[node name="CentralizarIcone" type="CenterContainer" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario" unique_id=2100456784]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="IconeGrade" type="GridContainer" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone" unique_id=2100456785]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+columns = 2
+
+[node name="Quadrado1" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456786]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
+
+[node name="Quadrado2" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456787]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
+
+[node name="Quadrado3" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456788]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
+
+[node name="Quadrado4" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456789]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")

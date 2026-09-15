@@ -1,0 +1,169 @@
+class_name SlotItem
+extends Panel
+## Slot de inventário ou equipamento. Usa ItemData (Resource).
+
+signal item_clicado(slot: SlotItem)
+signal item_duplo_clique(slot: SlotItem)
+signal item_botao_direito(slot: SlotItem)
+signal item_solto(destino: SlotItem, item: ItemData, origem: SlotItem)
+
+var item: ItemData = null
+var tipo_aceitavel: ItemData.Tipo = ItemData.Tipo.ARMA
+var aceita_qualquer: bool = true
+var nome_slot: String = ""
+var icone_rect: TextureRect
+var _label_sigla: Label
+var _selecionado: bool = false
+
+
+func configurar(p_icone: TextureRect, p_tipo: ItemData.Tipo = ItemData.Tipo.ARMA, p_qualquer: bool = true) -> void:
+	icone_rect = p_icone
+	tipo_aceitavel = p_tipo
+	aceita_qualquer = p_qualquer
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_garantir_sigla()
+	atualizar_visual()
+
+
+func definir_item(novo: ItemData) -> void:
+	item = novo
+	if icone_rect:
+		icone_rect.texture = novo.icone if novo else null
+	atualizar_visual()
+
+
+func atualizar_visual(selecionado: bool = _selecionado) -> void:
+	_selecionado = selecionado
+	_garantir_sigla()
+	add_theme_stylebox_override("panel", _estilo_atual())
+	if _label_sigla:
+		if item:
+			_label_sigla.text = item.sigla_tipo()
+			_label_sigla.add_theme_color_override("font_color", item.cor_raridade())
+			_label_sigla.visible = true
+		elif not aceita_qualquer:
+			_label_sigla.text = ItemData.sigla_do_tipo(tipo_aceitavel)
+			_label_sigla.add_theme_color_override("font_color", Color(0.48, 0.42, 0.32, 1))
+			_label_sigla.visible = true
+		else:
+			_label_sigla.text = ""
+			_label_sigla.visible = false
+	tooltip_text = item.texto_tooltip() if item else nome_slot
+
+
+func aceita(candidato: ItemData) -> bool:
+	if candidato == null:
+		return true
+	if aceita_qualquer:
+		return true
+	return candidato.tipo == tipo_aceitavel
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+	var mouse := event as InputEventMouseButton
+	if mouse.button_index == MOUSE_BUTTON_LEFT:
+		if mouse.double_click:
+			item_duplo_clique.emit(self)
+		else:
+			item_clicado.emit(self)
+	elif mouse.button_index == MOUSE_BUTTON_RIGHT:
+		item_botao_direito.emit(self)
+		accept_event()
+
+
+func _make_custom_tooltip(_texto: String) -> Object:
+	if item == null:
+		return null
+	var caixa := PanelContainer.new()
+	var fundo := StyleBoxFlat.new()
+	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
+	fundo.border_color = item.cor_raridade()
+	fundo.set_border_width_all(2)
+	fundo.set_corner_radius_all(4)
+	fundo.content_margin_left = 10
+	fundo.content_margin_top = 8
+	fundo.content_margin_right = 10
+	fundo.content_margin_bottom = 8
+	caixa.add_theme_stylebox_override("panel", fundo)
+
+	var coluna := VBoxContainer.new()
+	coluna.add_theme_constant_override("separation", 3)
+	coluna.add_child(_rotulo_tooltip(item.nome, item.cor_raridade(), 13, true))
+	coluna.add_child(_rotulo_tooltip(item.nome_raridade(), item.cor_raridade(), 11, false))
+	coluna.add_child(_rotulo_tooltip("Dano Bônus: +%d" % item.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
+	if item.vida_bonus != 0:
+		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % item.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
+	if item.classe_requerida != ItemData.ClasseRequerida.TODAS:
+		coluna.add_child(_rotulo_tooltip("Classe: %s" % item.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
+	caixa.add_child(coluna)
+	return caixa
+
+
+func _rotulo_tooltip(texto: String, cor: Color, tamanho: int, negrito: bool) -> Label:
+	var rotulo := Label.new()
+	rotulo.text = texto
+	rotulo.add_theme_color_override("font_color", cor)
+	rotulo.add_theme_font_size_override("font_size", tamanho)
+	if negrito:
+		rotulo.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+		rotulo.add_theme_constant_override("outline_size", 2)
+	return rotulo
+
+
+func _get_drag_data(_posicao: Vector2) -> Variant:
+	if item == null:
+		return null
+	var preview := TextureRect.new()
+	preview.texture = item.icone
+	preview.custom_minimum_size = Vector2(42, 42)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	set_drag_preview(preview)
+	return {"item": item, "origem": self}
+
+
+func _can_drop_data(_posicao: Vector2, dados: Variant) -> bool:
+	if not (dados is Dictionary and dados.get("item") is ItemData):
+		return false
+	var origem: SlotItem = dados.get("origem")
+	if origem == self:
+		return false
+	return aceita(dados["item"])
+
+
+func _drop_data(_posicao: Vector2, dados: Variant) -> void:
+	item_solto.emit(self, dados["item"], dados["origem"])
+
+
+func _garantir_sigla() -> void:
+	if _label_sigla and is_instance_valid(_label_sigla):
+		return
+	_label_sigla = Label.new()
+	_label_sigla.name = "SiglaCategoria"
+	_label_sigla.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_label_sigla.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label_sigla.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_label_sigla.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label_sigla.add_theme_font_size_override("font_size", 11)
+	_label_sigla.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_label_sigla.add_theme_constant_override("outline_size", 4)
+	add_child(_label_sigla)
+
+
+func _estilo_atual() -> StyleBoxFlat:
+	var estilo := StyleBoxFlat.new()
+	estilo.set_corner_radius_all(3)
+	if item:
+		var raridade := item.cor_raridade()
+		estilo.bg_color = Color(raridade.r * 0.18, raridade.g * 0.16, raridade.b * 0.16, 1)
+		estilo.border_color = raridade
+	else:
+		estilo.bg_color = Color(0.08, 0.07, 0.06, 1)
+		estilo.border_color = Color(0.42, 0.35, 0.24, 1)
+	estilo.set_border_width_all(3 if _selecionado else 2)
+	if _selecionado:
+		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+	return estilo

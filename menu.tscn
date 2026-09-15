@@ -1,70 +1,136 @@
-[gd_scene format=3 uid="uid://b6sat1v5h8j2d"]
+[gd_scene load_steps=13 format=3 uid="uid://b6sat1v5h8j2d"]
 
 [ext_resource type="Script" uid="uid://cx4p8q2n7km3w" path="res://menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://ui_selecao_equipe.gd" id="2_equipe"]
+[ext_resource type="PackedScene" path="res://ferraria.tscn" id="3_ferraria"]
+[ext_resource type="PackedScene" path="res://armazem.tscn" id="4_armazem"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.38, 0.12, 0.1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.38, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
-content_margin_left = 40.0
-content_margin_top = 36.0
-content_margin_right = 40.0
-content_margin_bottom = 36.0
-bg_color = Color(0.08, 0.08, 0.1, 0.94)
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.11, 0.09, 0.08, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+bg_color = Color(0.42, 0.14, 0.13, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.78, 0.58, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_foto"]
+bg_color = Color(0.16, 0.13, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.44, 0.26, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.12, 0.1, 0.08, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-bg_color = Color(0.16, 0.16, 0.18, 1)
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.55)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-bg_color = Color(0.28, 0.28, 0.32, 1)
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+border_color = Color(0.9, 0.74, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-content_margin_left = 16.0
-content_margin_top = 10.0
-content_margin_right = 16.0
-content_margin_bottom = 10.0
-bg_color = Color(0.1, 0.1, 0.12, 1)
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.1, 0.08, 0.07, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.7)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+border_color = Color(0.5, 0.4, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -73,74 +139,314 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_menu")
 
-[node name="Fundo" type="ColorRect" parent="."]
+[node name="Centralizar" type="MarginContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.02, 0.02, 0.03, 0.35)
-
-[node name="CenterContainer" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+offset_top = 8.0
+offset_bottom = -228.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Painel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(300, 0)
+[node name="AreaMenus" type="HBoxContainer" parent="Centralizar"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
-
-[node name="Conteudo" type="VBoxContainer" parent="CenterContainer/Painel"]
-layout_mode = 2
-theme_override_constants/separation = 18
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_constants/separation = 8
 alignment = 1
 
-[node name="Titulo" type="Label" parent="CenterContainer/Painel/Conteudo"]
+[node name="Painel" type="PanelContainer" parent="Centralizar/AreaMenus"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 28
-text = "STICKMAN IDLE"
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+
+[node name="Conteudo" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Cabecalho" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BotaoSairJogo" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/Cabecalho"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 36)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.85, 0.78, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao_sair_jogo")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Sair do jogo"
+
+[node name="BannerTitulo" type="PanelContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/Cabecalho"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
+
+[node name="Titulo" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/Cabecalho/BannerTitulo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
+theme_override_font_sizes/font_size = 18
+text = "PERSONAGEM"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Subtitulo" type="Label" parent="CenterContainer/Painel/Conteudo"]
+[node name="BotaoSair" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/Cabecalho"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.75, 0.78, 1)
-theme_override_font_sizes/font_size = 14
-text = "Menu principal"
-horizontal_alignment = 1
-
-[node name="Espaco" type="Control" parent="CenterContainer/Painel/Conteudo"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-
-[node name="BotaoJogar" type="Button" parent="CenterContainer/Painel/Conteudo"]
-custom_minimum_size = Vector2(0, 42)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "Jogar"
+text = "X"
 
-[node name="BotaoSair" type="Button" parent="CenterContainer/Painel/Conteudo"]
-custom_minimum_size = Vector2(0, 42)
+[node name="AreaHeroi" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="EquipEsquerda" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="PainelOuro" type="PanelContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/EquipEsquerda"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ouro")
+
+[node name="LabelOuro" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/EquipEsquerda/PainelOuro"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
+theme_override_font_sizes/font_size = 13
+text = "Ouro  0"
+horizontal_alignment = 1
+
+[node name="ColunaPersonagem" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AreaFoto" type="Panel" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+custom_minimum_size = Vector2(88, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_foto")
+
+[node name="FotoPersonagem" type="TextureRect" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaFoto"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NomePersonagem" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 15
+text = "Guerreiro"
+horizontal_alignment = 1
+
+[node name="NivelPersonagem" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.68, 0.32, 1)
+theme_override_font_sizes/font_size = 13
+text = "Lv. 1"
+horizontal_alignment = 1
+
+[node name="GradePersonagens" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="AreaEquipe" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+script = ExtResource("2_equipe")
+
+[node name="TituloEquipe" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "Equipe ativa"
+horizontal_alignment = 1
+
+[node name="SlotsEquipe" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="TituloClasses" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "Classes desbloqueadas"
+horizontal_alignment = 1
+
+[node name="GradeClasses" type="GridContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="LabelDpsEquipe" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.78, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "DPS do grupo: 0"
+horizontal_alignment = 1
+
+[node name="EquipDireita" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="EspacoOuro" type="Control" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/EquipDireita"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LinhaInventario" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="GradeInventario" type="GridContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/LinhaInventario"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 10
+
+[node name="BotaoArmazem" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/LinhaInventario"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "Sair"
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+text = "Armazém"
 
-[connection signal="pressed" from="CenterContainer/Painel/Conteudo/BotaoJogar" to="." method="_on_botao_jogar_pressed"]
-[connection signal="pressed" from="CenterContainer/Painel/Conteudo/BotaoSair" to="." method="_on_botao_sair_pressed"]
+[node name="MenuInferior" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BotaoAtributos" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Atributos"
+
+[node name="BotaoInventario" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Inventário"
+
+[node name="BotaoFerraria" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Ferraria"
+
+[node name="BotaoLoja" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Loja"
+
+[node name="BotaoConquistas" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Conquistas"
+
+[node name="BotaoConfiguracoes" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Configurações"
+
+[node name="PainelFerraria" parent="Centralizar/AreaMenus" instance=ExtResource("3_ferraria")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PainelArmazem" parent="Centralizar/AreaMenus" instance=ExtResource("4_armazem")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
