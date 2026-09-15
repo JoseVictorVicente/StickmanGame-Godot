@@ -21,7 +21,8 @@ static func criar(
 	p_vel: float,
 	p_cor: Color,
 	p_classe_item: ItemData.ClasseRequerida,
-	p_vida: int = 40
+	p_vida: int = 40,
+	p_arte: String = ""
 ) -> ClasseData:
 	var dados := ClasseData.new()
 	dados.id = p_id
@@ -32,20 +33,32 @@ static func criar(
 	dados.velocidade_ataque = p_vel
 	dados.cor = p_cor
 	dados.classe_item = p_classe_item
-	dados.sprite_personagem = _sprite_simples(p_cor)
+	dados.sprite_personagem = _carregar_arte(p_arte, p_cor)
 	return dados
 
 
 static func catalogo() -> Array[ClasseData]:
 	var lista: Array[ClasseData] = [
-		criar("guerreiro", "Guerreiro", 5, 1.0, 1.0, Color(0.14, 0.14, 0.16), ItemData.ClasseRequerida.GUERREIRO, 42),
-		criar("mago", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.ClasseRequerida.MAGO, 24),
-		criar("arqueiro", "Arqueiro", 4, 1.15, 1.3, Color(0.16, 0.42, 0.2), ItemData.ClasseRequerida.ARQUEIRO, 30),
-		criar("assassino", "Assassino", 4, 1.25, 1.45, Color(0.42, 0.1, 0.16), ItemData.ClasseRequerida.ASSASSINO, 26),
-		criar("tanque", "Tanque", 6, 0.85, 0.7, Color(0.32, 0.3, 0.22), ItemData.ClasseRequerida.TANQUE, 60),
-		criar("sacerdote", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.ClasseRequerida.SACERDOTE, 32),
+		criar("sacerdote", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.ClasseRequerida.SACERDOTE, 32, "res://sprites/herois/sacerdote.jpg"),
+		criar("tanque", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.ClasseRequerida.TANQUE, 60, "res://sprites/herois/tanque.jpg"),
+		criar("assassino", "Assassino", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.ClasseRequerida.ASSASSINO, 26, "res://sprites/herois/assassino.jpg"),
+		criar("arqueiro", "Arqueiro", 4, 1.15, 1.3, Color(0.16, 0.42, 0.2), ItemData.ClasseRequerida.ARQUEIRO, 30, "res://sprites/herois/arqueiro.jpg"),
+		criar("mago", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.ClasseRequerida.MAGO, 24, "res://sprites/herois/mago.jpg"),
+		criar("guerreiro", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.ClasseRequerida.GUERREIRO, 42, "res://sprites/herois/guerreiro.jpg"),
 	]
 	return lista
+
+
+static func _carregar_arte(caminho: String, fallback: Color) -> Texture2D:
+	if caminho != "":
+		var img := Image.new()
+		if img.load(caminho) == OK:
+			return ImageTexture.create_from_image(img)
+		if ResourceLoader.exists(caminho):
+			var recurso := load(caminho)
+			if recurso is Texture2D:
+				return recurso
+	return _sprite_simples(fallback)
 
 
 static func _sprite_simples(p_cor: Color) -> Texture2D:

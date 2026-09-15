@@ -64,12 +64,19 @@ func _montar_classes() -> void:
 	_botoes_classe.clear()
 	if _party == null:
 		return
-	grade_classes.columns = 3
+	grade_classes.columns = 6
 	for classe in _party.classes_desbloqueadas:
 		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(92, 28)
+		botao.custom_minimum_size = Vector2(52, 72)
 		botao.text = classe.nome_classe
-		botao.add_theme_font_size_override("font_size", 11)
+		botao.tooltip_text = classe.nome_classe
+		botao.icon = classe.sprite_personagem
+		botao.expand_icon = true
+		botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		botao.add_theme_constant_override("icon_max_width", 44)
+		botao.add_theme_font_size_override("font_size", 9)
 		botao.pressed.connect(_on_classe_pressionada.bind(classe))
 		grade_classes.add_child(botao)
 		_botoes_classe.append(botao)
