@@ -39,26 +39,62 @@ static func criar(
 
 static func catalogo() -> Array[ClasseData]:
 	var lista: Array[ClasseData] = [
-		criar("sacerdote", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.ClasseRequerida.SACERDOTE, 32, "res://sprites/herois/sacerdote.jpg"),
-		criar("tanque", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.ClasseRequerida.TANQUE, 60, "res://sprites/herois/tanque.jpg"),
-		criar("assassino", "Assassino", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.ClasseRequerida.ASSASSINO, 26, "res://sprites/herois/assassino.jpg"),
-		criar("arqueiro", "Arqueiro", 4, 1.15, 1.3, Color(0.16, 0.42, 0.2), ItemData.ClasseRequerida.ARQUEIRO, 30, "res://sprites/herois/arqueiro.jpg"),
-		criar("mago", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.ClasseRequerida.MAGO, 24, "res://sprites/herois/mago.jpg"),
-		criar("guerreiro", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.ClasseRequerida.GUERREIRO, 42, "res://sprites/herois/guerreiro.jpg"),
+		criar("sacerdote", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.ClasseRequerida.SACERDOTE, 32, "res://sprites/herois/px_sacerdote2.jpg"),
+		criar("tanque", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.ClasseRequerida.TANQUE, 60, "res://sprites/herois/px_tanque2.jpg"),
+		criar("assassino", "Assassino", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.ClasseRequerida.ASSASSINO, 26, "res://sprites/herois/px_assassino2.jpg"),
+		criar("arqueiro", "Arqueiro", 4, 1.15, 1.3, Color(0.16, 0.42, 0.2), ItemData.ClasseRequerida.ARQUEIRO, 30, "res://sprites/herois/px_arqueiro2.jpg"),
+		criar("mago", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.ClasseRequerida.MAGO, 24, "res://sprites/herois/px_mago2.jpg"),
+		criar("guerreiro", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.ClasseRequerida.GUERREIRO, 42, "res://sprites/herois/px_guerreiro2.jpg"),
 	]
 	return lista
 
 
 static func _carregar_arte(caminho: String, fallback: Color) -> Texture2D:
-	if caminho != "":
-		var img := Image.new()
-		if img.load(caminho) == OK:
+	if caminho == "":
+		return _sprite_simples(fallback)
+	if ResourceLoader.exists(caminho):
+		var recurso: Resource = ResourceLoader.load(caminho)
+		if recurso is Texture2D:
+			return recurso
+	var absoluto := ProjectSettings.globalize_path(caminho).replace("\\", "/")
+	var img: Image = Image.load_from_file(absoluto)
+	if img != null and img.get_width() > 1:
+		return ImageTexture.create_from_image(img)
+	var bytes := _ler_bytes_arquivo(caminho, absoluto)
+	if not bytes.is_empty():
+		img = Image.new()
+		var err := ERR_INVALID_DATA
+		if bytes.size() >= 8 and bytes[0] == 0x89 and bytes[1] == 0x50:
+			err = img.load_png_from_buffer(bytes)
+		else:
+			err = img.load_jpg_from_buffer(bytes)
+		if err == OK and img.get_width() > 1:
 			return ImageTexture.create_from_image(img)
-		if ResourceLoader.exists(caminho):
-			var recurso := load(caminho)
-			if recurso is Texture2D:
-				return recurso
+		var destino := "user://retrato_" + caminho.get_file()
+		var saida := FileAccess.open(destino, FileAccess.WRITE)
+		if saida:
+			saida.store_buffer(bytes)
+			saida.close()
+			img = Image.load_from_file(destino)
+			if img != null and img.get_width() > 1:
+				return ImageTexture.create_from_image(img)
+	push_warning("Nao carregou arte do heroi: %s err=%s" % [caminho, FileAccess.get_open_error()])
 	return _sprite_simples(fallback)
+
+
+static func _ler_bytes_arquivo(caminho: String, absoluto: String) -> PackedByteArray:
+	for candidato in [absoluto, caminho]:
+		var arquivo := FileAccess.open(candidato, FileAccess.READ)
+		if arquivo:
+			var bytes := arquivo.get_buffer(arquivo.get_length())
+			arquivo.close()
+			if not bytes.is_empty():
+				return bytes
+		if FileAccess.file_exists(candidato):
+			var lidos := FileAccess.get_file_as_bytes(candidato)
+			if not lidos.is_empty():
+				return lidos
+	return PackedByteArray()
 
 
 static func _sprite_simples(p_cor: Color) -> Texture2D:

@@ -157,7 +157,7 @@ theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "Síntese"
+text = "Forja"
 
 [node name="BotaoAbaDesmontar" type="Button" parent="Conteudo/AbasFerraria"]
 unique_name_in_owner = true
@@ -198,6 +198,29 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Preenchimento Automático"
 
+[node name="BotaoFiltroForja" type="Button" parent="Conteudo/PainelSintese"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Filtro: Todos"
+
+[node name="BotaoArmazemForja" type="Button" parent="Conteudo/PainelSintese"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+toggle_mode = true
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Incluir armazém"
+
 [node name="BotaoSintetizar" type="Button" parent="Conteudo/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
@@ -207,7 +230,7 @@ theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_sintetizar")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "SINTETIZAR"
+text = "FORJAR"
 
 [node name="LabelExplicacaoFerraria" type="Label" parent="Conteudo/PainelSintese"]
 unique_name_in_owner = true
@@ -215,7 +238,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
 theme_override_font_sizes/font_size = 11
-text = "Sintetize 9 itens da mesma raridade e categoria para obter 1 de grau superior."
+text = "Forje 9 itens da mesma raridade e categoria para obter 1 de grau superior."
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -244,6 +267,40 @@ theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
 theme_override_font_sizes/font_size = 13
 text = "Valor: 0 ouro"
 horizontal_alignment = 1
+
+[node name="BotaoPreenchimentoDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Preenchimento Automático"
+
+[node name="BotaoFiltroDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Filtro: Todos"
+
+[node name="BotaoArmazemDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+toggle_mode = true
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Incluir armazém"
 
 [node name="BotaoDesmontar" type="Button" parent="Conteudo/PainelDesmontar"]
 unique_name_in_owner = true

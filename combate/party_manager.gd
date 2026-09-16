@@ -78,6 +78,61 @@ func escalar_personagem(slot_index: int, nova_classe: ClasseData = null) -> void
 	equipe_alterada.emit()
 
 
+func contar_ativos() -> int:
+	var total := 0
+	for classe in equipe_ativa:
+		if classe is ClasseData:
+			total += 1
+	return total
+
+
+func pode_remover() -> bool:
+	return contar_ativos() > 1
+
+
+func primeiro_slot_vazio() -> int:
+	for i in SLOTS:
+		if not (equipe_ativa[i] is ClasseData):
+			return i
+	return -1
+
+
+func primeiro_slot_ocupado() -> int:
+	for i in SLOTS:
+		if equipe_ativa[i] is ClasseData:
+			return i
+	return 0
+
+
+func remover_do_slot(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return false
+	if not (equipe_ativa[slot_index] is ClasseData):
+		return false
+	if not pode_remover():
+		return false
+	equipe_ativa[slot_index] = null
+	_atualizar_vida_max_slot(slot_index, true)
+	_atualizar_sprite_slot(slot_index)
+	_atualizar_timer_slot(slot_index)
+	_emitir_dps()
+	equipe_alterada.emit()
+	return true
+
+
+func incluir_classe(classe: ClasseData) -> int:
+	if classe == null:
+		return -1
+	var ja := _indice_da_classe(classe.id)
+	if ja >= 0:
+		return ja
+	var vazio := primeiro_slot_vazio()
+	if vazio < 0:
+		return -1
+	escalar_personagem(vazio, classe)
+	return vazio
+
+
 func _indice_da_classe(id_classe: String) -> int:
 	for i in SLOTS:
 		var classe: Variant = equipe_ativa[i]
@@ -156,6 +211,7 @@ func aplicar_dano_no_heroi(slot_index: int, quantidade: int) -> bool:
 	if sprite.has_method("piscar_dano"):
 		sprite.piscar_dano()
 	_atualizar_barra_slot(slot_index)
+	DamageNumber.spawn(get_parent(), sprite.global_position, quantidade, Color(1, 0.38, 0.32, 1))
 	if _vida_atual[slot_index] <= 0:
 		_marcar_caido(slot_index, true)
 		_emitir_dps()
@@ -214,6 +270,8 @@ func aplicar_save(dados: Dictionary) -> void:
 			if classe:
 				classes_desbloqueadas.append(classe)
 	_garantir_catalogo_desbloqueado()
+	if contar_ativos() <= 0:
+		escalar_personagem(0, obter_classe_por_id("guerreiro"))
 
 
 func _garantir_catalogo_desbloqueado() -> void:

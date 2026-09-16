@@ -5,15 +5,19 @@ extends Node
 const PITCH_MIN := 0.9
 const PITCH_MAX := 1.1
 const JOGADORES_INICIAIS := 6
+const CAMINHO_AUDIO := "user://save.cfg"
 
 var _som_ataque: AudioStream
 var _som_dano: AudioStream
 var _som_morte: AudioStream
 var _som_moeda: AudioStream
 var _pool: Array[AudioStreamPlayer2D] = []
+var volume_linear: float = 1.0
 
 
 func _ready() -> void:
+	_carregar_volume()
+	_aplicar_volume()
 	_som_ataque = _carregar_ou_gerar("res://audio/ataque.wav", 420.0, 0.09)
 	_som_dano = _carregar_ou_gerar("res://audio/dano.wav", 180.0, 0.12)
 	_som_morte = _carregar_ou_gerar("res://audio/morte.wav", 90.0, 0.22)
@@ -36,6 +40,45 @@ func tocar_som_morte() -> void:
 
 func tocar_som_moeda() -> void:
 	_tocar(_som_moeda, true)
+
+
+func volume_percentual() -> int:
+	return int(round(volume_linear * 100.0))
+
+
+func definir_volume_percentual(valor: int) -> void:
+	volume_linear = clampf(float(valor) / 100.0, 0.0, 1.0)
+	_aplicar_volume()
+	_salvar_volume()
+
+
+func _aplicar_volume() -> void:
+	var bus := AudioServer.get_bus_index("Master")
+	if bus < 0:
+		return
+	if volume_linear <= 0.001:
+		AudioServer.set_bus_mute(bus, true)
+		AudioServer.set_bus_volume_db(bus, -80.0)
+	else:
+		AudioServer.set_bus_mute(bus, false)
+		AudioServer.set_bus_volume_db(bus, linear_to_db(volume_linear))
+
+
+func _carregar_volume() -> void:
+	if not FileAccess.file_exists(CAMINHO_AUDIO):
+		return
+	var cfg := ConfigFile.new()
+	if cfg.load(CAMINHO_AUDIO) != OK:
+		return
+	volume_linear = clampf(float(cfg.get_value("audio", "volume", 1.0)), 0.0, 1.0)
+
+
+func _salvar_volume() -> void:
+	var cfg := ConfigFile.new()
+	if FileAccess.file_exists(CAMINHO_AUDIO):
+		cfg.load(CAMINHO_AUDIO)
+	cfg.set_value("audio", "volume", volume_linear)
+	cfg.save(CAMINHO_AUDIO)
 
 
 func _tocar(stream: AudioStream, variar_pitch: bool) -> void:

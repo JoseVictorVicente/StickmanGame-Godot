@@ -1,6 +1,6 @@
 class_name Ferraria
 extends PanelContainer
-## Painel lateral de síntese e desmonte (estilo CUBE).
+## Painel lateral de forja e desmonte.
 ## Fica acoplado à direita do inventário e só existe enquanto o menu está aberto.
 
 signal visibilidade_alterada(aberta: bool)
@@ -11,8 +11,10 @@ enum Aba { SINTESE, DESMONTAR }
 const SLOTS_SINTSE := 9
 const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
-const TEXTO_RODAPE := "Sintetize 9 itens da mesma raridade e categoria para obter 1 de grau superior."
+const FILTRO_TODOS := -1
+const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e categoria para obter 1 de grau superior."
 const TEXTO_DESMONTE := "Desmonte itens para convertê-los em ouro. Itens melhores valem mais."
+const NOMES_FILTRO: PackedStringArray = ["Todos", "Comum", "Raro", "Épico", "Lendário"]
 
 @onready var grade_sintese: GridContainer = %GradeSintese
 @onready var grade_desmontar: GridContainer = %GradeDesmontar
@@ -22,6 +24,11 @@ const TEXTO_DESMONTE := "Desmonte itens para convertê-los em ouro. Itens melhor
 @onready var botao_desmontar: Button = %BotaoDesmontar
 @onready var botao_aba_sintese: Button = %BotaoAbaSintese
 @onready var botao_aba_desmontar: Button = %BotaoAbaDesmontar
+@onready var botao_filtro_forja: Button = %BotaoFiltroForja
+@onready var botao_armazem_forja: Button = %BotaoArmazemForja
+@onready var botao_preenchimento_desmonte: Button = %BotaoPreenchimentoDesmonte
+@onready var botao_filtro_desmonte: Button = %BotaoFiltroDesmonte
+@onready var botao_armazem_desmonte: Button = %BotaoArmazemDesmonte
 @onready var painel_sintese: VBoxContainer = %PainelSintese
 @onready var painel_desmontar: VBoxContainer = %PainelDesmontar
 @onready var label_explicacao: Label = %LabelExplicacaoFerraria
@@ -33,23 +40,34 @@ var _menu: MenuInventario
 var _slots: Array[SlotItem] = []
 var _slots_desmontar: Array[SlotItem] = []
 var _aba: Aba = Aba.SINTESE
+var _filtro_raridade: int = FILTRO_TODOS
+var _usar_armazem: bool = false
+var _popup_filtro: PopupMenu
 
 
 func _ready() -> void:
 	hide()
 	_criar_slots(grade_sintese, _slots)
 	_criar_slots(grade_desmontar, _slots_desmontar)
+	_criar_popup_filtro()
 	botao_fechar.pressed.connect(fechar)
 	botao_preenchimento.pressed.connect(preencher_automatico)
+	botao_preenchimento_desmonte.pressed.connect(preencher_desmonte)
 	botao_sintetizar.pressed.connect(sintetizar)
 	botao_desmontar.pressed.connect(desmontar)
 	botao_aba_sintese.pressed.connect(mostrar_aba.bind(Aba.SINTESE))
 	botao_aba_desmontar.pressed.connect(mostrar_aba.bind(Aba.DESMONTAR))
+	botao_filtro_forja.pressed.connect(_abrir_filtro.bind(botao_filtro_forja))
+	botao_filtro_desmonte.pressed.connect(_abrir_filtro.bind(botao_filtro_desmonte))
+	botao_armazem_forja.toggled.connect(_on_armazem_toggled)
+	botao_armazem_desmonte.toggled.connect(_on_armazem_toggled)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
 	label_explicacao.text = TEXTO_RODAPE
 	label_explicacao_desmontar.text = TEXTO_DESMONTE
 	mostrar_aba(Aba.SINTESE)
+	_atualizar_botoes_filtro()
+	_atualizar_botoes_armazem()
 	_atualizar_estado()
 	_atualizar_desmonte()
 
@@ -119,12 +137,30 @@ func preencher_automatico() -> void:
 	var grupo := _encontrar_grupo_elegivel()
 	if grupo.is_empty():
 		_atualizar_estado()
-		_definir_status("Não há 9 itens da mesma raridade e categoria.", Color(1, 0.55, 0.4, 1))
+		_definir_status(_mensagem_sem_grupo(), Color(1, 0.55, 0.4, 1))
 		return
 	for i in SLOTS_SINTSE:
 		_menu.mover_item_entre_slots(grupo[i], _slots[i])
 	_atualizar_estado()
-	_definir_status("Grade preenchida. Clique em SINTETIZAR.", Color(0.72, 0.9, 0.7, 1))
+	_definir_status("Grade preenchida. Clique em FORJAR.", Color(0.72, 0.9, 0.7, 1))
+
+
+func preencher_desmonte() -> void:
+	if _menu == null:
+		return
+	_devolver_lista(_slots_desmontar)
+	var candidatos := _itens_origem_filtrados(false)
+	if candidatos.is_empty():
+		_atualizar_desmonte()
+		label_explicacao_desmontar.text = _mensagem_sem_itens_desmonte()
+		label_explicacao_desmontar.add_theme_color_override("font_color", Color(1, 0.55, 0.4, 1))
+		return
+	var limite := mini(SLOTS_SINTSE, candidatos.size())
+	for i in limite:
+		_menu.mover_item_entre_slots(candidatos[i], _slots_desmontar[i])
+	_atualizar_desmonte()
+	label_explicacao_desmontar.text = "Grade preenchida. Clique em DESMONTAR."
+	label_explicacao_desmontar.add_theme_color_override("font_color", Color(0.72, 0.9, 0.7, 1))
 
 
 func sintetizar() -> void:
@@ -146,7 +182,7 @@ func sintetizar() -> void:
 		return
 	_menu.notificar_itens_alterados()
 	_atualizar_estado()
-	_definir_status("Síntese concluída: %s (%s)." % [resultado.nome, resultado.nome_raridade()], Color(0.85, 0.78, 0.32, 1))
+	_definir_status("Forja concluída: %s (%s)." % [resultado.nome, resultado.nome_raridade()], Color(0.85, 0.78, 0.32, 1))
 
 
 func desmontar() -> void:
@@ -191,7 +227,9 @@ func _criar_slots(grade: GridContainer, destino: Array[SlotItem]) -> void:
 func _on_slot_duplo_clique(slot: SlotItem) -> void:
 	if _menu == null or slot.item == null:
 		return
-	var vazio := _menu.primeiro_slot_inventario_vazio()
+	var vazio: SlotItem = _menu.primeiro_slot_inventario_vazio()
+	if vazio == null:
+		vazio = _menu.primeiro_slot_armazem_vazio()
 	if vazio:
 		_menu.mover_item_entre_slots(slot, vazio)
 		_on_itens_alterados()
@@ -208,7 +246,9 @@ func _devolver_lista(lista: Array[SlotItem]) -> void:
 	for slot in lista:
 		if slot.item == null:
 			continue
-		var vazio := _menu.primeiro_slot_inventario_vazio()
+		var vazio: SlotItem = _menu.primeiro_slot_inventario_vazio()
+		if vazio == null:
+			vazio = _menu.primeiro_slot_armazem_vazio()
 		if vazio:
 			_menu.mover_item_entre_slots(slot, vazio)
 		else:
@@ -217,18 +257,23 @@ func _devolver_lista(lista: Array[SlotItem]) -> void:
 
 func _encontrar_grupo_elegivel() -> Array[SlotItem]:
 	var grupos: Dictionary = {}
-	for slot in _menu.slots_inventario():
+	for slot in _slots_origem():
 		if slot.item == null:
 			continue
 		if slot.item.raridade == ItemData.Raridade.LENDARIO:
 			continue
+		if not _passa_filtro(slot.item):
+			continue
 		var chave := "%d_%d" % [int(slot.item.tipo), int(slot.item.raridade)]
 		if not grupos.has(chave):
-			grupos[chave] = []
-		grupos[chave].append(slot)
+			var nova: Array = []
+			grupos[chave] = nova
+		var grupo_atual: Array = grupos[chave] as Array
+		grupo_atual.append(slot)
+		grupos[chave] = grupo_atual
 	var melhor: Array = []
 	for chave in grupos.keys():
-		var grupo: Array = grupos[chave]
+		var grupo: Array = grupos[chave] as Array
 		if grupo.size() >= SLOTS_SINTSE and grupo.size() > melhor.size():
 			melhor = grupo
 	var escolhido: Array[SlotItem] = []
@@ -377,6 +422,114 @@ func _definir_status(texto: String, cor: Color) -> void:
 		return
 	label_explicacao.text = texto
 	label_explicacao.add_theme_color_override("font_color", cor)
+
+
+func _slots_origem() -> Array[SlotItem]:
+	if _menu == null:
+		var vazio: Array[SlotItem] = []
+		return vazio
+	if _usar_armazem:
+		return _menu.slots_armazem()
+	return _menu.slots_inventario()
+
+
+func _passa_filtro(item: ItemData) -> bool:
+	if item == null:
+		return false
+	if _filtro_raridade == FILTRO_TODOS:
+		return true
+	return int(item.raridade) == _filtro_raridade
+
+
+func _itens_origem_filtrados(ignorar_lendario: bool) -> Array[SlotItem]:
+	var lista: Array[SlotItem] = []
+	for slot in _slots_origem():
+		if slot.item == null:
+			continue
+		if ignorar_lendario and slot.item.raridade == ItemData.Raridade.LENDARIO:
+			continue
+		if _passa_filtro(slot.item):
+			lista.append(slot)
+	return lista
+
+
+func _criar_popup_filtro() -> void:
+	_popup_filtro = PopupMenu.new()
+	_popup_filtro.name = "MenuFiltroRaridade"
+	add_child(_popup_filtro)
+	for i in NOMES_FILTRO.size():
+		_popup_filtro.add_item(NOMES_FILTRO[i], i)
+	_popup_filtro.id_pressed.connect(_on_filtro_escolhido)
+
+
+func _abrir_filtro(botao: Button) -> void:
+	if _popup_filtro == null or botao == null:
+		return
+	var pos := botao.get_screen_position()
+	_popup_filtro.position = Vector2i(int(pos.x), int(pos.y + botao.size.y))
+	_popup_filtro.popup()
+
+
+func _on_filtro_escolhido(id: int) -> void:
+	if id <= 0:
+		_filtro_raridade = FILTRO_TODOS
+	else:
+		_filtro_raridade = id - 1
+	_atualizar_botoes_filtro()
+
+
+func _on_armazem_toggled(ligado: bool) -> void:
+	_usar_armazem = ligado
+	if botao_armazem_forja.button_pressed != ligado:
+		botao_armazem_forja.set_pressed_no_signal(ligado)
+	if botao_armazem_desmonte.button_pressed != ligado:
+		botao_armazem_desmonte.set_pressed_no_signal(ligado)
+	_atualizar_botoes_armazem()
+	if ligado and _menu and _menu.painel_armazem and not _menu.painel_armazem.esta_aberta():
+		_menu.painel_armazem.abrir()
+
+
+func _atualizar_botoes_filtro() -> void:
+	var texto := "Filtro: %s" % _nome_filtro_atual()
+	if botao_filtro_forja:
+		botao_filtro_forja.text = texto
+	if botao_filtro_desmonte:
+		botao_filtro_desmonte.text = texto
+
+
+func _atualizar_botoes_armazem() -> void:
+	var texto := "Só armazém" if _usar_armazem else "Incluir armazém"
+	_pintar_toggle(botao_armazem_forja, _usar_armazem, texto)
+	_pintar_toggle(botao_armazem_desmonte, _usar_armazem, texto)
+
+
+func _pintar_toggle(botao: Button, ativo: bool, texto: String) -> void:
+	if botao == null:
+		return
+	botao.text = texto
+	_pintar_aba(botao, ativo)
+
+
+func _nome_filtro_atual() -> String:
+	if _filtro_raridade == FILTRO_TODOS:
+		return "Todos"
+	if _filtro_raridade >= 0 and _filtro_raridade < NOMES_FILTRO.size() - 1:
+		return NOMES_FILTRO[_filtro_raridade + 1]
+	return "Todos"
+
+
+func _mensagem_sem_grupo() -> String:
+	var origem := "do armazém" if _usar_armazem else "do inventário"
+	if _filtro_raridade == FILTRO_TODOS:
+		return "Não há 9 itens iguais %s." % origem
+	return "Não há 9 itens %s %s." % [_nome_filtro_atual().to_lower(), origem]
+
+
+func _mensagem_sem_itens_desmonte() -> String:
+	var origem := "no armazém" if _usar_armazem else "no inventário"
+	if _filtro_raridade == FILTRO_TODOS:
+		return "Não há itens %s." % origem
+	return "Não há itens %s %s." % [_nome_filtro_atual().to_lower(), origem]
 
 
 func _on_cabecalho_gui_input(event: InputEvent) -> void:

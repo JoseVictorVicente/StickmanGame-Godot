@@ -1,0 +1,46 @@
+{
+  "object": {
+    "id": "7138a90f-58c4-4b88-9b50-c6f1b364fef1",
+    "name": "base",
+    "prompt": "2D pixel-art animated arrow projectile flying horizontally to the right. Dark wooden shaft with bright neon-green arrowhead and green fletching matching the archer. Pulses with a glowing green energy trail and dynamic wind motion particles flowing behind the tail. Sharp black outlines, side view, clean pixel art style, transparent background.",
+    "size": {
+      "width": 256,
+      "height": 256
+    },
+    "directions": 1,
+    "view": "side"
+  },
+  "spritesheet": {
+    "path": "2D_pixel-art_animated_arrow_projectile_flying_hori.png",
+    "cell_size": {
+      "width": 256,
+      "height": 256
+    },
+    "sheet_size": {
+      "width": 2304,
+      "height": 512
+    },
+    "columns": 9,
+    "pivot": "cell-center",
+    "rows": [
+      {
+        "row": 0,
+        "type": "rotations",
+        "frame_count": 1,
+        "directions": [
+          "unknown"
+        ]
+      },
+      {
+        "row": 1,
+        "type": "animation",
+        "frame_count": 9,
+        "animation": "Fluid 8-frame 2D pixel-art looping projectile anim",
+        "animation_group_id": "5abcb480-1d27-4168-9392-d794de585989",
+        "direction": "unknown"
+      }
+    ]
+  },
+  "export_version": "1.0",
+  "export_date": "2026-09-16T15:46:06.906049+00:00"
+}

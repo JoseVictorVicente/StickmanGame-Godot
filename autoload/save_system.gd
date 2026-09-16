@@ -34,6 +34,8 @@ func salvar() -> void:
 		return
 	var dados: Dictionary = _jogo.coletar_save()
 	var cfg := ConfigFile.new()
+	if FileAccess.file_exists(CAMINHO_SAVE):
+		cfg.load(CAMINHO_SAVE)
 	cfg.set_value("jogo", "ouro", int(dados.get("ouro", 0)))
 	cfg.set_value("jogo", "onda", int(dados.get("onda", 1)))
 	cfg.set_value("jogo", "mundo", int(dados.get("mundo", 1)))

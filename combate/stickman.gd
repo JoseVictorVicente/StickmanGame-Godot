@@ -5,22 +5,29 @@ const AVANCO_ATAQUE := 28.0
 const DURACAO_AVANCO := 0.09
 const DURACAO_RETORNO := 0.12
 
+const FRAME_SOLTA_FLECHA := 4
+
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween_ataque: Tween
 var _tween_flash: Tween
 var _cor_classe: Color = Color.WHITE
 var _caido: bool = false
-var _barra: Node2D
+var _barra: BarraVidaHeroi
+var _usar_arte: bool = false
+var _id_classe: String = ""
+var _flecha_solta: bool = false
+var _frames_stick: SpriteFrames
 
 
 func _ready() -> void:
 	centered = true
-	sprite_frames = _criar_frames()
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite_frames = _frames_padrao()
 	animation_finished.connect(_on_animacao_terminou)
+	frame_changed.connect(_on_frame_changed)
 	play("Idle")
 	_pos_base = position
-	_barra = (load("res://combate/barra_vida_heroi.gd") as GDScript).new()
-	_barra.position = Vector2(0, -34)
+	_barra = BarraVidaHeroi.new()
 	add_child(_barra)
 
 
@@ -34,19 +41,37 @@ func definir_posicao_base(pos: Vector2) -> void:
 func tocar_ataque() -> void:
 	if _caido:
 		return
+	_flecha_solta = false
 	play("Ataque")
-	_deslizar_ataque()
+	if not _usar_arte:
+		_deslizar_ataque()
 
 
 func aplicar_classe(classe: ClasseData) -> void:
 	if classe == null:
+		_id_classe = ""
+		_usar_arte = false
 		_cor_classe = Color.WHITE
 		self_modulate = Color.WHITE
+		scale = SpritesheetHeroi.ESCALA_STICK
+		sprite_frames = _frames_padrao()
+		_ajustar_barra()
 		return
-	_cor_classe = classe.cor
+	_id_classe = classe.id
+	var arte := SpritesheetHeroi.frames(classe.id)
+	_usar_arte = arte != null
+	scale = SpritesheetHeroi.escala(classe.id)
+	if _usar_arte:
+		_cor_classe = Color.WHITE
+		self_modulate = Color.WHITE
+		sprite_frames = arte
+	else:
+		_cor_classe = classe.cor
+		if not _caido:
+			self_modulate = _cor_classe
+		sprite_frames = _frames_padrao()
+	_ajustar_barra()
 	if not _caido:
-		self_modulate = _cor_classe
-	if not is_playing():
 		play("Idle")
 
 
@@ -64,15 +89,22 @@ func definir_caido(caido: bool) -> void:
 	if caido:
 		if _tween_flash:
 			_tween_flash.kill()
-		self_modulate = Color(_cor_classe.r * 0.4, _cor_classe.g * 0.4, _cor_classe.b * 0.4, 0.55)
-		play("Idle")
+		if _usar_arte and sprite_frames and sprite_frames.has_animation("Morte"):
+			self_modulate = Color.WHITE
+			play("Morte")
+		else:
+			self_modulate = Color(_cor_classe.r * 0.4, _cor_classe.g * 0.4, _cor_classe.b * 0.4, 0.55)
+			play("Idle")
 	else:
 		self_modulate = _cor_classe
+		play("Idle")
 
 
-## Pisca vermelho por 0.1s (hit no Stickman) e volta à cor da classe.
 func piscar_dano() -> void:
 	if _caido:
+		return
+	if _usar_arte and sprite_frames and sprite_frames.has_animation("Hit"):
+		play("Hit")
 		return
 	if _tween_flash:
 		_tween_flash.kill()
@@ -93,8 +125,45 @@ func _deslizar_ataque() -> void:
 
 
 func _on_animacao_terminou() -> void:
-	if animation == "Ataque":
+	if animation == "Morte":
+		return
+	if animation == "Ataque" or animation == "Hit":
 		play("Idle")
+
+
+func _on_frame_changed() -> void:
+	if not _usar_arte or _caido or _flecha_solta:
+		return
+	if animation != "Ataque":
+		return
+	if frame >= FRAME_SOLTA_FLECHA:
+		_flecha_solta = true
+		_disparar_flecha()
+
+
+func _disparar_flecha() -> void:
+	var combate: Node = get_parent()
+	if combate:
+		combate = combate.get_parent()
+	if combate == null:
+		return
+	var inimigo: Node2D = combate.get_node_or_null("InimigoVisual") as Node2D
+	var destino := global_position + Vector2(90, 0)
+	if inimigo:
+		destino = inimigo.global_position
+	FlechaProjetil.disparar(combate, global_position + Vector2(18, -8), destino)
+
+
+func _ajustar_barra() -> void:
+	if _barra == null:
+		return
+	_barra.ajustar_no_pai(SpritesheetHeroi.barra_offset(_id_classe))
+
+
+func _frames_padrao() -> SpriteFrames:
+	if _frames_stick == null:
+		_frames_stick = _criar_frames()
+	return _frames_stick
 
 
 func _criar_frames() -> SpriteFrames:

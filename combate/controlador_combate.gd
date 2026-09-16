@@ -50,6 +50,9 @@ func on_heroi_atacou(_slot_index: int, dano: int) -> void:
 	AudioManager.tocar_som_ataque()
 	var morreu := inimigo_atual.tomar_dano(dano)
 	barra_vida.atualizar_vida(inimigo_atual.vida_atual)
+	if inimigo_visual.has_method("atualizar_vida"):
+		inimigo_visual.atualizar_vida(inimigo_atual.vida_atual, inimigo_atual.vida_maxima)
+	DamageNumber.spawn(inimigo_visual.get_parent(), inimigo_visual.global_position, dano)
 	inimigo_visual.piscar_hit()
 	AudioManager.tocar_som_dano()
 	if morreu:
@@ -112,6 +115,8 @@ func gerar_inimigo() -> void:
 		int(stats.get("dano", 1))
 	)
 	barra_vida.inicializar_barra(inimigo_atual.vida_maxima)
+	if inimigo_visual and inimigo_visual.has_method("atualizar_vida"):
+		inimigo_visual.atualizar_vida(inimigo_atual.vida_atual, inimigo_atual.vida_maxima)
 
 
 func alternar_repetir() -> void:

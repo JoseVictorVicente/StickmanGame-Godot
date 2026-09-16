@@ -1,27 +1,36 @@
 class_name UiSelecaoEquipe
 extends VBoxContainer
-## UI para escalar os 3 slots da equipe com classes desbloqueadas.
+## Mostra só os heróis em campo. A formação completa substitui o inventário.
 
 signal slot_selecionado(indice: int)
 signal classe_atribuida(slot: int, classe: ClasseData)
+signal formacao_pedida
 
 var _party: PartyManager
 var _slot_alvo: int = 0
 var _botoes_slot: Array[Button] = []
-var _botoes_classe: Array[Button] = []
+var _indices_slot: Array[int] = []
 
 @onready var slots_equipe: HBoxContainer = %SlotsEquipe
 @onready var grade_classes: GridContainer = %GradeClasses
 @onready var label_dps_equipe: Label = %LabelDpsEquipe
+@onready var botao_formacao: Button = %BotaoFormacao
+@onready var titulo_equipe: Label = $TituloEquipe
+@onready var titulo_classes: Label = $TituloClasses
 
 
 func configurar(party: PartyManager, slot_inicial: int = 0) -> void:
 	_party = party
 	_slot_alvo = slot_inicial
-	if _botoes_slot.is_empty():
-		_montar_slots()
-	if _botoes_classe.size() != _party.classes_desbloqueadas.size():
-		_montar_classes()
+	if grade_classes:
+		grade_classes.visible = false
+	if titulo_classes:
+		titulo_classes.visible = false
+	if titulo_equipe:
+		titulo_equipe.text = "Equipe"
+	if botao_formacao and not botao_formacao.pressed.is_connected(_on_formacao_pressed):
+		botao_formacao.pressed.connect(_on_formacao_pressed)
+	_montar_slots()
 	atualizar()
 	if not _party.dps_alterado.is_connected(_on_dps_alterado):
 		_party.dps_alterado.connect(_on_dps_alterado)
@@ -30,108 +39,77 @@ func configurar(party: PartyManager, slot_inicial: int = 0) -> void:
 
 
 func selecionar_slot(indice: int, emitir_sinal: bool = true) -> void:
+	if _party and not (_party.equipe_ativa[indice] is ClasseData):
+		indice = _party.primeiro_slot_ocupado()
 	_slot_alvo = clampi(indice, 0, PartyManager.SLOTS - 1)
 	_pintar_slots()
-	_pintar_classes()
 	if emitir_sinal:
 		slot_selecionado.emit(_slot_alvo)
 
 
 func atualizar() -> void:
+	if _party and not (_party.equipe_ativa[_slot_alvo] is ClasseData):
+		_slot_alvo = _party.primeiro_slot_ocupado()
+	_montar_slots()
 	_pintar_slots()
-	_pintar_classes()
 	if _party:
 		_on_dps_alterado(_party.dps_grupo(), _party.dano_total_grupo())
+
+
+func _on_formacao_pressed() -> void:
+	formacao_pedida.emit()
 
 
 func _montar_slots() -> void:
 	for filho in slots_equipe.get_children():
 		filho.queue_free()
 	_botoes_slot.clear()
-	for i in PartyManager.SLOTS:
-		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(88, 42)
-		botao.add_theme_font_size_override("font_size", 11)
-		botao.pressed.connect(selecionar_slot.bind(i))
-		slots_equipe.add_child(botao)
-		_botoes_slot.append(botao)
-
-
-func _montar_classes() -> void:
-	for filho in grade_classes.get_children():
-		grade_classes.remove_child(filho)
-		filho.free()
-	_botoes_classe.clear()
+	_indices_slot.clear()
 	if _party == null:
 		return
-	grade_classes.columns = 6
-	for classe in _party.classes_desbloqueadas:
+	for i in PartyManager.SLOTS:
+		var classe: Variant = _party.equipe_ativa[i]
+		if not (classe is ClasseData):
+			continue
+		var dados := classe as ClasseData
 		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(52, 72)
-		botao.text = classe.nome_classe
-		botao.tooltip_text = classe.nome_classe
-		botao.icon = classe.sprite_personagem
+		botao.custom_minimum_size = Vector2(64, 82)
+		botao.text = dados.nome_classe
+		botao.tooltip_text = dados.nome_classe
+		botao.flat = true
+		botao.icon = dados.sprite_personagem
 		botao.expand_icon = true
+		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.add_theme_constant_override("icon_max_width", 44)
+		botao.add_theme_constant_override("icon_max_width", 52)
 		botao.add_theme_font_size_override("font_size", 9)
-		botao.pressed.connect(_on_classe_pressionada.bind(classe))
-		grade_classes.add_child(botao)
-		_botoes_classe.append(botao)
-
-
-func _on_classe_pressionada(classe: ClasseData) -> void:
-	if _party == null:
-		return
-	_party.escalar_personagem(_slot_alvo, classe)
-	classe_atribuida.emit(_slot_alvo, classe)
+		botao.pressed.connect(selecionar_slot.bind(i))
+		slots_equipe.add_child(botao)
+		_botoes_slot.append(botao)
+		_indices_slot.append(i)
 
 
 func _pintar_slots() -> void:
 	for i in _botoes_slot.size():
 		var botao: Button = _botoes_slot[i]
-		var classe: Variant = _party.equipe_ativa[i] if _party else null
-		var nome: String = "Vazio"
-		if classe is ClasseData:
-			nome = (classe as ClasseData).nome_classe
-		botao.text = "Slot %d\n%s" % [i + 1, nome]
+		var slot := _indices_slot[i]
 		var estilo := StyleBoxFlat.new()
 		estilo.set_corner_radius_all(4)
-		estilo.set_border_width_all(2)
-		if i == _slot_alvo:
-			estilo.bg_color = Color(0.22, 0.17, 0.1, 1)
+		if slot == _slot_alvo:
+			estilo.bg_color = Color(0.22, 0.16, 0.08, 0.55)
 			estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+			estilo.set_border_width_all(2)
 		else:
-			estilo.bg_color = Color(0.08, 0.07, 0.06, 1)
+			estilo.bg_color = Color(0, 0, 0, 0)
 			estilo.border_color = Color(0.42, 0.35, 0.24, 1)
+			estilo.set_border_width_all(1)
 		botao.add_theme_stylebox_override("normal", estilo)
 		botao.add_theme_stylebox_override("hover", estilo)
-
-
-func _pintar_classes() -> void:
-	if _party == null:
-		return
-	var total := mini(_botoes_classe.size(), _party.classes_desbloqueadas.size())
-	var atual: Variant = _party.equipe_ativa[_slot_alvo] if _slot_alvo < _party.equipe_ativa.size() else null
-	var id_atual: String = ""
-	if atual is ClasseData:
-		id_atual = (atual as ClasseData).id
-	for i in total:
-		var classe: ClasseData = _party.classes_desbloqueadas[i]
-		var estilo := StyleBoxFlat.new()
-		estilo.set_corner_radius_all(3)
-		estilo.set_border_width_all(1)
-		if classe.id == id_atual:
-			estilo.bg_color = Color(0.28, 0.2, 0.1, 1)
-			estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-		else:
-			estilo.bg_color = Color(0.14, 0.12, 0.1, 1)
-			estilo.border_color = Color(0.5, 0.4, 0.25, 1)
-		_botoes_classe[i].add_theme_stylebox_override("normal", estilo)
-		_botoes_classe[i].add_theme_stylebox_override("hover", estilo)
-		_botoes_classe[i].add_theme_color_override("font_color", classe.cor.lightened(0.35))
+		var classe: Variant = _party.equipe_ativa[slot] if _party else null
+		if classe is ClasseData:
+			botao.add_theme_color_override("font_color", (classe as ClasseData).cor.lightened(0.35))
 
 
 func _on_dps_alterado(dps: float, dano_grupo: int) -> void:

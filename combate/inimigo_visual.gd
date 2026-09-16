@@ -8,6 +8,7 @@ const DURACAO_RETORNO := 0.12
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween: Tween
 var _tween_ataque: Tween
+var _barra: BarraVidaHeroi
 
 
 func _ready() -> void:
@@ -15,6 +16,9 @@ func _ready() -> void:
 	texture = _criar_textura()
 	scale.x = -1.0
 	_pos_base = position
+	_barra = BarraVidaHeroi.new()
+	add_child(_barra)
+	_barra.position = Vector2(-14, -28)
 
 
 func tocar_ataque() -> void:
@@ -27,15 +31,20 @@ func tocar_ataque() -> void:
 	_tween_ataque.tween_property(self, "position:x", _pos_base.x, DURACAO_RETORNO).set_ease(Tween.EASE_IN)
 
 
+func atualizar_vida(atual: int, maximo: int) -> void:
+	if _barra:
+		_barra.atualizar(atual, maximo)
+
+
 func piscar_hit() -> void:
 	if _tween:
 		_tween.kill()
 	if _tween_ataque:
 		_tween_ataque.kill()
-	modulate = Color(1.6, 0.4, 0.35, 1)
+	self_modulate = Color(1.6, 0.4, 0.35, 1)
 	position = _pos_base + Vector2(10, 0)
 	_tween = create_tween()
-	_tween.tween_property(self, "modulate", Color.WHITE, 0.12)
+	_tween.tween_property(self, "self_modulate", Color.WHITE, 0.12)
 	_tween.parallel().tween_property(self, "position", _pos_base, 0.12)
 
 
@@ -44,8 +53,10 @@ func esmaecer() -> void:
 		_tween.kill()
 	if _tween_ataque:
 		_tween_ataque.kill()
+	if _barra:
+		_barra.visible = false
 	_tween = create_tween()
-	_tween.tween_property(self, "modulate:a", 0.0, 0.35)
+	_tween.tween_property(self, "self_modulate:a", 0.0, 0.35)
 
 
 func aparecer() -> void:
@@ -54,9 +65,11 @@ func aparecer() -> void:
 	if _tween_ataque:
 		_tween_ataque.kill()
 	position = _pos_base
-	modulate = Color(1, 1, 1, 0)
+	self_modulate = Color(1, 1, 1, 0)
+	if _barra:
+		_barra.visible = true
 	_tween = create_tween()
-	_tween.tween_property(self, "modulate", Color.WHITE, 0.28)
+	_tween.tween_property(self, "self_modulate", Color.WHITE, 0.28)
 
 
 func _criar_textura() -> Texture2D:

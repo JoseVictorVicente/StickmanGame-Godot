@@ -15,7 +15,7 @@ signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 const INVENTARIO_COLUNAS := 10
 const INVENTARIO_LINHAS := 5
 const TAMANHO_SLOT := Vector2(42, 42)
-const TAMANHO_SLOT_EQUIP := Vector2(42, 42)
+const TAMANHO_SLOT_EQUIP := Vector2(44, 44)
 const TAMANHO_SLOT_PERSONAGEM := Vector2(36, 36)
 const EQUIP_COLUNAS := 2
 const EQUIP_ESQUERDA: Array[String] = ["Primária", "Secundária", "Capacete", "Peitoral", "Luva", "Calça", "Bota"]
@@ -29,6 +29,11 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var grade_inventario: GridContainer = %GradeInventario
 @onready var botao_sair: Button = %BotaoSair
 @onready var botao_sair_jogo: Button = %BotaoSairJogo
+@onready var botao_configuracoes: Button = %BotaoConfiguracoes
+@onready var painel_configuracoes: PanelContainer = %PainelConfiguracoes
+@onready var botao_fechar_config: Button = %BotaoFecharConfig
+@onready var slider_volume: HSlider = %SliderVolume
+@onready var label_volume_valor: Label = %LabelVolumeValor
 @onready var cabecalho: HBoxContainer = %Cabecalho
 @onready var equip_esquerda: VBoxContainer = %EquipEsquerda
 @onready var equip_direita: VBoxContainer = %EquipDireita
@@ -42,7 +47,12 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var painel_ferraria: Ferraria = %PainelFerraria
 @onready var painel_armazem: PainelArmazem = %PainelArmazem
 @onready var painel_mundos: PainelMundos = %PainelMundos
+@onready var painel_formacao: PainelFormacao = %PainelFormacao
+@onready var botao_atributos: Button = %BotaoAtributos
+@onready var botao_inventario: Button = %BotaoInventario
 @onready var botao_ferraria: Button = %BotaoFerraria
+@onready var botao_loja: Button = %BotaoLoja
+@onready var botao_conquistas: Button = %BotaoConquistas
 @onready var botao_armazem: Button = %BotaoArmazem
 @onready var botao_mundo: Button = %BotaoMundo
 @onready var label_ouro: Label = %LabelOuro
@@ -89,6 +99,11 @@ func _ready() -> void:
 	_criar_seletor_personagens()
 	botao_sair.pressed.connect(_on_botao_sair_pressed)
 	botao_sair_jogo.pressed.connect(_on_botao_sair_jogo_pressed)
+	botao_configuracoes.pressed.connect(_on_botao_configuracoes_pressed)
+	botao_fechar_config.pressed.connect(_fechar_configuracoes)
+	slider_volume.value_changed.connect(_on_volume_alterado)
+	botao_configuracoes.icon = _icone_engrenagem()
+	botao_configuracoes.add_theme_constant_override("icon_max_width", 20)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	painel.gui_input.connect(_on_cabecalho_gui_input)
 	painel_ferraria.configurar(self)
@@ -114,11 +129,19 @@ func _ready() -> void:
 	_estilos_botao_mundo["pressed"] = botao_mundo.get_theme_stylebox("pressed").duplicate()
 	botao_armazem.pressed.connect(_on_botao_armazem_pressed)
 	botao_mundo.pressed.connect(_on_botao_mundo_pressed)
-	botao_armazem.icon = _criar_icone_bau()
-	botao_armazem.add_theme_constant_override("icon_max_width", 56)
+	botao_armazem.icon = load("res://sprites/ui/bau.png")
+	botao_armazem.text = ""
+	botao_armazem.expand_icon = true
+	botao_armazem.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	botao_armazem.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	botao_armazem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	botao_armazem.add_theme_constant_override("icon_max_width", 52)
+	botao_armazem.tooltip_text = "Armazém"
+	_aplicar_icones_barra_inferior()
 	if painel_ouro:
 		painel_ouro.resized.connect(_alinhar_espaco_ouro)
 		_alinhar_espaco_ouro()
+		call_deferred("_alinhar_espaco_ouro")
 	call_deferred("_alinhar_paineis_laterais")
 
 
@@ -165,6 +188,7 @@ func _criar_slots_equipamento(grade: GridContainer, nomes: Array[String]) -> voi
 		icone.offset_bottom = -4.0
 		icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icone.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fundo.add_child(icone)
 		fundo.configurar(icone, TIPOS_EQUIP.get(nome, ItemData.Tipo.ARMA), false)
@@ -225,6 +249,10 @@ func _criar_seletor_personagens() -> void:
 
 
 func selecionar_personagem(indice: int) -> void:
+	if ui_equipe and ui_equipe._party:
+		var party: PartyManager = ui_equipe._party
+		if indice < 0 or indice >= PartyManager.SLOTS or not (party.equipe_ativa[indice] is ClasseData):
+			indice = party.primeiro_slot_ocupado()
 	_indice_personagem = indice
 	var dados: Dictionary = PERSONAGENS[indice]
 	nome_personagem.text = str(dados["nome"])
@@ -292,27 +320,41 @@ func definir_abaixo_do_combate(abaixo: bool) -> void:
 func obter_retangulos_clicaveis() -> Array[Rect2]:
 	if not visible:
 		return []
-	var rects: Array[Rect2] = [painel.get_global_rect().grow(4.0)]
+	var rects: Array[Rect2] = []
+	if painel_formacao and painel_formacao.visible:
+		rects.append(painel_formacao.get_global_rect().grow(4.0))
+	elif painel:
+		rects.append(painel.get_global_rect().grow(4.0))
 	if painel_armazem and painel_armazem.visible:
 		rects.append(painel_armazem.get_global_rect().grow(4.0))
 	if painel_ferraria and painel_ferraria.visible:
 		rects.append(painel_ferraria.get_global_rect().grow(4.0))
 	if painel_mundos and painel_mundos.visible:
 		rects.append(painel_mundos.get_global_rect().grow(4.0))
+	if painel_configuracoes and painel_configuracoes.visible:
+		rects.append(painel_configuracoes.get_global_rect().grow(4.0))
 	return rects
 
 
 func largura_para_janela() -> int:
-	return LayoutPaineis.largura_janela(painel, painel_armazem, painel_ferraria, painel_mundos)
+	return LayoutPaineis.largura_janela(painel, painel_armazem, painel_ferraria, painel_mundos, painel_formacao)
 
 
 func _alinhar_paineis_laterais() -> void:
-	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo)
+	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao)
+	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
 
 
 func slots_inventario() -> Array[SlotItem]:
 	return _slots_inventario
+
+
+func slots_armazem() -> Array[SlotItem]:
+	if painel_armazem:
+		return painel_armazem.slots_todos()
+	var vazio: Array[SlotItem] = []
+	return vazio
 
 
 func atualizar_ouro(valor: int) -> void:
@@ -323,7 +365,9 @@ func atualizar_ouro(valor: int) -> void:
 func _alinhar_espaco_ouro() -> void:
 	if painel_ouro == null or espaco_ouro == null:
 		return
-	espaco_ouro.custom_minimum_size = Vector2(0, painel_ouro.size.y)
+	var altura := maxf(painel_ouro.size.y, painel_ouro.get_combined_minimum_size().y)
+	if espaco_ouro.custom_minimum_size.y != altura:
+		espaco_ouro.custom_minimum_size = Vector2(0, altura)
 
 
 func primeiro_slot_inventario_vazio() -> SlotItem:
@@ -524,9 +568,7 @@ func obter_classe_atual() -> ClasseData:
 		var classe: Variant = ui_equipe._party.equipe_ativa[_indice_personagem]
 		if classe is ClasseData:
 			return classe
-	if CLASSES.is_empty():
-		return ClasseData.criar("guerreiro", "Guerreiro", 5, 1.0, 1.0, Color(0.14, 0.14, 0.16), ItemData.ClasseRequerida.GUERREIRO)
-	return CLASSES[mini(_indice_personagem, CLASSES.size() - 1)]
+	return null
 
 
 func obter_dano_equipado(indice: int) -> int:
@@ -549,6 +591,16 @@ func configurar_equipe(party: PartyManager) -> void:
 		ui_equipe.slot_selecionado.connect(selecionar_personagem)
 	if not ui_equipe.classe_atribuida.is_connected(_on_classe_atribuida):
 		ui_equipe.classe_atribuida.connect(_on_classe_atribuida)
+	if not ui_equipe.formacao_pedida.is_connected(_on_formacao_pedida):
+		ui_equipe.formacao_pedida.connect(_on_formacao_pedida)
+	if painel_formacao:
+		painel_formacao.configurar(self, party)
+		if not painel_formacao.slot_escolhido.is_connected(selecionar_personagem):
+			painel_formacao.slot_escolhido.connect(selecionar_personagem)
+		if not painel_formacao.visibilidade_alterada.is_connected(_on_formacao_visibilidade_alterada):
+			painel_formacao.visibilidade_alterada.connect(_on_formacao_visibilidade_alterada)
+	if not party.equipe_alterada.is_connected(_on_equipe_alterada):
+		party.equipe_alterada.connect(_on_equipe_alterada)
 	_sincronizar_nomes_da_equipe()
 	_mostrar_equipamento_do_personagem(_indice_personagem)
 	_atualizar_retrato()
@@ -558,6 +610,13 @@ func _on_classe_atribuida(_indice: int, _classe: ClasseData) -> void:
 	_sincronizar_nomes_da_equipe()
 	_mostrar_equipamento_do_personagem(_indice_personagem)
 	_atualizar_retrato()
+	classe_heroi_alterada.emit(_indice_personagem, obter_classe_atual())
+	equipamentos_alterados.emit()
+
+
+func _on_equipe_alterada() -> void:
+	_sincronizar_nomes_da_equipe()
+	selecionar_personagem(_indice_personagem)
 	classe_heroi_alterada.emit(_indice_personagem, obter_classe_atual())
 	equipamentos_alterados.emit()
 
@@ -583,6 +642,7 @@ func _atualizar_retrato() -> void:
 		return
 	var classe: ClasseData = obter_classe_atual()
 	foto_personagem.texture = classe.sprite_personagem if classe else null
+	foto_personagem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _classe_pode_usar(item: ItemData) -> bool:
@@ -721,11 +781,46 @@ func _criar_estilo_personagem(selecionado: bool) -> StyleBoxFlat:
 
 func _criar_estilo_slot() -> StyleBoxFlat:
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.08, 0.07, 0.06, 1)
-	estilo.border_color = Color(0.42, 0.35, 0.24, 1)
+	estilo.bg_color = Color(0.06, 0.05, 0.04, 1)
+	estilo.border_color = Color(0.72, 0.58, 0.28, 1)
 	estilo.set_border_width_all(2)
 	estilo.set_corner_radius_all(3)
 	return estilo
+
+
+func _aplicar_icones_barra_inferior() -> void:
+	_configurar_botao_barra(botao_atributos, "atributos")
+	_configurar_botao_barra(botao_inventario, "inventario", true)
+	_configurar_botao_barra(botao_ferraria, "ferraria")
+	_configurar_botao_barra(botao_loja, "loja")
+	_configurar_botao_barra(botao_conquistas, "conquistas")
+	_configurar_botao_barra(botao_mundo, "mundo")
+
+
+func _configurar_botao_barra(botao: Button, chave: String, destacado: bool = false) -> void:
+	if botao == null:
+		return
+	botao.icon = IconesInterface.barra(chave)
+	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	botao.expand_icon = true
+	botao.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	botao.add_theme_constant_override("icon_max_width", 18)
+	botao.add_theme_constant_override("h_separation", 4)
+	if not destacado:
+		return
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.24, 0.18, 0.1, 1)
+	estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+	estilo.set_border_width_all(2)
+	estilo.set_corner_radius_all(4)
+	estilo.content_margin_left = 8
+	estilo.content_margin_right = 8
+	estilo.content_margin_top = 6
+	estilo.content_margin_bottom = 6
+	botao.add_theme_stylebox_override("normal", estilo)
+	botao.add_theme_stylebox_override("hover", estilo)
+	botao.add_theme_stylebox_override("pressed", estilo)
 
 
 func _guardar_estilos_botao_ferraria() -> void:
@@ -757,36 +852,33 @@ func _on_botao_mundo_pressed() -> void:
 	botao_mundo.release_focus()
 
 
+func _on_formacao_pedida() -> void:
+	if painel_formacao.esta_aberta():
+		painel_formacao.fechar()
+		return
+	if painel_ferraria and painel_ferraria.esta_aberta():
+		painel_ferraria.fechar()
+	if painel_mundos and painel_mundos.esta_aberta():
+		painel_mundos.fechar()
+	if painel_armazem and painel_armazem.esta_aberta():
+		painel_armazem.fechar()
+	painel_formacao.abrir()
+
+
+func _on_formacao_visibilidade_alterada(aberta: bool) -> void:
+	if painel:
+		painel.visible = not aberta
+	_alinhar_paineis_laterais()
+	call_deferred("_alinhar_paineis_laterais")
+
+
 func _fechar_paineis_direita(exceto: Control = null) -> void:
 	if painel_ferraria and painel_ferraria != exceto and painel_ferraria.esta_aberta():
 		painel_ferraria.fechar()
 	if painel_mundos and painel_mundos != exceto and painel_mundos.esta_aberta():
 		painel_mundos.fechar()
-
-
-func _criar_icone_bau() -> Texture2D:
-	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var madeira := Color(0.55, 0.32, 0.12, 1)
-	var madeira_escura := Color(0.32, 0.16, 0.06, 1)
-	var ferro := Color(0.72, 0.62, 0.28, 1)
-	var ouro := Color(0.95, 0.78, 0.22, 1)
-	for y in range(22, 56):
-		for x in range(8, 56):
-			img.set_pixel(x, y, madeira if y < 38 else madeira_escura.lerp(madeira, 0.35))
-	for y in range(18, 28):
-		for x in range(6, 58):
-			img.set_pixel(x, y, madeira)
-	for x in range(8, 56):
-		img.set_pixel(x, 37, ferro)
-		img.set_pixel(x, 38, ferro)
-	for y in range(22, 56):
-		img.set_pixel(31, y, ferro)
-		img.set_pixel(32, y, ferro)
-	for y in range(34, 46):
-		for x in range(28, 36):
-			img.set_pixel(x, y, ouro)
-	return ImageTexture.create_from_image(img)
+	if painel_formacao and painel_formacao != exceto and painel_formacao.esta_aberta():
+		painel_formacao.fechar()
 
 
 func _on_ferraria_visibilidade_alterada(aberta: bool) -> void:
@@ -865,6 +957,9 @@ func _on_visibilidade_menu_alterada() -> void:
 		painel_ferraria.fechar()
 		painel_armazem.fechar()
 		painel_mundos.fechar()
+		if painel_formacao:
+			painel_formacao.fechar()
+		_fechar_configuracoes()
 		return
 	call_deferred("_alinhar_paineis_laterais")
 
@@ -877,6 +972,77 @@ func _on_botao_sair_pressed() -> void:
 func _on_botao_sair_jogo_pressed() -> void:
 	SaveSystem.salvar()
 	get_tree().quit()
+
+
+func _on_botao_configuracoes_pressed() -> void:
+	if painel_configuracoes.visible:
+		_fechar_configuracoes()
+	else:
+		_abrir_configuracoes()
+
+
+func _abrir_configuracoes() -> void:
+	slider_volume.set_value_no_signal(float(AudioManager.volume_percentual()))
+	_atualizar_texto_volume(int(slider_volume.value))
+	painel_configuracoes.show()
+	_alinhar_configuracoes()
+	largura_menus_alterada.emit()
+
+
+func _fechar_configuracoes() -> void:
+	if painel_configuracoes:
+		painel_configuracoes.hide()
+	largura_menus_alterada.emit()
+
+
+func _alinhar_configuracoes() -> void:
+	if painel_configuracoes == null or not painel_configuracoes.visible or painel == null:
+		return
+	var tam := painel_configuracoes.get_combined_minimum_size()
+	tam.x = maxf(tam.x, painel_configuracoes.custom_minimum_size.x)
+	painel_configuracoes.size = tam
+	var origem := painel.position
+	if painel_formacao and painel_formacao.visible:
+		origem = painel_formacao.position
+	painel_configuracoes.position = origem + Vector2(
+		painel.size.x - tam.x,
+		0.0
+	)
+
+
+func _on_volume_alterado(valor: float) -> void:
+	var percentual := int(valor)
+	AudioManager.definir_volume_percentual(percentual)
+	_atualizar_texto_volume(percentual)
+
+
+func _atualizar_texto_volume(percentual: int) -> void:
+	if label_volume_valor:
+		label_volume_valor.text = "%d%%" % percentual
+
+
+func _icone_engrenagem() -> Texture2D:
+	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var cor := Color(0.95, 0.88, 0.7, 1)
+	var centro := Vector2(16, 16)
+	for i in 8:
+		var ang := float(i) * TAU / 8.0
+		var p: Vector2 = centro + Vector2(cos(ang), sin(ang)) * 11.0
+		_preencher_circulo(img, p, 3.2, cor)
+	_preencher_circulo(img, centro, 8.0, cor)
+	_preencher_circulo(img, centro, 3.4, Color(0, 0, 0, 0))
+	return ImageTexture.create_from_image(img)
+
+
+func _preencher_circulo(img: Image, centro: Vector2, raio: float, cor: Color) -> void:
+	var r := int(ceil(raio))
+	for y in range(int(centro.y) - r, int(centro.y) + r + 1):
+		for x in range(int(centro.x) - r, int(centro.x) + r + 1):
+			if Vector2(x, y).distance_to(centro) <= raio:
+				if x < 0 or y < 0 or x >= img.get_width() or y >= img.get_height():
+					continue
+				img.set_pixel(x, y, cor)
 
 
 func _on_cabecalho_gui_input(event: InputEvent) -> void:

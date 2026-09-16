@@ -58,6 +58,7 @@ func texto_tooltip() -> String:
 		linhas.append("Vida Bônus: +%d" % vida_bonus)
 	if classe_requerida != ClasseRequerida.TODAS:
 		linhas.append("Classe: %s" % nome_classe_requerida())
+	linhas.append("Valor: %d ouro" % valor_desmonte())
 	return "\n".join(linhas)
 
 

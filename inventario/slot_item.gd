@@ -20,6 +20,7 @@ var nome_slot: String = ""
 var icone_rect: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
+var _textura_vazia: Texture2D
 
 
 func _ready() -> void:
@@ -33,16 +34,18 @@ func configurar(p_icone: TextureRect, p_tipo: ItemData.Tipo = ItemData.Tipo.ARMA
 	icone_rect = p_icone
 	tipo_aceitavel = p_tipo
 	aceita_qualquer = p_qualquer
+	if not aceita_qualquer:
+		_textura_vazia = IconesInterface.slot_equipamento(tipo_aceitavel)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_garantir_sigla()
+	_aplicar_icone()
 	atualizar_visual()
 
 
 func definir_item(novo: ItemData) -> void:
 	item = novo
-	if icone_rect:
-		icone_rect.texture = novo.icone if novo else null
+	_aplicar_icone()
 	atualizar_visual()
 
 
@@ -54,10 +57,6 @@ func atualizar_visual(selecionado: bool = _selecionado) -> void:
 		if item:
 			_label_sigla.text = item.sigla_tipo()
 			_label_sigla.add_theme_color_override("font_color", item.cor_raridade())
-			_label_sigla.visible = true
-		elif not aceita_qualquer:
-			_label_sigla.text = ItemData.sigla_do_tipo(tipo_aceitavel)
-			_label_sigla.add_theme_color_override("font_color", Color(0.48, 0.42, 0.32, 1))
 			_label_sigla.visible = true
 		else:
 			_label_sigla.text = ""
@@ -177,6 +176,7 @@ func _preencher_legenda(caixa: PanelContainer, dados: ItemData) -> void:
 		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
 	if dados.classe_requerida != ItemData.ClasseRequerida.TODAS:
 		coluna.add_child(_rotulo_tooltip("Classe: %s" % dados.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
+	coluna.add_child(_rotulo_tooltip("Valor: %d ouro" % dados.valor_desmonte(), Color(1, 0.86, 0.38, 1), 11, false))
 	caixa.add_child(coluna)
 
 
@@ -218,6 +218,17 @@ func _drop_data(_posicao: Vector2, dados: Variant) -> void:
 	item_solto.emit(self, dados["item"], dados["origem"])
 
 
+func _aplicar_icone() -> void:
+	if icone_rect == null:
+		return
+	if item and item.icone:
+		icone_rect.texture = item.icone
+		icone_rect.modulate = Color.WHITE
+	else:
+		icone_rect.texture = _textura_vazia
+		icone_rect.modulate = Color(1, 1, 1, 1)
+
+
 func _garantir_sigla() -> void:
 	if _label_sigla and is_instance_valid(_label_sigla):
 		return
@@ -241,8 +252,8 @@ func _estilo_atual() -> StyleBoxFlat:
 		estilo.bg_color = Color(raridade.r * 0.18, raridade.g * 0.16, raridade.b * 0.16, 1)
 		estilo.border_color = raridade
 	else:
-		estilo.bg_color = Color(0.08, 0.07, 0.06, 1)
-		estilo.border_color = Color(0.42, 0.35, 0.24, 1)
+		estilo.bg_color = Color(0.06, 0.05, 0.04, 1)
+		estilo.border_color = Color(0.72, 0.58, 0.28, 1)
 	estilo.set_border_width_all(3 if _selecionado else 2)
 	if _selecionado:
 		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
