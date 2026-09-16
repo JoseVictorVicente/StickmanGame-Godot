@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c8arvore001"]
+[gd_scene format=3 uid="uid://c8arvore001"]
 
 [ext_resource type="Script" path="res://inventario/painel_arvore.gd" id="1_arvore"]
 [ext_resource type="Script" path="res://inventario/mapa_arvore.gd" id="2_mapa"]
