@@ -17,6 +17,7 @@ var _usar_arte: bool = false
 var _id_classe: String = ""
 var _flecha_solta: bool = false
 var _frames_stick: SpriteFrames
+var _habilidades: ArcherSkills
 
 
 func _ready() -> void:
@@ -55,6 +56,7 @@ func aplicar_classe(classe: ClasseData) -> void:
 		self_modulate = Color.WHITE
 		scale = SpritesheetHeroi.ESCALA_STICK
 		sprite_frames = _frames_padrao()
+		_configurar_habilidades(null)
 		_ajustar_barra()
 		return
 	_id_classe = classe.id
@@ -70,9 +72,25 @@ func aplicar_classe(classe: ClasseData) -> void:
 		if not _caido:
 			self_modulate = _cor_classe
 		sprite_frames = _frames_padrao()
+	_configurar_habilidades(classe)
 	_ajustar_barra()
 	if not _caido:
 		play("Idle")
+
+
+func habilidades_arqueiro() -> ArcherSkills:
+	return _habilidades
+
+
+func _configurar_habilidades(classe: ClasseData) -> void:
+	if _habilidades:
+		_habilidades.queue_free()
+		_habilidades = null
+	if classe == null or classe.id != "arqueiro":
+		return
+	_habilidades = ArcherSkills.new()
+	_habilidades.name = "ArcherSkills"
+	add_child(_habilidades)
 
 
 func atualizar_vida(atual: int, maximo: int) -> void:

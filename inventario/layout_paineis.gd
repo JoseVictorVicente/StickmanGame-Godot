@@ -11,7 +11,8 @@ static func alinhar(
 	mundos: Control,
 	menus_abaixo: bool,
 	formacao: Control = null,
-	atributos: Control = null
+	atributos: Control = null,
+	skills: Control = null
 ) -> void:
 	if painel == null or area_menus == null:
 		return
@@ -30,6 +31,7 @@ static func alinhar(
 	_posicionar_lado(mundos, painel, false, y, painel.size.y, area_menus.size)
 	_sobrepor_painel(formacao, painel)
 	_sobrepor_painel(atributos, painel)
+	_sobrepor_painel(skills, painel)
 
 
 static func largura_janela(painel: Control, armazem: Control, ferraria: Control, mundos: Control, formacao: Control = null) -> int:

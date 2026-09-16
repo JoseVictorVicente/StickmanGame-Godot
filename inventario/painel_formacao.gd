@@ -1,6 +1,6 @@
 class_name PainelFormacao
 extends PanelContainer
-## Substitui o inventário para montar a equipe e, no futuro, as skills.
+## Substitui o inventário para montar a equipe em campo.
 
 signal visibilidade_alterada(aberta: bool)
 signal slot_escolhido(indice: int)
@@ -11,7 +11,6 @@ signal slot_escolhido(indice: int)
 @onready var rolagem_herois: ScrollContainer = %RolagemHerois
 @onready var grade_herois: GridContainer = %GradeHeroisFormacao
 @onready var label_dica: Label = %LabelDicaFormacao
-@onready var label_skills_heroi: Label = %LabelSkillsHeroi
 
 var _menu: MenuInventario
 var _party: PartyManager
@@ -29,7 +28,7 @@ func _ready() -> void:
 	if rolagem_herois:
 		rolagem_herois.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		rolagem_herois.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-		rolagem_herois.custom_minimum_size.y = 96
+		rolagem_herois.custom_minimum_size.y = 160
 
 
 func configurar(menu: MenuInventario, party: PartyManager) -> void:
@@ -71,7 +70,6 @@ func atualizar() -> void:
 		_slot_alvo = _party.primeiro_slot_ocupado()
 	_montar_slots()
 	_montar_herois()
-	_atualizar_skills()
 	if label_dica:
 		if _party.pode_remover():
 			label_dica.text = "Toque num herói para colocar na equipe. O último em campo não pode sair."
@@ -145,16 +143,6 @@ func _montar_herois() -> void:
 		_botoes_heroi.append(botao)
 		var na_equipe := _party._indice_da_classe(classe.id) >= 0
 		_pintar_heroi(botao, na_equipe)
-
-
-func _atualizar_skills() -> void:
-	if label_skills_heroi == null or _party == null:
-		return
-	var classe: Variant = _party.equipe_ativa[_slot_alvo]
-	if classe is ClasseData:
-		label_skills_heroi.text = (classe as ClasseData).nome_classe
-	else:
-		label_skills_heroi.text = "Nenhum herói"
 
 
 func _on_slot_pressionado(indice: int) -> void:

@@ -51,8 +51,10 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var painel_armazem: PainelArmazem = %PainelArmazem
 @onready var painel_mundos: PainelMundos = %PainelMundos
 @onready var painel_formacao: PainelFormacao = %PainelFormacao
+@onready var painel_skills: PainelSkills = %PainelSkills
 @onready var painel_atributos: PainelAtributos = %PainelAtributos
 @onready var botao_atributos: Button = %BotaoAtributos
+@onready var botao_skills: Button = %BotaoSkills
 @onready var botao_inventario: Button = %BotaoInventario
 @onready var botao_ferraria: Button = %BotaoFerraria
 @onready var botao_loja: Button = %BotaoLoja
@@ -143,6 +145,8 @@ func _ready() -> void:
 	botao_armazem.tooltip_text = "Armazém"
 	_aplicar_icones_barra_inferior()
 	botao_atributos.pressed.connect(_on_botao_atributos_pressed)
+	if botao_skills:
+		botao_skills.pressed.connect(_on_botao_skills_pressed)
 	if botao_atributos_personagem:
 		botao_atributos_personagem.pressed.connect(_on_botao_atributos_pressed)
 	if painel_atributos:
@@ -345,6 +349,8 @@ func obter_retangulos_clicaveis() -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	if painel_formacao and painel_formacao.visible:
 		rects.append(painel_formacao.get_global_rect().grow(4.0))
+	elif painel_skills and painel_skills.visible:
+		rects.append(painel_skills.get_global_rect().grow(4.0))
 	elif painel_atributos and painel_atributos.visible:
 		rects.append(painel_atributos.get_global_rect().grow(4.0))
 	elif painel:
@@ -366,7 +372,7 @@ func largura_para_janela() -> int:
 
 func _alinhar_paineis_laterais() -> void:
 	_restaurar_painel_base()
-	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos)
+	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos, painel_skills)
 	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
 
@@ -697,6 +703,12 @@ func configurar_equipe(party: PartyManager) -> void:
 			painel_formacao.slot_escolhido.connect(selecionar_personagem)
 		if not painel_formacao.visibilidade_alterada.is_connected(_on_formacao_visibilidade_alterada):
 			painel_formacao.visibilidade_alterada.connect(_on_formacao_visibilidade_alterada)
+	if painel_skills:
+		painel_skills.configurar(self, party)
+		if not painel_skills.slot_escolhido.is_connected(selecionar_personagem):
+			painel_skills.slot_escolhido.connect(selecionar_personagem)
+		if not painel_skills.visibilidade_alterada.is_connected(_on_skills_visibilidade_alterada):
+			painel_skills.visibilidade_alterada.connect(_on_skills_visibilidade_alterada)
 	if painel_atributos:
 		painel_atributos.configurar(self)
 		if not painel_atributos.visibilidade_alterada.is_connected(_on_atributos_visibilidade_alterada):
@@ -892,6 +904,8 @@ func _criar_estilo_slot() -> StyleBoxFlat:
 
 func _aplicar_icones_barra_inferior() -> void:
 	_configurar_botao_barra(botao_atributos, "atributos")
+	if botao_skills:
+		_configurar_botao_barra(botao_skills, "skills")
 	_configurar_botao_barra(botao_inventario, "inventario", true)
 	_configurar_botao_barra(botao_ferraria, "ferraria")
 	_configurar_botao_barra(botao_loja, "loja")
@@ -958,18 +972,34 @@ func _on_formacao_pedida() -> void:
 	if painel_formacao.esta_aberta():
 		painel_formacao.fechar()
 		return
-	if painel_atributos and painel_atributos.esta_aberta():
-		painel_atributos.fechar()
-	if painel_ferraria and painel_ferraria.esta_aberta():
-		painel_ferraria.fechar()
-	if painel_mundos and painel_mundos.esta_aberta():
-		painel_mundos.fechar()
-	if painel_armazem and painel_armazem.esta_aberta():
-		painel_armazem.fechar()
+	_fechar_paineis_overlay(painel_formacao)
+	_fechar_paineis_direita()
 	painel_formacao.abrir()
 
 
 func _on_formacao_visibilidade_alterada(aberta: bool) -> void:
+	_definir_inventario_visivel(not aberta)
+	_alinhar_paineis_laterais()
+	call_deferred("_alinhar_paineis_laterais")
+
+
+func _on_botao_skills_pressed() -> void:
+	if painel_skills and painel_skills.esta_aberta():
+		painel_skills.fechar()
+	else:
+		_abrir_skills()
+	if botao_skills:
+		botao_skills.release_focus()
+
+
+func _abrir_skills() -> void:
+	_fechar_paineis_overlay(painel_skills)
+	_fechar_paineis_direita()
+	if painel_skills:
+		painel_skills.abrir(_indice_personagem)
+
+
+func _on_skills_visibilidade_alterada(aberta: bool) -> void:
 	_definir_inventario_visivel(not aberta)
 	_alinhar_paineis_laterais()
 	call_deferred("_alinhar_paineis_laterais")
@@ -986,8 +1016,7 @@ func _on_botao_atributos_pressed() -> void:
 
 
 func _abrir_atributos() -> void:
-	if painel_formacao and painel_formacao.esta_aberta():
-		painel_formacao.fechar()
+	_fechar_paineis_overlay(painel_atributos)
 	if painel_atributos:
 		painel_atributos.abrir()
 
@@ -998,13 +1027,20 @@ func _on_atributos_visibilidade_alterada(aberta: bool) -> void:
 	call_deferred("_alinhar_paineis_laterais")
 
 
+func _fechar_paineis_overlay(exceto: Control = null) -> void:
+	if painel_formacao and painel_formacao != exceto and painel_formacao.esta_aberta():
+		painel_formacao.fechar()
+	if painel_atributos and painel_atributos != exceto and painel_atributos.esta_aberta():
+		painel_atributos.fechar()
+	if painel_skills and painel_skills != exceto and painel_skills.esta_aberta():
+		painel_skills.fechar()
+
+
 func _fechar_paineis_direita(exceto: Control = null) -> void:
 	if painel_ferraria and painel_ferraria != exceto and painel_ferraria.esta_aberta():
 		painel_ferraria.fechar()
 	if painel_mundos and painel_mundos != exceto and painel_mundos.esta_aberta():
 		painel_mundos.fechar()
-	if painel_formacao and painel_formacao != exceto and painel_formacao.esta_aberta():
-		painel_formacao.fechar()
 
 
 func _on_ferraria_visibilidade_alterada(aberta: bool) -> void:
@@ -1083,10 +1119,7 @@ func _on_visibilidade_menu_alterada() -> void:
 		painel_ferraria.fechar()
 		painel_armazem.fechar()
 		painel_mundos.fechar()
-		if painel_formacao:
-			painel_formacao.fechar()
-		if painel_atributos:
-			painel_atributos.fechar()
+		_fechar_paineis_overlay()
 		_fechar_configuracoes()
 		return
 	call_deferred("_alinhar_paineis_laterais")
@@ -1132,6 +1165,8 @@ func _alinhar_configuracoes() -> void:
 	var origem := painel.position
 	if painel_formacao and painel_formacao.visible:
 		origem = painel_formacao.position
+	elif painel_skills and painel_skills.visible:
+		origem = painel_skills.position
 	elif painel_atributos and painel_atributos.visible:
 		origem = painel_atributos.position
 	painel_configuracoes.position = origem + Vector2(
