@@ -16,7 +16,7 @@ var palco: Control
 var painel_batalha: PanelContainer
 var area_botao_menu: ColorRect
 var combate: Node2D
-var chao: ColorRect
+var chao: Control
 var botao_abrir_inventario: Button
 var obter_rects_menu: Callable
 var menu_esta_visivel: Callable

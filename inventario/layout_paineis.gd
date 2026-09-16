@@ -15,9 +15,9 @@ static func alinhar(
 ) -> void:
 	if painel == null or area_menus == null:
 		return
-	var tam_painel := painel.get_combined_minimum_size()
+	var tam_painel := painel.get_combined_minimum_size() if painel.visible else painel.size
 	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
-	if painel.size != tam_painel:
+	if painel.visible and painel.size != tam_painel:
 		painel.size = tam_painel
 	var y := 0.0
 	if menus_abaixo:
@@ -54,7 +54,6 @@ static func _sobrepor_painel(lado: Control, painel: Control) -> void:
 	if tam.x < 1.0 or tam.y < 1.0:
 		tam = painel.get_combined_minimum_size()
 		tam.x = maxf(tam.x, painel.custom_minimum_size.x)
-		tam.y = maxf(tam.y, painel.custom_minimum_size.y)
 	if lado.size != tam:
 		lado.size = tam
 	if lado.position != painel.position:

@@ -1,7 +1,8 @@
-[gd_scene format=3 uid="uid://c8mundos0001"]
+[gd_scene load_steps=4 format=3 uid="uid://c8mundos0001"]
 
 [ext_resource type="Script" uid="uid://c8painmun001" path="res://mundos/painel_mundos.gd" id="1_mundos"]
 [ext_resource type="Script" uid="uid://c8mapafas001" path="res://mundos/mapa_fases.gd" id="2_mapa"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/mapa_floresta_limpo.png" id="3_floresta"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
 content_margin_left = 12.0
@@ -226,6 +227,22 @@ clip_contents = true
 layout_mode = 2
 mouse_filter = 0
 script = ExtResource("2_mapa")
+
+[node name="FundoMapa" type="TextureRect" parent="Camada/Conteudo/PainelMapaFases/MapaFases"]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+texture = ExtResource("3_floresta")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="FundoMenuDificuldade" type="ColorRect" parent="Camada"]
 unique_name_in_owner = true

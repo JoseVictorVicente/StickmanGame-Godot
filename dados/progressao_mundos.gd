@@ -79,8 +79,8 @@ static func stats_inimigo(mundo: int, fase: int, dificuldade: int) -> Dictionary
 	return {
 		"nome": "Monstro %d-%d" % [mundo, fase],
 		"rotulo": "%d-%d" % [mundo, fase],
-		"vida": maxi(1, int(round((18.0 + float(nivel - 1) * 14.0) * mult * chefe))),
-		"dano": maxi(1, int(round((3.0 + float(nivel - 1) * 0.55) * mult * chefe_dano))),
+		"vida": maxi(1, int(round((24.0 + float(nivel - 1) * 20.0) * mult * chefe))),
+		"dano": maxi(1, int(round((3.0 + float(nivel - 1) * 0.65) * mult * chefe_dano))),
 		"ouro": maxi(1, int(round((3.0 + float(nivel)) * mult))),
 		"xp": maxi(1, int(round((5.0 + float(nivel) * 2.0) * mult))),
 		"nivel": nivel,

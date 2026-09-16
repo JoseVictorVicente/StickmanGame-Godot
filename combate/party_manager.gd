@@ -8,7 +8,6 @@ signal dps_alterado(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
-const HP_POR_NIVEL := 4
 
 var equipe_ativa: Array = [null, null, null]
 var classes_desbloqueadas: Array[ClasseData] = []
@@ -151,7 +150,8 @@ func dano_do_heroi(slot_index: int) -> int:
 	var extra := 0
 	if obter_dano_equip.is_valid():
 		extra = int(obter_dano_equip.call(slot_index))
-	return maxi(1, int(round(float(dados.dano_base + extra) * dados.multiplicador_ataque)))
+	var base := maxi(1, int(round(float(dados.dano_base + extra) * dados.multiplicador_ataque)))
+	return maxi(1, base + (_nivel_do_slot(slot_index) - 1) * dados.atk_por_nivel)
 
 
 func dano_total_grupo() -> int:
@@ -182,10 +182,14 @@ func vida_maxima_do_heroi(slot_index: int) -> int:
 	var extra := 0
 	if obter_vida_equip.is_valid():
 		extra = int(obter_vida_equip.call(slot_index))
-	var nivel := 1
+	var dados := classe as ClasseData
+	return maxi(1, dados.vida_base + extra + (_nivel_do_slot(slot_index) - 1) * dados.hp_por_nivel)
+
+
+func _nivel_do_slot(slot_index: int) -> int:
 	if obter_nivel.is_valid():
-		nivel = maxi(1, int(obter_nivel.call(slot_index)))
-	return maxi(1, (classe as ClasseData).vida_base + extra + (nivel - 1) * HP_POR_NIVEL)
+		return maxi(1, int(obter_nivel.call(slot_index)))
+	return 1
 
 
 func heroi_vivo(slot_index: int) -> bool:

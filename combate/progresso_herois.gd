@@ -2,8 +2,14 @@ class_name ProgressoHerois
 extends RefCounted
 ## Nível e XP dos 3 heróis da equipe.
 
-const XP_BASE_NIVEL := 20
+const XP_BASE_NIVEL := 300
+const XP_CRESCIMENTO := 1.55
 const SLOTS := 3
+
+
+static func xp_para_proximo(nivel: int) -> int:
+	return maxi(1, int(XP_BASE_NIVEL * pow(XP_CRESCIMENTO, float(maxi(1, nivel) - 1))))
+
 
 var slots: Array[Dictionary] = []
 
@@ -40,8 +46,7 @@ func aplicar_xp(quantidade: int, equipe_ativa: Array) -> PackedInt32Array:
 		while int(progresso["xp"]) >= int(progresso["xp_proximo"]) and int(progresso["xp_proximo"]) > 0:
 			progresso["xp"] = int(progresso["xp"]) - int(progresso["xp_proximo"])
 			progresso["nivel"] = int(progresso["nivel"]) + 1
-			var proximo: int = int(XP_BASE_NIVEL * pow(1.35, int(progresso["nivel"]) - 1))
-			progresso["xp_proximo"] = max(1, proximo)
+			progresso["xp_proximo"] = xp_para_proximo(int(progresso["nivel"]))
 		niveis[indice] = int(progresso["nivel"])
 	return niveis
 
@@ -55,10 +60,11 @@ func aplicar(dados: Variant) -> void:
 		return
 	for i in mini(dados.size(), slots.size()):
 		if dados[i] is Dictionary:
+			var nivel := maxi(1, int(dados[i].get("nivel", 1)))
 			slots[i] = {
-				"nivel": int(dados[i].get("nivel", 1)),
-				"xp": int(dados[i].get("xp", 0)),
-				"xp_proximo": int(dados[i].get("xp_proximo", XP_BASE_NIVEL)),
+				"nivel": nivel,
+				"xp": maxi(0, int(dados[i].get("xp", 0))),
+				"xp_proximo": xp_para_proximo(nivel),
 			}
 
 

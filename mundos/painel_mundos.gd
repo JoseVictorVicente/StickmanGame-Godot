@@ -7,6 +7,17 @@ signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
 const TAMANHO_FASE := 34.0
 const TAMANHO_CHEFE := 48.0
+const POSICOES_TRILHA_FLORESTA: Array[Vector2] = [
+	Vector2(0.49, 0.89),
+	Vector2(0.53, 0.79),
+	Vector2(0.54, 0.69),
+	Vector2(0.53, 0.59),
+	Vector2(0.51, 0.49),
+	Vector2(0.51, 0.39),
+	Vector2(0.50, 0.29),
+	Vector2(0.49, 0.18),
+	Vector2(0.49, 0.08),
+]
 
 @onready var botao_voltar: Button = %BotaoVoltarMundos
 @onready var botao_fechar: Button = %BotaoFecharMundos
@@ -20,6 +31,7 @@ const TAMANHO_CHEFE := 48.0
 @onready var fundo_menu_dificuldade: ColorRect = %FundoMenuDificuldade
 @onready var painel_mapa: Control = %PainelMapaFases
 @onready var mapa_fases: MapaFases = %MapaFases
+@onready var fundo_mapa: TextureRect = %FundoMapa
 
 var _menu: MenuInventario
 var _mundo_aberto: int = 1
@@ -28,10 +40,12 @@ var _fase_atual: int = 1
 var _dificuldade: int = ProgressaoMundos.Dificuldade.FACIL
 var _liberadas: Array[int] = [1, 1, 1]
 var _botoes_mundo: Array[Button] = []
-var _botoes_fase: Array[Button] = []
+var _botoes_fase: Array[BaseButton] = []
 var _rotulos_fase: Array[Label] = []
 var _ancoras_fase: Array[Control] = []
 var _botoes_opcao_dificuldade: Array[Button] = []
+var _tex_fase: ImageTexture
+var _tex_chefe: ImageTexture
 
 
 func _ready() -> void:
@@ -137,25 +151,36 @@ func _criar_opcoes_dificuldade() -> void:
 
 
 func _criar_mapa_fases() -> void:
+	_tex_fase = _textura_circulo(int(TAMANHO_FASE))
+	_tex_chefe = _textura_circulo(int(TAMANHO_CHEFE))
 	for i in ProgressaoMundos.FASES_POR_MUNDO:
 		var ancora := Control.new()
 		ancora.name = "AncoraFase_%d" % (i + 1)
 		ancora.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		mapa_fases.add_child(ancora)
 
-		var rotulo := Label.new()
-		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		rotulo.add_theme_font_size_override("font_size", 11)
-		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
-		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		ancora.add_child(rotulo)
-
-		var botao := Button.new()
-		var tamanho := TAMANHO_CHEFE if i == ProgressaoMundos.FASES_POR_MUNDO - 1 else TAMANHO_FASE
+		var chefe := i == ProgressaoMundos.FASES_POR_MUNDO - 1
+		var tamanho := TAMANHO_CHEFE if chefe else TAMANHO_FASE
+		var botao := TextureButton.new()
 		botao.custom_minimum_size = Vector2(tamanho, tamanho)
 		botao.focus_mode = Control.FOCUS_NONE
+		botao.ignore_texture_size = true
+		botao.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		botao.texture_normal = _tex_chefe if chefe else _tex_fase
+		botao.texture_pressed = botao.texture_normal
+		botao.texture_hover = botao.texture_normal
+		botao.texture_disabled = botao.texture_normal
 		botao.pressed.connect(_on_fase_pressionada.bind(i + 1))
 		ancora.add_child(botao)
+
+		var rotulo := Label.new()
+		rotulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		rotulo.add_theme_font_size_override("font_size", 10 if chefe else 9)
+		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
+		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		botao.add_child(rotulo)
 
 		_ancoras_fase.append(ancora)
 		_rotulos_fase.append(rotulo)
@@ -274,11 +299,13 @@ func _atualizar_lista_mundos() -> void:
 
 
 func _atualizar_mapa() -> void:
+	var floresta := _mundo_aberto == 1
+	if fundo_mapa:
+		fundo_mapa.visible = floresta
 	for i in _botoes_fase.size():
 		var fase := i + 1
 		var rotulo := "%d-%d" % [_mundo_aberto, fase]
 		_rotulos_fase[i].text = rotulo
-		_botoes_fase[i].text = ""
 		var liberada := _fase_liberada(_mundo_aberto, fase)
 		var atual := _mundo_aberto == _mundo_atual and fase == _fase_atual
 		var concluida := ProgressaoMundos.indice(_mundo_aberto, fase) < _liberadas[_dificuldade]
@@ -307,23 +334,43 @@ func _atualizar_opcoes_dificuldade() -> void:
 func _posicionar_fases() -> void:
 	if mapa_fases.size.x < 8.0 or mapa_fases.size.y < 8.0:
 		return
-	var area := Rect2(Vector2(18, 10), mapa_fases.size - Vector2(36, 20))
+	var usar_trilha := _mundo_aberto == 1
 	for i in _ancoras_fase.size():
-		var ratio: Vector2 = ProgressaoMundos.POSICOES_FASES[i]
-		var centro := area.position + Vector2(area.size.x * ratio.x, area.size.y * ratio.y)
+		var centro: Vector2
+		if usar_trilha:
+			centro = _pos_na_trilha(POSICOES_TRILHA_FLORESTA[i])
+		else:
+			var area := Rect2(Vector2(18, 10), mapa_fases.size - Vector2(36, 20))
+			var ratio: Vector2 = ProgressaoMundos.POSICOES_FASES[i]
+			centro = area.position + Vector2(area.size.x * ratio.x, area.size.y * ratio.y)
 		var botao := _botoes_fase[i]
-		var rotulo := _rotulos_fase[i]
 		botao.reset_size()
-		rotulo.reset_size()
 		var raio := botao.size.x * 0.5
 		botao.position = Vector2(-raio, -raio)
-		rotulo.position = Vector2(-rotulo.size.x * 0.5, -raio - rotulo.size.y - 2.0)
 		_ancoras_fase[i].position = centro
 	var pontos: Array[Vector2] = []
-	for ancora in _ancoras_fase:
-		pontos.append(ancora.position)
+	if not usar_trilha:
+		for ancora in _ancoras_fase:
+			pontos.append(ancora.position)
 	mapa_fases.pontos = pontos
 	mapa_fases.queue_redraw()
+
+
+func _pos_na_trilha(uv: Vector2) -> Vector2:
+	var area := mapa_fases.size
+	var tex_size := Vector2(768, 1344)
+	if fundo_mapa and fundo_mapa.texture:
+		tex_size = Vector2(fundo_mapa.texture.get_width(), fundo_mapa.texture.get_height())
+	if tex_size.x < 1.0 or tex_size.y < 1.0 or area.x < 1.0 or area.y < 1.0:
+		return uv * area
+	var escala := maxf(area.x / tex_size.x, area.y / tex_size.y)
+	var desenhado := tex_size * escala
+	var origem := (area - desenhado) * 0.5
+	var centro := origem + Vector2(uv.x * desenhado.x, uv.y * desenhado.y)
+	var margem := TAMANHO_CHEFE * 0.5 + 2.0
+	centro.x = clampf(centro.x, margem, area.x - margem)
+	centro.y = clampf(centro.y, margem, area.y - margem)
+	return centro
 
 
 func _pintar_botao(botao: Button, ativo: bool = false, bloqueado: bool = false, compacto: bool = false) -> void:
@@ -353,31 +400,42 @@ func _pintar_botao(botao: Button, ativo: bool = false, bloqueado: bool = false, 
 	botao.add_theme_stylebox_override("disabled", estilo)
 
 
-func _pintar_fase(botao: Button, rotulo: Label, atual: bool, concluida: bool, bloqueada: bool, chefe: bool) -> void:
-	var estilo := StyleBoxFlat.new()
-	var raio := int(TAMANHO_CHEFE if chefe else TAMANHO_FASE)
-	estilo.set_corner_radius_all(raio)
-	estilo.set_border_width_all(3 if chefe or atual else 2)
+func _pintar_fase(botao: BaseButton, rotulo: Label, atual: bool, concluida: bool, bloqueada: bool, chefe: bool) -> void:
+	var cor := Color(0.18, 0.14, 0.11, 0.95)
+	var cor_texto := Color(0.95, 0.88, 0.7, 1)
 	if bloqueada:
-		estilo.bg_color = Color(0.12, 0.1, 0.09, 1)
-		estilo.border_color = Color(0.36, 0.3, 0.2, 1)
-		rotulo.add_theme_color_override("font_color", Color(0.55, 0.5, 0.4, 1))
+		cor = Color(0.10, 0.09, 0.08, 0.82)
+		cor_texto = Color(0.55, 0.5, 0.4, 1)
 	elif atual:
-		estilo.bg_color = Color(0.42, 0.18, 0.12, 1)
-		estilo.border_color = Color(1, 0.86, 0.38, 1)
-		rotulo.add_theme_color_override("font_color", Color(1, 0.92, 0.55, 1))
+		cor = Color(0.72, 0.28, 0.14, 0.96)
+		cor_texto = Color(1, 0.94, 0.6, 1)
 	elif concluida:
-		estilo.bg_color = Color(0.22, 0.28, 0.16, 1)
-		estilo.border_color = Color(0.78, 0.72, 0.38, 1)
-		rotulo.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
-	else:
-		estilo.bg_color = Color(0.18, 0.14, 0.11, 1)
-		estilo.border_color = Color(0.82, 0.68, 0.36, 1)
-		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
-	botao.add_theme_stylebox_override("normal", estilo)
-	botao.add_theme_stylebox_override("hover", estilo)
-	botao.add_theme_stylebox_override("pressed", estilo)
-	botao.add_theme_stylebox_override("disabled", estilo)
+		cor = Color(0.22, 0.38, 0.16, 0.94)
+		cor_texto = Color(0.92, 0.9, 0.62, 1)
+	elif chefe:
+		cor = Color(0.42, 0.16, 0.12, 0.96)
+		cor_texto = Color(1, 0.86, 0.45, 1)
+	botao.self_modulate = cor
+	rotulo.add_theme_color_override("font_color", cor_texto)
+	rotulo.add_theme_color_override("font_outline_color", Color(0.05, 0.04, 0.03, 0.9))
+	rotulo.add_theme_constant_override("outline_size", 4)
+
+
+func _textura_circulo(diametro: int) -> ImageTexture:
+	var img := Image.create(diametro, diametro, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var centro := Vector2(diametro, diametro) * 0.5
+	var raio := diametro * 0.5 - 1.5
+	for y in diametro:
+		for x in diametro:
+			var dist := Vector2(x + 0.5, y + 0.5).distance_to(centro)
+			if dist <= raio - 2.0:
+				img.set_pixel(x, y, Color.WHITE)
+			elif dist <= raio:
+				img.set_pixel(x, y, Color(0.95, 0.82, 0.4, 1))
+			elif dist <= raio + 1.0:
+				img.set_pixel(x, y, Color(0.95, 0.82, 0.4, clampf(1.0 - (dist - raio), 0.0, 1.0)))
+	return ImageTexture.create_from_image(img)
 
 
 func _on_cabecalho_gui_input(event: InputEvent) -> void:

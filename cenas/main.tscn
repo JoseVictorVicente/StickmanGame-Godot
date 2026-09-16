@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://k7es6xs2olod"]
+[gd_scene load_steps=15 format=3 uid="uid://k7es6xs2olod"]
 
 [ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://cenas/main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://b6sat1v5h8j2d" path="res://inventario/menu.tscn" id="2_menu"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cys44jv0wfx00" path="res://combate/party_manager.gd" id="4_party"]
 [ext_resource type="Script" uid="uid://b71mobneq8wgw" path="res://combate/inimigo_visual.gd" id="5_inimigo"]
 [ext_resource type="Script" uid="uid://d3eb0eg6ln5cl" path="res://ui/efeito_moedas.gd" id="6_moedas"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/chao_grama.png" id="7_chao"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
 bg_color = Color(0.18, 0.16, 0.14, 1)
@@ -115,18 +116,21 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 0
 
-[node name="Chao" type="ColorRect" parent="HudBatalha/Palco"]
+[node name="Chao" type="TextureRect" parent="HudBatalha/Palco"]
 unique_name_in_owner = true
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -14.0
+offset_top = -48.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-color = Color(0.22, 0.16, 0.1, 0.94)
+texture = ExtResource("7_chao")
+expand_mode = 1
+stretch_mode = 0
 
 [node name="Combate" type="Node2D" parent="HudBatalha"]
 

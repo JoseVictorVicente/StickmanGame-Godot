@@ -152,7 +152,8 @@ func _ready() -> void:
 	if painel_ouro:
 		painel_ouro.resized.connect(_alinhar_espaco_ouro)
 		_alinhar_espaco_ouro()
-		call_deferred("_alinhar_espaco_ouro")
+	call_deferred("_alinhar_espaco_ouro")
+	_restaurar_painel_base()
 	call_deferred("_alinhar_paineis_laterais")
 
 
@@ -364,9 +365,34 @@ func largura_para_janela() -> int:
 
 
 func _alinhar_paineis_laterais() -> void:
+	_restaurar_painel_base()
 	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos)
 	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
+
+
+func _restaurar_painel_base() -> void:
+	if painel == null:
+		return
+	painel.modulate = Color.WHITE
+	painel.mouse_filter = Control.MOUSE_FILTER_STOP
+	if painel.custom_minimum_size.x < 580.0:
+		painel.custom_minimum_size.x = 580.0
+
+
+func _definir_inventario_visivel(visivel: bool) -> void:
+	if painel == null:
+		return
+	_restaurar_painel_base()
+	if visivel:
+		painel.visible = true
+		return
+	var tam := painel.size
+	if tam.y < 1.0:
+		tam = painel.get_combined_minimum_size()
+		tam.x = maxf(tam.x, painel.custom_minimum_size.x)
+	painel.visible = false
+	painel.size = tam
 
 
 func slots_inventario() -> Array[SlotItem]:
@@ -619,8 +645,10 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 		ataque = party.dano_do_heroi(indice)
 		vida = party.vida_maxima_do_heroi(indice)
 	elif classe:
+		var nivel := maxi(1, int(dados.get("nivel", 1)))
 		ataque = maxi(1, int(round(float(classe.dano_base) * classe.multiplicador_ataque)))
-		vida = classe.vida_base
+		ataque += (nivel - 1) * classe.atk_por_nivel
+		vida = classe.vida_base + (nivel - 1) * classe.hp_por_nivel
 	var vel := 100.0
 	if classe:
 		vel = classe.velocidade_ataque * 100.0
@@ -942,8 +970,7 @@ func _on_formacao_pedida() -> void:
 
 
 func _on_formacao_visibilidade_alterada(aberta: bool) -> void:
-	if painel:
-		painel.visible = not aberta
+	_definir_inventario_visivel(not aberta)
 	_alinhar_paineis_laterais()
 	call_deferred("_alinhar_paineis_laterais")
 
@@ -966,8 +993,7 @@ func _abrir_atributos() -> void:
 
 
 func _on_atributos_visibilidade_alterada(aberta: bool) -> void:
-	if painel:
-		painel.visible = not aberta
+	_definir_inventario_visivel(not aberta)
 	_alinhar_paineis_laterais()
 	call_deferred("_alinhar_paineis_laterais")
 

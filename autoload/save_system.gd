@@ -3,6 +3,7 @@ extends Node
 
 const CAMINHO_SAVE := "user://save.cfg"
 const INTERVALO_AUTOSAVE := 30.0
+const VERSAO_SAVE := 2
 
 var _jogo: Node = null
 var _timer: Timer
@@ -36,6 +37,7 @@ func salvar() -> void:
 	var cfg := ConfigFile.new()
 	if FileAccess.file_exists(CAMINHO_SAVE):
 		cfg.load(CAMINHO_SAVE)
+	cfg.set_value("jogo", "versao", VERSAO_SAVE)
 	cfg.set_value("jogo", "ouro", int(dados.get("ouro", 0)))
 	cfg.set_value("jogo", "onda", int(dados.get("onda", 1)))
 	cfg.set_value("jogo", "mundo", int(dados.get("mundo", 1)))
@@ -62,6 +64,10 @@ func carregar() -> bool:
 	var cfg := ConfigFile.new()
 	if cfg.load(CAMINHO_SAVE) != OK:
 		return false
+	var versao := int(cfg.get_value("jogo", "versao", 0))
+	if versao < VERSAO_SAVE:
+		_limpar_progresso(cfg)
+		return false
 	var dados := {
 		"ouro": int(cfg.get_value("jogo", "ouro", 0)),
 		"onda": int(cfg.get_value("jogo", "onda", 1)),
@@ -86,3 +92,11 @@ func carregar() -> bool:
 func _parse_json(texto: String, padrao: Variant) -> Variant:
 	var resultado: Variant = JSON.parse_string(texto)
 	return resultado if resultado != null else padrao
+
+
+func _limpar_progresso(cfg: ConfigFile) -> void:
+	for secao in ["jogo", "progresso", "inventario", "equipamentos", "equipe"]:
+		if cfg.has_section(secao):
+			cfg.erase_section(secao)
+	cfg.set_value("jogo", "versao", VERSAO_SAVE)
+	cfg.save(CAMINHO_SAVE)

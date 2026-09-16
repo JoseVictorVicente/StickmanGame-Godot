@@ -52,6 +52,7 @@ func _reforcar_layout() -> void:
 
 
 func fechar() -> void:
+	custom_minimum_size = Vector2(580, 0)
 	hide()
 	visibilidade_alterada.emit(false)
 

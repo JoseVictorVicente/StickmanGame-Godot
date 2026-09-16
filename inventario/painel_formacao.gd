@@ -12,7 +12,6 @@ signal slot_escolhido(indice: int)
 @onready var grade_herois: GridContainer = %GradeHeroisFormacao
 @onready var label_dica: Label = %LabelDicaFormacao
 @onready var label_skills_heroi: Label = %LabelSkillsHeroi
-@onready var label_skills_dica: Label = %LabelSkillsDica
 
 var _menu: MenuInventario
 var _party: PartyManager
@@ -60,6 +59,7 @@ func _reforcar_layout() -> void:
 
 
 func fechar() -> void:
+	custom_minimum_size = Vector2(580, 0)
 	hide()
 	visibilidade_alterada.emit(false)
 
@@ -152,14 +152,9 @@ func _atualizar_skills() -> void:
 		return
 	var classe: Variant = _party.equipe_ativa[_slot_alvo]
 	if classe is ClasseData:
-		var dados := classe as ClasseData
-		label_skills_heroi.text = dados.nome_classe
-		if label_skills_dica:
-			label_skills_dica.text = "As skills de %s entram nesta coluna." % dados.nome_classe
+		label_skills_heroi.text = (classe as ClasseData).nome_classe
 	else:
 		label_skills_heroi.text = "Nenhum herói"
-		if label_skills_dica:
-			label_skills_dica.text = "Selecione um herói em campo para gerenciar as skills."
 
 
 func _on_slot_pressionado(indice: int) -> void:
