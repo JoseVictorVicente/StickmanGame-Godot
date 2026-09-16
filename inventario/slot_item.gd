@@ -7,7 +7,10 @@ signal item_duplo_clique(slot: SlotItem)
 signal item_botao_direito(slot: SlotItem)
 signal item_solto(destino: SlotItem, item: ItemData, origem: SlotItem)
 
-const MARGEM_LEGENDA := 8.0
+const OFFSET_CURSOR := Vector2(15, 15)
+const CAMADA_TOOLTIP := 128
+const Z_INDEX_TOOLTIP := 100
+const EQUIP_DIREITA_NOMES: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
 
 static var _camada_legenda: CanvasLayer
 static var _caixa_legenda: PanelContainer
@@ -114,15 +117,22 @@ func _mostrar_legenda() -> void:
 	caixa.show()
 	caixa.move_to_front()
 	_posicionar_legenda()
-	call_deferred("_posicionar_legenda")
+	set_process(true)
 
 
 func _ocultar_legenda() -> void:
 	if _slot_legenda != null and _slot_legenda != self:
 		return
+	if _slot_legenda == self:
+		set_process(false)
 	_slot_legenda = null
 	if _caixa_legenda and is_instance_valid(_caixa_legenda):
 		_caixa_legenda.hide()
+
+
+func _process(_delta: float) -> void:
+	if _slot_legenda == self and _caixa_legenda and _caixa_legenda.visible:
+		_posicionar_legenda()
 
 
 func _posicionar_legenda() -> void:
@@ -132,21 +142,72 @@ func _posicionar_legenda() -> void:
 		return
 	_caixa_legenda.reset_size()
 	var tam := _caixa_legenda.get_combined_minimum_size()
-	if _caixa_legenda.size.x > tam.x:
+	if _caixa_legenda.size.x > tam.x or _caixa_legenda.size.y > tam.y:
 		tam = _caixa_legenda.size
 	_caixa_legenda.size = tam
-	var quadrado := get_global_rect()
-	_caixa_legenda.global_position = Vector2(quadrado.position.x - tam.x - MARGEM_LEGENDA, quadrado.position.y)
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	var mouse := get_viewport().get_mouse_position()
+	var slot_rect := get_global_rect()
+	var abrir_esquerda := _deve_abrir_tooltip_esquerda(slot_rect)
+	var pos := Vector2.ZERO
+
+	if abrir_esquerda:
+		_caixa_legenda.pivot_offset = Vector2(tam.x, 0.0)
+		pos.x = slot_rect.position.x - tam.x - OFFSET_CURSOR.x
+		pos.y = mouse.y + OFFSET_CURSOR.y
+		if pos.x < 0.0:
+			pos.x = slot_rect.end.x + OFFSET_CURSOR.x
+	else:
+		_caixa_legenda.pivot_offset = Vector2.ZERO
+		pos = mouse + OFFSET_CURSOR
+		if pos.x + tam.x > viewport_size.x:
+			pos.x = mouse.x - tam.x - OFFSET_CURSOR.x
+
+	if pos.y + tam.y > viewport_size.y:
+		pos.y = mouse.y - tam.y - OFFSET_CURSOR.y
+
+	pos.x = clampf(pos.x, 0.0, maxf(0.0, viewport_size.x - tam.x))
+	pos.y = clampf(pos.y, 0.0, maxf(0.0, viewport_size.y - tam.y))
+	_caixa_legenda.global_position = pos
+
+
+func _deve_abrir_tooltip_esquerda(slot_rect: Rect2) -> bool:
+	if EQUIP_DIREITA_NOMES.has(nome_slot) or _esta_em_coluna_direita():
+		return true
+	var hud := _obter_retangulo_hud()
+	if hud.size.x <= 0.0:
+		return slot_rect.get_center().x >= get_viewport().get_visible_rect().size.x * 0.5
+	return slot_rect.get_center().x >= hud.position.x + hud.size.x * 0.5
+
+
+func _esta_em_coluna_direita() -> bool:
+	var no: Node = self
+	while no:
+		if no.name == "EquipDireita" or str(no.name).begins_with("EquipDir_"):
+			return true
+		no = no.get_parent()
+	return false
+
+
+func _obter_retangulo_hud() -> Rect2:
+	var no: Node = self
+	while no:
+		if no is Control and (no.name == "Painel" or no.name == "Menu"):
+			return (no as Control).get_global_rect()
+		no = no.get_parent()
+	return Rect2()
 
 
 func _garantir_caixa_legenda() -> PanelContainer:
 	if _camada_legenda == null or not is_instance_valid(_camada_legenda):
 		_camada_legenda = CanvasLayer.new()
-		_camada_legenda.layer = 128
+		_camada_legenda.layer = CAMADA_TOOLTIP
 		_camada_legenda.name = "CamadaLegendaItem"
 		get_tree().root.add_child(_camada_legenda)
 	if _caixa_legenda == null or not is_instance_valid(_caixa_legenda):
 		_caixa_legenda = PanelContainer.new()
+		_caixa_legenda.z_index = Z_INDEX_TOOLTIP
 		_caixa_legenda.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_camada_legenda.add_child(_caixa_legenda)
 	return _caixa_legenda

@@ -22,8 +22,6 @@ static func alinhar(
 	if painel.visible and painel.size != tam_painel:
 		painel.size = tam_painel
 	var y := 0.0
-	if menus_abaixo:
-		y = maxf(0.0, area_menus.size.y - painel.size.y)
 	var pos_painel := Vector2((area_menus.size.x - painel.size.x) * 0.5, y)
 	if painel.position != pos_painel:
 		painel.position = pos_painel

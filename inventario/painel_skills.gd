@@ -53,17 +53,29 @@ func esta_aberta() -> bool:
 	return visible
 
 
-func abrir(slot_heroi: int = -1) -> void:
+func abrir(
+	slot_heroi: int = -1,
+	tipo_slot: SkillResource.Type = SkillResource.Type.ACTIVE,
+	indice_slot: int = 0
+) -> void:
 	if _menu == null or not _menu.visible:
 		return
 	if slot_heroi >= 0:
 		_slot_alvo = slot_heroi
 	elif _party != null and not (_party.equipe_ativa[_slot_alvo] is ClasseData):
 		_slot_alvo = _party.primeiro_slot_ocupado()
+	definir_slot_equipamento(tipo_slot, indice_slot)
 	show()
 	atualizar()
 	visibilidade_alterada.emit(true)
 	call_deferred("_reforcar_layout")
+
+
+func definir_slot_equipamento(tipo: SkillResource.Type, indice: int) -> void:
+	if tipo == SkillResource.Type.ACTIVE:
+		_slot_ativo_selecionado = clampi(indice, 0, ArcherEquipment.MAX_ACTIVE - 1)
+	else:
+		_slot_passivo_selecionado = clampi(indice, 0, ArcherEquipment.MAX_PASSIVE - 1)
 
 
 func _reforcar_layout() -> void:

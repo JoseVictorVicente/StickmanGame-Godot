@@ -16,12 +16,15 @@ signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
 const INVENTARIO_COLUNAS := 10
 const INVENTARIO_LINHAS := 5
-const TAMANHO_SLOT := Vector2(42, 42)
-const TAMANHO_SLOT_EQUIP := Vector2(44, 44)
+const TAMANHO_SLOT := Vector2(38, 38)
+const TAMANHO_SLOT_EQUIP := Vector2(40, 40)
 const TAMANHO_SLOT_PERSONAGEM := Vector2(36, 36)
 const EQUIP_COLUNAS := 2
 const EQUIP_ESQUERDA: Array[String] = ["Primária", "Secundária", "Capacete", "Peitoral", "Luva", "Calça", "Bota"]
 const EQUIP_DIREITA: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
+const MARGEM_TOPO_UI := 8.0
+const ALTURA_JANELA := 860.0
+const ESPACO_RESERVADO_COMBATE := 320.0
 var PERSONAGENS: Array[Dictionary] = [
 	{"nome": "Guerreiro", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.GUERREIRO},
 	{"nome": "Mago", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.MAGO},
@@ -44,6 +47,13 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var nome_personagem: Label = %NomePersonagem
 @onready var nivel_personagem: Label = %NivelPersonagem
 @onready var foto_personagem: TextureRect = %FotoPersonagem
+@onready var linha_card_heroi: HBoxContainer = %LinhaCardHeroi
+@onready var coluna_ativas: VBoxContainer = %ColunaAtivas
+@onready var coluna_passivas: VBoxContainer = %ColunaPassivas
+@onready var slot_ativa_0: Button = %SlotSkillMenuAtiva0
+@onready var slot_ativa_1: Button = %SlotSkillMenuAtiva1
+@onready var slot_passiva_0: Button = %SlotSkillMenuPassiva0
+@onready var slot_passiva_1: Button = %SlotSkillMenuPassiva1
 @onready var barra_xp_personagem: ProgressBar = %BarraXpPersonagem
 @onready var label_xp_personagem: Label = %LabelXpPersonagem
 @onready var botao_atributos_personagem: Button = %BotaoAtributosPersonagem
@@ -102,6 +112,9 @@ var _menus_abaixo: bool = false
 var _progresso_arvore := ProgressoArvore.new()
 var consultar_ouro: Callable
 
+const TEXTO_SLOT_SKILL_VAZIO := "+"
+const TAMANHO_SLOT_SKILL := Vector2(48, 48)
+
 
 func _ready() -> void:
 	CLASSES = ClasseData.catalogo()
@@ -149,6 +162,9 @@ func _ready() -> void:
 	botao_armazem.add_theme_constant_override("icon_max_width", 52)
 	botao_armazem.tooltip_text = "Armazém"
 	_aplicar_icones_barra_inferior()
+	_conectar_slots_skills_principal()
+	if not ArcherEquipment.equipamento_alterado.is_connected(_atualizar_slots_skills_principal):
+		ArcherEquipment.equipamento_alterado.connect(_atualizar_slots_skills_principal)
 	botao_atributos.pressed.connect(_on_botao_atributos_pressed)
 	if botao_skills:
 		botao_skills.pressed.connect(_on_botao_skills_pressed)
@@ -168,6 +184,7 @@ func _ready() -> void:
 		_alinhar_espaco_ouro()
 	call_deferred("_alinhar_espaco_ouro")
 	_restaurar_painel_base()
+	call_deferred("definir_abaixo_do_combate", _menus_abaixo)
 	call_deferred("_alinhar_paineis_laterais")
 
 
@@ -188,8 +205,8 @@ func _criar_grade_equipamento(nome_no: String, nomes_slots: Array[String]) -> Gr
 	var grade := GridContainer.new()
 	grade.name = nome_no
 	grade.columns = EQUIP_COLUNAS
-	grade.add_theme_constant_override("h_separation", 6)
-	grade.add_theme_constant_override("v_separation", 6)
+	grade.add_theme_constant_override("h_separation", 4)
+	grade.add_theme_constant_override("v_separation", 3)
 	_criar_slots_equipamento(grade, nomes_slots)
 	return grade
 
@@ -291,6 +308,7 @@ func selecionar_personagem(indice: int) -> void:
 	if ui_equipe:
 		ui_equipe.selecionar_slot(indice, false)
 	_atualizar_retrato()
+	_atualizar_slots_skills_principal()
 
 	for i in _botoes_personagem.size():
 		var selecionado := i == indice
@@ -344,14 +362,21 @@ func atualizar_nivel_exibido(nivel: int, xp: int = -1, xp_proximo: int = -1) -> 
 		painel_atributos.atualizar()
 
 
+func _configurar_ancora_ui() -> void:
+	centralizar.set_anchors_preset(Control.PRESET_TOP_WIDE, false)
+	centralizar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	centralizar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+
+
 func definir_abaixo_do_combate(abaixo: bool) -> void:
 	_menus_abaixo = abaixo
+	_configurar_ancora_ui()
 	if abaixo:
-		centralizar.offset_top = 228.0
-		centralizar.offset_bottom = -8.0
+		centralizar.offset_top = ESPACO_RESERVADO_COMBATE
+		centralizar.offset_bottom = ALTURA_JANELA - MARGEM_TOPO_UI
 	else:
-		centralizar.offset_top = 8.0
-		centralizar.offset_bottom = -228.0
+		centralizar.offset_top = MARGEM_TOPO_UI
+		centralizar.offset_bottom = ALTURA_JANELA - ESPACO_RESERVADO_COMBATE
 	_alinhar_paineis_laterais()
 
 
@@ -815,6 +840,53 @@ func _atualizar_retrato() -> void:
 	foto_personagem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
+func _conectar_slots_skills_principal() -> void:
+	slot_ativa_0.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.ACTIVE, 0))
+	slot_ativa_1.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.ACTIVE, 1))
+	slot_passiva_0.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.PASSIVE, 0))
+	slot_passiva_1.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.PASSIVE, 1))
+
+
+func _heroi_atual_eh_arqueiro() -> bool:
+	var classe: ClasseData = obter_classe_atual()
+	return classe != null and classe.id == "arqueiro"
+
+
+func _atualizar_slots_skills_principal() -> void:
+	if linha_card_heroi == null:
+		return
+	var mostrar := _heroi_atual_eh_arqueiro()
+	if coluna_ativas:
+		coluna_ativas.visible = mostrar
+	if coluna_passivas:
+		coluna_passivas.visible = mostrar
+	if not mostrar:
+		return
+	_aplicar_texto_slot_skill(slot_ativa_0, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 0))
+	_aplicar_texto_slot_skill(slot_ativa_1, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 1))
+	_aplicar_texto_slot_skill(slot_passiva_0, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 0))
+	_aplicar_texto_slot_skill(slot_passiva_1, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 1))
+
+
+func _aplicar_texto_slot_skill(botao: Button, skill: SkillResource) -> void:
+	if botao == null:
+		return
+	botao.custom_minimum_size = TAMANHO_SLOT_SKILL
+	if skill == null:
+		botao.text = TEXTO_SLOT_SKILL_VAZIO
+		botao.tooltip_text = "Equipar habilidade"
+	else:
+		botao.text = skill.skill_name
+		botao.tooltip_text = skill.description
+	# TODO: adicionar TextureRect/Sprite2D com ícone da habilidade no slot.
+
+
+func _on_slot_skill_principal_pressionado(tipo: SkillResource.Type, indice_slot: int) -> void:
+	if not _heroi_atual_eh_arqueiro():
+		return
+	abrir_equipamento_skills(_indice_personagem, tipo, indice_slot)
+
+
 func _classe_pode_usar(item: ItemData) -> bool:
 	if item == null:
 		return true
@@ -1056,11 +1128,24 @@ func _on_botao_skills_pressed() -> void:
 		botao_skills.release_focus()
 
 
-func _abrir_skills() -> void:
+func abrir_equipamento_skills(
+	slot_heroi: int,
+	tipo_slot: SkillResource.Type = SkillResource.Type.ACTIVE,
+	indice_slot: int = 0
+) -> void:
+	_abrir_skills(slot_heroi, tipo_slot, indice_slot)
+
+
+func _abrir_skills(
+	slot_heroi: int = -1,
+	tipo_slot: SkillResource.Type = SkillResource.Type.ACTIVE,
+	indice_slot: int = 0
+) -> void:
 	_fechar_paineis_overlay(painel_skills)
 	_fechar_paineis_direita()
 	if painel_skills:
-		painel_skills.abrir(_indice_personagem)
+		var heroi := slot_heroi if slot_heroi >= 0 else _indice_personagem
+		painel_skills.abrir(heroi, tipo_slot, indice_slot)
 
 
 func _on_skills_visibilidade_alterada(aberta: bool) -> void:
