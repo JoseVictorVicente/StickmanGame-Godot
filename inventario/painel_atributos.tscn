@@ -1,0 +1,143 @@
+[gd_scene format=3 uid="uid://c8atrib0001"]
+
+[ext_resource type="Script" path="res://inventario/painel_atributos.gd" id="1_atributos"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.11, 0.09, 0.08, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.42, 0.14, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.58, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.74, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.1, 0.08, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.4, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="PainelAtributos" type="PanelContainer"]
+visible = false
+custom_minimum_size = Vector2(580, 0)
+size_flags_vertical = 3
+mouse_filter = 0
+clip_contents = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+script = ExtResource("1_atributos")
+
+[node name="Conteudo" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="CabecalhoAtributos" type="HBoxContainer" parent="Conteudo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BotaoVoltarAtributos" type="Button" parent="Conteudo/CabecalhoAtributos"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Voltar ao inventário"
+theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "←"
+
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoAtributos"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
+
+[node name="Titulo" type="Label" parent="Conteudo/CabecalhoAtributos/BannerTitulo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
+theme_override_font_sizes/font_size = 16
+text = "ATRIBUTOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RolagemAtributos" type="ScrollContainer" parent="Conteudo"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="ListaAtributos" type="VBoxContainer" parent="Conteudo/RolagemAtributos"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8

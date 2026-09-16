@@ -21,9 +21,9 @@ const EQUIP_COLUNAS := 2
 const EQUIP_ESQUERDA: Array[String] = ["Primária", "Secundária", "Capacete", "Peitoral", "Luva", "Calça", "Bota"]
 const EQUIP_DIREITA: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
 var PERSONAGENS: Array[Dictionary] = [
-	{"nome": "Guerreiro", "nivel": 1, "classe": ItemData.ClasseRequerida.GUERREIRO},
-	{"nome": "Mago", "nivel": 1, "classe": ItemData.ClasseRequerida.MAGO},
-	{"nome": "Arqueiro", "nivel": 1, "classe": ItemData.ClasseRequerida.ARQUEIRO},
+	{"nome": "Guerreiro", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.GUERREIRO},
+	{"nome": "Mago", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.MAGO},
+	{"nome": "Arqueiro", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.ARQUEIRO},
 ]
 
 @onready var grade_inventario: GridContainer = %GradeInventario
@@ -42,12 +42,16 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var nome_personagem: Label = %NomePersonagem
 @onready var nivel_personagem: Label = %NivelPersonagem
 @onready var foto_personagem: TextureRect = %FotoPersonagem
+@onready var barra_xp_personagem: ProgressBar = %BarraXpPersonagem
+@onready var label_xp_personagem: Label = %LabelXpPersonagem
+@onready var botao_atributos_personagem: Button = %BotaoAtributosPersonagem
 @onready var ui_equipe: UiSelecaoEquipe = %AreaEquipe
 @onready var area_menus: Control = %AreaMenus
 @onready var painel_ferraria: Ferraria = %PainelFerraria
 @onready var painel_armazem: PainelArmazem = %PainelArmazem
 @onready var painel_mundos: PainelMundos = %PainelMundos
 @onready var painel_formacao: PainelFormacao = %PainelFormacao
+@onready var painel_atributos: PainelAtributos = %PainelAtributos
 @onready var botao_atributos: Button = %BotaoAtributos
 @onready var botao_inventario: Button = %BotaoInventario
 @onready var botao_ferraria: Button = %BotaoFerraria
@@ -138,6 +142,13 @@ func _ready() -> void:
 	botao_armazem.add_theme_constant_override("icon_max_width", 52)
 	botao_armazem.tooltip_text = "Armazém"
 	_aplicar_icones_barra_inferior()
+	botao_atributos.pressed.connect(_on_botao_atributos_pressed)
+	if botao_atributos_personagem:
+		botao_atributos_personagem.pressed.connect(_on_botao_atributos_pressed)
+	if painel_atributos:
+		painel_atributos.configurar(self)
+		if not painel_atributos.visibilidade_alterada.is_connected(_on_atributos_visibilidade_alterada):
+			painel_atributos.visibilidade_alterada.connect(_on_atributos_visibilidade_alterada)
 	if painel_ouro:
 		painel_ouro.resized.connect(_alinhar_espaco_ouro)
 		_alinhar_espaco_ouro()
@@ -257,6 +268,9 @@ func selecionar_personagem(indice: int) -> void:
 	var dados: Dictionary = PERSONAGENS[indice]
 	nome_personagem.text = str(dados["nome"])
 	nivel_personagem.text = "Lv. %d" % int(dados["nivel"])
+	_atualizar_barra_xp()
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.atualizar()
 	if ui_equipe:
 		ui_equipe.selecionar_slot(indice, false)
 	_atualizar_retrato()
@@ -299,11 +313,18 @@ func obter_itens_equipados(indice: int = -1) -> Array[ItemData]:
 	return itens
 
 
-func atualizar_nivel_exibido(nivel: int) -> void:
+func atualizar_nivel_exibido(nivel: int, xp: int = -1, xp_proximo: int = -1) -> void:
 	var dados: Dictionary = PERSONAGENS[_indice_personagem].duplicate()
 	dados["nivel"] = nivel
+	if xp >= 0:
+		dados["xp"] = xp
+	if xp_proximo > 0:
+		dados["xp_proximo"] = xp_proximo
 	PERSONAGENS[_indice_personagem] = dados
 	nivel_personagem.text = "Lv. %d" % nivel
+	_atualizar_barra_xp()
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.atualizar()
 
 
 func definir_abaixo_do_combate(abaixo: bool) -> void:
@@ -323,6 +344,8 @@ func obter_retangulos_clicaveis() -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	if painel_formacao and painel_formacao.visible:
 		rects.append(painel_formacao.get_global_rect().grow(4.0))
+	elif painel_atributos and painel_atributos.visible:
+		rects.append(painel_atributos.get_global_rect().grow(4.0))
 	elif painel:
 		rects.append(painel.get_global_rect().grow(4.0))
 	if painel_armazem and painel_armazem.visible:
@@ -341,7 +364,7 @@ func largura_para_janela() -> int:
 
 
 func _alinhar_paineis_laterais() -> void:
-	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao)
+	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos)
 	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
 
@@ -585,6 +608,53 @@ func obter_vida_equipada(indice: int) -> int:
 	return total
 
 
+func estatisticas_do_heroi_atual() -> Dictionary:
+	var indice := _indice_personagem
+	var dados: Dictionary = PERSONAGENS[indice] if indice >= 0 and indice < PERSONAGENS.size() else {}
+	var classe: ClasseData = obter_classe_atual()
+	var party: PartyManager = ui_equipe._party if ui_equipe else null
+	var ataque := 0
+	var vida := 0
+	if party:
+		ataque = party.dano_do_heroi(indice)
+		vida = party.vida_maxima_do_heroi(indice)
+	elif classe:
+		ataque = maxi(1, int(round(float(classe.dano_base) * classe.multiplicador_ataque)))
+		vida = classe.vida_base
+	var vel := 100.0
+	if classe:
+		vel = classe.velocidade_ataque * 100.0
+	return {
+		"ataque": ataque,
+		"vida": vida,
+		"nivel": int(dados.get("nivel", 1)),
+		"xp": int(dados.get("xp", 0)),
+		"xp_proximo": int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+		"bonus_xp": PainelAtributos.BONUS_XP_PCT,
+		"bonus_ouro": PainelAtributos.BONUS_OURO_PCT,
+		"vel_ataque": vel,
+		"crit_chance": PainelAtributos.CRIT_CHANCE_PCT,
+		"crit_dano": PainelAtributos.CRIT_DANO_PCT,
+		"evasao": PainelAtributos.EVASAO_PCT,
+		"res_fisica": PainelAtributos.RES_FISICA_PCT,
+		"res_arcana": PainelAtributos.RES_ARCANA_PCT,
+		"res_elemental": PainelAtributos.RES_ELEMENTAL_PCT,
+	}
+
+
+func _atualizar_barra_xp() -> void:
+	if barra_xp_personagem == null:
+		return
+	var dados: Dictionary = PERSONAGENS[_indice_personagem]
+	var xp := int(dados.get("xp", 0))
+	var proximo := maxi(1, int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)))
+	var nivel := int(dados.get("nivel", 1))
+	barra_xp_personagem.max_value = float(proximo)
+	barra_xp_personagem.value = clampf(float(xp), 0.0, float(proximo))
+	if label_xp_personagem:
+		label_xp_personagem.text = "Nv.%d  %d/%d" % [nivel, xp, proximo]
+
+
 func configurar_equipe(party: PartyManager) -> void:
 	ui_equipe.configurar(party, _indice_personagem)
 	if not ui_equipe.slot_selecionado.is_connected(selecionar_personagem):
@@ -599,6 +669,10 @@ func configurar_equipe(party: PartyManager) -> void:
 			painel_formacao.slot_escolhido.connect(selecionar_personagem)
 		if not painel_formacao.visibilidade_alterada.is_connected(_on_formacao_visibilidade_alterada):
 			painel_formacao.visibilidade_alterada.connect(_on_formacao_visibilidade_alterada)
+	if painel_atributos:
+		painel_atributos.configurar(self)
+		if not painel_atributos.visibilidade_alterada.is_connected(_on_atributos_visibilidade_alterada):
+			painel_atributos.visibilidade_alterada.connect(_on_atributos_visibilidade_alterada)
 	if not party.equipe_alterada.is_connected(_on_equipe_alterada):
 		party.equipe_alterada.connect(_on_equipe_alterada)
 	_sincronizar_nomes_da_equipe()
@@ -856,6 +930,8 @@ func _on_formacao_pedida() -> void:
 	if painel_formacao.esta_aberta():
 		painel_formacao.fechar()
 		return
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.fechar()
 	if painel_ferraria and painel_ferraria.esta_aberta():
 		painel_ferraria.fechar()
 	if painel_mundos and painel_mundos.esta_aberta():
@@ -866,6 +942,30 @@ func _on_formacao_pedida() -> void:
 
 
 func _on_formacao_visibilidade_alterada(aberta: bool) -> void:
+	if painel:
+		painel.visible = not aberta
+	_alinhar_paineis_laterais()
+	call_deferred("_alinhar_paineis_laterais")
+
+
+func _on_botao_atributos_pressed() -> void:
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.fechar()
+	else:
+		_abrir_atributos()
+	botao_atributos.release_focus()
+	if botao_atributos_personagem:
+		botao_atributos_personagem.release_focus()
+
+
+func _abrir_atributos() -> void:
+	if painel_formacao and painel_formacao.esta_aberta():
+		painel_formacao.fechar()
+	if painel_atributos:
+		painel_atributos.abrir()
+
+
+func _on_atributos_visibilidade_alterada(aberta: bool) -> void:
 	if painel:
 		painel.visible = not aberta
 	_alinhar_paineis_laterais()
@@ -959,6 +1059,8 @@ func _on_visibilidade_menu_alterada() -> void:
 		painel_mundos.fechar()
 		if painel_formacao:
 			painel_formacao.fechar()
+		if painel_atributos:
+			painel_atributos.fechar()
 		_fechar_configuracoes()
 		return
 	call_deferred("_alinhar_paineis_laterais")
@@ -1004,6 +1106,8 @@ func _alinhar_configuracoes() -> void:
 	var origem := painel.position
 	if painel_formacao and painel_formacao.visible:
 		origem = painel_formacao.position
+	elif painel_atributos and painel_atributos.visible:
+		origem = painel_atributos.position
 	painel_configuracoes.position = origem + Vector2(
 		painel.size.x - tam.x,
 		0.0

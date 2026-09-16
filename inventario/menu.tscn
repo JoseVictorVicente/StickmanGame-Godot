@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b6sat1v5h8j2d"]
+[gd_scene load_steps=17 format=3 uid="uid://b6sat1v5h8j2d"]
 
 [ext_resource type="Script" uid="uid://cx4p8q2n7km3w" path="res://inventario/menu.gd" id="1_menu"]
 [ext_resource type="Script" uid="uid://u7nsljsgk78f" path="res://inventario/ui_selecao_equipe.gd" id="2_equipe"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c8arma0em01" path="res://inventario/armazem.tscn" id="4_armazem"]
 [ext_resource type="PackedScene" uid="uid://c8mundos0001" path="res://mundos/painel_mundos.tscn" id="5_mundos"]
 [ext_resource type="PackedScene" uid="uid://c8formacao01" path="res://inventario/painel_formacao.tscn" id="6_formacao"]
+[ext_resource type="PackedScene" uid="uid://c8atrib0001" path="res://inventario/painel_atributos.tscn" id="7_atributos"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
 content_margin_left = 8.0
@@ -69,6 +70,25 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_bg"]
+bg_color = Color(0.08, 0.06, 0.05, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.34, 0.2, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_fill"]
+bg_color = Color(0.32, 0.58, 0.92, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
 content_margin_left = 6.0
@@ -255,6 +275,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
 [node name="AreaFoto" type="Panel" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+clip_contents = true
 custom_minimum_size = Vector2(108, 108)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -269,14 +290,52 @@ anchor_bottom = 1.0
 offset_left = 6.0
 offset_top = 6.0
 offset_right = -6.0
-offset_bottom = -6.0
+offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="BarraXpPersonagem" type="ProgressBar" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaFoto"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -14.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+max_value = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBoxFlat_xp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
+
+[node name="LabelXpPersonagem" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaFoto/BarraXpPersonagem"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.78, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 8
+text = "Nv.1  0/20"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="NomePersonagem" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
 theme_override_font_sizes/font_size = 15
@@ -285,11 +344,24 @@ horizontal_alignment = 1
 
 [node name="NivelPersonagem" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.68, 0.32, 1)
 theme_override_font_sizes/font_size = 13
 text = "Lv. 1"
 horizontal_alignment = 1
+
+[node name="BotaoAtributosPersonagem" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Atributos"
 
 [node name="GradePersonagens" type="HBoxContainer" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
@@ -306,6 +378,7 @@ theme_override_constants/separation = 4
 script = ExtResource("2_equipe")
 
 [node name="TituloEquipe" type="Label" parent="Centralizar/AreaMenus/Painel/Conteudo/AreaHeroi/ColunaPersonagem/AreaEquipe"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
 theme_override_font_sizes/font_size = 12
@@ -494,6 +567,11 @@ visible = false
 layout_mode = 0
 
 [node name="PainelFormacao" parent="Centralizar/AreaMenus" instance=ExtResource("6_formacao")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+
+[node name="PainelAtributos" parent="Centralizar/AreaMenus" instance=ExtResource("7_atributos")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0

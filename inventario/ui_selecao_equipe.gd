@@ -27,7 +27,7 @@ func configurar(party: PartyManager, slot_inicial: int = 0) -> void:
 	if titulo_classes:
 		titulo_classes.visible = false
 	if titulo_equipe:
-		titulo_equipe.text = "Equipe"
+		titulo_equipe.visible = false
 	if botao_formacao and not botao_formacao.pressed.is_connected(_on_formacao_pressed):
 		botao_formacao.pressed.connect(_on_formacao_pressed)
 	_montar_slots()

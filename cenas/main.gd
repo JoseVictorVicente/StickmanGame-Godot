@@ -188,8 +188,14 @@ func _on_progressao_alterada() -> void:
 
 
 func _on_nivel_heroi_alterado(indice: int, nivel: int) -> void:
-	if indice == menu_inventario.indice_personagem_atual():
-		menu_inventario.atualizar_nivel_exibido(nivel)
+	if indice != menu_inventario.indice_personagem_atual():
+		return
+	var progresso: Dictionary = _progresso.do_indice(indice)
+	menu_inventario.atualizar_nivel_exibido(
+		nivel,
+		int(progresso.get("xp", 0)),
+		int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+	)
 
 
 func _mostrar_aviso(texto: String) -> void:
@@ -206,7 +212,11 @@ func _mostrar_aviso(texto: String) -> void:
 
 func _on_personagem_alterado(_indice: int) -> void:
 	var progresso: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual())
-	menu_inventario.atualizar_nivel_exibido(int(progresso["nivel"]))
+	menu_inventario.atualizar_nivel_exibido(
+		int(progresso["nivel"]),
+		int(progresso.get("xp", 0)),
+		int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+	)
 	recalcular_atributos()
 
 
@@ -230,6 +240,11 @@ func _atualizar_hud() -> void:
 		int(progresso["xp"]),
 		int(progresso["xp_proximo"]),
 	]
+	menu_inventario.atualizar_nivel_exibido(
+		int(progresso["nivel"]),
+		int(progresso["xp"]),
+		int(progresso["xp_proximo"]),
+	)
 	label_dano.text = "DPS %.1f" % party.dps_grupo()
 
 
@@ -300,7 +315,11 @@ func aplicar_save(dados: Dictionary) -> void:
 	menu_inventario.configurar_equipe(party)
 	menu_inventario.selecionar_personagem(int(dados.get("personagem_atual", 0)))
 	var atual: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual())
-	menu_inventario.atualizar_nivel_exibido(int(atual["nivel"]))
+	menu_inventario.atualizar_nivel_exibido(
+		int(atual["nivel"]),
+		int(atual.get("xp", 0)),
+		int(atual.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+	)
 	_on_progressao_alterada()
 	_atualizar_visual_repetir()
 	_atualizar_hud()
