@@ -1,0 +1,80 @@
+class_name ProgressoArvore
+extends RefCounted
+## Habilidades desbloqueadas compartilhadas por toda a equipe.
+
+var _desbloqueados: Array[int] = []
+var _catalogo: Array[Dictionary] = []
+
+
+func _init() -> void:
+	_catalogo = ArvoreHabilidades.catalogo()
+
+
+func no_por_id(id_no: int) -> Dictionary:
+	for no in _catalogo:
+		if int(no.get("id", -1)) == id_no:
+			return no
+	return {}
+
+
+func esta_desbloqueado(id_no: int) -> bool:
+	return id_no in _desbloqueados
+
+
+func pode_comprar(id_no: int) -> bool:
+	if esta_desbloqueado(id_no):
+		return false
+	var no := no_por_id(id_no)
+	if no.is_empty():
+		return false
+	var pai := int(no.get("pai", -1))
+	if pai >= 0 and not esta_desbloqueado(pai):
+		return false
+	return true
+
+
+func desbloquear(id_no: int) -> bool:
+	if not pode_comprar(id_no):
+		return false
+	_desbloqueados.append(id_no)
+	return true
+
+
+func bonus_global() -> Dictionary:
+	var total := ArvoreHabilidades.bonus_vazio()
+	for id_no in _desbloqueados:
+		var no := no_por_id(int(id_no))
+		if no.is_empty():
+			continue
+		var chave := ArvoreHabilidades.chave_bonus(int(no.get("tipo", 0)))
+		if chave == "":
+			continue
+		var valor := float(no.get("valor", 0))
+		if chave in ["ataque", "vida"]:
+			total[chave] = int(total[chave]) + int(valor)
+		else:
+			total[chave] = float(total[chave]) + valor
+	return total
+
+
+func serializar() -> Array:
+	return _desbloqueados.duplicate()
+
+
+func aplicar(dados: Variant) -> void:
+	_desbloqueados.clear()
+	if not (dados is Array):
+		return
+	if dados.is_empty():
+		return
+	if dados[0] is Array:
+		var uniao: Dictionary = {}
+		for slot_lista in dados:
+			if slot_lista is Array:
+				for id_no in slot_lista:
+					uniao[int(id_no)] = true
+		for id_no in uniao.keys():
+			_desbloqueados.append(int(id_no))
+		return
+	for id_no in dados:
+		_desbloqueados.append(int(id_no))

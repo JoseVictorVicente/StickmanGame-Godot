@@ -49,6 +49,7 @@ func _ready() -> void:
 	_luta.progresso = _progresso
 	_luta.obter_indice_personagem = func() -> int: return menu_inventario.indice_personagem_atual()
 	_luta.obter_destino_ouro = _destino_ouro
+	_luta.obter_bonus_arvore = func() -> Dictionary: return menu_inventario.bonus_arvore_global()
 	add_child(_luta)
 	_luta.aviso.connect(_mostrar_aviso)
 	_luta.efeito_moedas_pedido.connect(_on_efeito_moedas)
@@ -65,6 +66,9 @@ func _ready() -> void:
 	menu_inventario.fechado.connect(_fechar_inventario)
 	menu_inventario.janela_solta.connect(_aplicar_direcao_do_menu)
 	menu_inventario.ouro_obtido.connect(_on_ouro_obtido_menu)
+	menu_inventario.ouro_gasto.connect(_on_ouro_gasto_menu)
+	menu_inventario.arvore_alterada.connect(recalcular_atributos)
+	menu_inventario.consultar_ouro = func() -> int: return ouro
 	menu_inventario.largura_menus_alterada.connect(_on_largura_menus_alterada)
 	menu_inventario.equipamentos_alterados.connect(recalcular_atributos)
 	menu_inventario.personagem_alterado.connect(_on_personagem_alterado)
@@ -78,6 +82,7 @@ func _ready() -> void:
 	party.obter_dano_equip = obter_dano_equip_slot
 	party.obter_vida_equip = obter_vida_equip_slot
 	party.obter_nivel = obter_nivel_slot
+	party.obter_bonus_arvore = obter_bonus_arvore_slot
 	party.heroi_atacou.connect(_luta.on_heroi_atacou)
 	party.dps_alterado.connect(_on_dps_alterado)
 	menu_inventario.configurar_equipe(party)
@@ -111,6 +116,10 @@ func obter_vida_equip_slot(slot_index: int) -> int:
 
 func obter_nivel_slot(slot_index: int) -> int:
 	return _progresso.obter_nivel(slot_index)
+
+
+func obter_bonus_arvore_slot(_slot_index: int) -> Dictionary:
+	return menu_inventario.bonus_arvore_global()
 
 
 func recalcular_atributos() -> void:
@@ -227,6 +236,12 @@ func _on_ouro_obtido_menu(quantidade: int) -> void:
 	SaveSystem.salvar()
 
 
+func _on_ouro_gasto_menu(quantidade: int) -> void:
+	ouro = maxi(0, ouro - maxi(0, quantidade))
+	_atualizar_hud()
+	SaveSystem.salvar()
+
+
 func _atualizar_hud() -> void:
 	if _luta.inimigo_atual:
 		label_inimigo.text = "%s  %s" % [
@@ -299,6 +314,7 @@ func coletar_save() -> Dictionary:
 		"armazem": menu_inventario.serializar_armazem(),
 		"equipamentos": menu_inventario.serializar_equipamentos(),
 		"equipe": party.serializar(),
+		"arvore": menu_inventario.serializar_arvore(),
 	}
 
 
@@ -309,6 +325,7 @@ func aplicar_save(dados: Dictionary) -> void:
 	menu_inventario.aplicar_inventario(dados.get("inventario", []))
 	menu_inventario.aplicar_armazem(dados.get("armazem", []))
 	menu_inventario.aplicar_equipamentos(dados.get("equipamentos", []))
+	menu_inventario.aplicar_arvore(dados.get("arvore", []))
 	var equipe_save: Variant = dados.get("equipe", {})
 	if equipe_save is Dictionary:
 		party.aplicar_save(equipe_save)
@@ -322,4 +339,5 @@ func aplicar_save(dados: Dictionary) -> void:
 	)
 	_on_progressao_alterada()
 	_atualizar_visual_repetir()
+	recalcular_atributos()
 	_atualizar_hud()
