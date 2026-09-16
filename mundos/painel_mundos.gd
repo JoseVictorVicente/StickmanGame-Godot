@@ -18,6 +18,13 @@ const POSICOES_TRILHA_FLORESTA: Array[Vector2] = [
 	Vector2(0.49, 0.18),
 	Vector2(0.49, 0.08),
 ]
+const TEXTURAS_MAPA: Dictionary = {
+	1: "res://sprites/cenario/mapa_floresta_limpo.png",
+	2: "res://sprites/cenario/mapa_floresta_escura.jpg",
+	3: "res://sprites/cenario/mapa_deserto.jpg",
+	4: "res://sprites/cenario/mapa_nevado.jpg",
+	5: "res://sprites/cenario/mapa_vulcanico.jpg",
+}
 
 @onready var botao_voltar: Button = %BotaoVoltarMundos
 @onready var botao_fechar: Button = %BotaoFecharMundos
@@ -46,6 +53,7 @@ var _ancoras_fase: Array[Control] = []
 var _botoes_opcao_dificuldade: Array[Button] = []
 var _tex_fase: ImageTexture
 var _tex_chefe: ImageTexture
+var _cache_texturas_mapa: Dictionary = {}
 
 
 func _ready() -> void:
@@ -299,9 +307,10 @@ func _atualizar_lista_mundos() -> void:
 
 
 func _atualizar_mapa() -> void:
-	var floresta := _mundo_aberto == 1
+	var tex := _textura_mapa(_mundo_aberto)
 	if fundo_mapa:
-		fundo_mapa.visible = floresta
+		fundo_mapa.texture = tex
+		fundo_mapa.visible = tex != null
 	for i in _botoes_fase.size():
 		var fase := i + 1
 		var rotulo := "%d-%d" % [_mundo_aberto, fase]
@@ -334,7 +343,7 @@ func _atualizar_opcoes_dificuldade() -> void:
 func _posicionar_fases() -> void:
 	if mapa_fases.size.x < 8.0 or mapa_fases.size.y < 8.0:
 		return
-	var usar_trilha := _mundo_aberto == 1
+	var usar_trilha := _textura_mapa(_mundo_aberto) != null
 	for i in _ancoras_fase.size():
 		var centro: Vector2
 		if usar_trilha:
@@ -371,6 +380,18 @@ func _pos_na_trilha(uv: Vector2) -> Vector2:
 	centro.x = clampf(centro.x, margem, area.x - margem)
 	centro.y = clampf(centro.y, margem, area.y - margem)
 	return centro
+
+
+func _textura_mapa(mundo: int) -> Texture2D:
+	if _cache_texturas_mapa.has(mundo):
+		return _cache_texturas_mapa[mundo]
+	var caminho: String = str(TEXTURAS_MAPA.get(mundo, ""))
+	if caminho == "" or not ResourceLoader.exists(caminho):
+		_cache_texturas_mapa[mundo] = null
+		return null
+	var tex := load(caminho) as Texture2D
+	_cache_texturas_mapa[mundo] = tex
+	return tex
 
 
 func _pintar_botao(botao: Button, ativo: bool = false, bloqueado: bool = false, compacto: bool = false) -> void:
