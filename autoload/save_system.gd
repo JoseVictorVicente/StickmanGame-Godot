@@ -51,6 +51,7 @@ func salvar() -> void:
 	cfg.set_value("inventario", "armazem", JSON.stringify(dados.get("armazem", [])))
 	cfg.set_value("equipamentos", "dados", JSON.stringify(dados.get("equipamentos", [])))
 	cfg.set_value("equipe", "dados", JSON.stringify(dados.get("equipe", {})))
+	cfg.set_value("arvore", "dados", JSON.stringify(dados.get("arvore", [])))
 	var erro := cfg.save(CAMINHO_SAVE)
 	if erro != OK:
 		push_warning("Falha ao salvar o jogo: %s" % erro)
@@ -82,6 +83,7 @@ func carregar() -> bool:
 		"armazem": _parse_json(str(cfg.get_value("inventario", "armazem", "[]")), []),
 		"equipamentos": _parse_json(str(cfg.get_value("equipamentos", "dados", "[]")), []),
 		"equipe": _parse_json(str(cfg.get_value("equipe", "dados", "{}")), {}),
+		"arvore": _parse_json(str(cfg.get_value("arvore", "dados", "[]")), []),
 	}
 	if _jogo.has_method("aplicar_save"):
 		_jogo.aplicar_save(dados)
@@ -95,7 +97,7 @@ func _parse_json(texto: String, padrao: Variant) -> Variant:
 
 
 func _limpar_progresso(cfg: ConfigFile) -> void:
-	for secao in ["jogo", "progresso", "inventario", "equipamentos", "equipe"]:
+	for secao in ["jogo", "progresso", "inventario", "equipamentos", "equipe", "arvore"]:
 		if cfg.has_section(secao):
 			cfg.erase_section(secao)
 	cfg.set_value("jogo", "versao", VERSAO_SAVE)

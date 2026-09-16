@@ -27,6 +27,7 @@ var barra_vida: ProgressBar
 var progresso: ProgressoHerois
 var obter_indice_personagem: Callable
 var obter_destino_ouro: Callable
+var obter_bonus_arvore: Callable
 
 var _drops := GerenciadorDrops.new()
 var _resolvendo_morte: bool = false
@@ -146,6 +147,7 @@ func _resolver_morte() -> void:
 	party.combate_pausado = true
 	AudioManager.tocar_som_morte()
 	var ouro := _drops.ouro_com_variacao(inimigo_atual.ouro_recompensa)
+	ouro = _aplicar_bonus_ouro(ouro)
 	var destino := Vector2.ZERO
 	if obter_destino_ouro.is_valid():
 		destino = obter_destino_ouro.call()
@@ -154,7 +156,7 @@ func _resolver_morte() -> void:
 	barra_vida.esmaecer()
 	await get_tree().create_timer(0.4).timeout
 	ouro_ganho.emit(ouro)
-	_aplicar_xp(inimigo_atual.xp_recompensa)
+	_aplicar_xp(_aplicar_bonus_xp(inimigo_atual.xp_recompensa))
 	_tentar_drop()
 	_avancar_fase()
 	party.curar_equipe()
@@ -214,6 +216,24 @@ func _aplicar_xp(quantidade: int) -> void:
 		indice_ui = int(obter_indice_personagem.call())
 	if indice_ui >= 0 and indice_ui < niveis.size():
 		nivel_heroi_alterado.emit(indice_ui, niveis[indice_ui])
+
+
+func _bonus_arvore() -> Dictionary:
+	if obter_bonus_arvore.is_valid():
+		var bonus: Variant = obter_bonus_arvore.call()
+		if bonus is Dictionary:
+			return bonus
+	return ArvoreHabilidades.bonus_vazio()
+
+
+func _aplicar_bonus_ouro(valor: int) -> int:
+	var pct := float(_bonus_arvore().get("bonus_ouro", 0.0))
+	return maxi(1, int(round(float(valor) * (1.0 + pct / 100.0))))
+
+
+func _aplicar_bonus_xp(valor: int) -> int:
+	var pct := float(_bonus_arvore().get("bonus_xp", 0.0))
+	return maxi(1, int(round(float(valor) * (1.0 + pct / 100.0))))
 
 
 func _tentar_drop() -> void:

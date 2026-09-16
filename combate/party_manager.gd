@@ -18,6 +18,8 @@ var obter_dano_equip: Callable
 var obter_vida_equip: Callable
 ## Callable (slot: int) -> int  com o nível daquele herói.
 var obter_nivel: Callable
+## Callable (slot: int) -> Dictionary com bônus da árvore de habilidades.
+var obter_bonus_arvore: Callable
 
 var _catalogo: Array[ClasseData] = []
 var _sprites: Array[AnimatedSprite2D] = []
@@ -151,7 +153,7 @@ func dano_do_heroi(slot_index: int) -> int:
 	if obter_dano_equip.is_valid():
 		extra = int(obter_dano_equip.call(slot_index))
 	var base := maxi(1, int(round(float(dados.dano_base + extra) * dados.multiplicador_ataque)))
-	return maxi(1, base + (_nivel_do_slot(slot_index) - 1) * dados.atk_por_nivel)
+	return maxi(1, base + (_nivel_do_slot(slot_index) - 1) * dados.atk_por_nivel + int(_bonus_arvore(slot_index).get("ataque", 0)))
 
 
 func dano_total_grupo() -> int:
@@ -168,7 +170,9 @@ func dps_grupo() -> float:
 		if not heroi_vivo(i):
 			continue
 		var classe: ClasseData = equipe_ativa[i]
-		var intervalo := INTERVALO_BASE / maxf(0.25, classe.velocidade_ataque)
+		var bonus := _bonus_arvore(i)
+		var vel := classe.velocidade_ataque * (1.0 + float(bonus.get("vel_ataque", 0.0)) / 100.0)
+		var intervalo := INTERVALO_BASE / maxf(0.25, vel)
 		dps += float(dano_do_heroi(i)) / intervalo
 	return dps
 
@@ -183,7 +187,16 @@ func vida_maxima_do_heroi(slot_index: int) -> int:
 	if obter_vida_equip.is_valid():
 		extra = int(obter_vida_equip.call(slot_index))
 	var dados := classe as ClasseData
-	return maxi(1, dados.vida_base + extra + (_nivel_do_slot(slot_index) - 1) * dados.hp_por_nivel)
+	var bonus := _bonus_arvore(slot_index)
+	return maxi(1, dados.vida_base + extra + (_nivel_do_slot(slot_index) - 1) * dados.hp_por_nivel + int(bonus.get("vida", 0)))
+
+
+func _bonus_arvore(slot_index: int) -> Dictionary:
+	if obter_bonus_arvore.is_valid():
+		var bonus: Variant = obter_bonus_arvore.call(slot_index)
+		if bonus is Dictionary:
+			return bonus
+	return ArvoreHabilidades.bonus_vazio()
 
 
 func _nivel_do_slot(slot_index: int) -> int:

@@ -9,6 +9,8 @@ signal equipamentos_alterados
 signal classe_heroi_alterada(indice: int, classe: ClasseData)
 signal janela_solta
 signal ouro_obtido(quantidade: int)
+signal ouro_gasto(quantidade: int)
+signal arvore_alterada
 signal largura_menus_alterada
 signal fase_iniciada(mundo: int, fase: int, dificuldade: int)
 
@@ -52,6 +54,7 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var painel_mundos: PainelMundos = %PainelMundos
 @onready var painel_formacao: PainelFormacao = %PainelFormacao
 @onready var painel_atributos: PainelAtributos = %PainelAtributos
+@onready var painel_arvore: PainelArvore = %PainelArvore
 @onready var botao_atributos: Button = %BotaoAtributos
 @onready var botao_inventario: Button = %BotaoInventario
 @onready var botao_ferraria: Button = %BotaoFerraria
@@ -94,6 +97,8 @@ var _estilos_botao_ferraria: Dictionary = {}
 var _estilos_botao_armazem: Dictionary = {}
 var _estilos_botao_mundo: Dictionary = {}
 var _menus_abaixo: bool = false
+var _progresso_arvore := ProgressoArvore.new()
+var consultar_ouro: Callable
 
 
 func _ready() -> void:
@@ -149,6 +154,11 @@ func _ready() -> void:
 		painel_atributos.configurar(self)
 		if not painel_atributos.visibilidade_alterada.is_connected(_on_atributos_visibilidade_alterada):
 			painel_atributos.visibilidade_alterada.connect(_on_atributos_visibilidade_alterada)
+	if painel_arvore:
+		painel_arvore.configurar(self)
+		if not painel_arvore.visibilidade_alterada.is_connected(_on_arvore_visibilidade_alterada):
+			painel_arvore.visibilidade_alterada.connect(_on_arvore_visibilidade_alterada)
+	botao_inventario.pressed.connect(_on_botao_arvore_pressed)
 	if painel_ouro:
 		painel_ouro.resized.connect(_alinhar_espaco_ouro)
 		_alinhar_espaco_ouro()
@@ -272,6 +282,8 @@ func selecionar_personagem(indice: int) -> void:
 	_atualizar_barra_xp()
 	if painel_atributos and painel_atributos.esta_aberta():
 		painel_atributos.atualizar()
+	if painel_arvore and painel_arvore.esta_aberta():
+		painel_arvore.atualizar()
 	if ui_equipe:
 		ui_equipe.selecionar_slot(indice, false)
 	_atualizar_retrato()
@@ -347,6 +359,8 @@ func obter_retangulos_clicaveis() -> Array[Rect2]:
 		rects.append(painel_formacao.get_global_rect().grow(4.0))
 	elif painel_atributos and painel_atributos.visible:
 		rects.append(painel_atributos.get_global_rect().grow(4.0))
+	elif painel_arvore and painel_arvore.visible:
+		rects.append(painel_arvore.get_global_rect().grow(4.0))
 	elif painel:
 		rects.append(painel.get_global_rect().grow(4.0))
 	if painel_armazem and painel_armazem.visible:
@@ -366,7 +380,7 @@ func largura_para_janela() -> int:
 
 func _alinhar_paineis_laterais() -> void:
 	_restaurar_painel_base()
-	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos)
+	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos, painel_arvore)
 	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
 
@@ -409,6 +423,43 @@ func slots_armazem() -> Array[SlotItem]:
 func atualizar_ouro(valor: int) -> void:
 	if label_ouro:
 		label_ouro.text = "Ouro  %d" % valor
+	if painel_arvore and painel_arvore.esta_aberta():
+		painel_arvore.atualizar()
+
+
+func obter_ouro_atual() -> int:
+	if consultar_ouro.is_valid():
+		return maxi(0, int(consultar_ouro.call()))
+	return 0
+
+
+func tentar_gastar_ouro(valor: int) -> bool:
+	if valor < 0:
+		return false
+	if obter_ouro_atual() < valor:
+		return false
+	ouro_gasto.emit(valor)
+	return true
+
+
+func progresso_arvore() -> ProgressoArvore:
+	return _progresso_arvore
+
+
+func bonus_arvore_global() -> Dictionary:
+	return _progresso_arvore.bonus_global()
+
+
+func bonus_arvore_do_slot(_indice: int = -1) -> Dictionary:
+	return bonus_arvore_global()
+
+
+func notificar_arvore_alterada() -> void:
+	arvore_alterada.emit()
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.atualizar()
+	equipamentos_alterados.emit()
+	SaveSystem.salvar()
 
 
 func _alinhar_espaco_ouro() -> void:
@@ -652,21 +703,22 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 	var vel := 100.0
 	if classe:
 		vel = classe.velocidade_ataque * 100.0
+	var bonus: Dictionary = bonus_arvore_do_slot(indice)
 	return {
-		"ataque": ataque,
-		"vida": vida,
+		"ataque": ataque + int(bonus.get("ataque", 0)),
+		"vida": vida + int(bonus.get("vida", 0)),
 		"nivel": int(dados.get("nivel", 1)),
 		"xp": int(dados.get("xp", 0)),
 		"xp_proximo": int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
-		"bonus_xp": PainelAtributos.BONUS_XP_PCT,
-		"bonus_ouro": PainelAtributos.BONUS_OURO_PCT,
-		"vel_ataque": vel,
-		"crit_chance": PainelAtributos.CRIT_CHANCE_PCT,
-		"crit_dano": PainelAtributos.CRIT_DANO_PCT,
-		"evasao": PainelAtributos.EVASAO_PCT,
-		"res_fisica": PainelAtributos.RES_FISICA_PCT,
-		"res_arcana": PainelAtributos.RES_ARCANA_PCT,
-		"res_elemental": PainelAtributos.RES_ELEMENTAL_PCT,
+		"bonus_xp": float(bonus.get("bonus_xp", 0.0)),
+		"bonus_ouro": float(bonus.get("bonus_ouro", 0.0)),
+		"vel_ataque": vel + float(bonus.get("vel_ataque", 0.0)),
+		"crit_chance": float(bonus.get("crit_chance", 0.0)),
+		"crit_dano": float(bonus.get("crit_dano", 0.0)),
+		"evasao": float(bonus.get("evasao", 0.0)),
+		"res_fisica": float(bonus.get("res_fisica", 0.0)),
+		"res_arcana": float(bonus.get("res_arcana", 0.0)),
+		"res_elemental": float(bonus.get("res_elemental", 0.0)),
 	}
 
 
@@ -701,6 +753,10 @@ func configurar_equipe(party: PartyManager) -> void:
 		painel_atributos.configurar(self)
 		if not painel_atributos.visibilidade_alterada.is_connected(_on_atributos_visibilidade_alterada):
 			painel_atributos.visibilidade_alterada.connect(_on_atributos_visibilidade_alterada)
+	if painel_arvore:
+		painel_arvore.configurar(self)
+		if not painel_arvore.visibilidade_alterada.is_connected(_on_arvore_visibilidade_alterada):
+			painel_arvore.visibilidade_alterada.connect(_on_arvore_visibilidade_alterada)
 	if not party.equipe_alterada.is_connected(_on_equipe_alterada):
 		party.equipe_alterada.connect(_on_equipe_alterada)
 	_sincronizar_nomes_da_equipe()
@@ -792,6 +848,14 @@ func serializar_armazem() -> Dictionary:
 func aplicar_armazem(dados: Variant) -> void:
 	if painel_armazem:
 		painel_armazem.aplicar(dados)
+
+
+func serializar_arvore() -> Array:
+	return _progresso_arvore.serializar()
+
+
+func aplicar_arvore(dados: Variant) -> void:
+	_progresso_arvore.aplicar(dados)
 
 
 func serializar_equipamentos() -> Dictionary:
@@ -892,7 +956,7 @@ func _criar_estilo_slot() -> StyleBoxFlat:
 
 func _aplicar_icones_barra_inferior() -> void:
 	_configurar_botao_barra(botao_atributos, "atributos")
-	_configurar_botao_barra(botao_inventario, "inventario", true)
+	_configurar_botao_barra(botao_inventario, "inventario")
 	_configurar_botao_barra(botao_ferraria, "ferraria")
 	_configurar_botao_barra(botao_loja, "loja")
 	_configurar_botao_barra(botao_conquistas, "conquistas")
@@ -960,6 +1024,8 @@ func _on_formacao_pedida() -> void:
 		return
 	if painel_atributos and painel_atributos.esta_aberta():
 		painel_atributos.fechar()
+	if painel_arvore and painel_arvore.esta_aberta():
+		painel_arvore.fechar()
 	if painel_ferraria and painel_ferraria.esta_aberta():
 		painel_ferraria.fechar()
 	if painel_mundos and painel_mundos.esta_aberta():
@@ -988,8 +1054,34 @@ func _on_botao_atributos_pressed() -> void:
 func _abrir_atributos() -> void:
 	if painel_formacao and painel_formacao.esta_aberta():
 		painel_formacao.fechar()
+	if painel_arvore and painel_arvore.esta_aberta():
+		painel_arvore.fechar()
 	if painel_atributos:
 		painel_atributos.abrir()
+
+
+func _on_botao_arvore_pressed() -> void:
+	if painel_arvore and painel_arvore.esta_aberta():
+		painel_arvore.fechar()
+	else:
+		_abrir_arvore()
+	botao_inventario.release_focus()
+
+
+func _abrir_arvore() -> void:
+	if painel_formacao and painel_formacao.esta_aberta():
+		painel_formacao.fechar()
+	if painel_atributos and painel_atributos.esta_aberta():
+		painel_atributos.fechar()
+	if painel_arvore:
+		painel_arvore.abrir()
+
+
+func _on_arvore_visibilidade_alterada(aberta: bool) -> void:
+	if painel:
+		painel.visible = not aberta
+	_alinhar_paineis_laterais()
+	call_deferred("_alinhar_paineis_laterais")
 
 
 func _on_atributos_visibilidade_alterada(aberta: bool) -> void:
@@ -1087,6 +1179,8 @@ func _on_visibilidade_menu_alterada() -> void:
 			painel_formacao.fechar()
 		if painel_atributos:
 			painel_atributos.fechar()
+		if painel_arvore:
+			painel_arvore.fechar()
 		_fechar_configuracoes()
 		return
 	call_deferred("_alinhar_paineis_laterais")
@@ -1134,6 +1228,8 @@ func _alinhar_configuracoes() -> void:
 		origem = painel_formacao.position
 	elif painel_atributos and painel_atributos.visible:
 		origem = painel_atributos.position
+	elif painel_arvore and painel_arvore.visible:
+		origem = painel_arvore.position
 	painel_configuracoes.position = origem + Vector2(
 		painel.size.x - tam.x,
 		0.0
