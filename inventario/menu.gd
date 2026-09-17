@@ -130,6 +130,7 @@ func _ready() -> void:
 	painel.gui_input.connect(_on_cabecalho_gui_input)
 	painel_ferraria.configurar(self)
 	painel_armazem.configurar(self)
+	_sincronizar_armazem_arvore()
 	painel_mundos.configurar(self)
 	area_menus.resized.connect(_alinhar_paineis_laterais)
 	painel.resized.connect(_alinhar_paineis_laterais)
@@ -487,6 +488,7 @@ func bonus_arvore_do_slot(_indice: int = -1) -> Dictionary:
 
 func notificar_arvore_alterada() -> void:
 	arvore_alterada.emit()
+	_sincronizar_armazem_arvore()
 	if painel_atributos and painel_atributos.esta_aberta():
 		painel_atributos.atualizar()
 	equipamentos_alterados.emit()
@@ -1013,6 +1015,7 @@ func serializar_armazem() -> Dictionary:
 func aplicar_armazem(dados: Variant) -> void:
 	if painel_armazem:
 		painel_armazem.aplicar(dados)
+	_sincronizar_armazem_arvore()
 
 
 func serializar_arvore() -> Array:
@@ -1021,6 +1024,13 @@ func serializar_arvore() -> Array:
 
 func aplicar_arvore(dados: Variant) -> void:
 	_progresso_arvore.aplicar(dados)
+	_sincronizar_armazem_arvore()
+
+
+func _sincronizar_armazem_arvore() -> void:
+	if painel_armazem == null:
+		return
+	painel_armazem.aplicar_desbloqueios_arvore(_progresso_arvore.indices_armazem_desbloqueados())
 
 
 func serializar_equipamentos() -> Dictionary:

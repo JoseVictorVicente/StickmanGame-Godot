@@ -77,7 +77,12 @@ func _on_no_selecionado(id_no: int) -> void:
 	progresso.desbloquear(id_no)
 	_menu.notificar_arvore_alterada()
 	atualizar()
-	_mostrar_mensagem("Adquirido: %s (todos os heróis)" % str(no.get("nome", "")))
+	var msg := "Adquirido: %s" % str(no.get("nome", ""))
+	if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
+		msg += " — nova página do armazém liberada."
+	else:
+		msg += " (todos os heróis)"
+	_mostrar_mensagem(msg)
 
 
 func _mostrar_mensagem(texto: String) -> void:

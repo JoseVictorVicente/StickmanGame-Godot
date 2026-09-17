@@ -120,6 +120,8 @@ func _texto_rotulo(no: Dictionary) -> String:
 	var id := int(no.get("id", -1))
 	if id == 0:
 		return "ATK"
+	if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
+		return str(int(no.get("valor", 0)) + 1)
 	var prof := int(no.get("profundidade", 0)) + 1
 	if bool(no.get("premium", false)):
 		return "%"
@@ -157,7 +159,11 @@ func _atualizar_visual() -> void:
 		if int(id) == 0:
 			cor = cor.lightened(0.12)
 		botao.self_modulate = cor
-		var dica := str(no.get("nome", "")) + "\n(Afeta todos os heróis)"
+		var dica := str(no.get("nome", ""))
+		if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
+			dica += "\nDesbloqueia uma página do armazém"
+		else:
+			dica += "\n(Afeta todos os heróis)"
 		if bool(no.get("premium", false)):
 			dica += "\n[Custo elevado]"
 		if not desbloqueado:

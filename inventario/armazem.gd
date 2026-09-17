@@ -5,14 +5,17 @@ extends PanelContainer
 
 signal visibilidade_alterada(aberta: bool)
 
-const ABAS := 4
+const ABAS := 8
+const COLUNAS_ABAS := 4
+const PAGINAS_ARVORE := 3
+const INDICE_PRIMEIRA_PAGINA_EXTRA := 4
 const COLUNAS := 5
 const LINHAS := 8
 const TAMANHO_SLOT := Vector2(42, 42)
 
 @onready var cabecalho: HBoxContainer = %CabecalhoArmazem
 @onready var botao_fechar: Button = %BotaoFecharArmazem
-@onready var linha_abas: HBoxContainer = %LinhaAbas
+@onready var linha_abas: GridContainer = %LinhaAbas
 @onready var grade_armazem: GridContainer = %GradeArmazem
 @onready var label_status: Label = %LabelStatusArmazem
 
@@ -20,11 +23,12 @@ var _menu: MenuInventario
 var _slots_por_aba: Array = []
 var _botoes_aba: Array[Button] = []
 var _aba_atual: int = 0
-var _desbloqueadas: Array[bool] = [true, false, false, false]
+var _desbloqueadas: Array[bool] = []
 
 
 func _ready() -> void:
 	hide()
+	_inicializar_desbloqueio()
 	_criar_abas()
 	_criar_grades()
 	botao_fechar.pressed.connect(fechar)
@@ -97,9 +101,34 @@ func mostrar_aba(indice: int) -> void:
 func desbloquear_aba(indice: int) -> void:
 	if indice < 0 or indice >= ABAS:
 		return
-	_desbloqueadas[indice] = true
-	_botoes_aba[indice].disabled = false
-	_pintar_aba(_botoes_aba[indice], indice == _aba_atual, true)
+	if indice >= 1 and indice <= PAGINAS_ARVORE:
+		return
+	_definir_estado_aba(indice, true)
+
+
+func aplicar_desbloqueios_arvore(indices: Array[int]) -> void:
+	for indice in range(1, PAGINAS_ARVORE + 1):
+		_definir_estado_aba(indice, indice in indices)
+	if not _desbloqueadas[_aba_atual]:
+		mostrar_aba(0)
+
+
+func _definir_estado_aba(indice: int, desbloqueada: bool) -> void:
+	if indice < 0 or indice >= ABAS:
+		return
+	_desbloqueadas[indice] = desbloqueada
+	if indice >= _botoes_aba.size():
+		return
+	var botao := _botoes_aba[indice]
+	botao.disabled = not desbloqueada
+	botao.text = str(indice + 1) if desbloqueada else "🔒"
+	_pintar_aba(botao, indice == _aba_atual, desbloqueada)
+
+
+func _inicializar_desbloqueio() -> void:
+	_desbloqueadas.clear()
+	for i in ABAS:
+		_desbloqueadas.append(i == 0)
 
 
 func serializar() -> Dictionary:
@@ -123,9 +152,9 @@ func aplicar(dados: Variant) -> void:
 		return
 	var flags: Variant = dados.get("desbloqueadas", [])
 	if flags is Array:
-		for i in mini(flags.size(), ABAS):
+		for i in range(INDICE_PRIMEIRA_PAGINA_EXTRA, mini(flags.size(), ABAS)):
 			_desbloqueadas[i] = bool(flags[i])
-			_botoes_aba[i].disabled = not _desbloqueadas[i]
+			_definir_estado_aba(i, _desbloqueadas[i])
 	var abas: Variant = dados.get("abas", [])
 	if abas is Array:
 		for i in mini(abas.size(), ABAS):
@@ -135,10 +164,13 @@ func aplicar(dados: Variant) -> void:
 
 
 func _criar_abas() -> void:
+	linha_abas.columns = COLUNAS_ABAS
 	for i in ABAS:
 		var botao := Button.new()
 		botao.name = "Aba_%d" % (i + 1)
+		botao.custom_minimum_size = Vector2(0, 28)
 		botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		botao.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		botao.add_theme_font_size_override("font_size", 12)
 		if _desbloqueadas[i]:
 			botao.text = str(i + 1)

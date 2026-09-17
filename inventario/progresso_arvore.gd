@@ -59,6 +59,18 @@ func bonus_global() -> Dictionary:
 	return _aplicar_caps_bonus(total)
 
 
+func indices_armazem_desbloqueados() -> Array[int]:
+	var saida: Array[int] = []
+	for id_no in _desbloqueados:
+		var no := no_por_id(int(id_no))
+		if no.is_empty():
+			continue
+		if int(no.get("tipo", -1)) != ArvoreHabilidades.TipoBonus.ARMAZEM:
+			continue
+		saida.append(int(no.get("valor", 0)))
+	return saida
+
+
 static func _aplicar_caps_bonus(total: Dictionary) -> Dictionary:
 	var caps := {
 		"ataque_pct": 20.0,

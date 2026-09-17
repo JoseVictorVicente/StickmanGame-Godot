@@ -15,11 +15,14 @@ enum TipoBonus {
 	RES_FISICA,
 	RES_ARCANA,
 	RES_ELEMENTAL,
+	ARMAZEM,
 }
 
-const NUM_RAMOS := 11
+const NUM_RAMOS := 12
 const NOS_POR_RAMO := 15
-const TOTAL_NOS := 1 + NUM_RAMOS * NOS_POR_RAMO
+const REGIAO_ARMAZEM := 11
+const NOS_ARMAZEM := 3
+const TOTAL_NOS := 1 + (NUM_RAMOS - 1) * NOS_POR_RAMO + NOS_ARMAZEM
 const NOS_ATAQUE_PCT := 5
 const NOS_ATAQUE_FLAT := NOS_POR_RAMO - NOS_ATAQUE_PCT
 
@@ -45,6 +48,7 @@ const _DEF_RAMOS: Array[Dictionary] = [
 	{"tipo": TipoBonus.RES_FISICA, "sigla": "FIS", "rotulo": "Res. Fís.", "valor": 2, "pct": true},
 	{"tipo": TipoBonus.RES_ARCANA, "sigla": "ARC", "rotulo": "Res. Arc.", "valor": 2, "pct": true},
 	{"tipo": TipoBonus.RES_ELEMENTAL, "sigla": "ELE", "rotulo": "Res. Elem.", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.ARMAZEM, "sigla": "ARM", "rotulo": "Armazém", "valor": 1, "pct": false},
 ]
 
 
@@ -53,7 +57,8 @@ static func catalogo() -> Array[Dictionary]:
 	nos.append(_no_centro())
 	for regiao in NUM_RAMOS:
 		var pai := 0
-		for profundidade in NOS_POR_RAMO:
+		var quantidade := NOS_ARMAZEM if regiao == REGIAO_ARMAZEM else NOS_POR_RAMO
+		for profundidade in quantidade:
 			var no := _no_ramo(regiao, profundidade, pai)
 			nos.append(no)
 			pai = int(no["id"])
@@ -61,6 +66,8 @@ static func catalogo() -> Array[Dictionary]:
 
 
 static func id_do_no(regiao: int, profundidade: int) -> int:
+	if regiao == REGIAO_ARMAZEM:
+		return 1 + (NUM_RAMOS - 1) * NOS_POR_RAMO + profundidade
 	return 1 + regiao * NOS_POR_RAMO + profundidade
 
 
@@ -116,6 +123,8 @@ static func chave_bonus(tipo: TipoBonus) -> String:
 			return "res_arcana"
 		TipoBonus.RES_ELEMENTAL:
 			return "res_elemental"
+		TipoBonus.ARMAZEM:
+			return ""
 	return ""
 
 
@@ -149,6 +158,7 @@ static func cor_regiao(regiao: int) -> Color:
 		Color(0.55, 0.42, 0.28, 1),
 		Color(0.42, 0.28, 0.72, 1),
 		Color(0.28, 0.62, 0.62, 1),
+		Color(0.78, 0.58, 0.24, 1),
 	]
 	return cores[regiao % cores.size()]
 
@@ -169,8 +179,22 @@ static func _no_centro() -> Dictionary:
 
 
 static func _no_ramo(regiao: int, profundidade: int, pai: int) -> Dictionary:
-	var def: Dictionary = _DEF_RAMOS[regiao]
 	var id := id_do_no(regiao, profundidade)
+	if regiao == REGIAO_ARMAZEM:
+		var pagina := profundidade + 2
+		return {
+			"id": id,
+			"pai": pai,
+			"regiao": regiao,
+			"profundidade": profundidade,
+			"angulo": angulo_regiao(regiao),
+			"tipo": int(TipoBonus.ARMAZEM),
+			"valor": profundidade + 1,
+			"nome": "Armazém %d" % pagina,
+			"sigla": "ARM",
+			"premium": false,
+		}
+	var def: Dictionary = _DEF_RAMOS[regiao]
 	var tipo: TipoBonus = def["tipo"]
 	var valor: int = int(def["valor"])
 	var premium := false
