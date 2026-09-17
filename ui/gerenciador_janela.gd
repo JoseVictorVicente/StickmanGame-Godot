@@ -9,8 +9,7 @@ const PALCO_ALTURA := 124
 const PALCO_BASE_JANELA := 108
 const PAINEL_ALTURA := 100
 const BOTAO_TAMANHO := 80
-const BOTAO_OFFSET_ESQ := 384
-const BOTAO_OFFSET_DIR := 464
+const LARGURA_PAINEL_INVENTARIO := 580
 
 var palco: Control
 var painel_batalha: PanelContainer
@@ -81,11 +80,47 @@ func ancorar_combate_no_topo(no_topo: bool) -> void:
 		var painel_topo := PALCO_MARGEM_TOPO + PALCO_ALTURA
 		_definir_ancoras(painel_batalha, 0.5, 0.0, 0.5, 0.0, -160, painel_topo, 160, painel_topo + PAINEL_ALTURA)
 		var botao_topo := painel_topo + 10
-		_definir_ancoras(area_botao_menu, 0.5, 0.0, 0.5, 0.0, BOTAO_OFFSET_ESQ, botao_topo, BOTAO_OFFSET_DIR, botao_topo + BOTAO_TAMANHO)
+		_posicionar_botao_inventario(0.0, 0.0, botao_topo, botao_topo + BOTAO_TAMANHO)
 	else:
 		_definir_ancoras(palco, 0.5, 1.0, 0.5, 1.0, -240, -232, 240, -PALCO_BASE_JANELA)
 		_definir_ancoras(painel_batalha, 0.5, 1.0, 0.5, 1.0, -160, -108, 160, -8)
-		_definir_ancoras(area_botao_menu, 0.5, 1.0, 0.5, 1.0, BOTAO_OFFSET_ESQ, -96, BOTAO_OFFSET_DIR, -16)
+		_posicionar_botao_inventario(1.0, 1.0, -96, -16)
+
+
+func _offsets_horizontais_botao() -> Vector2i:
+	var largura := get_window().size.x
+	var direita_painel := int((largura + LARGURA_PAINEL_INVENTARIO) * 0.5)
+	var centro := int(largura * 0.5)
+	var offset_dir := direita_painel - centro
+	return Vector2i(offset_dir - BOTAO_TAMANHO, offset_dir)
+
+
+func _posicionar_botao_inventario(a_topo: float, a_base: float, offset_topo: int, offset_base: int) -> void:
+	if area_botao_menu == null:
+		return
+	var offsets := _offsets_horizontais_botao()
+	_definir_ancoras(
+		area_botao_menu,
+		0.5,
+		a_topo,
+		0.5,
+		a_base,
+		offsets.x,
+		offset_topo,
+		offsets.y,
+		offset_base
+	)
+
+
+func _alinhar_botao_inventario() -> void:
+	if area_botao_menu == null:
+		return
+	_posicionar_botao_inventario(
+		area_botao_menu.anchor_top,
+		area_botao_menu.anchor_bottom,
+		int(area_botao_menu.offset_top),
+		int(area_botao_menu.offset_bottom)
+	)
 
 
 func ajustar_largura(abrir_inventario: bool = false, largura_menu: int = LARGURA) -> void:
@@ -96,6 +131,7 @@ func ajustar_largura(abrir_inventario: bool = false, largura_menu: int = LARGURA
 	desejada = mini(desejada, tela.size.x)
 	var atual := DisplayServer.window_get_size()
 	if atual.x == desejada:
+		_alinhar_botao_inventario()
 		return
 	var pos := DisplayServer.window_get_position()
 	var centro := pos.x + int(atual.x / 2.0)
@@ -104,6 +140,7 @@ func ajustar_largura(abrir_inventario: bool = false, largura_menu: int = LARGURA
 	var janela := get_window()
 	janela.position = Vector2i(nova_x, pos.y)
 	janela.size = Vector2i(desejada, ALTURA)
+	_alinhar_botao_inventario()
 
 
 func atualizar_click_through() -> void:
