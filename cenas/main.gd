@@ -69,6 +69,7 @@ func _ready() -> void:
 	menu_inventario.ouro_gasto.connect(_on_ouro_gasto_menu)
 	menu_inventario.arvore_alterada.connect(recalcular_atributos)
 	menu_inventario.consultar_ouro = func() -> int: return ouro
+	menu_inventario.consultar_progresso_slot = _progresso_do_slot
 	menu_inventario.largura_menus_alterada.connect(_on_largura_menus_alterada)
 	menu_inventario.equipamentos_alterados.connect(recalcular_atributos)
 	menu_inventario.personagem_alterado.connect(_on_personagem_alterado)
@@ -115,7 +116,11 @@ func obter_vida_equip_slot(slot_index: int) -> int:
 
 
 func obter_nivel_slot(slot_index: int) -> int:
-	return _progresso.obter_nivel(slot_index)
+	return _progresso.obter_nivel_do_slot(slot_index, party.equipe_ativa)
+
+
+func _progresso_do_slot(slot_index: int) -> Dictionary:
+	return _progresso.do_indice(slot_index, party.equipe_ativa)
 
 
 func obter_bonus_arvore_slot(_slot_index: int) -> Dictionary:
@@ -197,14 +202,14 @@ func _on_progressao_alterada() -> void:
 
 
 func _on_nivel_heroi_alterado(indice: int, nivel: int) -> void:
-	if indice != menu_inventario.indice_personagem_atual():
-		return
-	var progresso: Dictionary = _progresso.do_indice(indice)
-	menu_inventario.atualizar_nivel_exibido(
-		nivel,
-		int(progresso.get("xp", 0)),
-		int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
-	)
+	var progresso: Dictionary = _progresso.do_indice(indice, party.equipe_ativa)
+	if indice == menu_inventario.indice_personagem_atual():
+		menu_inventario.atualizar_nivel_exibido(
+			nivel,
+			int(progresso.get("xp", 0)),
+			int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+		)
+	recalcular_atributos()
 
 
 func _mostrar_aviso(texto: String) -> void:
@@ -220,7 +225,7 @@ func _mostrar_aviso(texto: String) -> void:
 
 
 func _on_personagem_alterado(_indice: int) -> void:
-	var progresso: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual())
+	var progresso: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual(), party.equipe_ativa)
 	menu_inventario.atualizar_nivel_exibido(
 		int(progresso["nivel"]),
 		int(progresso.get("xp", 0)),
@@ -249,7 +254,7 @@ func _atualizar_hud() -> void:
 			ProgressaoMundos.nome_dificuldade(_luta.dificuldade),
 		]
 	menu_inventario.atualizar_ouro(ouro)
-	var progresso: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual())
+	var progresso: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual(), party.equipe_ativa)
 	label_nivel.text = "Nv.%d  %d/%d" % [
 		int(progresso["nivel"]),
 		int(progresso["xp"]),
@@ -321,17 +326,22 @@ func coletar_save() -> Dictionary:
 func aplicar_save(dados: Dictionary) -> void:
 	ouro = int(dados.get("ouro", 0))
 	_luta.aplicar_estado(dados)
-	_progresso.aplicar(dados.get("progresso", []))
+	var equipe_save: Variant = dados.get("equipe", {})
+	var ids_equipe: Array = []
+	if equipe_save is Dictionary:
+		var classes: Variant = equipe_save.get("classes", [])
+		if classes is Array:
+			for id_classe in classes:
+				ids_equipe.append(str(id_classe))
+		party.aplicar_save(equipe_save)
+	_progresso.aplicar(dados.get("progresso", []), ids_equipe)
 	menu_inventario.aplicar_inventario(dados.get("inventario", []))
 	menu_inventario.aplicar_armazem(dados.get("armazem", []))
 	menu_inventario.aplicar_equipamentos(dados.get("equipamentos", []))
 	menu_inventario.aplicar_arvore(dados.get("arvore", []))
-	var equipe_save: Variant = dados.get("equipe", {})
-	if equipe_save is Dictionary:
-		party.aplicar_save(equipe_save)
 	menu_inventario.configurar_equipe(party)
 	menu_inventario.selecionar_personagem(int(dados.get("personagem_atual", 0)))
-	var atual: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual())
+	var atual: Dictionary = _progresso.do_indice(menu_inventario.indice_personagem_atual(), party.equipe_ativa)
 	menu_inventario.atualizar_nivel_exibido(
 		int(atual["nivel"]),
 		int(atual.get("xp", 0)),

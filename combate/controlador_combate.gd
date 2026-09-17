@@ -211,11 +211,10 @@ func _aplicar_xp(quantidade: int) -> void:
 	if progresso == null:
 		return
 	var niveis := progresso.aplicar_xp(quantidade, party.equipe_ativa)
-	var indice_ui := 0
-	if obter_indice_personagem.is_valid():
-		indice_ui = int(obter_indice_personagem.call())
-	if indice_ui >= 0 and indice_ui < niveis.size():
-		nivel_heroi_alterado.emit(indice_ui, niveis[indice_ui])
+	for indice in ProgressoHerois.SLOTS:
+		if indice < niveis.size():
+			nivel_heroi_alterado.emit(indice, niveis[indice])
+	hud_atualizar.emit()
 
 
 func _bonus_arvore() -> Dictionary:

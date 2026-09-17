@@ -187,6 +187,16 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 3
 
+[node name="LinhaInfoNivel" type="CenterContainer" parent="Conteudo/PainelSintese"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 28)
+
+[node name="BotaoInfoNivel" type="PanelContainer" parent="Conteudo/PainelSintese/LinhaInfoNivel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 0
+
 [node name="BotaoPreenchimento" type="Button" parent="Conteudo/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 34)
@@ -234,11 +244,11 @@ text = "FORJAR"
 
 [node name="LabelExplicacaoFerraria" type="Label" parent="Conteudo/PainelSintese"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
 theme_override_font_sizes/font_size = 11
-text = "Forje 9 itens da mesma raridade e categoria para obter 1 de grau superior."
+text = "Forje 9 itens da mesma raridade e tipo"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -260,13 +270,18 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 3
 
-[node name="LabelValorDesmonte" type="Label" parent="Conteudo/PainelDesmontar"]
+[node name="LinhaValorDesmonte" type="CenterContainer" parent="Conteudo/PainelDesmontar"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 28)
+
+[node name="LabelValorDesmonte" type="Label" parent="Conteudo/PainelDesmontar/LinhaValorDesmonte"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
 theme_override_font_sizes/font_size = 13
 text = "Valor: 0 ouro"
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BotaoPreenchimentoDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
 unique_name_in_owner = true
@@ -315,10 +330,10 @@ text = "DESMONTAR"
 
 [node name="LabelExplicacaoDesmontar" type="Label" parent="Conteudo/PainelDesmontar"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
 theme_override_font_sizes/font_size = 11
-text = "Desmonte itens para convertê-los em ouro. Itens melhores valem mais."
+text = "Desmonte itens para receber ouro"
 horizontal_alignment = 1
 autowrap_mode = 3

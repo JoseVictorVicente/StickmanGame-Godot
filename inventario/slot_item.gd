@@ -7,7 +7,7 @@ signal item_duplo_clique(slot: SlotItem)
 signal item_botao_direito(slot: SlotItem)
 signal item_solto(destino: SlotItem, item: ItemData, origem: SlotItem)
 
-const OFFSET_CURSOR := Vector2(15, 15)
+const OFFSET_LEGENDA := Vector2(10, 0)
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
 const EQUIP_DIREITA_NOMES: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
@@ -127,22 +127,14 @@ func _mostrar_legenda() -> void:
 	caixa.show()
 	caixa.move_to_front()
 	_posicionar_legenda()
-	set_process(true)
 
 
 func _ocultar_legenda() -> void:
 	if _slot_legenda != null and _slot_legenda != self:
 		return
-	if _slot_legenda == self:
-		set_process(false)
 	_slot_legenda = null
 	if _caixa_legenda and is_instance_valid(_caixa_legenda):
 		_caixa_legenda.hide()
-
-
-func _process(_delta: float) -> void:
-	if _slot_legenda == self and _caixa_legenda and _caixa_legenda.visible:
-		_posicionar_legenda()
 
 
 func _posicionar_legenda() -> void:
@@ -155,30 +147,26 @@ func _posicionar_legenda() -> void:
 	if _caixa_legenda.size.x > tam.x or _caixa_legenda.size.y > tam.y:
 		tam = _caixa_legenda.size
 	_caixa_legenda.size = tam
+	_caixa_legenda.pivot_offset = Vector2.ZERO
 
-	var viewport_size := get_viewport().get_visible_rect().size
-	var mouse := get_viewport().get_mouse_position()
+	var viewport := get_viewport().get_visible_rect()
 	var slot_rect := get_global_rect()
 	var abrir_esquerda := _deve_abrir_tooltip_esquerda(slot_rect)
 	var pos := Vector2.ZERO
 
 	if abrir_esquerda:
-		_caixa_legenda.pivot_offset = Vector2(tam.x, 0.0)
-		pos.x = slot_rect.position.x - tam.x - OFFSET_CURSOR.x
-		pos.y = mouse.y + OFFSET_CURSOR.y
-		if pos.x < 0.0:
-			pos.x = slot_rect.end.x + OFFSET_CURSOR.x
+		pos.x = slot_rect.position.x - tam.x - OFFSET_LEGENDA.x
+		pos.y = slot_rect.position.y + (slot_rect.size.y - tam.y) * 0.5
+		if pos.x < viewport.position.x + 4.0:
+			pos.x = slot_rect.end.x + OFFSET_LEGENDA.x
 	else:
-		_caixa_legenda.pivot_offset = Vector2.ZERO
-		pos = mouse + OFFSET_CURSOR
-		if pos.x + tam.x > viewport_size.x:
-			pos.x = mouse.x - tam.x - OFFSET_CURSOR.x
+		pos.x = slot_rect.end.x + OFFSET_LEGENDA.x
+		pos.y = slot_rect.position.y + (slot_rect.size.y - tam.y) * 0.5
+		if pos.x + tam.x > viewport.end.x - 4.0:
+			pos.x = slot_rect.position.x - tam.x - OFFSET_LEGENDA.x
 
-	if pos.y + tam.y > viewport_size.y:
-		pos.y = mouse.y - tam.y - OFFSET_CURSOR.y
-
-	pos.x = clampf(pos.x, 0.0, maxf(0.0, viewport_size.x - tam.x))
-	pos.y = clampf(pos.y, 0.0, maxf(0.0, viewport_size.y - tam.y))
+	pos.x = clampf(pos.x, viewport.position.x + 4.0, maxf(viewport.position.x + 4.0, viewport.end.x - tam.x - 4.0))
+	pos.y = clampf(pos.y, viewport.position.y + 4.0, maxf(viewport.position.y + 4.0, viewport.end.y - tam.y - 4.0))
 	_caixa_legenda.global_position = pos
 
 
@@ -247,6 +235,7 @@ func _preencher_legenda(caixa: PanelContainer, dados: ItemData) -> void:
 		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
 	if dados.classe_requerida != ItemData.ClasseRequerida.TODAS:
 		coluna.add_child(_rotulo_tooltip("Classe: %s" % dados.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
+	coluna.add_child(_rotulo_tooltip("Nível: %d" % dados.nivel_item, Color(0.78, 0.82, 0.95, 1), 11, false))
 	coluna.add_child(_rotulo_tooltip("Valor: %d ouro" % dados.valor_desmonte(), Color(1, 0.86, 0.38, 1), 11, false))
 	caixa.add_child(coluna)
 

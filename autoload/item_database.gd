@@ -14,10 +14,12 @@ func gerar_item_aleatorio(nivel_inimigo: int) -> ItemData:
 	var modelo: ItemData = itens[randi() % itens.size()]
 	var item: ItemData = modelo.duplicate() as ItemData
 	item.raridade = _sortear_raridade(nivel_inimigo)
+	item.nivel_item = ItemData.sortear_nivel_item(nivel_inimigo)
 	var variacao := randf_range(0.9, 1.1)
 	var bonus_raridade := ItemData.multiplicador_stats(item.raridade)
-	item.dano_bonus = maxi(1, int(round(float(modelo.dano_bonus) * variacao * bonus_raridade)))
-	item.vida_bonus = maxi(0, int(round(float(modelo.vida_bonus) * variacao * bonus_raridade)))
+	var bonus_nivel := ItemData.multiplicador_nivel_item(item.nivel_item)
+	item.dano_bonus = maxi(1, int(round(float(modelo.dano_bonus) * variacao * bonus_raridade * bonus_nivel)))
+	item.vida_bonus = maxi(0, int(round(float(modelo.vida_bonus) * variacao * bonus_raridade * bonus_nivel)))
 	item.id = "%s_%d" % [modelo.id, Time.get_ticks_msec()]
 	item.icone = item.gerar_icone()
 	return item
@@ -152,4 +154,5 @@ func _criar(
 	item.vida_bonus = p_vida
 	item.classe_requerida = p_classe
 	item.raridade = ItemData.Raridade.COMUM
+	item.nivel_item = ItemData.NIVEIS_ITEM[0]
 	return item

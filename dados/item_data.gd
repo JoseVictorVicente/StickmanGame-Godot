@@ -45,11 +45,14 @@ enum Categoria {
 	ACESSORIO,
 }
 
+const NIVEIS_ITEM: Array[int] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80]
+
 @export var id: String = ""
 @export var nome: String = ""
 @export var icone: Texture2D
 @export var tipo: Tipo = Tipo.ARMA
 @export var raridade: Raridade = Raridade.COMUM
+@export var nivel_item: int = 5
 @export var dano_bonus: int = 0
 @export var vida_bonus: int = 0
 @export var classe_requerida: ClasseRequerida = ClasseRequerida.TODAS
@@ -69,6 +72,7 @@ func texto_tooltip() -> String:
 		linhas.append("Vida Bônus: +%d" % vida_bonus)
 	if classe_requerida != ClasseRequerida.TODAS:
 		linhas.append("Classe: %s" % nome_classe_requerida())
+	linhas.append("Nível: %d" % nivel_item)
 	linhas.append("Valor: %d ouro" % valor_desmonte())
 	return "\n".join(linhas)
 
@@ -222,6 +226,64 @@ static func multiplicador_stats(p_raridade: Raridade) -> float:
 	return pow(1.22, float(int(p_raridade)))
 
 
+static func normalizar_nivel_item(valor: int) -> int:
+	if NIVEIS_ITEM.has(valor):
+		return valor
+	var melhor := NIVEIS_ITEM[0]
+	var menor_dist := absi(valor - melhor)
+	for nivel in NIVEIS_ITEM:
+		var dist := absi(valor - nivel)
+		if dist < menor_dist:
+			menor_dist = dist
+			melhor = nivel
+	return melhor
+
+
+static func indice_nivel_item(nivel: int) -> int:
+	var normalizado := normalizar_nivel_item(nivel)
+	var indice := NIVEIS_ITEM.find(normalizado)
+	return indice if indice >= 0 else 0
+
+
+static func multiplicador_nivel_item(nivel: int) -> float:
+	return pow(1.088, float(indice_nivel_item(nivel)))
+
+
+static func nivel_item_maximo(progresso: int) -> int:
+	var maximo := NIVEIS_ITEM[0]
+	for nivel in NIVEIS_ITEM:
+		if nivel <= progresso + 4:
+			maximo = nivel
+	return maximo
+
+
+static func sortear_nivel_item(progresso: int) -> int:
+	var maximo := nivel_item_maximo(maxi(1, progresso))
+	var opcoes: Array[int] = []
+	for nivel in NIVEIS_ITEM:
+		if nivel <= maximo:
+			opcoes.append(nivel)
+	if opcoes.is_empty():
+		return NIVEIS_ITEM[0]
+	var pesos: Array[float] = []
+	var total := 0.0
+	for i in opcoes.size():
+		var peso := pow(0.62, float(opcoes.size() - 1 - i))
+		pesos.append(peso)
+		total += peso
+	var rolagem := randf() * total
+	var acumulado := 0.0
+	for i in opcoes.size():
+		acumulado += pesos[i]
+		if rolagem <= acumulado:
+			return opcoes[i]
+	return opcoes[0]
+
+
+func pode_equipar(nivel_heroi: int) -> bool:
+	return nivel_heroi >= normalizar_nivel_item(nivel_item)
+
+
 func nome_classe_requerida() -> String:
 	match classe_requerida:
 		ClasseRequerida.GUERREIRO:
@@ -314,6 +376,7 @@ func para_dicionario() -> Dictionary:
 		"nome": nome,
 		"tipo": int(tipo),
 		"raridade": int(raridade),
+		"nivel_item": nivel_item,
 		"dano_bonus": dano_bonus,
 		"vida_bonus": vida_bonus,
 		"classe_requerida": int(classe_requerida),
@@ -328,6 +391,7 @@ static func de_dicionario(dados: Dictionary) -> ItemData:
 	item.nome = str(dados.get("nome", ""))
 	item.tipo = int(dados.get("tipo", Tipo.ARMA)) as Tipo
 	item.raridade = migrar_raridade_salva(int(dados.get("raridade", Raridade.COMUM)))
+	item.nivel_item = normalizar_nivel_item(int(dados.get("nivel_item", NIVEIS_ITEM[0])))
 	item.dano_bonus = int(dados.get("dano_bonus", 0))
 	item.vida_bonus = int(dados.get("vida_bonus", 0))
 	item.classe_requerida = int(dados.get("classe_requerida", ClasseRequerida.TODAS)) as ClasseRequerida

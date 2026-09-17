@@ -26,9 +26,9 @@ const MARGEM_TOPO_UI := 8.0
 const ALTURA_JANELA := 860.0
 const ESPACO_RESERVADO_COMBATE := 320.0
 var PERSONAGENS: Array[Dictionary] = [
-	{"nome": "Guerreiro", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.GUERREIRO},
-	{"nome": "Mago", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.MAGO},
-	{"nome": "Arqueiro", "nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL, "classe": ItemData.ClasseRequerida.ARQUEIRO},
+	{"nome": "Guerreiro", "classe": ItemData.ClasseRequerida.GUERREIRO},
+	{"nome": "Mago", "classe": ItemData.ClasseRequerida.MAGO},
+	{"nome": "Arqueiro", "classe": ItemData.ClasseRequerida.ARQUEIRO},
 ]
 
 @onready var grade_inventario: GridContainer = %GradeInventario
@@ -108,6 +108,7 @@ var _estilos_botao_mundo: Dictionary = {}
 var _menus_abaixo: bool = false
 var _progresso_arvore := ProgressoArvore.new()
 var consultar_ouro: Callable
+var consultar_progresso_slot: Callable
 
 const TEXTO_SLOT_SKILL_VAZIO := "+"
 const TAMANHO_SLOT_SKILL := Vector2(48, 48)
@@ -294,8 +295,9 @@ func selecionar_personagem(indice: int) -> void:
 			indice = party.primeiro_slot_ocupado()
 	_indice_personagem = indice
 	var dados: Dictionary = PERSONAGENS[indice]
+	var progresso := _progresso_do_indice(indice)
 	nome_personagem.text = str(dados["nome"])
-	nivel_personagem.text = "Lv. %d" % int(dados["nivel"])
+	nivel_personagem.text = "Lv. %d" % int(progresso["nivel"])
 	_atualizar_barra_xp()
 	if painel_atributos and painel_atributos.esta_aberta():
 		painel_atributos.atualizar()
@@ -345,17 +347,19 @@ func obter_itens_equipados(indice: int = -1) -> Array[ItemData]:
 
 
 func atualizar_nivel_exibido(nivel: int, xp: int = -1, xp_proximo: int = -1) -> void:
-	var dados: Dictionary = PERSONAGENS[_indice_personagem].duplicate()
-	dados["nivel"] = nivel
-	if xp >= 0:
-		dados["xp"] = xp
-	if xp_proximo > 0:
-		dados["xp_proximo"] = xp_proximo
-	PERSONAGENS[_indice_personagem] = dados
 	nivel_personagem.text = "Lv. %d" % nivel
-	_atualizar_barra_xp()
+	_atualizar_barra_xp(xp, xp_proximo)
+	_sincronizar_nomes_da_equipe()
 	if painel_atributos and painel_atributos.esta_aberta():
 		painel_atributos.atualizar()
+
+
+func _progresso_do_indice(indice: int) -> Dictionary:
+	if consultar_progresso_slot.is_valid():
+		var dados: Variant = consultar_progresso_slot.call(indice)
+		if dados is Dictionary:
+			return dados
+	return {"nivel": 1, "xp": 0, "xp_proximo": ProgressoHerois.XP_BASE_NIVEL}
 
 
 func _configurar_ancora_ui() -> void:
@@ -537,6 +541,7 @@ func _gerar_item_inicial() -> void:
 	espada.nome = "Espada de Madeira"
 	espada.tipo = ItemData.Tipo.ARMA
 	espada.raridade = ItemData.Raridade.COMUM
+	espada.nivel_item = ItemData.NIVEIS_ITEM[0]
 	espada.dano_bonus = 5
 	espada.classe_requerida = ItemData.ClasseRequerida.TODAS
 	espada.icone = _criar_icone_espada_madeira()
@@ -564,7 +569,7 @@ func _criar_icone_espada_madeira() -> Texture2D:
 func _on_slot_clicado(slot: SlotItem) -> void:
 	if _slot_selecionado != null and _slot_selecionado != slot:
 		if slot.aceita(_slot_selecionado.item) and (_slot_selecionado.aceita(slot.item) or slot.item == null):
-			if slot.aceita_qualquer or _classe_pode_usar(_slot_selecionado.item):
+			if slot.aceita_qualquer or _pode_usar_item(_slot_selecionado.item):
 				if not _pode_mover_para_slot(_slot_selecionado, slot):
 					return
 				_mover_item(_slot_selecionado, slot)
@@ -583,7 +588,7 @@ func _on_slot_duplo_clique(slot: SlotItem) -> void:
 		return
 	if slot.aceita_qualquer:
 		var destino := _slot_equipamento_atual(slot.item.tipo)
-		if destino and _classe_pode_usar(slot.item):
+		if destino and _pode_usar_item(slot.item):
 			_mover_item(slot, destino)
 			_definir_selecao(null)
 	else:
@@ -635,7 +640,7 @@ func _on_slot_solto(destino: SlotItem, _item: ItemData, origem: SlotItem) -> voi
 		return
 	if not destino.aceita(origem.item):
 		return
-	if not destino.aceita_qualquer and not _classe_pode_usar(origem.item):
+	if not destino.aceita_qualquer and not _pode_usar_item(origem.item):
 		return
 	if origem.item != null and not origem.aceita(destino.item) and destino.item != null:
 		return
@@ -769,6 +774,7 @@ func obter_vida_equipada(indice: int) -> int:
 func estatisticas_do_heroi_atual() -> Dictionary:
 	var indice := _indice_personagem
 	var dados: Dictionary = PERSONAGENS[indice] if indice >= 0 and indice < PERSONAGENS.size() else {}
+	var progresso := _progresso_do_indice(indice)
 	var classe: ClasseData = obter_classe_atual()
 	var party: PartyManager = ui_equipe._party if ui_equipe else null
 	var ataque := 0
@@ -777,7 +783,7 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 		ataque = party.dano_do_heroi(indice)
 		vida = party.vida_maxima_do_heroi(indice)
 	elif classe:
-		var nivel := maxi(1, int(dados.get("nivel", 1)))
+		var nivel := maxi(1, int(progresso.get("nivel", 1)))
 		ataque = maxi(1, int(round(float(classe.dano_base) * classe.multiplicador_ataque)))
 		ataque += (nivel - 1) * classe.atk_por_nivel
 		vida = classe.vida_base + (nivel - 1) * classe.hp_por_nivel
@@ -796,9 +802,9 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 	return {
 		"ataque": ataque,
 		"vida": vida,
-		"nivel": int(dados.get("nivel", 1)),
-		"xp": int(dados.get("xp", 0)),
-		"xp_proximo": int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
+		"nivel": int(progresso.get("nivel", 1)),
+		"xp": int(progresso.get("xp", 0)),
+		"xp_proximo": int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),
 		"bonus_xp": float(bonus.get("bonus_xp", 0.0)),
 		"bonus_ouro": float(bonus.get("bonus_ouro", 0.0)),
 		"vel_ataque": vel + float(bonus.get("vel_ataque", 0.0)),
@@ -811,17 +817,19 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 	}
 
 
-func _atualizar_barra_xp() -> void:
+func _atualizar_barra_xp(xp: int = -1, xp_proximo: int = -1) -> void:
 	if barra_xp_personagem == null:
 		return
-	var dados: Dictionary = PERSONAGENS[_indice_personagem]
-	var xp := int(dados.get("xp", 0))
-	var proximo := maxi(1, int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)))
-	var nivel := int(dados.get("nivel", 1))
-	barra_xp_personagem.max_value = float(proximo)
-	barra_xp_personagem.value = clampf(float(xp), 0.0, float(proximo))
+	var progresso := _progresso_do_indice(_indice_personagem)
+	if xp < 0:
+		xp = int(progresso.get("xp", 0))
+	if xp_proximo <= 0:
+		xp_proximo = maxi(1, int(progresso.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)))
+	var nivel := int(progresso.get("nivel", 1))
+	barra_xp_personagem.max_value = float(xp_proximo)
+	barra_xp_personagem.value = clampf(float(xp), 0.0, float(xp_proximo))
 	if label_xp_personagem:
-		label_xp_personagem.text = "Nv.%d  %d/%d" % [nivel, xp, proximo]
+		label_xp_personagem.text = "Nv.%d  %d/%d" % [nivel, xp, xp_proximo]
 
 
 func configurar_equipe(party: PartyManager) -> void:
@@ -887,6 +895,9 @@ func _sincronizar_nomes_da_equipe() -> void:
 		else:
 			dados["nome"] = "Vazio"
 		PERSONAGENS[i] = dados
+		if i < _botoes_personagem.size():
+			var progresso := _progresso_do_indice(i)
+			_botoes_personagem[i].text = "%s Lv.%d" % [dados["nome"], int(progresso.get("nivel", 1))]
 	nome_personagem.text = str(PERSONAGENS[_indice_personagem]["nome"])
 
 
@@ -954,6 +965,18 @@ func _classe_pode_usar(item: ItemData) -> bool:
 	if classe == null:
 		return false
 	return classe.classe_item == item.classe_requerida
+
+
+func _nivel_heroi_atual() -> int:
+	return int(_progresso_do_indice(_indice_personagem).get("nivel", 1))
+
+
+func _pode_usar_item(item: ItemData) -> bool:
+	if item == null:
+		return true
+	if not _classe_pode_usar(item):
+		return false
+	return item.pode_equipar(_nivel_heroi_atual())
 
 
 func preencher_item_inicial_se_vazio() -> void:

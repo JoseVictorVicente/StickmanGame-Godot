@@ -12,14 +12,19 @@ const SLOTS_SINTSE := 9
 const SLOT_CENTRAL := 4
 const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
+const TAMANHO_ICONE_INFO := 28
 const FILTRO_TODOS := -1
-const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e família (equipamento ou acessório) para obter 1 de grau superior."
-const TEXTO_DESMONTE := "Desmonte itens para convertê-los em ouro. Itens melhores valem mais."
+const CAMADA_LEGENDA_INFO := 127
+const Z_INDEX_LEGENDA_INFO := 100
+const OFFSET_LEGENDA_INFO := Vector2(10, 0)
+const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e tipo"
+const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
 
 @onready var grade_sintese: GridContainer = %GradeSintese
 @onready var grade_desmontar: GridContainer = %GradeDesmontar
 @onready var botao_fechar: Button = %BotaoFecharFerraria
 @onready var botao_preenchimento: Button = %BotaoPreenchimento
+@onready var botao_info_nivel: PanelContainer = %BotaoInfoNivel
 @onready var botao_sintetizar: Button = %BotaoSintetizar
 @onready var botao_desmontar: Button = %BotaoDesmontar
 @onready var botao_aba_sintese: Button = %BotaoAbaSintese
@@ -44,6 +49,8 @@ var _aba: Aba = Aba.SINTESE
 var _filtro_raridade: int = FILTRO_TODOS
 var _usar_armazem: bool = false
 var _popup_filtro: PopupMenu
+var _camada_legenda_info: CanvasLayer
+var _caixa_legenda_info: PanelContainer
 
 
 func _ready() -> void:
@@ -64,8 +71,10 @@ func _ready() -> void:
 	botao_armazem_desmonte.toggled.connect(_on_armazem_toggled)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
+	visibility_changed.connect(_on_visibilidade_legenda_info)
 	label_explicacao.text = TEXTO_RODAPE
 	label_explicacao_desmontar.text = TEXTO_DESMONTE
+	_configurar_botao_info_nivel()
 	mostrar_aba(Aba.SINTESE)
 	_atualizar_botoes_filtro()
 	_atualizar_botoes_armazem()
@@ -243,15 +252,14 @@ func esta_aberta() -> bool:
 
 
 func mostrar_aba(aba: Aba) -> void:
+	if aba != _aba:
+		_limpar_aba(_aba)
 	_aba = aba
 	painel_sintese.visible = aba == Aba.SINTESE
 	painel_desmontar.visible = aba == Aba.DESMONTAR
 	_pintar_aba(botao_aba_sintese, aba == Aba.SINTESE)
 	_pintar_aba(botao_aba_desmontar, aba == Aba.DESMONTAR)
-	if aba == Aba.SINTESE:
-		_atualizar_estado()
-	else:
-		_atualizar_desmonte()
+	_on_itens_alterados()
 
 
 ## Alterna a janela. Só abre se o inventário estiver visível.
@@ -272,6 +280,7 @@ func abrir() -> void:
 
 
 func fechar() -> void:
+	_ocultar_legenda_info()
 	_devolver_itens()
 	hide()
 	visibilidade_alterada.emit(false)
@@ -331,15 +340,16 @@ func sintetizar() -> void:
 	_atualizar_estado()
 	if sucesso:
 		_definir_status(
-			"Sucesso! %s (%s)." % [resultado.nome, resultado.nome_raridade()],
+			"Sucesso! %s (%s, Nv.%d)." % [resultado.nome, resultado.nome_raridade(), resultado.nivel_item],
 			Color(0.85, 0.78, 0.32, 1)
 		)
 	else:
 		_definir_status(
-			"Forja falhou (%d%%). Recebeu: %s (%s). Retire do slot central." % [
+			"Forja falhou (%d%%). Recebeu: %s (%s, Nv.%d). Retire do slot central." % [
 				ItemData.chance_forja_sucesso_pct(raridade_base),
 				resultado.nome,
 				resultado.nome_raridade(),
+				resultado.nivel_item,
 			],
 			Color(1, 0.55, 0.4, 1)
 		)
@@ -429,6 +439,15 @@ func _devolver_lista(lista: Array[SlotItem]) -> void:
 		liberar_slot_ferraria(slot)
 
 
+func _limpar_aba(aba: Aba) -> void:
+	match aba:
+		Aba.SINTESE:
+			_guardar_resultado_central()
+			_devolver_lista(_slots)
+		Aba.DESMONTAR:
+			_devolver_lista(_slots_desmontar)
+
+
 func _encontrar_grupo_elegivel() -> Array[SlotItem]:
 	var grupos: Dictionary = {}
 	for slot in _slots_origem():
@@ -480,22 +499,221 @@ func _criar_item_sintetizado(ingredientes: Array[ItemData], raridade_alvo: ItemD
 	var tipo_resultado := _tipo_resultado_sintese(ingredientes, categoria)
 	var soma_dano := 0
 	var soma_vida := 0
+	var soma_nivel := 0
 	var classe := base.classe_requerida
 	for item in ingredientes:
 		soma_dano += item.dano_bonus
 		soma_vida += item.vida_bonus
+		soma_nivel += item.nivel_item
 		if item.classe_requerida != classe:
 			classe = ItemData.ClasseRequerida.TODAS
+	var nivel_resultado := _sortear_nivel_forja(ingredientes)
+	var nivel_medio := float(soma_nivel) / float(SLOTS_SINTSE)
+	var ajuste_nivel := ItemData.multiplicador_nivel_item(nivel_resultado)
+	ajuste_nivel /= maxf(0.01, ItemData.multiplicador_nivel_item(int(round(nivel_medio))))
 	var resultado := ItemData.new()
 	resultado.id = "%s_sint_%d" % [base.id, Time.get_ticks_msec()]
 	resultado.nome = _nome_resultado_sintese(ingredientes, tipo_resultado)
 	resultado.tipo = tipo_resultado
 	resultado.raridade = raridade_alvo
+	resultado.nivel_item = nivel_resultado
 	resultado.classe_requerida = classe
-	resultado.dano_bonus = maxi(1, int(round(float(soma_dano) / float(SLOTS_SINTSE) * 1.25)))
-	resultado.vida_bonus = maxi(0, int(round(float(soma_vida) / float(SLOTS_SINTSE) * 1.25)))
+	resultado.dano_bonus = maxi(1, int(round(float(soma_dano) / float(SLOTS_SINTSE) * 1.25 * ajuste_nivel)))
+	resultado.vida_bonus = maxi(0, int(round(float(soma_vida) / float(SLOTS_SINTSE) * 1.25 * ajuste_nivel)))
 	resultado.icone = resultado.gerar_icone()
 	return resultado
+
+
+func _sortear_nivel_forja(ingredientes: Array[ItemData]) -> int:
+	if ingredientes.is_empty():
+		return ItemData.NIVEIS_ITEM[0]
+	var indice := randi() % ingredientes.size()
+	return ItemData.normalizar_nivel_item(ingredientes[indice].nivel_item)
+
+
+func _chances_nivel_na_grade() -> Dictionary:
+	var contagem: Dictionary = {}
+	var total := 0
+	for slot in _slots:
+		if slot.item == null:
+			continue
+		var nivel := slot.item.nivel_item
+		contagem[nivel] = int(contagem.get(nivel, 0)) + 1
+		total += 1
+	if total == 0:
+		return {}
+	var chances: Dictionary = {}
+	for nivel in contagem.keys():
+		chances[nivel] = 100.0 * float(contagem[nivel]) / float(total)
+	return chances
+
+
+func _texto_tooltip_chances_nivel() -> String:
+	var chances := _chances_nivel_na_grade()
+	if chances.is_empty():
+		return "Coloque itens na grade para ver as chances por nível."
+	var niveis: Array = chances.keys()
+	niveis.sort()
+	var linhas: PackedStringArray = ["Chances de nível no resultado:"]
+	for nivel in niveis:
+		linhas.append("Nv.%d: %.1f%%" % [int(nivel), float(chances[nivel])])
+	if _contar_ocupados(_slots) < SLOTS_SINTSE:
+		linhas.append("")
+		linhas.append("Valores com base nos %d itens atuais." % _contar_ocupados(_slots))
+	return "\n".join(linhas)
+
+
+func _configurar_botao_info_nivel() -> void:
+	if botao_info_nivel == null:
+		return
+	botao_info_nivel.custom_minimum_size = Vector2(TAMANHO_ICONE_INFO, TAMANHO_ICONE_INFO)
+	botao_info_nivel.mouse_filter = Control.MOUSE_FILTER_STOP
+	botao_info_nivel.tooltip_text = ""
+	for margem in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		botao_info_nivel.add_theme_constant_override(margem, 0)
+	for filho in botao_info_nivel.get_children():
+		filho.queue_free()
+	var centro := CenterContainer.new()
+	centro.name = "CentroInfo"
+	centro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	botao_info_nivel.add_child(centro)
+	var rotulo := Label.new()
+	rotulo.name = "RotuloInfo"
+	rotulo.text = "i"
+	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	rotulo.add_theme_font_size_override("font_size", 14)
+	rotulo.add_theme_color_override("font_color", Color(0.92, 0.86, 0.72, 1))
+	rotulo.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
+	rotulo.add_theme_constant_override("outline_size", 1)
+	var ajuste := MarginContainer.new()
+	ajuste.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ajuste.add_theme_constant_override("margin_left", 1)
+	ajuste.add_theme_constant_override("margin_top", 1)
+	ajuste.add_child(rotulo)
+	centro.add_child(ajuste)
+	_aplicar_estilo_icone_info(false)
+	if not botao_info_nivel.mouse_entered.is_connected(_on_icone_info_mouse_entered):
+		botao_info_nivel.mouse_entered.connect(_on_icone_info_mouse_entered)
+	if not botao_info_nivel.mouse_exited.is_connected(_on_icone_info_mouse_exited):
+		botao_info_nivel.mouse_exited.connect(_on_icone_info_mouse_exited)
+
+
+func _on_icone_info_mouse_entered() -> void:
+	_aplicar_estilo_icone_info(true)
+	_mostrar_legenda_info()
+
+
+func _on_icone_info_mouse_exited() -> void:
+	_aplicar_estilo_icone_info(false)
+	_ocultar_legenda_info()
+
+
+func _aplicar_estilo_icone_info(hover: bool) -> void:
+	if botao_info_nivel == null:
+		return
+	var raio := TAMANHO_ICONE_INFO / 2
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.18, 0.15, 0.13, 1) if hover else Color(0.14, 0.12, 0.1, 1)
+	estilo.border_color = Color(0.9, 0.76, 0.38, 1) if hover else Color(0.72, 0.58, 0.28, 1)
+	estilo.set_border_width_all(2)
+	estilo.set_corner_radius_all(raio)
+	estilo.set_content_margin_all(0)
+	botao_info_nivel.add_theme_stylebox_override("panel", estilo)
+
+
+func _on_visibilidade_legenda_info() -> void:
+	if not visible:
+		_ocultar_legenda_info()
+
+
+func _garantir_caixa_legenda_info() -> PanelContainer:
+	if _camada_legenda_info == null or not is_instance_valid(_camada_legenda_info):
+		_camada_legenda_info = CanvasLayer.new()
+		_camada_legenda_info.layer = CAMADA_LEGENDA_INFO
+		_camada_legenda_info.name = "CamadaLegendaInfoFerraria"
+		get_tree().root.add_child(_camada_legenda_info)
+	if _caixa_legenda_info == null or not is_instance_valid(_caixa_legenda_info):
+		_caixa_legenda_info = PanelContainer.new()
+		_caixa_legenda_info.z_index = Z_INDEX_LEGENDA_INFO
+		_caixa_legenda_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_camada_legenda_info.add_child(_caixa_legenda_info)
+	return _caixa_legenda_info
+
+
+func _preencher_legenda_info(caixa: PanelContainer) -> void:
+	while caixa.get_child_count() > 0:
+		caixa.get_child(0).free()
+	var fundo := StyleBoxFlat.new()
+	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
+	fundo.border_color = Color(0.72, 0.58, 0.28, 1)
+	fundo.set_border_width_all(2)
+	fundo.set_corner_radius_all(4)
+	fundo.content_margin_left = 10
+	fundo.content_margin_top = 8
+	fundo.content_margin_right = 10
+	fundo.content_margin_bottom = 8
+	caixa.add_theme_stylebox_override("panel", fundo)
+	var coluna := VBoxContainer.new()
+	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	coluna.add_theme_constant_override("separation", 3)
+	var linhas := _texto_tooltip_chances_nivel().split("\n")
+	for i in linhas.size():
+		var linha := str(linhas[i])
+		if linha == "":
+			continue
+		var rotulo := Label.new()
+		rotulo.text = linha
+		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rotulo.add_theme_font_size_override("font_size", 11 if i > 0 else 12)
+		if i == 0:
+			rotulo.add_theme_color_override("font_color", Color(0.95, 0.86, 0.45, 1))
+		else:
+			rotulo.add_theme_color_override("font_color", Color(0.88, 0.84, 0.75, 1))
+		coluna.add_child(rotulo)
+	caixa.add_child(coluna)
+
+
+func _posicionar_legenda_info() -> void:
+	if _caixa_legenda_info == null or botao_info_nivel == null:
+		return
+	_caixa_legenda_info.reset_size()
+	var tam := _caixa_legenda_info.get_combined_minimum_size()
+	if _caixa_legenda_info.size.x > tam.x or _caixa_legenda_info.size.y > tam.y:
+		tam = _caixa_legenda_info.size
+	_caixa_legenda_info.size = tam
+	var icone := botao_info_nivel.get_global_rect()
+	var pos := Vector2(
+		icone.position.x - tam.x - OFFSET_LEGENDA_INFO.x,
+		icone.position.y + (icone.size.y - tam.y) * 0.5
+	)
+	var viewport := get_viewport().get_visible_rect()
+	pos.x = clampf(pos.x, viewport.position.x + 4.0, maxf(viewport.position.x + 4.0, viewport.end.x - tam.x - 4.0))
+	pos.y = clampf(pos.y, viewport.position.y + 4.0, maxf(viewport.position.y + 4.0, viewport.end.y - tam.y - 4.0))
+	_caixa_legenda_info.global_position = pos
+
+
+func _mostrar_legenda_info() -> void:
+	if botao_info_nivel == null or not is_visible_in_tree():
+		return
+	var caixa := _garantir_caixa_legenda_info()
+	_preencher_legenda_info(caixa)
+	_posicionar_legenda_info()
+	caixa.show()
+	caixa.move_to_front()
+
+
+func _ocultar_legenda_info() -> void:
+	if _caixa_legenda_info and is_instance_valid(_caixa_legenda_info):
+		_caixa_legenda_info.hide()
+
+
+func _atualizar_tooltip_info_nivel() -> void:
+	if _caixa_legenda_info == null or not _caixa_legenda_info.visible:
+		return
+	_preencher_legenda_info(_caixa_legenda_info)
+	_posicionar_legenda_info()
 
 
 func _tipo_resultado_sintese(ingredientes: Array[ItemData], categoria: ItemData.Categoria) -> ItemData.Tipo:
@@ -536,11 +754,12 @@ func _on_itens_alterados() -> void:
 func _atualizar_estado() -> void:
 	if botao_sintetizar == null:
 		return
+	_atualizar_tooltip_info_nivel()
 	if _tem_resultado_pendente():
 		botao_sintetizar.disabled = true
 		var item := _slots[SLOT_CENTRAL].item
 		_definir_status(
-			"Item pronto: %s (%s). Retire do slot central." % [item.nome, item.nome_raridade()],
+			"Item pronto: %s (%s, Nv.%d). Retire do slot central." % [item.nome, item.nome_raridade(), item.nivel_item],
 			Color(0.72, 0.9, 0.7, 1)
 		)
 		return
@@ -549,16 +768,7 @@ func _atualizar_estado() -> void:
 	if valida:
 		var amostra: ItemData = _slots[0].item
 		var pct := ItemData.chance_forja_sucesso_pct(amostra.raridade)
-		_definir_status(
-			"Pronto: 9x %s %s → 1 %s %s (%d%% de sucesso)." % [
-				ItemData.nome_categoria(amostra.categoria()),
-				amostra.nome_raridade(),
-				ItemData.nome_categoria(amostra.categoria()),
-				ItemData.nome_de_raridade(ItemData.proxima_raridade(amostra.raridade)),
-				pct,
-			],
-			Color(0.85, 0.78, 0.32, 1)
-		)
+		_definir_status("Chance de sucesso: %d%%" % pct, Color(0.85, 0.78, 0.32, 1))
 	elif _contar_ocupados(_slots) == 0:
 		_definir_status(TEXTO_RODAPE, Color(0.72, 0.66, 0.52, 1))
 	else:
@@ -567,7 +777,7 @@ func _atualizar_estado() -> void:
 		if travada != null:
 			extra = " Família: %s." % ItemData.nome_categoria(travada as ItemData.Categoria)
 		_definir_status(
-			"%d/9 — mesma raridade e família (equipamento ou acessório).%s" % [_contar_ocupados(_slots), extra],
+			"%d/9 — mesma raridade e família. Níveis podem ser misturados.%s" % [_contar_ocupados(_slots), extra],
 			Color(0.82, 0.74, 0.55, 1)
 		)
 
