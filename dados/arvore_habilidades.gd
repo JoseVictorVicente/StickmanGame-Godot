@@ -20,7 +20,7 @@ const TOTAL_NOS := 15
 const RAIO_INTERNO := 118.0
 const RAIO_EXTERNO := 210.0
 const CENTRO_CANVAS := Vector2(450, 450)
-const CUSTO_BASE := 25
+const CUSTOS_ANEL: Array[int] = [50, 300, 1500]
 
 
 static func catalogo() -> Array[Dictionary]:
@@ -56,8 +56,8 @@ static func catalogo() -> Array[Dictionary]:
 
 
 static func custo_do_no(no: Dictionary) -> int:
-	var anel := int(no.get("anel", 0))
-	return CUSTO_BASE * (anel + 1) * (anel + 1)
+	var anel := clampi(int(no.get("anel", 0)), 0, CUSTOS_ANEL.size() - 1)
+	return CUSTOS_ANEL[anel]
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:

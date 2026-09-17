@@ -3,7 +3,7 @@ extends RefCounted
 ## Nível e XP dos 3 heróis da equipe.
 
 const XP_BASE_NIVEL := 300
-const XP_CRESCIMENTO := 1.55
+const XP_CRESCIMENTO := 1.43
 const SLOTS := 3
 
 

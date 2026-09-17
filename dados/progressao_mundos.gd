@@ -10,6 +10,18 @@ const TOTAL_FASES := TOTAL_MUNDOS * FASES_POR_MUNDO
 const PROGRESSO_COMPLETO := TOTAL_FASES + 1
 const NOMES_DIFICULDADE: PackedStringArray = ["Fácil", "Difícil", "Inferno"]
 const MULTIPLICADORES: Array[float] = [1.0, 1.8, 3.2]
+## Curva em S: início acessível, endgame exige farm prolongado.
+const HP_BASE := 22.0
+const HP_ESCALA := 7.0
+const HP_EXPONENTE := 1.52
+const HP_MULT_MUNDO := 1.20
+const RECOMP_ESCALA := 11.0
+const RECOMP_EXPONENTE := 1.10
+const DANO_BASE := 3.0
+const DANO_ESCALA := 9.0
+const DANO_EXPONENTE := 1.22
+const CHEFE_VIDA := 1.70
+const CHEFE_DANO := 1.35
 const POSICOES_FASES: Array[Vector2] = [
 	Vector2(0.18, 0.88),
 	Vector2(0.42, 0.80),
@@ -71,17 +83,39 @@ static func aplicar_conclusao(progresso: int, mundo: int, fase: int) -> int:
 	return maxi(progresso, indice(seguinte.x, seguinte.y))
 
 
+static func curva_desafio(nivel: int) -> float:
+	var n := float(maxi(1, nivel))
+	return pow(1.0 + n / HP_ESCALA, HP_EXPONENTE)
+
+
+static func curva_recompensa(nivel: int) -> float:
+	var n := float(maxi(1, nivel))
+	return pow(1.0 + n / RECOMP_ESCALA, RECOMP_EXPONENTE)
+
+
+static func mult_mundo(mundo: int) -> float:
+	return pow(HP_MULT_MUNDO, float(maxi(1, mundo) - 1))
+
+
 static func stats_inimigo(mundo: int, fase: int, dificuldade: int) -> Dictionary:
 	var nivel := indice(mundo, fase)
 	var mult: float = MULTIPLICADORES[clampi(dificuldade, 0, MULTIPLICADORES.size() - 1)]
-	var chefe := 1.65 if fase == FASES_POR_MUNDO else 1.0
-	var chefe_dano := 1.3 if fase == FASES_POR_MUNDO else 1.0
+	var chefe_vida := CHEFE_VIDA if fase == FASES_POR_MUNDO else 1.0
+	var chefe_dano := CHEFE_DANO if fase == FASES_POR_MUNDO else 1.0
+	var mundo_mult := mult_mundo(mundo)
+	var desafio := curva_desafio(nivel)
+	var recomp := curva_recompensa(nivel)
+	var recomp_mundo := pow(mundo_mult, 0.35)
+	var vida := HP_BASE * desafio * mult * chefe_vida * mundo_mult
+	var dano := DANO_BASE * pow(1.0 + float(nivel) / DANO_ESCALA, DANO_EXPONENTE) * mult * chefe_dano * sqrt(mundo_mult)
+	var ouro := 4.0 * recomp * mult * recomp_mundo
+	var xp := 6.0 * recomp * mult * 1.15 * recomp_mundo
 	return {
 		"nome": "Monstro %d-%d" % [mundo, fase],
 		"rotulo": "%d-%d" % [mundo, fase],
-		"vida": maxi(1, int(round((24.0 + float(nivel - 1) * 20.0) * mult * chefe))),
-		"dano": maxi(1, int(round((3.0 + float(nivel - 1) * 0.65) * mult * chefe_dano))),
-		"ouro": maxi(1, int(round((3.0 + float(nivel)) * mult))),
-		"xp": maxi(1, int(round((5.0 + float(nivel) * 2.0) * mult))),
+		"vida": maxi(1, int(round(vida))),
+		"dano": maxi(1, int(round(dano))),
+		"ouro": maxi(1, int(round(ouro))),
+		"xp": maxi(1, int(round(xp))),
 		"nivel": nivel,
 	}

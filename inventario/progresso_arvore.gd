@@ -54,6 +54,24 @@ func bonus_global() -> Dictionary:
 			total[chave] = int(total[chave]) + int(valor)
 		else:
 			total[chave] = float(total[chave]) + valor
+	return _aplicar_caps_bonus(total)
+
+
+static func _aplicar_caps_bonus(total: Dictionary) -> Dictionary:
+	var caps := {
+		"bonus_ouro": 30.0,
+		"bonus_xp": 40.0,
+		"vel_ataque": 45.0,
+		"crit_chance": 25.0,
+		"crit_dano": 60.0,
+		"evasao": 25.0,
+		"res_fisica": 35.0,
+		"res_arcana": 35.0,
+		"res_elemental": 35.0,
+	}
+	for chave in caps.keys():
+		if chave in total:
+			total[chave] = minf(float(total[chave]), float(caps[chave]))
 	return total
 
 
