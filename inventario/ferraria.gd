@@ -13,6 +13,7 @@ const SLOT_CENTRAL := 4
 const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
+const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
 const Z_INDEX_LEGENDA_INFO := 100
@@ -25,15 +26,16 @@ const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
 @onready var botao_fechar: Button = %BotaoFecharFerraria
 @onready var botao_preenchimento: Button = %BotaoPreenchimento
 @onready var botao_info_nivel: PanelContainer = %BotaoInfoNivel
+@onready var toggle_armazem: Control = %ToggleArmazem
+@onready var toggle_trilho: Panel = %ToggleTrilho
+@onready var toggle_knob: Panel = %ToggleKnob
 @onready var botao_sintetizar: Button = %BotaoSintetizar
 @onready var botao_desmontar: Button = %BotaoDesmontar
 @onready var botao_aba_sintese: Button = %BotaoAbaSintese
 @onready var botao_aba_desmontar: Button = %BotaoAbaDesmontar
 @onready var botao_filtro_forja: Button = %BotaoFiltroForja
-@onready var botao_armazem_forja: Button = %BotaoArmazemForja
 @onready var botao_preenchimento_desmonte: Button = %BotaoPreenchimentoDesmonte
 @onready var botao_filtro_desmonte: Button = %BotaoFiltroDesmonte
-@onready var botao_armazem_desmonte: Button = %BotaoArmazemDesmonte
 @onready var painel_sintese: VBoxContainer = %PainelSintese
 @onready var painel_desmontar: VBoxContainer = %PainelDesmontar
 @onready var label_explicacao: Label = %LabelExplicacaoFerraria
@@ -67,17 +69,15 @@ func _ready() -> void:
 	botao_aba_desmontar.pressed.connect(mostrar_aba.bind(Aba.DESMONTAR))
 	botao_filtro_forja.pressed.connect(_abrir_filtro.bind(botao_filtro_forja))
 	botao_filtro_desmonte.pressed.connect(_abrir_filtro.bind(botao_filtro_desmonte))
-	botao_armazem_forja.toggled.connect(_on_armazem_toggled)
-	botao_armazem_desmonte.toggled.connect(_on_armazem_toggled)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
 	visibility_changed.connect(_on_visibilidade_legenda_info)
 	label_explicacao.text = TEXTO_RODAPE
 	label_explicacao_desmontar.text = TEXTO_DESMONTE
+	_configurar_toggle_armazem()
 	_configurar_botao_info_nivel()
 	mostrar_aba(Aba.SINTESE)
 	_atualizar_botoes_filtro()
-	_atualizar_botoes_armazem()
 	_atualizar_estado()
 	_atualizar_desmonte()
 
@@ -563,6 +563,50 @@ func _texto_tooltip_chances_nivel() -> String:
 	return "\n".join(linhas)
 
 
+func _configurar_toggle_armazem() -> void:
+	if toggle_armazem == null:
+		return
+	toggle_armazem.tooltip_text = "Incluir armazém no preenchimento automático"
+	if not toggle_armazem.gui_input.is_connected(_on_toggle_armazem_clique):
+		toggle_armazem.gui_input.connect(_on_toggle_armazem_clique)
+	_estilizar_toggle_armazem(_usar_armazem)
+
+
+func _on_toggle_armazem_clique(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse := event as InputEventMouseButton
+		if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
+			_aplicar_toggle_armazem(not _usar_armazem)
+
+
+func _aplicar_toggle_armazem(ligado: bool) -> void:
+	_usar_armazem = ligado
+	_estilizar_toggle_armazem(ligado)
+
+
+func _estilizar_toggle_armazem(ligado: bool) -> void:
+	if toggle_trilho == null or toggle_knob == null:
+		return
+	var raio := int(TAMANHO_TOGGLE_ARMAZEM.y * 0.5)
+	var trilho := StyleBoxFlat.new()
+	trilho.set_corner_radius_all(raio)
+	trilho.set_border_width_all(1)
+	if ligado:
+		trilho.bg_color = Color(0.26, 0.42, 0.2, 1)
+		trilho.border_color = Color(0.62, 0.88, 0.38, 1)
+	else:
+		trilho.bg_color = Color(0.14, 0.12, 0.1, 1)
+		trilho.border_color = Color(0.52, 0.42, 0.24, 1)
+	toggle_trilho.add_theme_stylebox_override("panel", trilho)
+	var knob := StyleBoxFlat.new()
+	knob.set_corner_radius_all(10)
+	knob.bg_color = Color(0.92, 0.86, 0.72, 1)
+	knob.border_color = Color(0.72, 0.58, 0.28, 1)
+	knob.set_border_width_all(1)
+	toggle_knob.add_theme_stylebox_override("panel", knob)
+	toggle_knob.position = Vector2(25, 3) if ligado else Vector2(3, 3)
+
+
 func _configurar_botao_info_nivel() -> void:
 	if botao_info_nivel == null:
 		return
@@ -852,9 +896,11 @@ func _slots_origem() -> Array[SlotItem]:
 	if _menu == null:
 		var vazio: Array[SlotItem] = []
 		return vazio
+	var lista: Array[SlotItem] = []
+	lista.append_array(_menu.slots_inventario())
 	if _usar_armazem:
-		return _menu.slots_armazem()
-	return _menu.slots_inventario()
+		lista.append_array(_menu.slots_armazem())
+	return lista
 
 
 func _passa_filtro(item: ItemData) -> bool:
@@ -903,17 +949,6 @@ func _on_filtro_escolhido(id: int) -> void:
 	_atualizar_botoes_filtro()
 
 
-func _on_armazem_toggled(ligado: bool) -> void:
-	_usar_armazem = ligado
-	if botao_armazem_forja.button_pressed != ligado:
-		botao_armazem_forja.set_pressed_no_signal(ligado)
-	if botao_armazem_desmonte.button_pressed != ligado:
-		botao_armazem_desmonte.set_pressed_no_signal(ligado)
-	_atualizar_botoes_armazem()
-	if ligado and _menu and _menu.painel_armazem and not _menu.painel_armazem.esta_aberta():
-		_menu.painel_armazem.abrir()
-
-
 func _atualizar_botoes_filtro() -> void:
 	var texto := "Filtro: %s" % _nome_filtro_atual()
 	if botao_filtro_forja:
@@ -922,17 +957,10 @@ func _atualizar_botoes_filtro() -> void:
 		botao_filtro_desmonte.text = texto
 
 
-func _atualizar_botoes_armazem() -> void:
-	var texto := "Só armazém" if _usar_armazem else "Incluir armazém"
-	_pintar_toggle(botao_armazem_forja, _usar_armazem, texto)
-	_pintar_toggle(botao_armazem_desmonte, _usar_armazem, texto)
-
-
-func _pintar_toggle(botao: Button, ativo: bool, texto: String) -> void:
-	if botao == null:
-		return
-	botao.text = texto
-	_pintar_aba(botao, ativo)
+func _nome_origem_itens() -> String:
+	if _usar_armazem:
+		return "do inventário e armazém"
+	return "do inventário"
 
 
 func _nome_filtro_atual() -> String:
@@ -942,14 +970,14 @@ func _nome_filtro_atual() -> String:
 
 
 func _mensagem_sem_grupo() -> String:
-	var origem := "do armazém" if _usar_armazem else "do inventário"
+	var origem := _nome_origem_itens()
 	if _filtro_raridade == FILTRO_TODOS:
 		return "Não há 9 itens da mesma família %s." % origem
 	return "Não há 9 itens %s %s." % [_nome_filtro_atual().to_lower(), origem]
 
 
 func _mensagem_sem_itens_desmonte() -> String:
-	var origem := "no armazém" if _usar_armazem else "no inventário"
+	var origem := _nome_origem_itens()
 	if _filtro_raridade == FILTRO_TODOS:
 		return "Não há itens %s." % origem
 	return "Não há itens %s %s." % [_nome_filtro_atual().to_lower(), origem]
