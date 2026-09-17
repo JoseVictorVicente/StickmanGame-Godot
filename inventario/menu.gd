@@ -66,12 +66,9 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var painel_skills: PainelSkills = %PainelSkills
 @onready var painel_atributos: PainelAtributos = %PainelAtributos
 @onready var painel_arvore: PainelArvore = %PainelArvore
-@onready var botao_atributos: Button = %BotaoAtributos
 @onready var botao_skills: Button = %BotaoSkills
 @onready var botao_inventario: Button = %BotaoInventario
 @onready var botao_ferraria: Button = %BotaoFerraria
-@onready var botao_loja: Button = %BotaoLoja
-@onready var botao_conquistas: Button = %BotaoConquistas
 @onready var botao_armazem: Button = %BotaoArmazem
 @onready var botao_mundo: Button = %BotaoMundo
 @onready var label_ouro: Label = %LabelOuro
@@ -165,7 +162,6 @@ func _ready() -> void:
 	_conectar_slots_skills_principal()
 	if not ArcherEquipment.equipamento_alterado.is_connected(_atualizar_slots_skills_principal):
 		ArcherEquipment.equipamento_alterado.connect(_atualizar_slots_skills_principal)
-	botao_atributos.pressed.connect(_on_botao_atributos_pressed)
 	if botao_skills:
 		botao_skills.pressed.connect(_on_botao_skills_pressed)
 	if botao_atributos_personagem:
@@ -569,6 +565,8 @@ func _on_slot_clicado(slot: SlotItem) -> void:
 	if _slot_selecionado != null and _slot_selecionado != slot:
 		if slot.aceita(_slot_selecionado.item) and (_slot_selecionado.aceita(slot.item) or slot.item == null):
 			if slot.aceita_qualquer or _classe_pode_usar(_slot_selecionado.item):
+				if not _pode_mover_para_slot(_slot_selecionado, slot):
+					return
 				_mover_item(_slot_selecionado, slot)
 				_definir_selecao(null)
 				return
@@ -599,10 +597,9 @@ func _on_slot_botao_direito(slot: SlotItem) -> void:
 	if slot.item == null:
 		return
 	if _eh_slot_ferraria(slot):
-		var vazio_inv := primeiro_slot_inventario_vazio()
-		if vazio_inv:
-			_mover_item(slot, vazio_inv)
-			_definir_selecao(null)
+		painel_ferraria.interagir_slot(slot)
+		_definir_selecao(null)
+		equipamentos_alterados.emit()
 		return
 	if _eh_slot_armazem(slot):
 		var vazio_inv := primeiro_slot_inventario_vazio()
@@ -612,7 +609,7 @@ func _on_slot_botao_direito(slot: SlotItem) -> void:
 		return
 	if painel_ferraria.esta_aberta():
 		var destino := painel_ferraria.primeiro_slot_vazio()
-		if destino:
+		if destino and _pode_mover_para_slot(slot, destino):
 			_mover_item(slot, destino)
 			_definir_selecao(null)
 		return
@@ -626,7 +623,7 @@ func _on_slot_botao_direito(slot: SlotItem) -> void:
 
 
 func _eh_slot_ferraria(slot: SlotItem) -> bool:
-	return painel_ferraria != null and slot in painel_ferraria.slots_sintese()
+	return painel_ferraria != null and painel_ferraria.eh_slot_ferraria(slot)
 
 
 func _eh_slot_armazem(slot: SlotItem) -> bool:
@@ -642,16 +639,69 @@ func _on_slot_solto(destino: SlotItem, _item: ItemData, origem: SlotItem) -> voi
 		return
 	if origem.item != null and not origem.aceita(destino.item) and destino.item != null:
 		return
+	if not _pode_mover_para_slot(origem, destino):
+		return
 	_mover_item(origem, destino)
 	_definir_selecao(null)
 
 
 func _mover_item(origem: SlotItem, destino: SlotItem) -> void:
+	if painel_ferraria and painel_ferraria.esta_aberta():
+		var origem_ferraria := painel_ferraria.eh_slot_ferraria(origem)
+		var destino_ferraria := painel_ferraria.eh_slot_ferraria(destino)
+		if destino_ferraria and not origem_ferraria:
+			if painel_ferraria.reservar_item(origem, destino):
+				equipamentos_alterados.emit()
+			return
+		if origem_ferraria and not destino_ferraria:
+			if painel_ferraria.eh_resultado_pendente(origem):
+				if painel_ferraria.coletar_resultado_para(destino):
+					equipamentos_alterados.emit()
+				return
+			painel_ferraria.liberar_slot_ferraria(origem)
+			equipamentos_alterados.emit()
+			return
+		if origem_ferraria and destino_ferraria:
+			painel_ferraria.trocar_reservas(origem, destino)
+			equipamentos_alterados.emit()
+			return
+	if origem.reservado_ferraria or destino.reservado_ferraria:
+		return
 	var item_origem := origem.item
 	var item_destino := destino.item
 	origem.definir_item(item_destino)
 	destino.definir_item(item_origem)
 	equipamentos_alterados.emit()
+
+
+func _pode_mover_para_slot(origem: SlotItem, destino: SlotItem) -> bool:
+	if origem == null or destino == null:
+		return false
+	if painel_ferraria == null or not painel_ferraria.esta_aberta():
+		if origem.reservado_ferraria or destino.reservado_ferraria:
+			return false
+		return true
+	var origem_ferraria := painel_ferraria.eh_slot_ferraria(origem)
+	var destino_ferraria := painel_ferraria.eh_slot_ferraria(destino)
+	if origem.reservado_ferraria and not origem_ferraria:
+		return false
+	if destino.reservado_ferraria:
+		return false
+	if destino_ferraria and not origem_ferraria:
+		if origem.item == null or destino.item != null:
+			return false
+		if painel_ferraria.origem_ja_reservada(origem):
+			return false
+		if painel_ferraria.eh_slot_sintese(destino):
+			if not painel_ferraria.pode_receber_na_sintese(origem.item):
+				painel_ferraria.aviso_categoria_bloqueada(origem.item)
+				return false
+		return true
+	if origem_ferraria and not destino_ferraria:
+		if painel_ferraria.eh_resultado_pendente(origem):
+			return destino.item == null and not destino.reservado_ferraria
+		return true
+	return true
 
 
 func _definir_selecao(slot: SlotItem) -> void:
@@ -1047,13 +1097,10 @@ func _criar_estilo_slot() -> StyleBoxFlat:
 
 
 func _aplicar_icones_barra_inferior() -> void:
-	_configurar_botao_barra(botao_atributos, "atributos")
 	if botao_skills:
 		_configurar_botao_barra(botao_skills, "skills")
 	_configurar_botao_barra(botao_inventario, "inventario")
 	_configurar_botao_barra(botao_ferraria, "ferraria")
-	_configurar_botao_barra(botao_loja, "loja")
-	_configurar_botao_barra(botao_conquistas, "conquistas")
 	_configurar_botao_barra(botao_mundo, "mundo")
 
 
@@ -1167,7 +1214,6 @@ func _on_botao_atributos_pressed() -> void:
 		painel_atributos.fechar()
 	else:
 		_abrir_atributos()
-	botao_atributos.release_focus()
 	if botao_atributos_personagem:
 		botao_atributos_personagem.release_focus()
 

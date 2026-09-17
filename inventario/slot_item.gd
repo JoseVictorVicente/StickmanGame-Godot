@@ -20,6 +20,8 @@ var item: ItemData = null
 var tipo_aceitavel: ItemData.Tipo = ItemData.Tipo.ARMA
 var aceita_qualquer: bool = true
 var nome_slot: String = ""
+var validar_drop_extra: Callable
+var reservado_ferraria: bool = false
 var icone_rect: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
@@ -72,9 +74,17 @@ func atualizar_visual(selecionado: bool = _selecionado) -> void:
 			_ocultar_legenda()
 
 
+func definir_reserva_ferraria(ativa: bool) -> void:
+	reservado_ferraria = ativa
+	_aplicar_icone()
+	atualizar_visual()
+
+
 func aceita(candidato: ItemData) -> bool:
 	if candidato == null:
 		return true
+	if reservado_ferraria:
+		return false
 	if aceita_qualquer:
 		return true
 	return candidato.tipo == tipo_aceitavel
@@ -255,7 +265,7 @@ func _rotulo_tooltip(texto: String, cor: Color, tamanho: int, negrito: bool) -> 
 
 func _get_drag_data(_posicao: Vector2) -> Variant:
 	_ocultar_legenda()
-	if item == null:
+	if item == null or reservado_ferraria:
 		return null
 	var preview := TextureRect.new()
 	preview.texture = item.icone
@@ -272,7 +282,18 @@ func _can_drop_data(_posicao: Vector2, dados: Variant) -> bool:
 	var origem: SlotItem = dados.get("origem")
 	if origem == self:
 		return false
-	return aceita(dados["item"])
+	var candidato: ItemData = dados["item"]
+	if not aceita(candidato):
+		return false
+	if validar_drop_extra.is_valid():
+		var ok := true
+		if origem != null:
+			ok = bool(validar_drop_extra.call(candidato, origem))
+		else:
+			ok = bool(validar_drop_extra.call(candidato))
+		if not ok:
+			return false
+	return true
 
 
 func _drop_data(_posicao: Vector2, dados: Variant) -> void:
@@ -284,7 +305,10 @@ func _aplicar_icone() -> void:
 		return
 	if item and item.icone:
 		icone_rect.texture = item.icone
-		icone_rect.modulate = Color.WHITE
+		if reservado_ferraria:
+			icone_rect.modulate = Color(0.42, 0.42, 0.45, 0.75)
+		else:
+			icone_rect.modulate = Color.WHITE
 	else:
 		icone_rect.texture = _textura_vazia
 		icone_rect.modulate = Color(1, 1, 1, 1)
@@ -318,4 +342,7 @@ func _estilo_atual() -> StyleBoxFlat:
 	estilo.set_border_width_all(3 if _selecionado else 2)
 	if _selecionado:
 		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+	if reservado_ferraria:
+		estilo.bg_color = Color(estilo.bg_color.r * 0.45, estilo.bg_color.g * 0.45, estilo.bg_color.b * 0.45, estilo.bg_color.a)
+		estilo.border_color = Color(estilo.border_color.r * 0.55, estilo.border_color.g * 0.55, estilo.border_color.b * 0.55, 0.65)
 	return estilo

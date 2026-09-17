@@ -552,19 +552,6 @@ custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BotaoAtributos" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Atributos"
-
 [node name="BotaoSkills" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -603,32 +590,6 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 icon_alignment = 0
 expand_icon = true
 text = "Ferraria"
-
-[node name="BotaoLoja" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Loja"
-
-[node name="BotaoConquistas" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Conquistas"
 
 [node name="BotaoMundo" type="Button" parent="Centralizar/AreaMenus/Painel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
