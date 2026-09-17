@@ -21,15 +21,27 @@ func esta_desbloqueado(id_no: int) -> bool:
 	return id_no in _desbloqueados
 
 
+func pontos_na_regiao(secao: int) -> int:
+	var total := 0
+	for id_no in _desbloqueados:
+		var no := no_por_id(int(id_no))
+		if no.is_empty():
+			continue
+		if int(no.get("secao", no.get("regiao", -1))) == secao:
+			total += 1
+	return total
+
+
 func pode_comprar(id_no: int) -> bool:
 	if esta_desbloqueado(id_no):
 		return false
 	var no := no_por_id(id_no)
 	if no.is_empty():
 		return false
-	var pai := int(no.get("pai", -1))
-	if pai >= 0 and not esta_desbloqueado(pai):
-		return false
+	var pais: Array = no.get("pais", [])
+	for id_pai in pais:
+		if not esta_desbloqueado(int(id_pai)):
+			return false
 	return true
 
 
@@ -110,8 +122,30 @@ func aplicar(dados: Variant) -> void:
 			var id := int(id_no)
 			if not no_por_id(id).is_empty():
 				_desbloqueados.append(id)
+		_migrar_saves()
 		return
 	for id_no in dados:
 		var id := int(id_no)
 		if not no_por_id(id).is_empty():
 			_desbloqueados.append(id)
+	_migrar_saves()
+
+
+func _migrar_saves() -> void:
+	var validos: Array[int] = []
+	for id_no in _desbloqueados:
+		if not no_por_id(int(id_no)).is_empty():
+			validos.append(int(id_no))
+	_desbloqueados = validos
+	for secao in ArvoreHabilidades.NUM_SECOES:
+		_reparar_cadeia_secao(secao)
+
+
+func _reparar_cadeia_secao(secao: int) -> void:
+	for slot in ArvoreHabilidades.NOS_POR_SECAO:
+		var id := ArvoreHabilidades.id_do_no(secao, slot)
+		if not esta_desbloqueado(id):
+			continue
+		for id_pai in ArvoreHabilidades.pais_do_slot(secao, slot):
+			if not esta_desbloqueado(id_pai):
+				_desbloqueados.append(id_pai)
