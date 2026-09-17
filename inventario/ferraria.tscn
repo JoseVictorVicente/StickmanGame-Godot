@@ -1,25 +1,7 @@
-[gd_scene format=3 uid="uid://c8ferraria01"]
+[gd_scene load_steps=3 format=3 uid="uid://c8ferraria01"]
 
 [ext_resource type="Script" uid="uid://dxep2fv4y12m4" path="res://inventario/ferraria.gd" id="1_ferraria"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-bg_color = Color(0.11, 0.09, 0.08, 0.97)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.62, 0.5, 0.28, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 8
-shadow_offset = Vector2(0, 4)
+[ext_resource type="Texture2D" path="res://assets/ui/fundo_forja.png" id="2_fundo_forja"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 12.0
@@ -101,17 +83,40 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="PainelFerraria" type="PanelContainer"]
+[node name="PainelFerraria" type="Control"]
+unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(260, 0)
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 3
+anchors_preset = 0
 size_flags_vertical = 3
+clip_contents = false
 mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
 script = ExtResource("1_ferraria")
 
+[node name="FundoBase" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.1, 0.08, 0.07, 1)
+
 [node name="Conteudo" type="VBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+clip_contents = false
+theme_override_constants/separation = 8
 
 [node name="CabecalhoFerraria" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
@@ -170,37 +175,63 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Desmontar"
 
-[node name="PainelSintese" type="VBoxContainer" parent="Conteudo"]
+[node name="CorpoFerraria" type="Control" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
 
-[node name="CentralizarGrade" type="CenterContainer" parent="Conteudo/PainelSintese"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="GradeSintese" type="GridContainer" parent="Conteudo/PainelSintese/CentralizarGrade"]
+[node name="ForgeBackground" type="TextureRect" parent="Conteudo/CorpoFerraria"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_fundo_forja")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GradeSintese" type="GridContainer" parent="Conteudo/CorpoFerraria"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 0
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
 columns = 3
 
-[node name="LinhaInfoNivel" type="HBoxContainer" parent="Conteudo/PainelSintese"]
+[node name="PainelSintese" type="VBoxContainer" parent="Conteudo/CorpoFerraria"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+clip_contents = false
+theme_override_constants/separation = 8
+
+[node name="EspacoGrade" type="Control" parent="Conteudo/CorpoFerraria/PainelSintese"]
+layout_mode = 2
+mouse_filter = 2
+size_flags_vertical = 3
+
+[node name="LinhaInfoNivel" type="HBoxContainer" parent="Conteudo/CorpoFerraria/PainelSintese"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 28)
 alignment = 1
 theme_override_constants/separation = 10
 
-[node name="ToggleArmazem" type="Control" parent="Conteudo/PainelSintese/LinhaInfoNivel"]
+[node name="ToggleArmazem" type="Control" parent="Conteudo/CorpoFerraria/PainelSintese/LinhaInfoNivel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 26)
 layout_mode = 2
 mouse_filter = 0
 
-[node name="ToggleTrilho" type="Panel" parent="Conteudo/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
+[node name="ToggleTrilho" type="Panel" parent="Conteudo/CorpoFerraria/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -210,7 +241,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ToggleKnob" type="Panel" parent="Conteudo/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
+[node name="ToggleKnob" type="Panel" parent="Conteudo/CorpoFerraria/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 3.0
@@ -219,13 +250,13 @@ offset_right = 23.0
 offset_bottom = 23.0
 mouse_filter = 2
 
-[node name="BotaoInfoNivel" type="PanelContainer" parent="Conteudo/PainelSintese/LinhaInfoNivel"]
+[node name="BotaoInfoNivel" type="PanelContainer" parent="Conteudo/CorpoFerraria/PainelSintese/LinhaInfoNivel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 0
 
-[node name="BotaoPreenchimento" type="Button" parent="Conteudo/PainelSintese"]
+[node name="BotaoPreenchimento" type="Button" parent="Conteudo/CorpoFerraria/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
@@ -236,7 +267,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Preenchimento Automático"
 
-[node name="BotaoFiltroForja" type="Button" parent="Conteudo/PainelSintese"]
+[node name="BotaoFiltroForja" type="Button" parent="Conteudo/CorpoFerraria/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -247,7 +278,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Filtro: Todos"
 
-[node name="BotaoSintetizar" type="Button" parent="Conteudo/PainelSintese"]
+[node name="BotaoSintetizar" type="Button" parent="Conteudo/CorpoFerraria/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -258,7 +289,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "FORJAR"
 
-[node name="LabelExplicacaoFerraria" type="Label" parent="Conteudo/PainelSintese"]
+[node name="LabelExplicacaoFerraria" type="Label" parent="Conteudo/CorpoFerraria/PainelSintese"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
@@ -268,29 +299,33 @@ text = "Forje 9 itens da mesma raridade e tipo"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="PainelDesmontar" type="VBoxContainer" parent="Conteudo"]
+[node name="PainelDesmontar" type="VBoxContainer" parent="Conteudo/CorpoFerraria"]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="CentralizarDesmonte" type="CenterContainer" parent="Conteudo/PainelDesmontar"]
+[node name="CentralizarDesmonte" type="CenterContainer" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GradeDesmontar" type="GridContainer" parent="Conteudo/PainelDesmontar/CentralizarDesmonte"]
+[node name="GradeDesmontar" type="GridContainer" parent="Conteudo/CorpoFerraria/PainelDesmontar/CentralizarDesmonte"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 3
 
-[node name="LinhaValorDesmonte" type="CenterContainer" parent="Conteudo/PainelDesmontar"]
+[node name="LinhaValorDesmonte" type="CenterContainer" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 28)
 
-[node name="LabelValorDesmonte" type="Label" parent="Conteudo/PainelDesmontar/LinhaValorDesmonte"]
+[node name="LabelValorDesmonte" type="Label" parent="Conteudo/CorpoFerraria/PainelDesmontar/LinhaValorDesmonte"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
@@ -299,7 +334,7 @@ text = "Valor: 0 ouro"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoPreenchimentoDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
+[node name="BotaoPreenchimentoDesmonte" type="Button" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
@@ -310,7 +345,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Preenchimento Automático"
 
-[node name="BotaoFiltroDesmonte" type="Button" parent="Conteudo/PainelDesmontar"]
+[node name="BotaoFiltroDesmonte" type="Button" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -321,7 +356,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Filtro: Todos"
 
-[node name="BotaoDesmontar" type="Button" parent="Conteudo/PainelDesmontar"]
+[node name="BotaoDesmontar" type="Button" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -332,7 +367,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "DESMONTAR"
 
-[node name="LabelExplicacaoDesmontar" type="Label" parent="Conteudo/PainelDesmontar"]
+[node name="LabelExplicacaoDesmontar" type="Label" parent="Conteudo/CorpoFerraria/PainelDesmontar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2

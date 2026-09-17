@@ -1,5 +1,5 @@
 class_name Ferraria
-extends PanelContainer
+extends Control
 ## Painel lateral de forja e desmonte.
 ## Fica acoplado à direita do inventário e só existe enquanto o menu está aberto.
 
@@ -14,6 +14,8 @@ const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
 const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
+const FORJA_GRID_RECT := Rect2(0.1635, 0.3027, 0.6713, 0.1934)
+const FORJA_GRID_INSET := 0.04
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
 const Z_INDEX_LEGENDA_INFO := 100
@@ -42,7 +44,8 @@ const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
 @onready var label_explicacao_desmontar: Label = %LabelExplicacaoDesmontar
 @onready var label_valor_desmonte: Label = %LabelValorDesmonte
 @onready var cabecalho: HBoxContainer = %CabecalhoFerraria
-
+@onready var forge_background: TextureRect = %ForgeBackground
+@onready var corpo_ferraria: Control = %CorpoFerraria
 var _menu: MenuInventario
 var _slots: Array[SlotItem] = []
 var _slots_desmontar: Array[SlotItem] = []
@@ -80,6 +83,13 @@ func _ready() -> void:
 	_atualizar_botoes_filtro()
 	_atualizar_estado()
 	_atualizar_desmonte()
+	visibility_changed.connect(_on_visibilidade_alterada)
+	resized.connect(_alinhar_fundo_na_forja)
+	if corpo_ferraria:
+		corpo_ferraria.resized.connect(_alinhar_fundo_na_forja)
+	if painel_sintese:
+		painel_sintese.resized.connect(_alinhar_fundo_na_forja)
+	_carregar_fundo_forja()
 
 
 func configurar(menu: MenuInventario) -> void:
@@ -260,6 +270,7 @@ func mostrar_aba(aba: Aba) -> void:
 	_pintar_aba(botao_aba_sintese, aba == Aba.SINTESE)
 	_pintar_aba(botao_aba_desmontar, aba == Aba.DESMONTAR)
 	_on_itens_alterados()
+	_atualizar_fundo_forja()
 
 
 ## Alterna a janela. Só abre se o inventário estiver visível.
@@ -274,8 +285,10 @@ func abrir() -> void:
 	if _menu == null or not _menu.visible:
 		return
 	show()
+	_carregar_fundo_forja()
 	_atualizar_estado()
 	_atualizar_desmonte()
+	_atualizar_fundo_forja()
 	visibilidade_alterada.emit(true)
 
 
@@ -370,12 +383,112 @@ func desmontar() -> void:
 	label_explicacao_desmontar.add_theme_color_override("font_color", Color(0.85, 0.78, 0.32, 1))
 
 
+func _on_visibilidade_alterada() -> void:
+	if visible:
+		_atualizar_fundo_forja()
+
+
+func _atualizar_fundo_forja() -> void:
+	if forge_background == null or grade_sintese == null:
+		return
+	var mostrar := painel_sintese.visible
+	forge_background.visible = mostrar
+	grade_sintese.visible = mostrar
+	if mostrar:
+		call_deferred("_alinhar_fundo_na_forja")
+
+
+func _alinhar_fundo_na_forja() -> void:
+	if forge_background == null or grade_sintese == null:
+		return
+	if not painel_sintese.visible:
+		return
+	if forge_background.texture == null:
+		return
+	var fundo_rect := _rect_textura_visivel(forge_background)
+	if fundo_rect.size.x < 1.0 or fundo_rect.size.y < 1.0:
+		return
+	var alvo := Rect2(
+		fundo_rect.position + fundo_rect.size * FORJA_GRID_RECT.position,
+		fundo_rect.size * FORJA_GRID_RECT.size
+	)
+	var margem := alvo.size * FORJA_GRID_INSET
+	alvo.position += margem
+	alvo.size -= margem * 2.0
+	var sep_h := float(grade_sintese.get_theme_constant("h_separation"))
+	var sep_v := float(grade_sintese.get_theme_constant("v_separation"))
+	var lado_slot := minf(
+		(alvo.size.x - sep_h * 2.0) / 3.0,
+		(alvo.size.y - sep_v * 2.0) / 3.0
+	)
+	var slot_size := Vector2.ONE * maxf(1.0, lado_slot)
+	for slot in _slots:
+		slot.custom_minimum_size = slot_size
+	grade_sintese.reset_size()
+	var tam_grade := grade_sintese.get_combined_minimum_size()
+	if tam_grade.x < 1.0 or tam_grade.y < 1.0:
+		return
+	grade_sintese.global_position = alvo.position + (alvo.size - tam_grade) * 0.5
+
+
+func _rect_textura_visivel(tex: TextureRect) -> Rect2:
+	var global_rect := tex.get_global_rect()
+	var textura := tex.texture
+	if textura == null:
+		return global_rect
+	var tex_size := textura.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return global_rect
+	var escala_x := global_rect.size.x / tex_size.x
+	var escala_y := global_rect.size.y / tex_size.y
+	var usar_cover := tex.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var escala := maxf(escala_x, escala_y) if usar_cover else minf(escala_x, escala_y)
+	var desenhado := tex_size * escala
+	var offset := (global_rect.size - desenhado) * 0.5
+	return Rect2(global_rect.position + offset, desenhado)
+
+
+func _carregar_fundo_forja() -> void:
+	if forge_background == null:
+		return
+	forge_background.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var caminhos: Array[String] = [
+		"res://assets/ui/fundo_forja.png",
+		"res://sprites/ui/fundo_forja.png",
+	]
+	for caminho in caminhos:
+		var absoluto := ProjectSettings.globalize_path(caminho)
+		var imagem := Image.load_from_file(absoluto)
+		if imagem != null and imagem.get_width() > 1:
+			forge_background.texture = ImageTexture.create_from_image(imagem)
+			_atualizar_fundo_forja()
+			return
+		if ResourceLoader.exists(caminho):
+			var recurso: Resource = ResourceLoader.load(caminho)
+			if recurso is Texture2D:
+				forge_background.texture = recurso
+				_atualizar_fundo_forja()
+				return
+
+
+func _estilo_slot_forja() -> StyleBoxFlat:
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.2)
+	estilo.border_color = Color(0.72, 0.58, 0.28, 0.4)
+	estilo.set_border_width_all(1)
+	estilo.set_corner_radius_all(2)
+	return estilo
+
+
 func _criar_slots(grade: GridContainer, destino: Array[SlotItem], sintese: bool) -> void:
 	grade.columns = COLUNAS
+	var estilo_slot := _estilo_slot_forja() if sintese else null
 	for indice in SLOTS_SINTSE:
 		var slot := SlotItem.new()
 		slot.name = "%s_%d" % [grade.name, indice + 1]
 		slot.custom_minimum_size = TAMANHO_SLOT
+		if estilo_slot:
+			slot.add_theme_stylebox_override("panel", estilo_slot)
 		var icone := TextureRect.new()
 		icone.name = "Icone"
 		icone.set_anchors_preset(Control.PRESET_FULL_RECT)

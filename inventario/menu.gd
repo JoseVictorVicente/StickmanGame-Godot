@@ -162,8 +162,8 @@ func _ready() -> void:
 	botao_armazem.tooltip_text = "Armazém"
 	_aplicar_icones_barra_inferior()
 	_conectar_slots_skills_principal()
-	if not ArcherEquipment.equipamento_alterado.is_connected(_atualizar_slots_skills_principal):
-		ArcherEquipment.equipamento_alterado.connect(_atualizar_slots_skills_principal)
+	if not HeroEquipment.equipamento_alterado.is_connected(_on_equipamento_skills_alterado):
+		HeroEquipment.equipamento_alterado.connect(_on_equipamento_skills_alterado)
 	if botao_skills:
 		botao_skills.pressed.connect(_on_botao_skills_pressed)
 	if botao_atributos_personagem:
@@ -918,25 +918,26 @@ func _conectar_slots_skills_principal() -> void:
 	slot_passiva_1.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.PASSIVE, 1))
 
 
-func _heroi_atual_eh_arqueiro() -> bool:
-	var classe: ClasseData = obter_classe_atual()
-	return classe != null and classe.id == "arqueiro"
+func _on_equipamento_skills_alterado(_classe_id: String) -> void:
+	_atualizar_slots_skills_principal()
 
 
 func _atualizar_slots_skills_principal() -> void:
 	if linha_card_heroi == null:
 		return
-	var mostrar := _heroi_atual_eh_arqueiro()
+	var classe: ClasseData = obter_classe_atual()
+	var mostrar := classe != null
 	if coluna_ativas:
 		coluna_ativas.visible = mostrar
 	if coluna_passivas:
 		coluna_passivas.visible = mostrar
 	if not mostrar:
 		return
-	_aplicar_texto_slot_skill(slot_ativa_0, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 0))
-	_aplicar_texto_slot_skill(slot_ativa_1, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 1))
-	_aplicar_texto_slot_skill(slot_passiva_0, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 0))
-	_aplicar_texto_slot_skill(slot_passiva_1, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 1))
+	var classe_id := classe.id
+	_aplicar_texto_slot_skill(slot_ativa_0, HeroEquipment.obter_equipada(classe_id, SkillResource.Type.ACTIVE, 0))
+	_aplicar_texto_slot_skill(slot_ativa_1, HeroEquipment.obter_equipada(classe_id, SkillResource.Type.ACTIVE, 1))
+	_aplicar_texto_slot_skill(slot_passiva_0, HeroEquipment.obter_equipada(classe_id, SkillResource.Type.PASSIVE, 0))
+	_aplicar_texto_slot_skill(slot_passiva_1, HeroEquipment.obter_equipada(classe_id, SkillResource.Type.PASSIVE, 1))
 
 
 func _aplicar_texto_slot_skill(botao: Button, skill: SkillResource) -> void:
@@ -953,7 +954,7 @@ func _aplicar_texto_slot_skill(botao: Button, skill: SkillResource) -> void:
 
 
 func _on_slot_skill_principal_pressionado(tipo: SkillResource.Type, indice_slot: int) -> void:
-	if not _heroi_atual_eh_arqueiro():
+	if obter_classe_atual() == null:
 		return
 	abrir_equipamento_skills(_indice_personagem, tipo, indice_slot)
 

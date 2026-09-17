@@ -6,29 +6,35 @@ signal visibilidade_alterada(aberta: bool)
 signal slot_escolhido(indice: int)
 
 const TEXTO_SLOT_VAZIO := "[ Vazio ]"
+const SKILLS_POR_TIPO := 10
+const COLUNAS_GRADE := 5
+const TAMANHO_SLOT_EQUIPADO := Vector2(120, 64)
+const TAMANHO_SLOT_HABILIDADE := Vector2(56, 56)
 
 @onready var botao_fechar: Button = %BotaoFecharSkills
 @onready var cabecalho: HBoxContainer = %CabecalhoSkills
 @onready var slots_heroi: HBoxContainer = %SlotsHeroiSkills
 @onready var label_skills_heroi: Label = %LabelSkillsHeroi
+@onready var sessao_equipadas: VBoxContainer = %SessaoEquipadas
 @onready var sessao_ativas: VBoxContainer = %SessaoAtivas
 @onready var sessao_passivas: VBoxContainer = %SessaoPassivas
-@onready var sessao_disponiveis: VBoxContainer = %SessaoDisponiveis
-@onready var lista_habilidades: VBoxContainer = %ListaHabilidades
-@onready var label_skills_indisponivel: Label = %LabelSkillsIndisponivel
-@onready var slot_ativa_0: Button = %SlotAtiva0
-@onready var slot_ativa_1: Button = %SlotAtiva1
-@onready var slot_passiva_0: Button = %SlotPassiva0
-@onready var slot_passiva_1: Button = %SlotPassiva1
+@onready var grade_equip_ativas: GridContainer = %GradeEquipAtivas
+@onready var grade_equip_passivas: GridContainer = %GradeEquipPassivas
+@onready var grade_ativas: GridContainer = %GradeAtivas
+@onready var grade_passivas: GridContainer = %GradePassivas
 
 var _menu: MenuInventario
 var _party: PartyManager
 var _slot_alvo: int = 0
 var _botoes_heroi: Array[Button] = []
 var _indices_heroi: Array[int] = []
-var _botoes_catalogo: Array[Button] = []
+var _slots_equipados_ativos: Array[Button] = []
+var _slots_equipados_passivos: Array[Button] = []
+var _slots_ativos: Array[Button] = []
+var _slots_passivos: Array[Button] = []
 var _slot_ativo_selecionado: int = 0
 var _slot_passivo_selecionado: int = 0
+var _grades_montadas: bool = false
 
 
 func _ready() -> void:
@@ -36,9 +42,9 @@ func _ready() -> void:
 	botao_fechar.pressed.connect(fechar)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
-	_conectar_slots_skills()
-	if not ArcherEquipment.equipamento_alterado.is_connected(_atualizar_ui_skills):
-		ArcherEquipment.equipamento_alterado.connect(_atualizar_ui_skills)
+	_montar_grades_skills()
+	if not HeroEquipment.equipamento_alterado.is_connected(_on_equipamento_alterado):
+		HeroEquipment.equipamento_alterado.connect(_on_equipamento_alterado)
 
 
 func configurar(menu: MenuInventario, party: PartyManager) -> void:
@@ -73,9 +79,9 @@ func abrir(
 
 func definir_slot_equipamento(tipo: SkillResource.Type, indice: int) -> void:
 	if tipo == SkillResource.Type.ACTIVE:
-		_slot_ativo_selecionado = clampi(indice, 0, ArcherEquipment.MAX_ACTIVE - 1)
+		_slot_ativo_selecionado = clampi(indice, 0, HeroEquipment.MAX_ACTIVE - 1)
 	else:
-		_slot_passivo_selecionado = clampi(indice, 0, ArcherEquipment.MAX_PASSIVE - 1)
+		_slot_passivo_selecionado = clampi(indice, 0, HeroEquipment.MAX_PASSIVE - 1)
 
 
 func _reforcar_layout() -> void:
@@ -96,15 +102,58 @@ func atualizar() -> void:
 		_slot_alvo = _party.primeiro_slot_ocupado()
 	_montar_seletor_herois()
 	_atualizar_cabecalho()
-	_atualizar_visibilidade_skills()
 	_atualizar_ui_skills()
 
 
-func _conectar_slots_skills() -> void:
-	slot_ativa_0.pressed.connect(_on_slot_ativo_pressionado.bind(0))
-	slot_ativa_1.pressed.connect(_on_slot_ativo_pressionado.bind(1))
-	slot_passiva_0.pressed.connect(_on_slot_passivo_pressionado.bind(0))
-	slot_passiva_1.pressed.connect(_on_slot_passivo_pressionado.bind(1))
+func _montar_grades_skills() -> void:
+	if _grades_montadas:
+		return
+	_criar_slots_equipados()
+	_criar_slots_habilidade(grade_ativas, _slots_ativos)
+	_criar_slots_habilidade(grade_passivas, _slots_passivos)
+	_grades_montadas = true
+
+
+func _criar_slots_equipados() -> void:
+	_slots_equipados_ativos.clear()
+	_slots_equipados_passivos.clear()
+	for indice in HeroEquipment.MAX_ACTIVE:
+		var botao := _criar_botao_slot_equipado("SlotAtiva%d" % indice, indice, true)
+		grade_equip_ativas.add_child(botao)
+		_slots_equipados_ativos.append(botao)
+	for indice in HeroEquipment.MAX_PASSIVE:
+		var botao := _criar_botao_slot_equipado("SlotPassiva%d" % indice, indice, false)
+		grade_equip_passivas.add_child(botao)
+		_slots_equipados_passivos.append(botao)
+
+
+func _criar_botao_slot_equipado(nome: String, indice: int, ativo: bool) -> Button:
+	var botao := Button.new()
+	botao.name = nome
+	botao.custom_minimum_size = TAMANHO_SLOT_EQUIPADO
+	botao.text = TEXTO_SLOT_VAZIO
+	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	botao.add_theme_font_size_override("font_size", 10)
+	if ativo:
+		botao.pressed.connect(_on_slot_ativo_pressionado.bind(indice))
+	else:
+		botao.pressed.connect(_on_slot_passivo_pressionado.bind(indice))
+	return botao
+
+
+func _criar_slots_habilidade(grade: GridContainer, destino: Array[Button]) -> void:
+	destino.clear()
+	for indice in SKILLS_POR_TIPO:
+		var slot := Button.new()
+		slot.name = "SlotHabilidade%d" % (indice + 1)
+		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
+		slot.text = ""
+		slot.disabled = true
+		slot.add_theme_font_size_override("font_size", 9)
+		slot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		slot.pressed.connect(_on_habilidade_disponivel_pressionada.bind(slot))
+		grade.add_child(slot)
+		destino.append(slot)
 
 
 func _montar_seletor_herois() -> void:
@@ -145,33 +194,71 @@ func _atualizar_cabecalho() -> void:
 		label_skills_heroi.text = "Nenhum herói"
 
 
-func _heroi_eh_arqueiro() -> bool:
+func _obter_classe_id() -> String:
 	if _party == null:
-		return false
+		return ""
 	var classe: Variant = _party.equipe_ativa[_slot_alvo]
-	return classe is ClasseData and (classe as ClasseData).id == "arqueiro"
+	if classe is ClasseData:
+		return (classe as ClasseData).id
+	return ""
 
 
-func _atualizar_visibilidade_skills() -> void:
-	var mostrar := _heroi_eh_arqueiro()
-	sessao_ativas.visible = mostrar
-	sessao_passivas.visible = mostrar
-	sessao_disponiveis.visible = mostrar
-	label_skills_indisponivel.visible = not mostrar and _party.equipe_ativa[_slot_alvo] is ClasseData
+func _on_equipamento_alterado(_classe_id: String) -> void:
+	_atualizar_ui_skills()
 
 
 func _atualizar_ui_skills() -> void:
-	if not _heroi_eh_arqueiro():
-		return
-	_atualizar_texto_slot(slot_ativa_0, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 0))
-	_atualizar_texto_slot(slot_ativa_1, ArcherEquipment.obter_equipada(SkillResource.Type.ACTIVE, 1))
-	_atualizar_texto_slot(slot_passiva_0, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 0))
-	_atualizar_texto_slot(slot_passiva_1, ArcherEquipment.obter_equipada(SkillResource.Type.PASSIVE, 1))
-	_pintar_slot_skill(slot_ativa_0, _slot_ativo_selecionado == 0)
-	_pintar_slot_skill(slot_ativa_1, _slot_ativo_selecionado == 1)
-	_pintar_slot_skill(slot_passiva_0, _slot_passivo_selecionado == 0)
-	_pintar_slot_skill(slot_passiva_1, _slot_passivo_selecionado == 1)
-	_montar_catalogo_skills()
+	_atualizar_slots_equipados()
+	for i in _slots_equipados_ativos.size():
+		_pintar_slot_equipado(_slots_equipados_ativos[i], _slot_ativo_selecionado == i)
+	for i in _slots_equipados_passivos.size():
+		_pintar_slot_equipado(_slots_equipados_passivos[i], _slot_passivo_selecionado == i)
+	_atualizar_habilidades_disponiveis()
+
+
+func _atualizar_slots_equipados() -> void:
+	var classe_id := _obter_classe_id()
+	for i in _slots_equipados_ativos.size():
+		_atualizar_texto_slot(
+			_slots_equipados_ativos[i],
+			HeroEquipment.obter_equipada(classe_id, SkillResource.Type.ACTIVE, i)
+		)
+	for i in _slots_equipados_passivos.size():
+		_atualizar_texto_slot(
+			_slots_equipados_passivos[i],
+			HeroEquipment.obter_equipada(classe_id, SkillResource.Type.PASSIVE, i)
+		)
+
+
+func _atualizar_habilidades_disponiveis() -> void:
+	var classe_id := _obter_classe_id()
+	for slot in _slots_ativos:
+		_configurar_slot_disponivel(slot, null, classe_id)
+	for slot in _slots_passivos:
+		_configurar_slot_disponivel(slot, null, classe_id)
+	var indice_ativa := 0
+	var indice_passiva := 0
+	for skill in HeroEquipment.catalogo_de(classe_id):
+		if skill == null:
+			continue
+		if skill.type == SkillResource.Type.ACTIVE and indice_ativa < _slots_ativos.size():
+			_configurar_slot_disponivel(_slots_ativos[indice_ativa], skill, classe_id)
+			indice_ativa += 1
+		elif skill.type == SkillResource.Type.PASSIVE and indice_passiva < _slots_passivos.size():
+			_configurar_slot_disponivel(_slots_passivos[indice_passiva], skill, classe_id)
+			indice_passiva += 1
+
+
+func _configurar_slot_disponivel(slot: Button, skill: SkillResource, classe_id: String) -> void:
+	slot.set_meta("skill", skill)
+	if skill == null:
+		slot.text = ""
+		slot.disabled = true
+		_pintar_slot_disponivel(slot, false)
+	else:
+		slot.text = skill.skill_name
+		slot.disabled = false
+		_pintar_slot_disponivel(slot, HeroEquipment.is_equipped(classe_id, skill))
 
 
 func _atualizar_texto_slot(botao: Button, skill: SkillResource) -> void:
@@ -179,25 +266,6 @@ func _atualizar_texto_slot(botao: Button, skill: SkillResource) -> void:
 		botao.text = TEXTO_SLOT_VAZIO
 	else:
 		botao.text = skill.skill_name
-	# TODO: adicionar TextureRect/Sprite2D com ícone da habilidade no slot.
-
-
-func _montar_catalogo_skills() -> void:
-	for filho in lista_habilidades.get_children():
-		filho.queue_free()
-	_botoes_catalogo.clear()
-	for skill in ArcherEquipment.catalogo:
-		var botao := Button.new()
-		botao.text = skill.texto_botao()
-		botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		botao.custom_minimum_size = Vector2(0, 44)
-		botao.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		botao.add_theme_font_size_override("font_size", 11)
-		botao.pressed.connect(_on_habilidade_catalogo_pressionada.bind(skill))
-		lista_habilidades.add_child(botao)
-		_botoes_catalogo.append(botao)
-		_pintar_botao_catalogo(botao, ArcherEquipment.is_equipped(skill))
-	# TODO: adicionar ícone (TextureRect) e animação de preview em cada botão do catálogo.
 
 
 func _on_heroi_slot_pressionado(indice: int) -> void:
@@ -216,12 +284,15 @@ func _on_slot_passivo_pressionado(indice: int) -> void:
 	_atualizar_ui_skills()
 
 
-func _on_habilidade_catalogo_pressionada(skill: SkillResource) -> void:
-	if skill == null:
+func _on_habilidade_disponivel_pressionada(slot: Button) -> void:
+	var classe_id := _obter_classe_id()
+	if classe_id == "":
+		return
+	var skill: Variant = slot.get_meta("skill", null)
+	if not (skill is SkillResource):
 		return
 	var slot_alvo := _slot_ativo_selecionado if skill.type == SkillResource.Type.ACTIVE else _slot_passivo_selecionado
-	ArcherEquipment.equip_skill(skill, slot_alvo)
-	# TODO: disparar animação de equipamento na UI ao equipar uma skill.
+	HeroEquipment.equip_skill(classe_id, skill, slot_alvo)
 
 
 func _pintar_heroi(botao: Button, selecionado: bool) -> void:
@@ -238,7 +309,23 @@ func _pintar_heroi(botao: Button, selecionado: bool) -> void:
 	botao.add_theme_stylebox_override("hover", estilo)
 
 
-func _pintar_slot_skill(botao: Button, selecionado: bool) -> void:
+func _pintar_slot_disponivel(botao: Button, equipada: bool) -> void:
+	var estilo := StyleBoxFlat.new()
+	estilo.set_corner_radius_all(4)
+	estilo.set_border_width_all(2)
+	if equipada:
+		estilo.bg_color = Color(0.18, 0.24, 0.14, 1)
+		estilo.border_color = Color(0.55, 0.82, 0.38, 1)
+	else:
+		estilo.bg_color = Color(0.1, 0.16, 0.1, 1)
+		estilo.border_color = Color(0.35, 0.58, 0.32, 0.85)
+	botao.add_theme_stylebox_override("normal", estilo)
+	botao.add_theme_stylebox_override("hover", estilo)
+	botao.add_theme_stylebox_override("pressed", estilo)
+	botao.add_theme_stylebox_override("disabled", estilo)
+
+
+func _pintar_slot_equipado(botao: Button, selecionado: bool) -> void:
 	var estilo := StyleBoxFlat.new()
 	estilo.set_corner_radius_all(4)
 	estilo.set_border_width_all(2)
@@ -251,20 +338,6 @@ func _pintar_slot_skill(botao: Button, selecionado: bool) -> void:
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
 	botao.add_theme_stylebox_override("pressed", estilo)
-
-
-func _pintar_botao_catalogo(botao: Button, equipada: bool) -> void:
-	var estilo := StyleBoxFlat.new()
-	estilo.set_corner_radius_all(4)
-	estilo.set_border_width_all(1)
-	if equipada:
-		estilo.bg_color = Color(0.18, 0.24, 0.14, 1)
-		estilo.border_color = Color(0.55, 0.82, 0.38, 1)
-	else:
-		estilo.bg_color = Color(0.1, 0.09, 0.08, 1)
-		estilo.border_color = Color(0.42, 0.35, 0.24, 1)
-	botao.add_theme_stylebox_override("normal", estilo)
-	botao.add_theme_stylebox_override("hover", estilo)
 
 
 func _on_cabecalho_gui_input(evento: InputEvent) -> void:
