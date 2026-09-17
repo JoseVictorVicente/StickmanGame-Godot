@@ -139,20 +139,17 @@ theme_override_font_sizes/font_size = 12
 text = "Ouro  0"
 horizontal_alignment = 1
 
-[node name="AreaConteudo" type="Control" parent="Conteudo"]
-custom_minimum_size = Vector2(0, 320)
+[node name="AreaConteudo" type="ScrollContainer" parent="Conteudo"]
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 3
-clip_contents = true
+mouse_filter = 0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
 
 [node name="MapaArvore" type="Control" parent="Conteudo/AreaConteudo"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 mouse_filter = 0
 script = ExtResource("2_mapa")
 
@@ -161,6 +158,6 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.7, 0.5, 1)
 theme_override_font_sizes/font_size = 10
-text = "Arraste para navegar. Clique nos nós para comprar habilidades."
+text = "Role para baixo — cada coluna tem 15 fileiras. Desbloqueie todos os nós acima."
 horizontal_alignment = 1
 autowrap_mode = 3

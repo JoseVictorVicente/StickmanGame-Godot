@@ -1,6 +1,6 @@
 class_name ArvoreHabilidades
 extends RefCounted
-## Árvore radial: nó central de ataque + 11 ramos com 15 nós cada.
+## Três colunas com padrão diamante 2-1-2… em 15 fileiras verticais.
 
 enum TipoBonus {
 	ATAQUE,
@@ -18,83 +18,186 @@ enum TipoBonus {
 	ARMAZEM,
 }
 
-const NUM_RAMOS := 12
-const NOS_POR_RAMO := 15
-const REGIAO_ARMAZEM := 11
-const NOS_ARMAZEM := 3
-const TOTAL_NOS := 1 + (NUM_RAMOS - 1) * NOS_POR_RAMO + NOS_ARMAZEM
-const NOS_ATAQUE_PCT := 5
-const NOS_ATAQUE_FLAT := NOS_POR_RAMO - NOS_ATAQUE_PCT
+enum Secao {
+	ATAQUE = 0,
+	DEFESA = 1,
+	UTILIDADE = 2,
+}
 
-const CENTRO_CANVAS := Vector2(950, 950)
-const TAMANHO_CANVAS := Vector2(1900, 1900)
-const RAIO_INICIAL := 72.0
-const RAIO_PASSO := 48.0
+const NUM_SECOES := 3
+const NUM_RAMOS := NUM_SECOES
+const NUM_LINHAS := 15
+const NOS_POR_SECAO := 23
+const NOS_POR_RAMO := NOS_POR_SECAO
+const TOTAL_NOS := NUM_SECOES * NOS_POR_SECAO
 
-const CUSTO_CENTRO := 50
-const CUSTO_BASE_RAMO := 80
-const CUSTO_CRESCIMENTO := 18
-const MULT_CUSTO_PREMIUM := 3.0
+const LARGURA_COLUNA := 180.0
+const ESPACO_COLUNAS := 14.0
+const ALTURA_LINHA := 58.0
+const ALTURA_CABECALHO := 44.0
+const OFFSET_LATERAL := 52.0
+const MARGEM_LATERAL := 16.0
+const MARGEM_SUPERIOR := 12.0
+const MARGEM_INFERIOR := 20.0
 
-const _DEF_RAMOS: Array[Dictionary] = [
-	{"tipo": TipoBonus.ATAQUE, "sigla": "ATK", "rotulo": "Ataque", "valor": 2, "pct": false},
-	{"tipo": TipoBonus.VIDA, "sigla": "VID", "rotulo": "Vida", "valor": 6, "pct": false},
-	{"tipo": TipoBonus.BONUS_XP, "sigla": "XP", "rotulo": "XP", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.BONUS_OURO, "sigla": "OURO", "rotulo": "Ouro", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.VEL_ATAQUE, "sigla": "VEL", "rotulo": "Vel.", "valor": 3, "pct": true},
-	{"tipo": TipoBonus.CRIT_CHANCE, "sigla": "CRIT", "rotulo": "Crít.", "valor": 1, "pct": true},
-	{"tipo": TipoBonus.CRIT_DANO, "sigla": "DCR", "rotulo": "D.Crít", "valor": 4, "pct": true},
-	{"tipo": TipoBonus.EVASAO, "sigla": "EVA", "rotulo": "Evasão", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.RES_FISICA, "sigla": "FIS", "rotulo": "Res. Fís.", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.RES_ARCANA, "sigla": "ARC", "rotulo": "Res. Arc.", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.RES_ELEMENTAL, "sigla": "ELE", "rotulo": "Res. Elem.", "valor": 2, "pct": true},
-	{"tipo": TipoBonus.ARMAZEM, "sigla": "ARM", "rotulo": "Armazém", "valor": 1, "pct": false},
+const CUSTO_BASE := 60
+const CUSTO_CRESCIMENTO := 20
+const MULT_CUSTO_PREMIUM := 2.5
+
+const _PADRAO_LINHAS: Array = [
+	[0, 1],
+	[2],
+	[3, 4],
+	[5],
+	[6, 7],
+	[8],
+	[9, 10],
+	[11],
+	[12, 13],
+	[14],
+	[15, 16],
+	[17],
+	[18, 19],
+	[20],
+	[21, 22],
 ]
+
+
+static func _padrao_linhas() -> Array:
+	return _PADRAO_LINHAS
+
+
+static func _idiv(a: int, b: int) -> int:
+	return int(a / b)
 
 
 static func catalogo() -> Array[Dictionary]:
 	var nos: Array[Dictionary] = []
-	nos.append(_no_centro())
-	for regiao in NUM_RAMOS:
-		var pai := 0
-		var quantidade := NOS_ARMAZEM if regiao == REGIAO_ARMAZEM else NOS_POR_RAMO
-		for profundidade in quantidade:
-			var no := _no_ramo(regiao, profundidade, pai)
-			nos.append(no)
-			pai = int(no["id"])
+	for secao in NUM_SECOES:
+		for slot in NOS_POR_SECAO:
+			var linha := linha_do_slot(slot)
+			var def := _criar_def_no(secao, slot, linha)
+			nos.append({
+				"id": id_do_no(secao, slot),
+				"pais": pais_do_slot(secao, slot),
+				"secao": secao,
+				"regiao": secao,
+				"slot": slot,
+				"linha": linha,
+				"tipo": int(def["tipo"]),
+				"valor": int(def["valor"]),
+				"nome": str(def["nome"]),
+				"sigla": str(def["sigla"]),
+				"premium": bool(def.get("premium", false)),
+			})
 	return nos
 
 
-static func id_do_no(regiao: int, profundidade: int) -> int:
-	if regiao == REGIAO_ARMAZEM:
-		return 1 + (NUM_RAMOS - 1) * NOS_POR_RAMO + profundidade
-	return 1 + regiao * NOS_POR_RAMO + profundidade
+static func id_do_no(secao: int, slot: int) -> int:
+	return secao * NOS_POR_SECAO + slot + 1
 
 
-static func angulo_regiao(regiao: int) -> float:
-	return -PI * 0.5 + float(regiao) * TAU / float(NUM_RAMOS)
+static func quantidade_nos_regiao(_secao: int) -> int:
+	return NOS_POR_SECAO
+
+
+static func pais_do_slot(secao: int, slot: int) -> Array[int]:
+	var linha_atual := linha_do_slot(slot)
+	if linha_atual == 0:
+		return []
+	var pais: Array[int] = []
+	for s in NOS_POR_SECAO:
+		if linha_do_slot(s) < linha_atual:
+			pais.append(id_do_no(secao, s))
+	return pais
+
+
+static func slots_da_linha(linha: int) -> Array[int]:
+	var arr: Array = _padrao_linhas()[linha]
+	var saida: Array[int] = []
+	for s in arr:
+		saida.append(int(s))
+	return saida
+
+
+static func ligacoes_visuais() -> Array[Dictionary]:
+	var ligacoes: Array[Dictionary] = []
+	var padrao := _padrao_linhas()
+	for row_idx in range(1, padrao.size()):
+		var anterior: Array = padrao[row_idx - 1]
+		var atual: Array = padrao[row_idx]
+		if atual.size() == 1 and anterior.size() == 2:
+			for slot_de in anterior:
+				ligacoes.append({"de": int(slot_de), "para": int(atual[0]), "tipo": "merge"})
+		elif atual.size() == 2 and anterior.size() == 1:
+			for slot_para in atual:
+				ligacoes.append({"de": int(anterior[0]), "para": int(slot_para), "tipo": "split"})
+	return ligacoes
+
+
+static func linha_do_slot(slot: int) -> int:
+	var acum := 0
+	for i in _padrao_linhas().size():
+		var linha: Array = _padrao_linhas()[i]
+		if slot < acum + linha.size():
+			return i
+		acum += linha.size()
+	return 0
+
+
+static func coluna_do_slot(slot: int) -> int:
+	var acum := 0
+	for linha in _padrao_linhas():
+		if slot < acum + linha.size():
+			if linha.size() == 1:
+				return -1
+			return slot - acum
+		acum += linha.size()
+	return -1
+
+
+static func nome_regiao(secao: int) -> String:
+	match secao:
+		Secao.ATAQUE:
+			return "Ataque"
+		Secao.DEFESA:
+			return "Defesa"
+		Secao.UTILIDADE:
+			return "Utilidade"
+	return ""
+
+
+static func centro_x_coluna(secao: int) -> float:
+	return MARGEM_LATERAL + float(secao) * (LARGURA_COLUNA + ESPACO_COLUNAS) + LARGURA_COLUNA * 0.5
+
+
+static func tamanho_canvas() -> Vector2:
+	var altura := MARGEM_SUPERIOR + ALTURA_CABECALHO + float(NUM_LINHAS) * ALTURA_LINHA + MARGEM_INFERIOR
+	var largura := MARGEM_LATERAL * 2.0 + float(NUM_SECOES) * LARGURA_COLUNA + float(NUM_SECOES - 1) * ESPACO_COLUNAS
+	return Vector2(largura, altura)
 
 
 static func custo_do_no(no: Dictionary) -> int:
-	var id := int(no.get("id", -1))
-	if id == 0:
-		return CUSTO_CENTRO
-	var profundidade := int(no.get("profundidade", 0))
-	var base := CUSTO_BASE_RAMO + profundidade * profundidade * CUSTO_CRESCIMENTO
+	var linha := int(no.get("linha", 0))
+	var base := CUSTO_BASE + linha * linha * CUSTO_CRESCIMENTO
 	if bool(no.get("premium", false)):
 		return int(round(float(base) * MULT_CUSTO_PREMIUM))
 	return base
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:
-	var id := int(no.get("id", 0))
-	if id == 0:
-		return CENTRO_CANVAS
-	var regiao := int(no.get("regiao", 0))
-	var profundidade := int(no.get("profundidade", 0))
-	var ang := angulo_regiao(regiao)
-	var raio := RAIO_INICIAL + float(profundidade) * RAIO_PASSO
-	return CENTRO_CANVAS + Vector2(cos(ang), sin(ang)) * raio
+	var secao := int(no.get("secao", no.get("regiao", 0)))
+	var slot := int(no.get("slot", 0))
+	var linha := int(no.get("linha", linha_do_slot(slot)))
+	var col := coluna_do_slot(slot)
+	var cx := centro_x_coluna(secao)
+	var x := cx
+	if col == 0:
+		x = cx - OFFSET_LATERAL
+	elif col == 1:
+		x = cx + OFFSET_LATERAL
+	var y := MARGEM_SUPERIOR + ALTURA_CABECALHO + float(linha) * ALTURA_LINHA + ALTURA_LINHA * 0.5
+	return Vector2(x, y)
 
 
 static func chave_bonus(tipo: TipoBonus) -> String:
@@ -145,84 +248,149 @@ static func bonus_vazio() -> Dictionary:
 	}
 
 
-static func cor_regiao(regiao: int) -> Color:
-	var cores: Array[Color] = [
-		Color(0.82, 0.28, 0.22, 1),
-		Color(0.22, 0.62, 0.32, 1),
-		Color(0.32, 0.48, 0.92, 1),
-		Color(0.92, 0.78, 0.22, 1),
-		Color(0.58, 0.32, 0.82, 1),
-		Color(0.92, 0.42, 0.18, 1),
-		Color(0.18, 0.72, 0.72, 1),
-		Color(0.72, 0.72, 0.28, 1),
-		Color(0.55, 0.42, 0.28, 1),
-		Color(0.42, 0.28, 0.72, 1),
-		Color(0.28, 0.62, 0.62, 1),
-		Color(0.78, 0.58, 0.24, 1),
+static func cor_regiao(secao: int) -> Color:
+	match secao:
+		Secao.ATAQUE:
+			return Color(0.85, 0.32, 0.28, 1)
+		Secao.DEFESA:
+			return Color(0.28, 0.65, 0.38, 1)
+		Secao.UTILIDADE:
+			return Color(0.35, 0.52, 0.88, 1)
+	return Color(0.6, 0.6, 0.6, 1)
+
+
+static func _criar_def_no(secao: int, slot: int, linha: int) -> Dictionary:
+	match secao:
+		Secao.ATAQUE:
+			return _criar_no_ataque(slot, linha)
+		Secao.DEFESA:
+			return _criar_no_defesa(slot, linha)
+		Secao.UTILIDADE:
+			return _criar_no_utilidade(slot, linha)
+	return _criar_no_ataque(slot, linha)
+
+
+static func _criar_no_ataque(slot: int, linha: int) -> Dictionary:
+	var merge := linha % 2 == 1
+	if merge and linha in [5, 9, 13]:
+		var pct := 2 + _idiv(linha, 5)
+		return {
+			"tipo": TipoBonus.ATAQUE_PCT,
+			"valor": pct,
+			"sigla": "%",
+			"nome": "Ataque +%d%%" % pct,
+			"premium": true,
+		}
+	var tipos: Array = [
+		TipoBonus.ATAQUE,
+		TipoBonus.VEL_ATAQUE,
+		TipoBonus.CRIT_CHANCE,
+		TipoBonus.CRIT_DANO,
 	]
-	return cores[regiao % cores.size()]
+	var siglas: Array = ["ATK", "VEL", "CRIT", "DCR"]
+	var rotulos: Array = ["Ataque", "Vel.", "Crít.", "D.Crít"]
+	var pct_flags: Array = [false, true, true, true]
+	var idx := 0 if merge else (slot + linha) % tipos.size()
+	return _montar_def_stat(tipos[idx] as TipoBonus, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
 
 
-static func _no_centro() -> Dictionary:
+static func _criar_no_defesa(slot: int, linha: int) -> Dictionary:
+	var merge := linha % 2 == 1
+	if merge and linha in [5, 9, 13]:
+		var valor := 8 + linha
+		return {
+			"tipo": TipoBonus.VIDA,
+			"valor": valor,
+			"sigla": "VID",
+			"nome": "Vida +%d" % valor,
+			"premium": true,
+		}
+	var tipos: Array = [
+		TipoBonus.VIDA,
+		TipoBonus.EVASAO,
+		TipoBonus.RES_FISICA,
+		TipoBonus.RES_ARCANA,
+		TipoBonus.RES_ELEMENTAL,
+	]
+	var siglas: Array = ["VID", "EVA", "FIS", "ARC", "ELE"]
+	var rotulos: Array = ["Vida", "Evasão", "Res. Fís.", "Res. Arc.", "Res. Elem."]
+	var pct_flags: Array = [false, true, true, true, true]
+	var idx := 0 if merge else (slot + linha) % tipos.size()
+	return _montar_def_stat(tipos[idx] as TipoBonus, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
+
+
+static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
+	var merge := linha % 2 == 1
+	if merge and linha in [7, 11, 13]:
+		var indice_arm := [7, 11, 13].find(linha)
+		var valor := indice_arm + 1
+		return {
+			"tipo": TipoBonus.ARMAZEM,
+			"valor": valor,
+			"sigla": "ARM",
+			"nome": "Armazém %d" % (valor + 1),
+			"premium": false,
+		}
+	if merge and linha in [5, 9, 13]:
+		var pct := 2 + _idiv(linha, 4)
+		return {
+			"tipo": TipoBonus.BONUS_XP,
+			"valor": pct,
+			"sigla": "XP",
+			"nome": "XP +%d%%" % pct,
+			"premium": true,
+		}
+	var usa_xp := (slot + linha) % 2 == 0
+	if usa_xp:
+		var valor_xp := 1 + _idiv(linha, 3)
+		return {
+			"tipo": TipoBonus.BONUS_XP,
+			"valor": valor_xp,
+			"sigla": "XP",
+			"nome": "XP +%d%%" % valor_xp,
+			"premium": false,
+		}
+	var valor_ouro := 1 + _idiv(linha, 3)
 	return {
-		"id": 0,
-		"pai": -1,
-		"regiao": -1,
-		"profundidade": -1,
-		"angulo": 0.0,
-		"tipo": int(TipoBonus.ATAQUE),
-		"valor": 3,
-		"nome": "Ataque +3",
-		"sigla": "ATK",
+		"tipo": TipoBonus.BONUS_OURO,
+		"valor": valor_ouro,
+		"sigla": "OURO",
+		"nome": "Ouro +%d%%" % valor_ouro,
 		"premium": false,
 	}
 
 
-static func _no_ramo(regiao: int, profundidade: int, pai: int) -> Dictionary:
-	var id := id_do_no(regiao, profundidade)
-	if regiao == REGIAO_ARMAZEM:
-		var pagina := profundidade + 2
-		return {
-			"id": id,
-			"pai": pai,
-			"regiao": regiao,
-			"profundidade": profundidade,
-			"angulo": angulo_regiao(regiao),
-			"tipo": int(TipoBonus.ARMAZEM),
-			"valor": profundidade + 1,
-			"nome": "Armazém %d" % pagina,
-			"sigla": "ARM",
-			"premium": false,
-		}
-	var def: Dictionary = _DEF_RAMOS[regiao]
-	var tipo: TipoBonus = def["tipo"]
-	var valor: int = int(def["valor"])
-	var premium := false
-	var nome := ""
-	var sigla: String = def["sigla"]
-
-	if regiao == 0:
-		if profundidade >= NOS_ATAQUE_FLAT:
-			tipo = TipoBonus.ATAQUE_PCT
-			valor = 3
-			premium = true
-			nome = "Ataque +3%"
-		else:
-			nome = "Ataque +%d" % valor
-	elif bool(def.get("pct", false)):
-		nome = "%s +%d%%" % [def["rotulo"], valor]
-	else:
-		nome = "%s +%d" % [def["rotulo"], valor]
-
+static func _montar_def_stat(
+	tipo: TipoBonus,
+	sigla: String,
+	rotulo: String,
+	eh_pct: bool,
+	linha: int,
+	premium: bool
+) -> Dictionary:
+	var valor := _valor_por_tipo(tipo, linha)
+	var nome := "%s +%d%%" % [rotulo, valor] if eh_pct else "%s +%d" % [rotulo, valor]
 	return {
-		"id": id,
-		"pai": pai,
-		"regiao": regiao,
-		"profundidade": profundidade,
-		"angulo": angulo_regiao(regiao),
-		"tipo": int(tipo),
+		"tipo": tipo,
 		"valor": valor,
-		"nome": nome,
 		"sigla": sigla,
+		"nome": nome,
 		"premium": premium,
 	}
+
+
+static func _valor_por_tipo(tipo: TipoBonus, linha: int) -> int:
+	match tipo:
+		TipoBonus.ATAQUE:
+			return 2 + _idiv(linha, 3)
+		TipoBonus.VIDA:
+			return 4 + _idiv(linha, 2)
+		TipoBonus.VEL_ATAQUE, TipoBonus.CRIT_CHANCE, TipoBonus.EVASAO:
+			return 1 + _idiv(linha, 4)
+		TipoBonus.CRIT_DANO:
+			return 3 + _idiv(linha, 3)
+		TipoBonus.RES_FISICA, TipoBonus.RES_ARCANA, TipoBonus.RES_ELEMENTAL:
+			return 1 + _idiv(linha, 4)
+		TipoBonus.BONUS_XP, TipoBonus.BONUS_OURO:
+			return 1 + _idiv(linha, 3)
+	return 1

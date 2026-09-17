@@ -46,7 +46,7 @@ func atualizar() -> void:
 	if label_ouro:
 		label_ouro.text = "Ouro  %d" % _menu.obter_ouro_atual()
 	if label_mensagem:
-		label_mensagem.text = "Arraste para navegar. Clique nos nós para comprar habilidades."
+		label_mensagem.text = "Role para baixo — cada coluna tem 15 fileiras. Desbloqueie todos os nós acima."
 
 
 func _reforcar_layout() -> void:
@@ -67,7 +67,7 @@ func _on_no_selecionado(id_no: int) -> void:
 		_mostrar_mensagem("Habilidade já adquirida.")
 		return
 	if not progresso.pode_comprar(id_no):
-		_mostrar_mensagem("Desbloqueie o nó anterior primeiro.")
+		_mostrar_mensagem("Desbloqueie todos os nós acima deste primeiro.")
 		return
 	var no := progresso.no_por_id(id_no)
 	var custo := ArvoreHabilidades.custo_do_no(no)
