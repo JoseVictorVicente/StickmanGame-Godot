@@ -52,6 +52,8 @@ func bonus_global() -> Dictionary:
 		var valor := float(no.get("valor", 0))
 		if chave in ["ataque", "vida"]:
 			total[chave] = int(total[chave]) + int(valor)
+		elif chave == "ataque_pct":
+			total["ataque_pct"] = float(total["ataque_pct"]) + valor
 		else:
 			total[chave] = float(total[chave]) + valor
 	return _aplicar_caps_bonus(total)
@@ -59,6 +61,7 @@ func bonus_global() -> Dictionary:
 
 static func _aplicar_caps_bonus(total: Dictionary) -> Dictionary:
 	var caps := {
+		"ataque_pct": 20.0,
 		"bonus_ouro": 30.0,
 		"bonus_xp": 40.0,
 		"vel_ataque": 45.0,
@@ -92,7 +95,11 @@ func aplicar(dados: Variant) -> void:
 				for id_no in slot_lista:
 					uniao[int(id_no)] = true
 		for id_no in uniao.keys():
-			_desbloqueados.append(int(id_no))
+			var id := int(id_no)
+			if not no_por_id(id).is_empty():
+				_desbloqueados.append(id)
 		return
 	for id_no in dados:
-		_desbloqueados.append(int(id_no))
+		var id := int(id_no)
+		if not no_por_id(id).is_empty():
+			_desbloqueados.append(id)

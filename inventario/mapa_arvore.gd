@@ -4,9 +4,8 @@ extends Control
 
 signal no_selecionado(id: int)
 
-const TAMANHO_NO := Vector2(52, 52)
-const TAMANHO_CENTRO := Vector2(58, 58)
-const TAMANHO_CANVAS := Vector2(900, 900)
+const TAMANHO_NO := Vector2(34, 34)
+const TAMANHO_CENTRO := Vector2(52, 52)
 
 var progresso: ProgressoArvore
 var ouro_atual: int = 0
@@ -82,10 +81,11 @@ func _montar_nos() -> void:
 	_linhas.clear()
 	for no in _catalogo:
 		var id := int(no["id"])
-		var pos := ArvoreHabilidades.posicao_do_no(no) - (TAMANHO_CENTRO if id == 0 else TAMANHO_NO) * 0.5
+		var tam := TAMANHO_CENTRO if id == 0 else TAMANHO_NO
+		var pos := ArvoreHabilidades.posicao_do_no(no) - tam * 0.5
 		var botao := TextureButton.new()
 		botao.name = "No_%d" % id
-		botao.custom_minimum_size = TAMANHO_CENTRO if id == 0 else TAMANHO_NO
+		botao.custom_minimum_size = tam
 		botao.ignore_texture_size = true
 		botao.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		botao.focus_mode = Control.FOCUS_NONE
@@ -94,11 +94,11 @@ func _montar_nos() -> void:
 		botao.pressed.connect(_on_no_pressionado.bind(id))
 		botao.mouse_filter = Control.MOUSE_FILTER_STOP
 		var rotulo := Label.new()
-		rotulo.text = "ATK" if id == 0 else str(id)
+		rotulo.text = _texto_rotulo(no)
 		rotulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		rotulo.add_theme_font_size_override("font_size", 9 if id == 0 else 8)
+		rotulo.add_theme_font_size_override("font_size", 8 if id == 0 else 7)
 		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
 		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		botao.add_child(rotulo)
@@ -107,12 +107,23 @@ func _montar_nos() -> void:
 		var pai := int(no.get("pai", -1))
 		if pai >= 0:
 			var no_pai := _dados_no(pai)
+			var regiao := int(no.get("regiao", 0))
 			_linhas.append({
 				"de": ArvoreHabilidades.posicao_do_no(no_pai),
 				"para": ArvoreHabilidades.posicao_do_no(no),
-				"cor": Color(0.55, 0.44, 0.26, 0.85),
+				"cor": ArvoreHabilidades.cor_regiao(regiao).darkened(0.25),
 			})
 	queue_redraw()
+
+
+func _texto_rotulo(no: Dictionary) -> String:
+	var id := int(no.get("id", -1))
+	if id == 0:
+		return "ATK"
+	var prof := int(no.get("profundidade", 0)) + 1
+	if bool(no.get("premium", false)):
+		return "%"
+	return str(prof)
 
 
 func _on_no_pressionado(id: int) -> void:
@@ -128,19 +139,27 @@ func _atualizar_visual() -> void:
 		var desbloqueado := progresso.esta_desbloqueado(int(id))
 		var pode := progresso.pode_comprar(int(id))
 		var custo := ArvoreHabilidades.custo_do_no(no)
-		var cor := Color(0.18, 0.14, 0.11, 0.95)
+		var regiao := int(no.get("regiao", -1))
+		var cor_base := Color(0.18, 0.14, 0.11, 0.95)
+		if regiao >= 0:
+			cor_base = ArvoreHabilidades.cor_regiao(regiao).darkened(0.55)
+		var cor := cor_base
 		if desbloqueado:
-			cor = Color(0.22, 0.38, 0.16, 0.96)
+			cor = cor_base.lightened(0.35)
 		elif pode and ouro_atual >= custo:
-			cor = Color(0.32, 0.24, 0.16, 0.96)
+			cor = cor_base.lightened(0.18)
 		elif pode:
-			cor = Color(0.28, 0.18, 0.12, 0.92)
+			cor = cor_base.lightened(0.08)
 		else:
-			cor = Color(0.10, 0.09, 0.08, 0.82)
+			cor = cor_base.darkened(0.35)
+		if bool(no.get("premium", false)) and not desbloqueado:
+			cor = cor.lerp(Color(0.95, 0.78, 0.22, 1), 0.25)
 		if int(id) == 0:
-			cor = cor.lightened(0.08)
+			cor = cor.lightened(0.12)
 		botao.self_modulate = cor
 		var dica := str(no.get("nome", "")) + "\n(Afeta todos os heróis)"
+		if bool(no.get("premium", false)):
+			dica += "\n[Custo elevado]"
 		if not desbloqueado:
 			dica += "\nCusto: %d ouro" % custo
 			if not progresso.pode_comprar(int(id)):
@@ -151,14 +170,17 @@ func _atualizar_visual() -> void:
 	for linha in _linhas:
 		var id_de := _id_do_no_na_posicao(linha["de"])
 		var id_para := _id_do_no_na_posicao(linha["para"])
+		var no_para := progresso.no_por_id(id_para)
+		var regiao := int(no_para.get("regiao", 0))
+		var cor_regiao := ArvoreHabilidades.cor_regiao(regiao)
 		var desbloqueada := progresso.esta_desbloqueado(id_de) and progresso.esta_desbloqueado(id_para)
 		var disponivel := progresso.esta_desbloqueado(id_de) and progresso.pode_comprar(id_para)
 		if desbloqueada:
-			linha["cor"] = Color(0.35, 0.72, 0.28, 0.95)
+			linha["cor"] = cor_regiao.lightened(0.1)
 		elif disponivel:
 			linha["cor"] = Color(0.95, 0.78, 0.32, 0.9)
 		else:
-			linha["cor"] = Color(0.35, 0.28, 0.18, 0.75)
+			linha["cor"] = cor_regiao.darkened(0.45)
 	queue_redraw()
 
 
@@ -173,7 +195,7 @@ func _centralizar() -> void:
 	var area := size
 	if area.x < 8.0 or area.y < 8.0:
 		return
-	_offset = (area - TAMANHO_CANVAS) * 0.5
+	_offset = (area - ArvoreHabilidades.TAMANHO_CANVAS) * 0.5
 	_aplicar_offset()
 
 

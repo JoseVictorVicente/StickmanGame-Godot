@@ -735,9 +735,17 @@ func estatisticas_do_heroi_atual() -> Dictionary:
 	if classe:
 		vel = classe.velocidade_ataque * 100.0
 	var bonus: Dictionary = bonus_arvore_do_slot(indice)
+	var atk_extra := 0
+	var vida_extra := 0
+	if not party:
+		atk_extra = int(bonus.get("ataque", 0))
+		vida_extra = int(bonus.get("vida", 0))
+		var pct := float(bonus.get("ataque_pct", 0.0))
+		ataque = maxi(1, int(round(float(ataque + atk_extra) * (1.0 + pct / 100.0))))
+		vida += vida_extra
 	return {
-		"ataque": ataque + int(bonus.get("ataque", 0)),
-		"vida": vida + int(bonus.get("vida", 0)),
+		"ataque": ataque,
+		"vida": vida,
 		"nivel": int(dados.get("nivel", 1)),
 		"xp": int(dados.get("xp", 0)),
 		"xp_proximo": int(dados.get("xp_proximo", ProgressoHerois.XP_BASE_NIVEL)),

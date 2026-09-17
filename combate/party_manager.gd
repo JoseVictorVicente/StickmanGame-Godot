@@ -152,8 +152,11 @@ func dano_do_heroi(slot_index: int) -> int:
 	var extra := 0
 	if obter_dano_equip.is_valid():
 		extra = int(obter_dano_equip.call(slot_index))
+	var bonus := _bonus_arvore(slot_index)
 	var base := maxi(1, int(round(float(dados.dano_base + extra) * dados.multiplicador_ataque)))
-	return maxi(1, base + (_nivel_do_slot(slot_index) - 1) * dados.atk_por_nivel + int(_bonus_arvore(slot_index).get("ataque", 0)))
+	base += (_nivel_do_slot(slot_index) - 1) * dados.atk_por_nivel + int(bonus.get("ataque", 0))
+	var pct := float(bonus.get("ataque_pct", 0.0))
+	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 
 func dano_total_grupo() -> int:

@@ -1,9 +1,10 @@
 class_name ArvoreHabilidades
 extends RefCounted
-## Catálogo da árvore radial de habilidades (15 nós).
+## Árvore radial: nó central de ataque + 11 ramos com 15 nós cada.
 
 enum TipoBonus {
 	ATAQUE,
+	ATAQUE_PCT,
 	VIDA,
 	BONUS_XP,
 	BONUS_OURO,
@@ -16,53 +17,76 @@ enum TipoBonus {
 	RES_ELEMENTAL,
 }
 
-const TOTAL_NOS := 15
-const RAIO_INTERNO := 118.0
-const RAIO_EXTERNO := 210.0
-const CENTRO_CANVAS := Vector2(450, 450)
-const CUSTOS_ANEL: Array[int] = [50, 300, 1500]
+const NUM_RAMOS := 11
+const NOS_POR_RAMO := 15
+const TOTAL_NOS := 1 + NUM_RAMOS * NOS_POR_RAMO
+const NOS_ATAQUE_PCT := 5
+const NOS_ATAQUE_FLAT := NOS_POR_RAMO - NOS_ATAQUE_PCT
+
+const CENTRO_CANVAS := Vector2(950, 950)
+const TAMANHO_CANVAS := Vector2(1900, 1900)
+const RAIO_INICIAL := 72.0
+const RAIO_PASSO := 48.0
+
+const CUSTO_CENTRO := 50
+const CUSTO_BASE_RAMO := 80
+const CUSTO_CRESCIMENTO := 18
+const MULT_CUSTO_PREMIUM := 3.0
+
+const _DEF_RAMOS: Array[Dictionary] = [
+	{"tipo": TipoBonus.ATAQUE, "sigla": "ATK", "rotulo": "Ataque", "valor": 2, "pct": false},
+	{"tipo": TipoBonus.VIDA, "sigla": "VID", "rotulo": "Vida", "valor": 6, "pct": false},
+	{"tipo": TipoBonus.BONUS_XP, "sigla": "XP", "rotulo": "XP", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.BONUS_OURO, "sigla": "OURO", "rotulo": "Ouro", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.VEL_ATAQUE, "sigla": "VEL", "rotulo": "Vel.", "valor": 3, "pct": true},
+	{"tipo": TipoBonus.CRIT_CHANCE, "sigla": "CRIT", "rotulo": "Crít.", "valor": 1, "pct": true},
+	{"tipo": TipoBonus.CRIT_DANO, "sigla": "DCR", "rotulo": "D.Crít", "valor": 4, "pct": true},
+	{"tipo": TipoBonus.EVASAO, "sigla": "EVA", "rotulo": "Evasão", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.RES_FISICA, "sigla": "FIS", "rotulo": "Res. Fís.", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.RES_ARCANA, "sigla": "ARC", "rotulo": "Res. Arc.", "valor": 2, "pct": true},
+	{"tipo": TipoBonus.RES_ELEMENTAL, "sigla": "ELE", "rotulo": "Res. Elem.", "valor": 2, "pct": true},
+]
 
 
 static func catalogo() -> Array[Dictionary]:
 	var nos: Array[Dictionary] = []
-	nos.append(_no(0, -1, 0, 0.0, TipoBonus.ATAQUE, 3, "Ataque +3"))
-	var inner := [
-		{"tipo": TipoBonus.VIDA, "valor": 8, "nome": "Vida +8"},
-		{"tipo": TipoBonus.BONUS_XP, "valor": 2, "nome": "XP +2%"},
-		{"tipo": TipoBonus.BONUS_OURO, "valor": 2, "nome": "Ouro +2%"},
-		{"tipo": TipoBonus.VEL_ATAQUE, "valor": 3, "nome": "Vel. +3%"},
-		{"tipo": TipoBonus.CRIT_CHANCE, "valor": 1, "nome": "Crít. +1%"},
-		{"tipo": TipoBonus.RES_ARCANA, "valor": 2, "nome": "Res. Arc. +2%"},
-	]
-	for i in inner.size():
-		var ang := -PI * 0.5 + float(i) * TAU / float(inner.size())
-		nos.append(_no(i + 1, 0, 1, ang, inner[i]["tipo"], inner[i]["valor"], inner[i]["nome"]))
-	var outer := [
-		{"pai": 1, "tipo": TipoBonus.ATAQUE, "valor": 2, "nome": "Ataque +2"},
-		{"pai": 2, "tipo": TipoBonus.VIDA, "valor": 12, "nome": "Vida +12"},
-		{"pai": 3, "tipo": TipoBonus.BONUS_XP, "valor": 3, "nome": "XP +3%"},
-		{"pai": 4, "tipo": TipoBonus.BONUS_OURO, "valor": 3, "nome": "Ouro +3%"},
-		{"pai": 5, "tipo": TipoBonus.EVASAO, "valor": 2, "nome": "Evasão +2%"},
-		{"pai": 6, "tipo": TipoBonus.CRIT_DANO, "valor": 5, "nome": "D.Crít +5%"},
-		{"pai": 1, "tipo": TipoBonus.RES_FISICA, "valor": 3, "nome": "Res. Fís. +3%"},
-		{"pai": 6, "tipo": TipoBonus.RES_ELEMENTAL, "valor": 3, "nome": "Res. Elem. +3%"},
-	]
-	for i in outer.size():
-		var pai := int(outer[i]["pai"])
-		var ang_pai: float = nos[pai]["angulo"]
-		var desvio := -0.28 if i % 2 == 0 else 0.28
-		nos.append(_no(7 + i, pai, 2, ang_pai + desvio, outer[i]["tipo"], outer[i]["valor"], outer[i]["nome"]))
+	nos.append(_no_centro())
+	for regiao in NUM_RAMOS:
+		var pai := 0
+		for profundidade in NOS_POR_RAMO:
+			var no := _no_ramo(regiao, profundidade, pai)
+			nos.append(no)
+			pai = int(no["id"])
 	return nos
 
 
+static func id_do_no(regiao: int, profundidade: int) -> int:
+	return 1 + regiao * NOS_POR_RAMO + profundidade
+
+
+static func angulo_regiao(regiao: int) -> float:
+	return -PI * 0.5 + float(regiao) * TAU / float(NUM_RAMOS)
+
+
 static func custo_do_no(no: Dictionary) -> int:
-	var anel := clampi(int(no.get("anel", 0)), 0, CUSTOS_ANEL.size() - 1)
-	return CUSTOS_ANEL[anel]
+	var id := int(no.get("id", -1))
+	if id == 0:
+		return CUSTO_CENTRO
+	var profundidade := int(no.get("profundidade", 0))
+	var base := CUSTO_BASE_RAMO + profundidade * profundidade * CUSTO_CRESCIMENTO
+	if bool(no.get("premium", false)):
+		return int(round(float(base) * MULT_CUSTO_PREMIUM))
+	return base
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:
-	var raio := RAIO_INTERNO if int(no.get("anel", 0)) == 1 else RAIO_EXTERNO if int(no.get("anel", 0)) == 2 else 0.0
-	var ang: float = no.get("angulo", 0.0)
+	var id := int(no.get("id", 0))
+	if id == 0:
+		return CENTRO_CANVAS
+	var regiao := int(no.get("regiao", 0))
+	var profundidade := int(no.get("profundidade", 0))
+	var ang := angulo_regiao(regiao)
+	var raio := RAIO_INICIAL + float(profundidade) * RAIO_PASSO
 	return CENTRO_CANVAS + Vector2(cos(ang), sin(ang)) * raio
 
 
@@ -70,6 +94,8 @@ static func chave_bonus(tipo: TipoBonus) -> String:
 	match tipo:
 		TipoBonus.ATAQUE:
 			return "ataque"
+		TipoBonus.ATAQUE_PCT:
+			return "ataque_pct"
 		TipoBonus.VIDA:
 			return "vida"
 		TipoBonus.BONUS_XP:
@@ -96,6 +122,7 @@ static func chave_bonus(tipo: TipoBonus) -> String:
 static func bonus_vazio() -> Dictionary:
 	return {
 		"ataque": 0,
+		"ataque_pct": 0.0,
 		"vida": 0,
 		"bonus_xp": 0.0,
 		"bonus_ouro": 0.0,
@@ -109,13 +136,69 @@ static func bonus_vazio() -> Dictionary:
 	}
 
 
-static func _no(id: int, pai: int, anel: int, angulo: float, tipo: TipoBonus, valor: int, nome: String) -> Dictionary:
+static func cor_regiao(regiao: int) -> Color:
+	var cores: Array[Color] = [
+		Color(0.82, 0.28, 0.22, 1),
+		Color(0.22, 0.62, 0.32, 1),
+		Color(0.32, 0.48, 0.92, 1),
+		Color(0.92, 0.78, 0.22, 1),
+		Color(0.58, 0.32, 0.82, 1),
+		Color(0.92, 0.42, 0.18, 1),
+		Color(0.18, 0.72, 0.72, 1),
+		Color(0.72, 0.72, 0.28, 1),
+		Color(0.55, 0.42, 0.28, 1),
+		Color(0.42, 0.28, 0.72, 1),
+		Color(0.28, 0.62, 0.62, 1),
+	]
+	return cores[regiao % cores.size()]
+
+
+static func _no_centro() -> Dictionary:
+	return {
+		"id": 0,
+		"pai": -1,
+		"regiao": -1,
+		"profundidade": -1,
+		"angulo": 0.0,
+		"tipo": int(TipoBonus.ATAQUE),
+		"valor": 3,
+		"nome": "Ataque +3",
+		"sigla": "ATK",
+		"premium": false,
+	}
+
+
+static func _no_ramo(regiao: int, profundidade: int, pai: int) -> Dictionary:
+	var def: Dictionary = _DEF_RAMOS[regiao]
+	var id := id_do_no(regiao, profundidade)
+	var tipo: TipoBonus = def["tipo"]
+	var valor: int = int(def["valor"])
+	var premium := false
+	var nome := ""
+	var sigla: String = def["sigla"]
+
+	if regiao == 0:
+		if profundidade >= NOS_ATAQUE_FLAT:
+			tipo = TipoBonus.ATAQUE_PCT
+			valor = 3
+			premium = true
+			nome = "Ataque +3%"
+		else:
+			nome = "Ataque +%d" % valor
+	elif bool(def.get("pct", false)):
+		nome = "%s +%d%%" % [def["rotulo"], valor]
+	else:
+		nome = "%s +%d" % [def["rotulo"], valor]
+
 	return {
 		"id": id,
 		"pai": pai,
-		"anel": anel,
-		"angulo": angulo,
+		"regiao": regiao,
+		"profundidade": profundidade,
+		"angulo": angulo_regiao(regiao),
 		"tipo": int(tipo),
 		"valor": valor,
 		"nome": nome,
+		"sigla": sigla,
+		"premium": premium,
 	}

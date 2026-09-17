@@ -3,7 +3,7 @@ extends Node
 
 const CAMINHO_SAVE := "user://save.cfg"
 const INTERVALO_AUTOSAVE := 30.0
-const VERSAO_SAVE := 2
+const VERSAO_SAVE := 3
 
 var _jogo: Node = null
 var _timer: Timer
@@ -66,7 +66,7 @@ func carregar() -> bool:
 	if cfg.load(CAMINHO_SAVE) != OK:
 		return false
 	var versao := int(cfg.get_value("jogo", "versao", 0))
-	if versao < VERSAO_SAVE:
+	if versao < 1:
 		_limpar_progresso(cfg)
 		return false
 	var dados := {
@@ -85,6 +85,8 @@ func carregar() -> bool:
 		"equipe": _parse_json(str(cfg.get_value("equipe", "dados", "{}")), {}),
 		"arvore": _parse_json(str(cfg.get_value("arvore", "dados", "[]")), []),
 	}
+	if versao < 3:
+		dados["arvore"] = []
 	if _jogo.has_method("aplicar_save"):
 		_jogo.aplicar_save(dados)
 		return true
