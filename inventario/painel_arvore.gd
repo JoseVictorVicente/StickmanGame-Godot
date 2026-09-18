@@ -46,7 +46,7 @@ func atualizar() -> void:
 	if label_ouro:
 		label_ouro.text = "Ouro  %d" % _menu.obter_ouro_atual()
 	if label_mensagem:
-		label_mensagem.text = "Role para baixo — cada coluna tem 15 fileiras. Desbloqueie todos os nós acima."
+		label_mensagem.text = "Cada habilidade tem até 5 níveis (armazém: 1). Role para baixo."
 
 
 func _reforcar_layout() -> void:
@@ -63,21 +63,29 @@ func _on_no_selecionado(id_no: int) -> void:
 	if _menu == null:
 		return
 	var progresso := _menu.progresso_arvore()
-	if progresso.esta_desbloqueado(id_no):
-		_mostrar_mensagem("Habilidade já adquirida.")
+	var no := progresso.no_por_id(id_no)
+	if no.is_empty():
+		return
+	if progresso.esta_no_maximo(id_no):
+		_mostrar_mensagem("Nível máximo alcançado nesta habilidade.")
 		return
 	if not progresso.pode_comprar(id_no):
 		_mostrar_mensagem("Desbloqueie todos os nós acima deste primeiro.")
 		return
-	var no := progresso.no_por_id(id_no)
-	var custo := ArvoreHabilidades.custo_do_no(no)
+	var nivel_atual := progresso.nivel_do_no(id_no)
+	var custo := ArvoreHabilidades.custo_proximo_nivel(no, nivel_atual)
 	if not _menu.tentar_gastar_ouro(custo):
 		_mostrar_mensagem("Ouro insuficiente (%d necessários)." % custo)
 		return
-	progresso.desbloquear(id_no)
+	progresso.subir_nivel(id_no)
 	_menu.notificar_arvore_alterada()
 	atualizar()
-	var msg := "Adquirido: %s" % str(no.get("nome", ""))
+	var novo_nivel := progresso.nivel_do_no(id_no)
+	var msg := "Nível %d/%d: %s" % [
+		novo_nivel,
+		progresso.nivel_maximo(id_no),
+		ArvoreHabilidades.descricao_bonus(no, novo_nivel),
+	]
 	if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
 		msg += " — nova página do armazém liberada."
 	else:

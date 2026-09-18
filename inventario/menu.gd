@@ -1019,7 +1019,7 @@ func aplicar_armazem(dados: Variant) -> void:
 	_sincronizar_armazem_arvore()
 
 
-func serializar_arvore() -> Array:
+func serializar_arvore() -> Dictionary:
 	return _progresso_arvore.serializar()
 
 

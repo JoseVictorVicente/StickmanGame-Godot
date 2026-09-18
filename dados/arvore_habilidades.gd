@@ -42,7 +42,10 @@ const MARGEM_INFERIOR := 20.0
 
 const CUSTO_BASE := 60
 const CUSTO_CRESCIMENTO := 20
+const CUSTO_POR_NIVEL := 28
 const MULT_CUSTO_PREMIUM := 2.5
+const NIVEL_MAX := 5
+const NIVEL_MAX_ARMAZEM := 1
 
 const _PADRAO_LINHAS: Array = [
 	[0, 1],
@@ -85,7 +88,10 @@ static func catalogo() -> Array[Dictionary]:
 				"slot": slot,
 				"linha": linha,
 				"tipo": int(def["tipo"]),
-				"valor": int(def["valor"]),
+				"valor_base": int(def["valor_base"]),
+				"valor": int(def["valor_base"]),
+				"rotulo": str(def.get("rotulo", def.get("nome", ""))),
+				"eh_pct": bool(def.get("eh_pct", false)),
 				"nome": str(def["nome"]),
 				"sigla": str(def["sigla"]),
 				"premium": bool(def.get("premium", false)),
@@ -177,12 +183,45 @@ static func tamanho_canvas() -> Vector2:
 	return Vector2(largura, altura)
 
 
-static func custo_do_no(no: Dictionary) -> int:
+static func custo_do_no(no: Dictionary, nivel_atual: int = 0) -> int:
+	return custo_proximo_nivel(no, nivel_atual)
+
+
+static func custo_proximo_nivel(no: Dictionary, nivel_atual: int) -> int:
+	var proximo := nivel_atual + 1
 	var linha := int(no.get("linha", 0))
 	var base := CUSTO_BASE + linha * linha * CUSTO_CRESCIMENTO
 	if bool(no.get("premium", false)):
-		return int(round(float(base) * MULT_CUSTO_PREMIUM))
-	return base
+		base = int(round(float(base) * MULT_CUSTO_PREMIUM))
+	return base + proximo * proximo * CUSTO_POR_NIVEL
+
+
+static func nivel_maximo(no: Dictionary) -> int:
+	if int(no.get("tipo", -1)) == TipoBonus.ARMAZEM:
+		return NIVEL_MAX_ARMAZEM
+	return NIVEL_MAX
+
+
+static func valor_bonus(no: Dictionary, nivel: int) -> float:
+	if nivel <= 0:
+		return 0.0
+	return float(int(no.get("valor_base", no.get("valor", 1))) * nivel)
+
+
+static func descricao_bonus(no: Dictionary, nivel: int) -> String:
+	if nivel <= 0:
+		return str(no.get("nome", ""))
+	if int(no.get("tipo", -1)) == TipoBonus.ARMAZEM:
+		return str(no.get("nome", ""))
+	var rotulo := str(no.get("rotulo", no.get("sigla", "")))
+	var total := int(valor_bonus(no, nivel))
+	if bool(no.get("eh_pct", false)) or int(no.get("tipo", -1)) == TipoBonus.ATAQUE_PCT:
+		return "%s +%d%%" % [rotulo, total]
+	return "%s +%d" % [rotulo, total]
+
+
+static func nome_proximo_nivel(no: Dictionary, nivel_atual: int) -> String:
+	return descricao_bonus(no, nivel_atual + 1)
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:
@@ -276,8 +315,10 @@ static func _criar_no_ataque(slot: int, linha: int) -> Dictionary:
 		var pct := 2 + _idiv(linha, 5)
 		return {
 			"tipo": TipoBonus.ATAQUE_PCT,
-			"valor": pct,
+			"valor_base": pct,
 			"sigla": "%",
+			"rotulo": "Ataque",
+			"eh_pct": true,
 			"nome": "Ataque +%d%%" % pct,
 			"premium": true,
 		}
@@ -300,8 +341,10 @@ static func _criar_no_defesa(slot: int, linha: int) -> Dictionary:
 		var valor := 8 + linha
 		return {
 			"tipo": TipoBonus.VIDA,
-			"valor": valor,
+			"valor_base": valor,
 			"sigla": "VID",
+			"rotulo": "Vida",
+			"eh_pct": false,
 			"nome": "Vida +%d" % valor,
 			"premium": true,
 		}
@@ -326,8 +369,10 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 		var valor := indice_arm + 1
 		return {
 			"tipo": TipoBonus.ARMAZEM,
-			"valor": valor,
+			"valor_base": valor,
 			"sigla": "ARM",
+			"rotulo": "Armazém",
+			"eh_pct": false,
 			"nome": "Armazém %d" % (valor + 1),
 			"premium": false,
 		}
@@ -335,8 +380,10 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 		var pct := 2 + _idiv(linha, 4)
 		return {
 			"tipo": TipoBonus.BONUS_XP,
-			"valor": pct,
+			"valor_base": pct,
 			"sigla": "XP",
+			"rotulo": "XP",
+			"eh_pct": true,
 			"nome": "XP +%d%%" % pct,
 			"premium": true,
 		}
@@ -345,16 +392,20 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 		var valor_xp := 1 + _idiv(linha, 3)
 		return {
 			"tipo": TipoBonus.BONUS_XP,
-			"valor": valor_xp,
+			"valor_base": valor_xp,
 			"sigla": "XP",
+			"rotulo": "XP",
+			"eh_pct": true,
 			"nome": "XP +%d%%" % valor_xp,
 			"premium": false,
 		}
 	var valor_ouro := 1 + _idiv(linha, 3)
 	return {
 		"tipo": TipoBonus.BONUS_OURO,
-		"valor": valor_ouro,
+		"valor_base": valor_ouro,
 		"sigla": "OURO",
+		"rotulo": "Ouro",
+		"eh_pct": true,
 		"nome": "Ouro +%d%%" % valor_ouro,
 		"premium": false,
 	}
@@ -372,8 +423,10 @@ static func _montar_def_stat(
 	var nome := "%s +%d%%" % [rotulo, valor] if eh_pct else "%s +%d" % [rotulo, valor]
 	return {
 		"tipo": tipo,
-		"valor": valor,
+		"valor_base": valor,
 		"sigla": sigla,
+		"rotulo": rotulo,
+		"eh_pct": eh_pct,
 		"nome": nome,
 		"premium": premium,
 	}
