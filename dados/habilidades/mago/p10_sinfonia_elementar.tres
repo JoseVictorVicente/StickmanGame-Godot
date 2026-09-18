@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "sinfonia_elementar"
+skill_name = "Sinfonia Elementar"
+description = "Alternar entre magias de elementos diferentes aumenta o dano geral em 5% (acumula ate 4 vezes)."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/mago/sinfonia_elementar.png"
+sort_order = 10
+stat_value = 0.0

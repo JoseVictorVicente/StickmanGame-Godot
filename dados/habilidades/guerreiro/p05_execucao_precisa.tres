@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "execucao_precisa"
+skill_name = "Execucao Precisa"
+description = "Causa 20% a mais de dano contra alvos que estejam com menos de 35% da vida maxima."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/guerreiro/execucao_precisa.png"
+sort_order = 5
+stat_value = 0.0

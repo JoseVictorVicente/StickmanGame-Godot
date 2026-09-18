@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "luz_protetora"
+skill_name = "Luz Protetora"
+description = "Aliados curados pelo Priest ganham 10% de Armadura bonus por 3 segundos."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/sacerdote/luz_protetora.png"
+sort_order = 9
+stat_value = 0.0

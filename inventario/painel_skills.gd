@@ -6,7 +6,8 @@ signal visibilidade_alterada(aberta: bool)
 signal slot_escolhido(indice: int)
 
 const TEXTO_SLOT_VAZIO := "[ Vazio ]"
-const SKILLS_POR_TIPO := 10
+const SKILLS_ATIVAS_DISPONIVEIS := 5
+const SKILLS_PASSIVAS_DISPONIVEIS := 10
 const COLUNAS_GRADE := 5
 const TAMANHO_SLOT_EQUIPADO := Vector2(120, 64)
 const TAMANHO_SLOT_HABILIDADE := Vector2(56, 56)
@@ -109,8 +110,10 @@ func _montar_grades_skills() -> void:
 	if _grades_montadas:
 		return
 	_criar_slots_equipados()
-	_criar_slots_habilidade(grade_ativas, _slots_ativos)
-	_criar_slots_habilidade(grade_passivas, _slots_passivos)
+	grade_ativas.columns = COLUNAS_GRADE
+	grade_passivas.columns = COLUNAS_GRADE
+	_criar_slots_habilidade(grade_ativas, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
+	_criar_slots_habilidade(grade_passivas, _slots_passivos, SKILLS_PASSIVAS_DISPONIVEIS)
 	_grades_montadas = true
 
 
@@ -132,18 +135,26 @@ func _criar_botao_slot_equipado(nome: String, indice: int, ativo: bool) -> Butto
 	botao.name = nome
 	botao.custom_minimum_size = TAMANHO_SLOT_EQUIPADO
 	botao.text = TEXTO_SLOT_VAZIO
+	botao.expand_icon = true
 	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	botao.add_theme_font_size_override("font_size", 10)
+	botao.set_meta("slot_equipado_ativo", ativo)
+	botao.set_meta("slot_equipado_indice", indice)
 	if ativo:
 		botao.pressed.connect(_on_slot_ativo_pressionado.bind(indice))
 	else:
 		botao.pressed.connect(_on_slot_passivo_pressionado.bind(indice))
+	TooltipSkill.vincular(botao, func() -> SkillResource:
+		var classe_id := _obter_classe_id()
+		var tipo := SkillResource.Type.ACTIVE if ativo else SkillResource.Type.PASSIVE
+		return HeroEquipment.obter_equipada(classe_id, tipo, indice)
+	)
 	return botao
 
 
-func _criar_slots_habilidade(grade: GridContainer, destino: Array[Button]) -> void:
+func _criar_slots_habilidade(grade: GridContainer, destino: Array[Button], quantidade: int) -> void:
 	destino.clear()
-	for indice in SKILLS_POR_TIPO:
+	for indice in quantidade:
 		var slot := Button.new()
 		slot.name = "SlotHabilidade%d" % (indice + 1)
 		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
@@ -152,6 +163,10 @@ func _criar_slots_habilidade(grade: GridContainer, destino: Array[Button]) -> vo
 		slot.add_theme_font_size_override("font_size", 9)
 		slot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		slot.pressed.connect(_on_habilidade_disponivel_pressionada.bind(slot))
+		TooltipSkill.vincular(slot, func() -> SkillResource:
+			var skill: Variant = slot.get_meta("skill", null)
+			return skill if skill is SkillResource else null
+		)
 		grade.add_child(slot)
 		destino.append(slot)
 
@@ -253,10 +268,12 @@ func _configurar_slot_disponivel(slot: Button, skill: SkillResource, classe_id: 
 	slot.set_meta("skill", skill)
 	if skill == null:
 		slot.text = ""
+		slot.icon = null
 		slot.disabled = true
 		_pintar_slot_disponivel(slot, false)
 	else:
-		slot.text = skill.skill_name
+		slot.text = ""
+		slot.icon = skill.obter_icone()
 		slot.disabled = false
 		_pintar_slot_disponivel(slot, HeroEquipment.is_equipped(classe_id, skill))
 
@@ -264,8 +281,10 @@ func _configurar_slot_disponivel(slot: Button, skill: SkillResource, classe_id: 
 func _atualizar_texto_slot(botao: Button, skill: SkillResource) -> void:
 	if skill == null:
 		botao.text = TEXTO_SLOT_VAZIO
+		botao.icon = null
 	else:
-		botao.text = skill.skill_name
+		botao.text = ""
+		botao.icon = skill.obter_icone()
 
 
 func _on_heroi_slot_pressionado(indice: int) -> void:

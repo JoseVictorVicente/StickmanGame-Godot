@@ -149,4 +149,13 @@ func _carregar_catalogo(classe_id: String) -> Array:
 					lista.append(recurso)
 		nome_arquivo = dir.get_next()
 	dir.list_dir_end()
+	lista.sort_custom(_comparar_skills)
 	return lista
+
+
+func _comparar_skills(a: SkillResource, b: SkillResource) -> bool:
+	if a.type != b.type:
+		return a.type == SkillResource.Type.ACTIVE
+	if a.sort_order != b.sort_order:
+		return a.sort_order < b.sort_order
+	return a.skill_id < b.skill_id

@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "musculos_de_aco"
+skill_name = "Musculos de Aco"
+description = "Aumenta a vida maxima do guerreiro em 10%."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/guerreiro/musculos_de_aco.png"
+sort_order = 10
+stat_value = 0.0

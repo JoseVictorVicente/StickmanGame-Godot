@@ -1,0 +1,3 @@
+# Coloque os icones das habilidades em subpastas por classe:
+# res://sprites/ui/skills/arqueiro/tiro_duplo_instantaneo.png
+# Enquanto o PNG nao existir, a UI usa um placeholder procedural.

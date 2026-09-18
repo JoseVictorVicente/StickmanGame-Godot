@@ -912,10 +912,22 @@ func _atualizar_retrato() -> void:
 
 
 func _conectar_slots_skills_principal() -> void:
-	slot_ativa_0.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.ACTIVE, 0))
-	slot_ativa_1.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.ACTIVE, 1))
-	slot_passiva_0.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.PASSIVE, 0))
-	slot_passiva_1.pressed.connect(_on_slot_skill_principal_pressionado.bind(SkillResource.Type.PASSIVE, 1))
+	_vincular_slot_skill_menu(slot_ativa_0, SkillResource.Type.ACTIVE, 0)
+	_vincular_slot_skill_menu(slot_ativa_1, SkillResource.Type.ACTIVE, 1)
+	_vincular_slot_skill_menu(slot_passiva_0, SkillResource.Type.PASSIVE, 0)
+	_vincular_slot_skill_menu(slot_passiva_1, SkillResource.Type.PASSIVE, 1)
+
+
+func _vincular_slot_skill_menu(botao: Button, tipo: SkillResource.Type, indice: int) -> void:
+	if botao == null:
+		return
+	botao.pressed.connect(_on_slot_skill_principal_pressionado.bind(tipo, indice))
+	TooltipSkill.vincular(botao, func() -> SkillResource:
+		var classe: ClasseData = obter_classe_atual()
+		if classe == null:
+			return null
+		return HeroEquipment.obter_equipada(classe.id, tipo, indice)
+	)
 
 
 func _on_equipamento_skills_alterado(_classe_id: String) -> void:
@@ -944,13 +956,13 @@ func _aplicar_texto_slot_skill(botao: Button, skill: SkillResource) -> void:
 	if botao == null:
 		return
 	botao.custom_minimum_size = TAMANHO_SLOT_SKILL
+	botao.expand_icon = true
 	if skill == null:
 		botao.text = TEXTO_SLOT_SKILL_VAZIO
-		botao.tooltip_text = "Equipar habilidade"
+		botao.icon = null
 	else:
-		botao.text = skill.skill_name
-		botao.tooltip_text = skill.description
-	# TODO: adicionar TextureRect/Sprite2D com ícone da habilidade no slot.
+		botao.text = ""
+		botao.icon = skill.obter_icone()
 
 
 func _on_slot_skill_principal_pressionado(tipo: SkillResource.Type, indice_slot: int) -> void:

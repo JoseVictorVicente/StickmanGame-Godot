@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "espinhos_da_superficie"
+skill_name = "Espinhos da Superficie"
+description = "Reflete 20% do dano fisico de ataques corpo a corpo recebidos na parte frontal do escudo."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/tanque/espinhos_da_superficie.png"
+sort_order = 2
+stat_value = 0.0

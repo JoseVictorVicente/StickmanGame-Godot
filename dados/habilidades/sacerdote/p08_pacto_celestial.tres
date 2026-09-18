@@ -1,0 +1,14 @@
+﻿[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "pacto_celestial"
+skill_name = "Pacto Celestial"
+description = "Se o Priest morrer, libera uma onda de luz final que cura 100% da vida de um aliado aleatorio e congela a horda por 2s."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/sacerdote/pacto_celestial.png"
+sort_order = 8
+stat_value = 0.0
