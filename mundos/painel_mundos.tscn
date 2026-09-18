@@ -1,27 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8mundos0001"]
+[gd_scene load_steps=5 format=3 uid="uid://c8mundos0001"]
 
 [ext_resource type="Script" uid="uid://c8painmun001" path="res://mundos/painel_mundos.gd" id="1_mundos"]
 [ext_resource type="Script" uid="uid://c8mapafas001" path="res://mundos/mapa_fases.gd" id="2_mapa"]
 [ext_resource type="Texture2D" path="res://sprites/cenario/mapa_floresta_limpo.png" id="3_floresta"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="4_fundo_mundos"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-bg_color = Color(0.11, 0.09, 0.08, 0.97)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.62, 0.5, 0.28, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 8
-shadow_offset = Vector2(0, 4)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 19.0
+content_margin_bottom = 20.0
+texture = ExtResource("4_fundo_mundos")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 19.0
+texture_margin_bottom = 20.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 12.0
@@ -87,17 +80,7 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mapa"]
-bg_color = Color(0.08, 0.07, 0.06, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mapa"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_dificuldade"]
 content_margin_left = 2.0
@@ -123,7 +106,8 @@ visible = false
 custom_minimum_size = Vector2(280, 0)
 size_flags_vertical = 3
 mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+clip_contents = true
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
 script = ExtResource("1_mundos")
 
 [node name="Camada" type="Control" parent="."]
@@ -219,7 +203,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_mapa")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mapa")
 
 [node name="MapaFases" type="Control" parent="Camada/Conteudo/PainelMapaFases"]
 unique_name_in_owner = true

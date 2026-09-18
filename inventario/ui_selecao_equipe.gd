@@ -13,7 +13,6 @@ var _indices_slot: Array[int] = []
 
 @onready var slots_equipe: HBoxContainer = %SlotsEquipe
 @onready var grade_classes: GridContainer = %GradeClasses
-@onready var label_dps_equipe: Label = %LabelDpsEquipe
 @onready var botao_formacao: Button = %BotaoFormacao
 @onready var titulo_equipe: Label = $TituloEquipe
 @onready var titulo_classes: Label = $TituloClasses
@@ -32,8 +31,6 @@ func configurar(party: PartyManager, slot_inicial: int = 0) -> void:
 		botao_formacao.pressed.connect(_on_formacao_pressed)
 	_montar_slots()
 	atualizar()
-	if not _party.dps_alterado.is_connected(_on_dps_alterado):
-		_party.dps_alterado.connect(_on_dps_alterado)
 	if not _party.equipe_alterada.is_connected(atualizar):
 		_party.equipe_alterada.connect(atualizar)
 
@@ -52,8 +49,6 @@ func atualizar() -> void:
 		_slot_alvo = _party.primeiro_slot_ocupado()
 	_montar_slots()
 	_pintar_slots()
-	if _party:
-		_on_dps_alterado(_party.dps_grupo(), _party.dano_total_grupo())
 
 
 func _on_formacao_pressed() -> void:
@@ -110,8 +105,3 @@ func _pintar_slots() -> void:
 		var classe: Variant = _party.equipe_ativa[slot] if _party else null
 		if classe is ClasseData:
 			botao.add_theme_color_override("font_color", (classe as ClasseData).cor.lightened(0.35))
-
-
-func _on_dps_alterado(dps: float, dano_grupo: int) -> void:
-	if label_dps_equipe:
-		label_dps_equipe.text = "DPS do grupo: %.1f   |   Dano/hit: %d" % [dps, dano_grupo]

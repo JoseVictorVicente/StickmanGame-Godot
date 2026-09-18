@@ -58,6 +58,8 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var barra_xp_personagem: ProgressBar = %BarraXpPersonagem
 @onready var label_xp_personagem: Label = %LabelXpPersonagem
 @onready var botao_atributos_personagem: Button = %BotaoAtributosPersonagem
+@onready var secao_heroi_visual: OffsetVisualSecao = %SecaoHeroiVisual
+@onready var host_botao_formacao: OffsetVisualSecao = %HostBotaoFormacao
 @onready var ui_equipe: UiSelecaoEquipe = %AreaEquipe
 @onready var area_menus: Control = %AreaMenus
 @onready var painel_ferraria: Ferraria = %PainelFerraria
@@ -110,6 +112,8 @@ var _menus_abaixo: bool = false
 var _progresso_arvore := ProgressoArvore.new()
 var consultar_ouro: Callable
 var consultar_progresso_slot: Callable
+
+@export var layout_inventario: LayoutInventario = preload("res://inventario/layout_inventario_padrao.tres")
 
 const TEXTO_SLOT_SKILL_VAZIO := "+"
 const TAMANHO_SLOT_SKILL := Vector2(48, 48)
@@ -186,6 +190,7 @@ func _ready() -> void:
 	_restaurar_painel_base()
 	call_deferred("definir_abaixo_do_combate", _menus_abaixo)
 	call_deferred("_alinhar_paineis_laterais")
+	call_deferred("_aplicar_layout_heroi")
 
 
 func _criar_equipamentos_dos_personagens() -> void:
@@ -417,6 +422,15 @@ func _alinhar_paineis_laterais() -> void:
 	LayoutPaineis.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos, painel_skills, painel_arvore)
 	_alinhar_configuracoes()
 	largura_menus_alterada.emit()
+	call_deferred("_aplicar_layout_heroi")
+
+
+func _aplicar_layout_heroi() -> void:
+	var layout := layout_inventario if layout_inventario else LayoutInventario.new()
+	if secao_heroi_visual:
+		secao_heroi_visual.definir_offset(layout.offset_regiao_retrato)
+	if host_botao_formacao:
+		host_botao_formacao.definir_offset(layout.offset_botao_formacao)
 
 
 func _restaurar_painel_base() -> void:
@@ -906,6 +920,7 @@ func _atualizar_barra_xp(xp: int = -1, xp_proximo: int = -1) -> void:
 
 func configurar_equipe(party: PartyManager) -> void:
 	ui_equipe.configurar(party, _indice_personagem)
+	call_deferred("_aplicar_layout_heroi")
 	if not ui_equipe.slot_selecionado.is_connected(selecionar_personagem):
 		ui_equipe.slot_selecionado.connect(selecionar_personagem)
 	if not ui_equipe.classe_atribuida.is_connected(_on_classe_atribuida):

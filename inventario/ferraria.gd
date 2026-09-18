@@ -14,8 +14,7 @@ const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
 const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
-const FORJA_GRID_RECT := Rect2(0.211, 0.200, 0.581, 0.356)
-const FORJA_GRID_INSET := 0.04
+const GRADE_MARGEM := 0.08
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
 const Z_INDEX_LEGENDA_INFO := 100
@@ -51,7 +50,6 @@ const JOIAS_LARGURA_SETA := 32.0
 @onready var label_explicacao_joias: Label = %LabelExplicacaoJoias
 @onready var label_valor_desmonte: Label = %LabelValorDesmonte
 @onready var cabecalho: HBoxContainer = %CabecalhoFerraria
-@onready var forge_background: TextureRect = %ForgeBackground
 @onready var corpo_ferraria: Control = %CorpoFerraria
 var _menu: MenuInventario
 var _slots: Array[SlotItem] = []
@@ -106,7 +104,6 @@ func _ready() -> void:
 		painel_desmontar.resized.connect(_alinhar_fundo_na_forja)
 	if painel_joias:
 		painel_joias.resized.connect(_alinhar_fundo_na_forja)
-	_carregar_fundo_forja()
 
 
 func configurar(menu: MenuInventario) -> void:
@@ -359,7 +356,6 @@ func abrir() -> void:
 	if _menu == null or not _menu.visible:
 		return
 	show()
-	_carregar_fundo_forja()
 	_atualizar_estado()
 	_atualizar_desmonte()
 	_atualizar_fundo_forja()
@@ -463,9 +459,6 @@ func _on_visibilidade_alterada() -> void:
 
 
 func _atualizar_fundo_forja() -> void:
-	if forge_background == null:
-		return
-	forge_background.visible = true
 	grade_sintese.visible = _aba == Aba.SINTESE
 	grade_desmontar.visible = _aba == Aba.DESMONTAR
 	if area_joias:
@@ -495,25 +488,16 @@ func _painel_aba_atual() -> VBoxContainer:
 
 
 func _alinhar_fundo_na_forja() -> void:
-	if forge_background == null or corpo_ferraria == null:
-		return
-	if forge_background.texture == null:
+	if corpo_ferraria == null:
 		return
 	var painel := _painel_aba_atual()
 	if painel and painel.visible:
 		var altura_controles := painel.get_combined_minimum_size().y
 		if altura_controles > 0.0:
 			painel.offset_top = -altura_controles
-	var fundo_rect := _rect_textura_visivel(forge_background)
-	if fundo_rect.size.x < 1.0 or fundo_rect.size.y < 1.0:
+	var alvo := _rect_area_grade()
+	if alvo.size.x < 1.0 or alvo.size.y < 1.0:
 		return
-	var alvo := Rect2(
-		fundo_rect.position - corpo_ferraria.global_position + fundo_rect.size * FORJA_GRID_RECT.position,
-		fundo_rect.size * FORJA_GRID_RECT.size
-	)
-	var margem := alvo.size * FORJA_GRID_INSET
-	alvo.position += margem
-	alvo.size -= margem * 2.0
 	if _aba == Aba.JOIAS:
 		_alinhar_area_joias(alvo)
 		return
@@ -535,6 +519,21 @@ func _alinhar_fundo_na_forja() -> void:
 		return
 	grade.position = alvo.position + (alvo.size - tam_grade) * 0.5
 	grade.size = tam_grade
+
+
+func _rect_area_grade() -> Rect2:
+	var tam := corpo_ferraria.size
+	if tam.x < 1.0 or tam.y < 1.0:
+		return Rect2()
+	var painel := _painel_aba_atual()
+	var altura_baixo := 0.0
+	if painel and painel.visible:
+		altura_baixo = painel.get_combined_minimum_size().y
+	var area := Rect2(Vector2.ZERO, Vector2(tam.x, maxf(1.0, tam.y - altura_baixo)))
+	var inset := area.size * GRADE_MARGEM
+	area.position += inset
+	area.size -= inset * 2.0
+	return area
 
 
 func _alinhar_area_joias(alvo: Rect2) -> void:
@@ -673,49 +672,6 @@ func _atualizar_estado_joias() -> void:
 		)
 	elif slot_joia_alvo == null or slot_joia_gema == null or (slot_joia_alvo.item == null and slot_joia_gema.item == null):
 		_definir_status_joias(TEXTO_JOIAS, Color(0.72, 0.66, 0.52, 1))
-
-
-func _rect_textura_visivel(tex: TextureRect) -> Rect2:
-	var global_rect := tex.get_global_rect()
-	var textura := tex.texture
-	if textura == null:
-		return global_rect
-	var tex_size := textura.get_size()
-	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
-		return global_rect
-	var escala_x := global_rect.size.x / tex_size.x
-	var escala_y := global_rect.size.y / tex_size.y
-	var usar_cover := tex.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var escala := maxf(escala_x, escala_y) if usar_cover else minf(escala_x, escala_y)
-	var desenhado := tex_size * escala
-	var offset := Vector2(
-		(global_rect.size.x - desenhado.x) * 0.5,
-		global_rect.size.y - desenhado.y
-	)
-	return Rect2(global_rect.position + offset, desenhado)
-
-
-func _carregar_fundo_forja() -> void:
-	if forge_background == null:
-		return
-	forge_background.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var caminhos: Array[String] = [
-		"res://assets/ui/fundo_forja.png",
-		"res://sprites/ui/fundo_forja.png",
-	]
-	for caminho in caminhos:
-		var absoluto := ProjectSettings.globalize_path(caminho)
-		var imagem := Image.load_from_file(absoluto)
-		if imagem != null and imagem.get_width() > 1:
-			forge_background.texture = ImageTexture.create_from_image(imagem)
-			_atualizar_fundo_forja()
-			return
-		if ResourceLoader.exists(caminho):
-			var recurso: Resource = ResourceLoader.load(caminho)
-			if recurso is Texture2D:
-				forge_background.texture = recurso
-				_atualizar_fundo_forja()
-				return
 
 
 func _estilo_slot_forja() -> StyleBoxFlat:

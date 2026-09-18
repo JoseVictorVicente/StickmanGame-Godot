@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://c8ferraria01"]
+[gd_scene load_steps=4 format=3 uid="uid://c8ferraria01"]
 
 [ext_resource type="Script" uid="uid://dxep2fv4y12m4" path="res://inventario/ferraria.gd" id="1_ferraria"]
-[ext_resource type="Texture2D" path="res://assets/ui/fundo_forja.png" id="2_fundo_forja"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="2_fundo_mundos"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 19.0
+content_margin_bottom = 20.0
+texture = ExtResource("2_fundo_mundos")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 19.0
+texture_margin_bottom = 20.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 12.0
@@ -90,11 +101,11 @@ custom_minimum_size = Vector2(300, 0)
 layout_mode = 3
 anchors_preset = 0
 size_flags_vertical = 3
-clip_contents = false
+clip_contents = true
 mouse_filter = 0
 script = ExtResource("1_ferraria")
 
-[node name="FundoBase" type="ColorRect" parent="."]
+[node name="FundoPainel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -102,17 +113,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.08, 0.07, 0.07, 1)
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
 
 [node name="Conteudo" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = 21.0
+offset_top = 19.0
+offset_right = -19.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 clip_contents = false
@@ -190,20 +201,6 @@ text = "Joias"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="ForgeBackground" type="TextureRect" parent="Conteudo/CorpoFerraria"]
-unique_name_in_owner = true
-z_index = 0
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_fundo_forja")
-expand_mode = 1
-stretch_mode = 5
 
 [node name="GradeSintese" type="GridContainer" parent="Conteudo/CorpoFerraria"]
 unique_name_in_owner = true
@@ -342,7 +339,7 @@ custom_minimum_size = Vector2(0, 28)
 [node name="LabelValorDesmonte" type="Label" parent="Conteudo/CorpoFerraria/PainelDesmontar/LinhaValorDesmonte"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 13
 text = "Valor: 0 ouro"
 horizontal_alignment = 1

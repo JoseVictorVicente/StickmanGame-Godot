@@ -1,25 +1,18 @@
-[gd_scene format=3 uid="uid://c8arma0em01"]
+[gd_scene load_steps=7 format=3 uid="uid://c8arma0em01"]
 
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://inventario/armazem.gd" id="1_armazem"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="2_fundo_mundos"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-bg_color = Color(0.11, 0.09, 0.08, 0.97)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.62, 0.5, 0.28, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 8
-shadow_offset = Vector2(0, 4)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 19.0
+content_margin_bottom = 20.0
+texture = ExtResource("2_fundo_mundos")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 19.0
+texture_margin_bottom = 20.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 12.0
@@ -90,7 +83,8 @@ visible = false
 custom_minimum_size = Vector2(252, 0)
 size_flags_vertical = 3
 mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+clip_contents = true
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
 script = ExtResource("1_armazem")
 
 [node name="Conteudo" type="VBoxContainer" parent="."]

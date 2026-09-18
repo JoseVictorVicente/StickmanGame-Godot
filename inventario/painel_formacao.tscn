@@ -1,25 +1,18 @@
 [gd_scene format=3 uid="uid://c8formacao01"]
 
 [ext_resource type="Script" path="res://inventario/painel_formacao.gd" id="1_formacao"]
+[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/fundo_painel.png" id="2_fundo_painel"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_painel"]
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-bg_color = Color(0.11, 0.09, 0.08, 0.97)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.62, 0.5, 0.28, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-shadow_color = Color(0, 0, 0, 0.55)
-shadow_size = 8
-shadow_offset = Vector2(0, 4)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 18.0
+content_margin_bottom = 20.0
+texture = ExtResource("2_fundo_painel")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 18.0
+texture_margin_bottom = 20.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 12.0
@@ -123,7 +116,7 @@ custom_minimum_size = Vector2(580, 0)
 size_flags_vertical = 3
 mouse_filter = 0
 clip_contents = true
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_painel")
 script = ExtResource("1_formacao")
 
 [node name="Conteudo" type="VBoxContainer" parent="."]
