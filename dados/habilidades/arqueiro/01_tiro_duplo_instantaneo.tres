@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "tiro_duplo_instantaneo"
-skill_name = "Tiro Duplo Instantaneo"
+skill_name = "Tiro Duplo Instantâneo"
 description = "Executa dois disparos rapidos consecutivos com 200% de dano critico."
 type = 0
 cooldown = 5

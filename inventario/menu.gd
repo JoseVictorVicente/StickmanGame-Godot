@@ -955,14 +955,12 @@ func _atualizar_slots_skills_principal() -> void:
 func _aplicar_texto_slot_skill(botao: Button, skill: SkillResource) -> void:
 	if botao == null:
 		return
-	botao.custom_minimum_size = TAMANHO_SLOT_SKILL
-	botao.expand_icon = true
 	if skill == null:
 		botao.text = TEXTO_SLOT_SKILL_VAZIO
-		botao.icon = null
+		IconesSkill.aplicar_no_botao(botao, null, TAMANHO_SLOT_SKILL)
 	else:
 		botao.text = ""
-		botao.icon = skill.obter_icone()
+		IconesSkill.aplicar_no_botao(botao, skill, TAMANHO_SLOT_SKILL)
 
 
 func _on_slot_skill_principal_pressionado(tipo: SkillResource.Type, indice_slot: int) -> void:

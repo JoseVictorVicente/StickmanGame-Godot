@@ -156,6 +156,8 @@ static func _posicionar() -> void:
 
 
 static func _deve_abrir_esquerda(controle: Control, slot_rect: Rect2) -> bool:
+	if _esta_em_coluna_esquerda(controle):
+		return false
 	if _esta_em_coluna_direita(controle):
 		return true
 	var hud := _obter_retangulo_hud(controle)
@@ -164,11 +166,23 @@ static func _deve_abrir_esquerda(controle: Control, slot_rect: Rect2) -> bool:
 	return slot_rect.get_center().x >= hud.position.x + hud.size.x * 0.5
 
 
+static func _esta_em_coluna_esquerda(controle: Control) -> bool:
+	var no: Node = controle
+	while no:
+		var nome := str(no.name)
+		if nome == "ColunaAtivas" or nome == "ColunaEquipAtivas":
+			return true
+		if nome.begins_with("EquipEsq_"):
+			return true
+		no = no.get_parent()
+	return false
+
+
 static func _esta_em_coluna_direita(controle: Control) -> bool:
 	var no: Node = controle
 	while no:
 		var nome := str(no.name)
-		if nome == "ColunaPassivas" or nome == "ColunaAtivas" or nome == "ColunaEquipPassivas":
+		if nome == "ColunaPassivas" or nome == "ColunaEquipPassivas":
 			return true
 		if nome.begins_with("EquipDir_"):
 			return true

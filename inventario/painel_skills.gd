@@ -135,7 +135,6 @@ func _criar_botao_slot_equipado(nome: String, indice: int, ativo: bool) -> Butto
 	botao.name = nome
 	botao.custom_minimum_size = TAMANHO_SLOT_EQUIPADO
 	botao.text = TEXTO_SLOT_VAZIO
-	botao.expand_icon = true
 	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	botao.add_theme_font_size_override("font_size", 10)
 	botao.set_meta("slot_equipado_ativo", ativo)
@@ -268,12 +267,12 @@ func _configurar_slot_disponivel(slot: Button, skill: SkillResource, classe_id: 
 	slot.set_meta("skill", skill)
 	if skill == null:
 		slot.text = ""
-		slot.icon = null
+		IconesSkill.aplicar_no_botao(slot, null, TAMANHO_SLOT_HABILIDADE)
 		slot.disabled = true
 		_pintar_slot_disponivel(slot, false)
 	else:
 		slot.text = ""
-		slot.icon = skill.obter_icone()
+		IconesSkill.aplicar_no_botao(slot, skill, TAMANHO_SLOT_HABILIDADE)
 		slot.disabled = false
 		_pintar_slot_disponivel(slot, HeroEquipment.is_equipped(classe_id, skill))
 
@@ -281,10 +280,10 @@ func _configurar_slot_disponivel(slot: Button, skill: SkillResource, classe_id: 
 func _atualizar_texto_slot(botao: Button, skill: SkillResource) -> void:
 	if skill == null:
 		botao.text = TEXTO_SLOT_VAZIO
-		botao.icon = null
+		IconesSkill.aplicar_no_botao(botao, null, TAMANHO_SLOT_EQUIPADO)
 	else:
 		botao.text = ""
-		botao.icon = skill.obter_icone()
+		IconesSkill.aplicar_no_botao(botao, skill, TAMANHO_SLOT_EQUIPADO)
 
 
 func _on_heroi_slot_pressionado(indice: int) -> void:
@@ -311,7 +310,8 @@ func _on_habilidade_disponivel_pressionada(slot: Button) -> void:
 	if not (skill is SkillResource):
 		return
 	var slot_alvo := _slot_ativo_selecionado if skill.type == SkillResource.Type.ACTIVE else _slot_passivo_selecionado
-	HeroEquipment.equip_skill(classe_id, skill, slot_alvo)
+	if HeroEquipment.equip_skill(classe_id, skill, slot_alvo) and _menu and _menu.has_method("_atualizar_slots_skills_principal"):
+		_menu._atualizar_slots_skills_principal()
 
 
 func _pintar_heroi(botao: Button, selecionado: bool) -> void:
