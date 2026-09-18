@@ -1,0 +1,40 @@
+---
+description: Data layer — Resources, schemas, no Nodes or autoloads
+globs: "data/**"
+alwaysApply: false
+---
+
+# Data / Resources
+
+Applies to `data/` (including `data/skills/`).
+
+## Ownership
+
+- `Resource` scripts: `ItemData`, `SkillResource`, `ClasseData`
+- Static `.tres` skill definitions under `data/skills/<class>/`
+- Progression curves and schemas (`WorldProgress`, `SkillTreeDefinition` catalogs)
+
+## Must NOT
+
+- `extends Node` or scene references
+- Autoload singletons
+- Direct UI strings without i18n keys (prefer `name_key` / `description_key` for new content)
+- Side effects on load (no file I/O in `_init`)
+
+## Resource conventions
+
+- `@export` fields for designer-editable data
+- `class_name` on all reusable resources
+- Skill files: `NN_slug.tres`, passive prefix `pNN_`
+- Icon paths: `res://sprites/ui/skills/<class>/<skill_id>.png`
+
+## Catalog registration
+
+- Skills: auto-loaded from folder by `HeroEquipment`
+- Items: templates in `ItemDatabase._popular_catalogo()` (moving to `.tres` templates later)
+
+## Docs
+
+- `docs/conventions/scenes-and-resources.md`
+- `docs/workflows/add-skill.md`
+- `docs/workflows/add-item.md`

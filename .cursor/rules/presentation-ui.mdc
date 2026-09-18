@@ -1,0 +1,41 @@
+---
+description: Presentation layer — HUD, menus, tr(), no game economy logic
+globs: "presentation/**"
+alwaysApply: false
+---
+
+# Presentation / UI
+
+Applies to `presentation/` (shared, combat, inventory, worlds).
+
+## Ownership
+
+- Layout, themes, animations, input handling
+- Binding labels to domain state via signals or GameState
+- Window overlay behavior (`window_manager.gd` / `gerenciador_janela.gd`)
+- All visible strings through `tr("KEY")`
+
+## Must NOT
+
+- Implement combat damage formulas
+- Grant/spend gold without signaling to core/GameState
+- Serialize save directly — request save via service
+- Embed business rules in button handlers beyond "emit signal / call service"
+
+## Patterns
+
+- `@onready` references only within same scene tree
+- Subpanels: `visibility_changed` signal when opening/closing
+- Drag-drop UI delegates validation to inventory domain
+- Click-through rects: expose `get_clickable_rects()` for window manager
+
+## Overlay
+
+- Test with Embed Game **disabled**
+- Coordinate width changes with `window_manager.ajustar_largura`
+
+## Docs
+
+- `docs/architecture/overlay-desktop.md`
+- `docs/conventions/i18n.md`
+- `presentation/AGENTS.md` (when present)

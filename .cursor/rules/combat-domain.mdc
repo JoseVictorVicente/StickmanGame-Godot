@@ -1,0 +1,37 @@
+---
+description: Combat domain rules — party, idle loop, drops, skill runtime
+globs: "domains/combat/**"
+alwaysApply: false
+---
+
+# Combat Domain
+
+Applies to `domains/combat/` and `presentation/combat/`.
+
+## Ownership
+
+- Party composition and per-hero timers (`PartyService` / `PartyService`)
+- Combat controller: enemy HP, death/defeat resolution, phase advance (`CombatController`)
+- Drop rules: gold variance, item chance (`DropManager`)
+- Skill runtime handlers (`habilidades/*`)
+
+## Must NOT
+
+- Import or `get_node` UI (`Label`, `ProgressBar`, inventory menus)
+- Mutate `main.ouro` or inventory grids directly
+- Write save files — emit `precisa_salvar` / `save_requested`
+
+## Contracts
+
+- Inject equipment/level/tree bonuses via `Callable` on party, not global menu lookups
+- Signals: `hero_attacked` / `heroi_atacou`, `gold_earned`, `item_dropped`, `hud_refresh`
+- Pause combat with `combate_pausado` during async death/defeat
+
+## Enemy stats
+
+Always from `WorldProgress.stats_inimigo(mundo, fase, dificuldade)` — do not hardcode HP/gold.
+
+## Docs
+
+- `docs/architecture/combat.md`
+- `docs/architecture/progression.md` (enemy curves)

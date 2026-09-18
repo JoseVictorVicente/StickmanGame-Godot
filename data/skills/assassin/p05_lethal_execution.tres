@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "lethal_execution"
+skill_name = "Lethal Execution"
+description = "Ataques em alvos abaixo de 15% da vida maxima tem chance de causar execucao instantanea (exceto em chefes de fase)."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/assassin/lethal_execution.png"
+sort_order = 5
+stat_value = 0.0

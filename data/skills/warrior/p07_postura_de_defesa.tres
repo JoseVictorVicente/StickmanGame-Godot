@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "postura_de_defesa"
+skill_name = "Postura de Defesa"
+description = "Ganha 10% de armadura extra enquanto estiver com menos de 50% de vida."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/warrior/postura_de_defesa.png"
+sort_order = 7
+stat_value = 0.0

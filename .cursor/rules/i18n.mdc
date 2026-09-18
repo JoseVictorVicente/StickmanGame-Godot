@@ -1,0 +1,43 @@
+---
+description: i18n rules for presentation UI and locale files
+globs:
+  - "presentation/**"
+  - "locales/**"
+alwaysApply: false
+---
+
+# i18n Rules
+
+## Player-visible text
+
+In `presentation/` and locale files:
+
+- Use `tr("MODULE_KEY")` for every label, button, tooltip, toast
+- Keys: `SCREAMING_SNAKE` with module prefix (`INV_`, `COMBAT_`, `TREE_`)
+- Add entries to both `locales/pt_BR.po` and `locales/en.po`
+
+## Do not
+
+- Hardcode Portuguese or English in `label.text = "..."` in presentation code
+- Split translatable sentences across concatenated strings
+- Put `tr()` inside domain/combat logic — domain returns keys or codes; UI translates
+
+## Dynamic content
+
+Items and skills may still use literal `nome` / `skill_name` from resources during migration. New resources should add `name_key` / `description_key` fields when possible.
+
+## Parameters
+
+```gdscript
+tr("COMBAT_WORLD_UNLOCKED") % world_id
+```
+
+Define full sentence in each `.po` file; keep `%` placeholder order identical across locales.
+
+## Testing
+
+Switch project locale to `en` and verify no truncated labels in inventory and tree panels.
+
+## Docs
+
+- `docs/conventions/i18n.md`

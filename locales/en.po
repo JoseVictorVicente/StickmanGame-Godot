@@ -1,0 +1,88 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"
+
+msgid "UI_GOLD"
+msgstr "Gold"
+
+msgid "UI_INVENTORY_TITLE"
+msgstr "Inventory"
+
+msgid "UI_TEAM_DEFEATED"
+msgstr "Team defeated!"
+
+msgid "UI_INVENTORY_FULL"
+msgstr "Inventory full!"
+
+msgid "UI_DROP_PREFIX"
+msgstr "Drop: %s"
+
+msgid "UI_REPEAT_STAGE"
+msgstr "Repeat current stage"
+
+msgid "UI_ADVANCE_STAGE"
+msgstr "Advance to next stage"
+
+msgid "UI_DPS_FORMAT"
+msgstr "DPS %.1f"
+
+msgid "UI_LEVEL_FORMAT"
+msgstr "Lv.%d  %d/%d"
+
+msgid "COMBAT_DIFFICULTY_UNLOCKED"
+msgstr "%s unlocked!"
+
+msgid "COMBAT_HELL_COMPLETED"
+msgstr "Hell completed!"
+
+msgid "COMBAT_WORLD_UNLOCKED"
+msgstr "World %d unlocked!"
+
+msgid "DIFFICULTY_EASY"
+msgstr "Easy"
+
+msgid "DIFFICULTY_HARD"
+msgstr "Hard"
+
+msgid "DIFFICULTY_HELL"
+msgstr "Hell"
+
+msgid "SETTINGS_TITLE"
+msgstr "Settings"
+
+msgid "SETTINGS_VOLUME"
+msgstr "Volume"
+
+msgid "SETTINGS_VOLUME_PERCENT"
+msgstr "%d%%"
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Language"
+
+msgid "SETTINGS_LOCALE_PT"
+msgstr "Portuguese (Brazil)"
+
+msgid "SETTINGS_LOCALE_EN"
+msgstr "English"
+
+msgid "CLASS_WARRIOR"
+msgstr "Warrior"
+
+msgid "CLASS_MAGE"
+msgstr "Mage"
+
+msgid "CLASS_ARCHER"
+msgstr "Archer"
+
+msgid "CLASS_ASSASSIN"
+msgstr "Assassin"
+
+msgid "CLASS_TANK"
+msgstr "Tank"
+
+msgid "CLASS_PRIEST"
+msgstr "Priest"
+
+msgid "UI_EMPTY_SLOT"
+msgstr "Empty"

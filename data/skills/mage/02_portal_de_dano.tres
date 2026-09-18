@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "portal_de_dano"
+skill_name = "Portal de Dano"
+description = "Dispara um raio continuo de 1 segundo direto do cajado."
+type = 0
+cooldown = 16
+icon_path = "res://sprites/ui/skills/mage/portal_de_dano.png"
+sort_order = 2
+stat_value = 0.0

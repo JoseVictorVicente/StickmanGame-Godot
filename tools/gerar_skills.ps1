@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
-$out = Join-Path $root "dados\habilidades"
+$out = Join-Path $root "data\skills"
 $activeCooldowns = @(5.0, 16.0, 6.0, 10.0, 12.0)
 
 function Slugify([string]$text) {
@@ -23,7 +23,7 @@ function Write-SkillTres($path, $skillId, $name, $desc, $type, $cooldown, $sortO
     $content = @"
 [gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
 
 [resource]
 script = ExtResource("1_skill")

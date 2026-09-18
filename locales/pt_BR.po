@@ -1,0 +1,88 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pt_BR\n"
+
+msgid "UI_GOLD"
+msgstr "Ouro"
+
+msgid "UI_INVENTORY_TITLE"
+msgstr "Inventário"
+
+msgid "UI_TEAM_DEFEATED"
+msgstr "Equipe derrotada!"
+
+msgid "UI_INVENTORY_FULL"
+msgstr "Inventário cheio!"
+
+msgid "UI_DROP_PREFIX"
+msgstr "Drop: %s"
+
+msgid "UI_REPEAT_STAGE"
+msgstr "Repetir a fase atual"
+
+msgid "UI_ADVANCE_STAGE"
+msgstr "Avançar para a próxima fase"
+
+msgid "UI_DPS_FORMAT"
+msgstr "DPS %.1f"
+
+msgid "UI_LEVEL_FORMAT"
+msgstr "Nv.%d  %d/%d"
+
+msgid "COMBAT_DIFFICULTY_UNLOCKED"
+msgstr "%s liberado!"
+
+msgid "COMBAT_HELL_COMPLETED"
+msgstr "Inferno concluído!"
+
+msgid "COMBAT_WORLD_UNLOCKED"
+msgstr "Mundo %d liberado!"
+
+msgid "DIFFICULTY_EASY"
+msgstr "Fácil"
+
+msgid "DIFFICULTY_HARD"
+msgstr "Difícil"
+
+msgid "DIFFICULTY_HELL"
+msgstr "Inferno"
+
+msgid "SETTINGS_TITLE"
+msgstr "Configurações"
+
+msgid "SETTINGS_VOLUME"
+msgstr "Volume"
+
+msgid "SETTINGS_VOLUME_PERCENT"
+msgstr "%d%%"
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Idioma"
+
+msgid "SETTINGS_LOCALE_PT"
+msgstr "Português (Brasil)"
+
+msgid "SETTINGS_LOCALE_EN"
+msgstr "English"
+
+msgid "CLASS_WARRIOR"
+msgstr "Guerreiro"
+
+msgid "CLASS_MAGE"
+msgstr "Mago"
+
+msgid "CLASS_ARCHER"
+msgstr "Arqueiro"
+
+msgid "CLASS_ASSASSIN"
+msgstr "Assassino"
+
+msgid "CLASS_TANK"
+msgstr "Tanque"
+
+msgid "CLASS_PRIEST"
+msgstr "Sacerdote"
+
+msgid "UI_EMPTY_SLOT"
+msgstr "Vazio"

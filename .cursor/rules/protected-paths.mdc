@@ -1,0 +1,36 @@
+---
+description: Protected paths — sprites, user saves, project.godot autoload order
+alwaysApply: true
+---
+
+# Protected Paths
+
+## `sprites/`
+
+- Do NOT bulk-regenerate, replace, or delete art assets
+- Do NOT run image AI over existing sprites without explicit user request
+- OK: add new icons following existing folder layout (`sprites/ui/skills/<class>/`)
+
+## `user://`
+
+- Player save directory — never commit to git
+- Do not change save file path without migration
+- Testing saves: use local `user://` only
+
+## `project.godot`
+
+- Autoload order matters: `AudioManager`, `ItemDatabase`, `SaveSystem`, `HeroEquipment`
+- Change autoload section only with documented reason
+- Display/rendering settings for overlay documented in `docs/architecture/overlay-desktop.md`
+
+## Save version
+
+- `VERSAO_SAVE` / `SAVE_VERSION` bump requires:
+  1. Migration function in save service
+  2. Update `docs/architecture/save-format.md`
+  3. Manual load test from previous version
+
+## Git
+
+- No force-push to `main`
+- Grep legacy `res://` paths before merge when moving files

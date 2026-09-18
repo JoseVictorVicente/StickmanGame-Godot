@@ -1,0 +1,253 @@
+[gd_scene format=3 uid="uid://c8mundos0001"]
+
+[ext_resource type="Script" uid="uid://c8painmun001" path="res://presentation/worlds/worlds_panel.gd" id="1_mundos"]
+[ext_resource type="Script" uid="uid://c8mapafas001" path="res://presentation/worlds/stage_map.gd" id="2_mapa"]
+[ext_resource type="Texture2D" path="res://sprites/environment/forest_map_clean.png" id="3_floresta"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="4_fundo_mundos"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 19.0
+content_margin_bottom = 20.0
+texture = ExtResource("4_fundo_mundos")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 19.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.42, 0.14, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.58, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.74, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.1, 0.08, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.4, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mapa"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_dificuldade"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.11, 0.09, 0.08, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+
+[node name="WorldsPanel" type="PanelContainer"]
+visible = false
+custom_minimum_size = Vector2(280, 0)
+size_flags_vertical = 3
+mouse_filter = 0
+clip_contents = true
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
+script = ExtResource("1_mundos")
+
+[node name="Camada" type="Control" parent="."]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Conteudo" type="VBoxContainer" parent="Camada"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="CabecalhoMundos" type="HBoxContainer" parent="Camada/Conteudo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BotaoVoltarMundos" type="Button" parent="Camada/Conteudo/CabecalhoMundos"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "←"
+
+[node name="BannerTitulo" type="PanelContainer" parent="Camada/Conteudo/CabecalhoMundos"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
+
+[node name="TituloMundos" type="Label" parent="Camada/Conteudo/CabecalhoMundos/BannerTitulo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
+theme_override_font_sizes/font_size = 16
+text = "MUNDOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BotaoFecharMundos" type="Button" parent="Camada/Conteudo/CabecalhoMundos"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "X"
+
+[node name="PainelListaMundos" type="VBoxContainer" parent="Camada/Conteudo"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ListaMundos" type="VBoxContainer" parent="Camada/Conteudo/PainelListaMundos"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="RodapeDificuldade" type="HBoxContainer" parent="Camada/Conteudo/PainelListaMundos"]
+layout_mode = 2
+alignment = 2
+
+[node name="BotaoDificuldade" type="Button" parent="Camada/Conteudo/PainelListaMundos/RodapeDificuldade"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "Fácil"
+
+[node name="PainelStageMap" type="PanelContainer" parent="Camada/Conteudo"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mapa")
+
+[node name="StageMap" type="Control" parent="Camada/Conteudo/PainelStageMap"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+mouse_filter = 0
+script = ExtResource("2_mapa")
+
+[node name="FundoMapa" type="TextureRect" parent="Camada/Conteudo/PainelStageMap/StageMap"]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+texture = ExtResource("3_floresta")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="FundoMenuDificuldade" type="ColorRect" parent="Camada"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.01)
+
+[node name="MenuDificuldade" type="PanelContainer" parent="Camada"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_dificuldade")
+
+[node name="OpcoesDificuldade" type="VBoxContainer" parent="Camada/MenuDificuldade"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4

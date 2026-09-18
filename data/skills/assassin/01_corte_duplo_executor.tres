@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "corte_duplo_executor"
+skill_name = "Corte Duplo Executor"
+description = "Um ataque cruzado em X com as duas adagas. Causa o dobro de dano contra inimigos que estejam com menos de 30% da vida."
+type = 0
+cooldown = 5
+icon_path = "res://sprites/ui/skills/assassin/corte_duplo_executor.png"
+sort_order = 1
+stat_value = 0.0

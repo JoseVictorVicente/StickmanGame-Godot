@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "vontade_de_ferro"
+skill_name = "Vontade de Ferro"
+description = "Ao ficar com menos de 25% de vida, ganha 30% de Velocidade de Ataque e 15% de Roubo de Vida (Lifesteal) por 5 segundos (60 segundos de cooldown)."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/warrior/vontade_de_ferro.png"
+sort_order = 6
+stat_value = 0.0

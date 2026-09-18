@@ -1,0 +1,52 @@
+---
+description: Core project context for Stickman Idle — read AGENTS.md and architecture docs first
+alwaysApply: true
+---
+
+# Stickman Idle — Core Rules
+
+Godot 4.7 idle RPG with transparent desktop overlay. Prioritize repository context over generic training knowledge.
+
+## Required reading (in order)
+
+1. `AGENTS.md`
+2. `docs/KNOWLEDGE_GRAPH.md`
+3. `docs/architecture/overview.md`
+4. Domain doc for your edit area (`combat.md`, `inventory.md`, etc.)
+5. `docs/architecture/save-format.md` if touching persistence
+
+## Target module layout
+
+| Module | Responsibility |
+|--------|----------------|
+| `domains/combat/` | Combat loop, party, drops, skill runtime |
+| `domains/inventory/` | Inventory, equip, forge, warehouse rules |
+| `domains/progression/` | XP, worlds, skill tree, StatCalculator |
+| `presentation/` | HUD, menus, `tr()`, window manager |
+| `core/` | GameState, SaveService, wiring |
+| `data/` | Resources and schemas |
+| `platform/` | Autoloads (audio, item database) |
+
+All code uses English folder and file names (`scenes/`, `domains/`, `data/skills/`, `presentation/`, `platform/`).
+
+## Module boundaries
+
+- Domain code must NOT reference UI nodes.
+- Presentation must NOT implement economy or combat rules.
+- Progression must NOT mutate gold directly — go through GameState/signals.
+- `core/` wires services; avoid feature god-objects.
+
+## Language
+
+- Code: English (functions, signals, files, classes)
+- Player-facing UI: `tr("KEY")` + `locales/*.po`
+- Docs: English
+
+## Save changes
+
+- `SAVE_VERSION` lives in save service (`SAVE_VERSION = 4` today in `core/save_service.gd`)
+- Bump version + migration + update `docs/architecture/save-format.md`
+
+## Minimum playtest after combat/inventory/save changes
+
+See `docs/workflows/playtest-checklist.md`

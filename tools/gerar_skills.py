@@ -6,7 +6,7 @@ import re
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "dados" / "habilidades"
+OUT = ROOT / "data" / "skills"
 
 ACTIVE_COOLDOWNS = [5.0, 16.0, 6.0, 10.0, 12.0]
 
@@ -151,7 +151,7 @@ def write_tres(path: Path, skill_id: str, name: str, desc: str, tipo: int, coold
     icon_path = f"res://sprites/ui/skills/{classe}/{skill_id}.png"
     content = f"""[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://dados/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
 
 [resource]
 script = ExtResource("1_skill")

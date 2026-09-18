@@ -1,0 +1,43 @@
+---
+description: English identifiers for code, scenes, and resource paths in new work
+globs: "**/*.{gd,tscn,tres}"
+alwaysApply: false
+---
+
+# English Code
+
+## Rule
+
+All **new** identifiers must be English:
+
+- Function and variable names
+- Signal names
+- `class_name` declarations
+- New file and folder names under target architecture
+- New `res://` paths (`domains/`, `data/`, `presentation/`)
+
+## Legacy exception
+
+Existing Portuguese API (`coletar_save`, `WindowManager`, `aplicar_save`) remains until refactored. Do not mix English aliases for the same function without migration plan.
+
+When touching legacy files:
+
+- New functions/signals: English
+- Renaming public API: only with save/version or coordinated refactor
+
+## Save keys
+
+v4 save uses English keys (`gold`, `inventory`) with legacy PT aliases on read — see `docs/architecture/save-format.md`.
+
+## Scenes and resources
+
+- New scenes: `inventory_menu.tscn`, not `menu_inventario.tscn`
+- Skill `skill_id` slugs: English preferred for new skills
+- Player-visible text still goes through i18n, not English hardcode in UI
+
+## Docs
+
+All documentation (`docs/`, `README.md`, `AGENTS.md`) is written in **English**. Player-facing UI still uses i18n.
+
+- `docs/conventions/naming.md`
+- `docs/architecture/save-format.md` — save key aliases (v4)

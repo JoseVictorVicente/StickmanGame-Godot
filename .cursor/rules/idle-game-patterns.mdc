@@ -1,0 +1,57 @@
+---
+description: Idle game patterns — timers, offline-safe saves, stat recalc, auto combat loop
+alwaysApply: false
+---
+
+# Idle Game Patterns
+
+Opt-in rules for idle/combat/progression features.
+
+## Auto combat loop
+
+- Heroes attack on independent `Timer` nodes, not frame-based `_process`
+- Enemy attacks on separate timer (`INTERVALO_ATAQUE_INIMIGO ≈ 1.35s`)
+- Target rightmost living hero (`indice_alvo_direita`)
+- Gate all combat actions when `_resolvendo_morte` or `_resolvendo_derrota`
+
+## Stat recalculation
+
+Recalculate on events, not every frame:
+
+- Equipment changed
+- Skill tree node purchased
+- Hero level-up
+- Party composition changed
+
+Flow: `recalcular_atributos()` → `party.recalcular_status()` → HUD refresh signal
+
+## Rewards
+
+- Gold: base × random variance × tree `bonus_ouro`
+- XP: shared to all active party classes × tree `bonus_xp`
+- Items: 30% drop chance, level-scaled via `ItemDatabase`
+- Show coin VFX before applying gold (`efeito_moedas_pedido` then `ouro_ganho`)
+
+## Progression
+
+- World index: `(mundo-1)*9 + fase` drives enemy scaling
+- `repetir_fase` farms current stage but still unlocks `fases_liberadas`
+- Difficulty tiers gate on full completion of previous tier
+
+## Persistence
+
+- Autosave every 30s + on inventory close + on combat milestones
+- Aggregate state in single `collect_save()` dictionary — avoid partial saves from panels
+- v4 will add hero skill equipment persistence
+
+## UX for idle
+
+- Combat runs while inventory open (unless explicitly paused)
+- Transparent overlay: click-through when menus closed
+- Toast/aviso for unlocks (world, difficulty) — prefer i18n keys
+
+## Docs
+
+- `docs/architecture/combat.md`
+- `docs/architecture/progression.md`
+- `docs/workflows/playtest-checklist.md`

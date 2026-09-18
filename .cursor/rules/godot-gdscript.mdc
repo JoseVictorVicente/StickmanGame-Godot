@@ -1,0 +1,45 @@
+---
+description: GDScript style and Godot 4.7 patterns for Stickman Idle
+globs: "**/*.gd"
+alwaysApply: false
+---
+
+# GDScript Rules
+
+## Style
+
+- Typed functions at domain boundaries: `func apply_damage(amount: int) -> bool`
+- `class_name` for reusable services and resources
+- Private members prefixed with `_`
+- Constants: `UPPER_SNAKE_CASE`
+- Doc comment `##` at class top — one line describing responsibility
+
+## File order
+
+signals → enums → const → @export → public vars → private vars → @onready → lifecycle → public API → private helpers
+
+## Nodes vs logic
+
+- `extends RefCounted` for pure logic (`HeroProgress`, `DropManager`)
+- Domain scripts must not call `get_node()` on UI
+- Use signals or injected `Callable` for cross-layer communication
+
+## Async combat patterns
+
+Guard async resolution with flags (`_resolvendo_morte`). Set `party.combate_pausado = true` during death/defeat resolution. Always clear flags after `await`.
+
+## Resources
+
+- Duplicate before mutating dropped items: `modelo.duplicate()`
+- Validate JSON/save data with `is Dictionary` / `is Array` before access
+
+## Performance (idle game)
+
+- Prefer `Timer` per hero/enemy over heavy `_process`
+- Recalculate stats on events only (equip, tree, level-up)
+- Do not allocate per frame in combat hot path
+
+## References
+
+- `docs/conventions/gdscript.md`
+- `docs/conventions/naming.md`

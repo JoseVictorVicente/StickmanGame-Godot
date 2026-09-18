@@ -1,0 +1,44 @@
+---
+description: Inventory domain rules — equip, forge, warehouse, item serialization
+globs: "domains/inventory/**"
+alwaysApply: false
+---
+
+# Inventory Domain
+
+Applies to `domains/inventory/` and `presentation/inventory/`.
+
+## Ownership
+
+- Inventory grid state and slot validation
+- Per-class equipment slots (`serializar_equipamentos`)
+- Warehouse tabs and unlock sync with skill tree
+- Forge rules: synthesis, dismantle, gem imbue (`ForgePanel` logic extracted to domain)
+
+## Must NOT
+
+- Build or style `Control` nodes (that is `presentation/inventory/`)
+- Run combat timers or enemy logic
+- Change gold balance silently — emit `gold_spent` / `gold_earned` or call GameState
+
+## ItemData contract
+
+- Persist via `para_dicionario()` / `de_dicionario()`
+- New fields need defaults in `de_dicionario` and doc update in `save-format.md`
+- Generated drop IDs use unique suffix (`Time.get_ticks_msec()`)
+
+## Equipment rules
+
+- Respect `ItemData.classe_requerida` and `Tipo` per slot
+- Emit `equipamentos_alterados` / `equipment_changed` after valid equip
+- Trigger stat recalc upstream (main/GameState), not inside slot widget
+
+## External services
+
+- `ItemDatabase` for catalog and random generation
+- `SkillTreeProgress` for warehouse unlock indices
+
+## Docs
+
+- `docs/architecture/inventory.md`
+- `docs/workflows/add-item.md`

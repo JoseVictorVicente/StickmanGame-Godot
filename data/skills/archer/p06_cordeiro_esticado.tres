@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "cordeiro_esticado"
+skill_name = "Cordeiro Esticado"
+description = "Reduz a animacao dos disparos frontais, aumentando a Velocidade de Ataque basica em 15%."
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/archer/cordeiro_esticado.png"
+sort_order = 6
+stat_value = 0.0

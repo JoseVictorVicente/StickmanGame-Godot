@@ -1,0 +1,139 @@
+# Inventory and Meta-Progression
+
+The inventory groups equipment per class, item grid, forge (craft), warehouse (extra storage), and panel navigation — all inside `InventoryMenu`.
+
+**Code:** rules in `domains/inventory/`; UI in `presentation/inventory/`.
+
+## InventoryMenu — central hub
+
+`InventoryMenu` is the floating panel opened by the 4-square button. Responsibilities:
+
+| Area | Component | Function |
+|------|-----------|----------|
+| Main grid | `GradeInventario` | 10×5 slots (`ItemSlot`) |
+| Equipment | left/right columns | 12 slots per class |
+| Characters | `GradePersonagens` | 3 tabs (Warrior, Mage, Archer) |
+| Party | `TeamSelectionUI` | Up to 3 active classes (`PartyService`) |
+| Forge | `ForgePanel` | Synthesis, dismantle, gems |
+| Warehouse | `WarehousePanel` | Paginated storage |
+| Worlds | `WorldsPanel` | Stage selection |
+| Skill tree | `SkillTreePanel` | Gold upgrades |
+| Skills | `SkillsPanel` | Skill view/equip |
+
+### Gold
+
+Gold lives in `GameState` (synced from `main`). The menu queries via `consultar_ouro: Callable` and emits:
+
+- `ouro_obtido(quantidade)` — sell, dismantle, etc.
+- `ouro_gasto(quantidade)` — skill tree, forge
+
+**Domain code must not mutate gold directly** — always via signals/callbacks through `GameState`.
+
+## Equipment
+
+### Slots per class
+
+Each `ClassData.id` (e.g. `warrior`, `mage`, `archer`) has a list of `ItemSlot` with `tipo_aceitavel` (`ItemData.Tipo`):
+
+- Left: Primary, Secondary, Helmet, Chest, Gloves, Pants, Boots
+- Right: Belt, Pendant, Ring, Bracelet, Pet
+
+### Rules
+
+- `ItemData.classe_requerida` must match the class.
+- Imbued gems (`gema_imbuida`) persist in `para_dicionario()`.
+- `equipamentos_alterados` → `main.recalcular_atributos()`.
+
+### Query API (combat)
+
+```gdscript
+obter_dano_equipado(slot_index: int) -> int
+obter_vida_equipada(slot_index: int) -> int
+```
+
+Sums `dano_bonus` / `vida_bonus` from items equipped for the party slot's class.
+
+### Serialization
+
+```json
+{
+  "warrior": [
+    {"tipo": 2, "item": { /* ItemData dict */ }},
+    ...
+  ],
+  "mage": [...],
+  ...
+}
+```
+
+Legacy `Array` format (3 fixed entries) still supported in `aplicar_equipamentos`. Save v4 migrates legacy Portuguese class keys (`guerreiro`, `mago`, `arqueiro`) to English IDs.
+
+## Inventory (grid)
+
+- 50 slots; empty = `{}` in serialization.
+- Drag-and-drop via `ItemSlot` (`item_solto`, `item_clicado`).
+- `preencher_item_inicial_se_vazio()` — tutorial item on new save.
+- Sort via `botao_ordenar_inventario`.
+
+## Warehouse (`WarehousePanel`)
+
+- Multiple tabs; first always unlocked.
+- Extra tabs via `ARMAZEM` nodes in the skill tree.
+- Serialization:
+
+```json
+{
+  "desbloqueadas": [true, false, ...],
+  "abas": [[{item}, ...], ...]
+}
+```
+
+Legacy format: flat `Array` = tab 0 only.
+
+## ForgePanel
+
+Three tabs:
+
+| Tab | Mechanic |
+|-----|----------|
+| **Synthesis** | 9 items same rarity/family → 1 higher rarity |
+| **Dismantle** | Item → gold (emits `ouro_obtido`) |
+| **Gems** | Imbue gem into legendary+ gear (`ItemData.imbuir_gema`) |
+
+Optional toggle to consume warehouse items in synthesis.
+
+## ItemData
+
+Central resource (`data/item_data.gd`):
+
+- Types: equipment, accessory, gem.
+- Rarities: Common → Transcendental (11 tiers).
+- Discrete levels: `[5, 10, 15, …, 80]`.
+- Persistence: `para_dicionario()` / `de_dicionario()` with rarity migration.
+
+Catalog and drops: `ItemDatabase` autoload.
+
+## Skills (view/equip)
+
+`SkillsPanel` + `HeroEquipment` autoload:
+
+- 2 active + 2 passive slots per class.
+- Resources in `data/skills/<class>/*.tres`.
+- Equipped loadouts **persist in save v4** via `hero_equipment`.
+
+## Layout and window
+
+- `largura_para_janela()` — expands overlay when sub-panels open.
+- `obter_retangulos_clicaveis()` — hit-test for click-through (`WindowManager`).
+- Menu can open upward/downward based on screen position (`janela_solta`).
+
+## Module boundaries
+
+`domains/inventory/` must **not**:
+
+- Create `Label`/`Button` directly (that is `presentation/`).
+- Call `PartyService` without an interface (prefer signals or injected service).
+
+It may:
+
+- Validate equip, serialize, compute item stats, forge rules.

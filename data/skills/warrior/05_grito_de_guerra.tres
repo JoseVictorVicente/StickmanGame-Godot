@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "grito_de_guerra"
+skill_name = "Grito de Guerra"
+description = "Erguer a espada para cima e emite um pulso de poder que aumenta o Dano Fisico em 20% por 5 segundos."
+type = 0
+cooldown = 12
+icon_path = "res://sprites/ui/skills/warrior/grito_de_guerra.png"
+sort_order = 5
+stat_value = 0.0

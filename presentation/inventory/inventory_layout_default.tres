@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="InventoryLayout" format=3 uid="uid://layoutinv001"]
+
+[ext_resource type="Script" path="res://presentation/inventory/inventory_layout.gd" id="1_layout"]
+
+[resource]
+script = ExtResource("1_layout")
+offset_regiao_retrato = Vector2(0, -12)
+offset_botao_formacao = Vector2(0, -14)
+espaco_retrato_controles = 2.0

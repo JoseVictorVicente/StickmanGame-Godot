@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "sequencia_desperta"
+skill_name = "Sequencia Desperta"
+description = "Ganha um surto imediato de 60% de Velocidade de Ataque que dura exatamente 4 golpes ou 3 segundos."
+type = 0
+cooldown = 10
+icon_path = "res://sprites/ui/skills/assassin/sequencia_desperta.png"
+sort_order = 4
+stat_value = 0.0

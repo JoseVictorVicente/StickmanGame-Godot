@@ -1,0 +1,91 @@
+# Translation template — Stickman Idle
+# Copy new msgid entries to locales/pt_BR.po and locales/en.po
+# Godot loads .po files listed in project.godot [internationalization]
+
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "UI_GOLD"
+msgstr ""
+
+msgid "UI_INVENTORY_TITLE"
+msgstr ""
+
+msgid "UI_TEAM_DEFEATED"
+msgstr ""
+
+msgid "UI_INVENTORY_FULL"
+msgstr ""
+
+msgid "UI_DROP_PREFIX"
+msgstr ""
+
+msgid "UI_REPEAT_STAGE"
+msgstr ""
+
+msgid "UI_ADVANCE_STAGE"
+msgstr ""
+
+msgid "UI_DPS_FORMAT"
+msgstr ""
+
+msgid "UI_LEVEL_FORMAT"
+msgstr ""
+
+msgid "COMBAT_DIFFICULTY_UNLOCKED"
+msgstr ""
+
+msgid "COMBAT_HELL_COMPLETED"
+msgstr ""
+
+msgid "COMBAT_WORLD_UNLOCKED"
+msgstr ""
+
+msgid "DIFFICULTY_EASY"
+msgstr ""
+
+msgid "DIFFICULTY_HARD"
+msgstr ""
+
+msgid "DIFFICULTY_HELL"
+msgstr ""
+
+msgid "SETTINGS_TITLE"
+msgstr ""
+
+msgid "SETTINGS_VOLUME"
+msgstr ""
+
+msgid "SETTINGS_VOLUME_PERCENT"
+msgstr ""
+
+msgid "SETTINGS_LANGUAGE"
+msgstr ""
+
+msgid "SETTINGS_LOCALE_PT"
+msgstr ""
+
+msgid "SETTINGS_LOCALE_EN"
+msgstr ""
+
+msgid "CLASS_WARRIOR"
+msgstr ""
+
+msgid "CLASS_MAGE"
+msgstr ""
+
+msgid "CLASS_ARCHER"
+msgstr ""
+
+msgid "CLASS_ASSASSIN"
+msgstr ""
+
+msgid "CLASS_TANK"
+msgstr ""
+
+msgid "CLASS_PRIEST"
+msgstr ""
+
+msgid "UI_EMPTY_SLOT"
+msgstr ""
