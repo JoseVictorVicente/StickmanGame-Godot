@@ -113,9 +113,9 @@ func _ensure_equipamento(classe_id: String) -> void:
 	}
 
 
-func _create_slots(quantidade: int) -> Array:
+func _create_slots(amount: int) -> Array:
 	var slots: Array = []
-	slots.resize(quantidade)
+	slots.resize(amount)
 	return slots
 
 

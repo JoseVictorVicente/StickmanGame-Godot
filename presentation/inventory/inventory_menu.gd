@@ -8,36 +8,51 @@ signal character_changed(stage_index: int)
 signal equipment_changed
 signal hero_class_changed(stage_index: int, classe: ClassData)
 signal window_released
-signal gold_gained(quantidade: int)
-signal gold_spent(quantidade: int)
+signal gold_gained(amount: int)
+signal gold_spent(amount: int)
 signal skill_tree_changed
 signal menu_width_changed
 signal stage_started(world: int, stage: int, difficulty: int)
 
-const INVENTARIO_COLUNAS := 10
-const INVENTARIO_LINHAS := 5
-const TAMANHO_SLOT := Vector2(38, 38)
+const INVENTORY_COLUMNS := 10
+const INVENTORY_ROWS := 5
+const SLOT_SIZE := Vector2(38, 38)
 const TAMANHO_SLOT_EQUIP := Vector2(40, 40)
 const TAMANHO_SLOT_PERSONAGEM := Vector2(36, 36)
 const EQUIP_COLUNAS := 2
-const EQUIP_ESQUERDA: Array[String] = ["Primária", "Secundária", "Capacete", "Peitoral", "Luva", "Calça", "Bota"]
-const EQUIP_DIREITA: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
+const EQUIP_LEFT_TYPES: Array[ItemData.Type] = [
+	ItemData.Type.WEAPON,
+	ItemData.Type.OFFHAND,
+	ItemData.Type.HELMET,
+	ItemData.Type.CHEST,
+	ItemData.Type.GLOVES,
+	ItemData.Type.PANTS,
+	ItemData.Type.BOOTS,
+]
+const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
+	ItemData.Type.BELT,
+	ItemData.Type.PENDANT,
+	ItemData.Type.RING,
+	ItemData.Type.BRACELET,
+	ItemData.Type.PET,
+]
 const MARGEM_TOPO_UI := 8.0
-const ALTURA_JANELA := 860.0
-const ESPACO_RESERVADO_COMBATE := 320.0
+const WINDOW_HEIGHT := 860.0
+const COMBAT_RESERVED_SPACE := 320.0
 var PERSONAGENS: Array[Dictionary] = [
 	{"nome": "Guerreiro", "classe": ItemData.RequiredClass.WARRIOR},
 	{"nome": "Mago", "classe": ItemData.RequiredClass.MAGE},
 	{"nome": "Arqueiro", "classe": ItemData.RequiredClass.ARCHER},
 ]
+var CLASSES: Array[ClassData] = []
 
-@onready var grade_inventario: GridContainer = %GradeInventario
-@onready var botao_ordenar_inventario: Button = %BotaoOrdenarInventario
-@onready var botao_sair: Button = %BotaoSair
-@onready var botao_sair_jogo: Button = %BotaoSairJogo
-@onready var botao_configuracoes: Button = %BotaoConfiguracoes
-@onready var painel_configuracoes: PanelContainer = %PainelConfiguracoes
-@onready var botao_fechar_config: Button = %BotaoFecharConfig
+@onready var inventory_grid: GridContainer = %InventoryGrid
+@onready var sort_inventory_button: Button = %SortInventoryButton
+@onready var exit_button: Button = %ExitButton
+@onready var quit_game_button: Button = %QuitGameButton
+@onready var settings_button: Button = %SettingsButton
+@onready var settings_panel: PanelContainer = %SettingsPanel
+@onready var close_settings_button: Button = %CloseSettingsButton
 @onready var slider_volume: HSlider = %SliderVolume
 @onready var label_volume_valor: Label = %LabelVolumeValor
 @onready var titulo_config: Label = %TituloConfig
@@ -45,61 +60,46 @@ var PERSONAGENS: Array[Dictionary] = [
 @onready var label_language_title: Label = %LabelLanguageTitle
 @onready var option_locale: OptionButton = %OptionLocale
 @onready var cabecalho: HBoxContainer = %Cabecalho
-@onready var equip_esquerda: VBoxContainer = %EquipEsquerda
-@onready var equip_direita: VBoxContainer = %EquipDireita
+@onready var equip_left: VBoxContainer = %EquipLeft
+@onready var equip_right: VBoxContainer = %EquipRight
 @onready var painel: PanelContainer = %Painel
-@onready var grade_personagens: HBoxContainer = %GradePersonagens
-@onready var nome_personagem: Label = %NomePersonagem
-@onready var nivel_personagem: Label = %NivelPersonagem
-@onready var foto_personagem: TextureRect = %FotoPersonagem
-@onready var linha_card_heroi: HBoxContainer = %LinhaCardHeroi
-@onready var coluna_ativas: VBoxContainer = %ColunaAtivas
-@onready var coluna_passivas: VBoxContainer = %ColunaPassivas
+@onready var character_row: HBoxContainer = %CharacterRow
+@onready var character_name_label: Label = %CharacterNameLabel
+@onready var character_level_label: Label = %CharacterLevelLabel
+@onready var character_portrait: TextureRect = %CharacterPortrait
+@onready var hero_card_row: HBoxContainer = %HeroCardRow
+@onready var active_column: VBoxContainer = %ActiveColumn
+@onready var passive_column: VBoxContainer = %PassiveColumn
 @onready var slot_ativa_0: Button = %SlotSkillMenuAtiva0
 @onready var slot_ativa_1: Button = %SlotSkillMenuAtiva1
 @onready var slot_passiva_0: Button = %SlotSkillMenuPassiva0
 @onready var slot_passiva_1: Button = %SlotSkillMenuPassiva1
-@onready var barra_xp_personagem: ProgressBar = %BarraXpPersonagem
-@onready var label_xp_personagem: Label = %LabelXpPersonagem
-@onready var botao_atributos_personagem: Button = %BotaoAtributosPersonagem
-@onready var secao_heroi_visual: SectionVisualOffset = %SecaoHeroiVisual
-@onready var host_botao_formacao: SectionVisualOffset = %HostBotaoFormacao
-@onready var ui_equipe: TeamSelectionUI = %AreaEquipe
-@onready var area_menus: Control = %AreaMenus
-@onready var painel_ferraria: ForgePanel = %PainelForgePanel
-@onready var painel_armazem: WarehousePanel = %WarehousePanel
-@onready var painel_mundos: WorldsPanel = %WorldsPanel
-@onready var painel_formacao: FormationPanel = %FormationPanel
-@onready var painel_skills: SkillsPanel = %SkillsPanel
-@onready var painel_atributos: AttributesPanel = %AttributesPanel
-@onready var painel_arvore: SkillTreePanel = %SkillTreePanel
+@onready var character_xp_bar: ProgressBar = %CharacterXpBar
+@onready var character_xp_label: Label = %CharacterXpLabel
+@onready var character_attributes_button: Button = %CharacterAttributesButton
+@onready var hero_visual_section: SectionVisualOffset = %HeroVisualSection
+@onready var formation_button_host: SectionVisualOffset = %FormationButtonHost
+@onready var team_ui: TeamSelectionUI = %TeamArea
+@onready var menu_area: Control = %MenuArea
+@onready var forge_panel_node: ForgePanel = %PainelForgePanel
+@onready var warehouse_panel_node: WarehousePanel = %WarehousePanel
+@onready var worlds_panel_node: WorldsPanel = %WorldsPanel
+@onready var formation_panel_node: FormationPanel = %FormationPanel
+@onready var skills_panel_node: SkillsPanel = %SkillsPanel
+@onready var attributes_panel_node: AttributesPanel = %AttributesPanel
+@onready var skill_tree_panel_node: SkillTreePanel = %SkillTreePanel
 @onready var botao_skills: Button = %BotaoSkills
 @onready var botao_inventario: Button = %BotaoInventario
-@onready var botao_ferraria: Button = %BotaoForgePanel
-@onready var botao_armazem: Button = %BotaoArmazem
-@onready var botao_mundo: Button = %BotaoMundo
-@onready var label_ouro: Label = %LabelOuro
-@onready var painel_ouro: Control = %PainelOuro
-@onready var espaco_ouro: Control = %EspacoOuro
-@onready var centralizar: Control = %Centralizar
+@onready var forge_button: Button = %BotaoForgePanel
+@onready var warehouse_button: Button = %WarehouseButton
+@onready var world_button: Button = %WorldButton
+@onready var gold_label: Label = %GoldLabel
+@onready var gold_panel: Control = %GoldPanel
+@onready var gold_spacer: Control = %GoldSpacer
+@onready var center_anchor: Control = %CenterAnchor
 
-const TIPOS_EQUIP: Dictionary = {
-	"Capacete": ItemData.Tipo.CAPACETE,
-	"Peitoral": ItemData.Tipo.PEITORAL,
-	"Luva": ItemData.Tipo.LUVA,
-	"Calça": ItemData.Tipo.CALCA,
-	"Bota": ItemData.Tipo.BOTA,
-	"Cinto": ItemData.Tipo.CINTO,
-	"Primária": ItemData.Tipo.ARMA,
-	"Arma": ItemData.Tipo.ARMA,
-	"Secundária": ItemData.Tipo.SECUNDARIA,
-	"Pingente": ItemData.Tipo.PINGENTE,
-	"Anel": ItemData.Tipo.ANEL,
-	"Bracelete": ItemData.Tipo.BRACELETE,
-	"Pet": ItemData.Tipo.PET,
-}
-
-var CLASSES: Array[ClassData] = []
+const EMPTY_SKILL_SLOT_TEXT := "+"
+const TAMANHO_SLOT_SKILL := Vector2(48, 48)
 
 var _dragging: bool = false
 var _offset_mouse: Vector2i = Vector2i.ZERO
@@ -119,9 +119,6 @@ var query_slot_progress: Callable
 
 @export var layout_inventario: InventoryLayout = preload("res://presentation/inventory/inventory_layout_default.tres")
 
-const TEXTO_SLOT_SKILL_VAZIO := "+"
-const TAMANHO_SLOT_SKILL := Vector2(48, 48)
-
 
 func _ready() -> void:
 	CLASSES = ClassData.catalog()
@@ -129,69 +126,69 @@ func _ready() -> void:
 	_create_inventory_slots()
 	_setup_inventory_sort_button()
 	_create_character_selector()
-	botao_sair.pressed.connect(_on_exit_button_pressed)
-	botao_sair_jogo.pressed.connect(_on_quit_button_pressed)
-	botao_configuracoes.pressed.connect(_on_settings_button_pressed)
-	botao_fechar_config.pressed.connect(_close_settings)
+	exit_button.pressed.connect(_on_exit_button_pressed)
+	quit_game_button.pressed.connect(_on_quit_button_pressed)
+	settings_button.pressed.connect(_on_settings_button_pressed)
+	close_settings_button.pressed.connect(_close_settings)
 	slider_volume.value_changed.connect(_on_volume_changed)
 	_setup_locale_selector()
 	LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
-	botao_configuracoes.icon = _gear_icon()
-	botao_configuracoes.add_theme_constant_override("icon_max_width", 20)
+	settings_button.icon = _gear_icon()
+	settings_button.add_theme_constant_override("icon_max_width", 20)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	painel.gui_input.connect(_on_header_gui_input)
-	painel_ferraria.configure(self)
-	painel_armazem.configure(self)
+	forge_panel_node.configure(self)
+	warehouse_panel_node.configure(self)
 	_sync_warehouse_skill_tree()
-	painel_mundos.configure(self)
-	area_menus.resized.connect(_align_side_panels)
+	worlds_panel_node.configure(self)
+	menu_area.resized.connect(_align_side_panels)
 	painel.resized.connect(_align_side_panels)
-	botao_ferraria.pressed.connect(_on_forge_button_pressed)
-	painel_ferraria.panel_open_changed.connect(_on_forge_visibility_changed)
-	painel_armazem.panel_open_changed.connect(_on_warehouse_visibility_changed)
-	painel_mundos.panel_open_changed.connect(_on_worlds_visibility_changed)
-	painel_mundos.stage_started.connect(_on_stage_started)
-	painel_ferraria.gold_gained.connect(_on_forge_gold_spent)
+	forge_button.pressed.connect(_on_forge_button_pressed)
+	forge_panel_node.panel_open_changed.connect(_on_forge_visibility_changed)
+	warehouse_panel_node.panel_open_changed.connect(_on_warehouse_visibility_changed)
+	worlds_panel_node.panel_open_changed.connect(_on_worlds_visibility_changed)
+	worlds_panel_node.stage_started.connect(_on_stage_started)
+	forge_panel_node.gold_gained.connect(_on_forge_gold_spent)
 	visibility_changed.connect(_on_menu_visibility_changed)
-	if grade_personagens:
-		grade_personagens.visible = false
+	if character_row:
+		character_row.visible = false
 	_store_forge_button_styles()
-	_warehouse_button_styles["normal"] = botao_armazem.get_theme_stylebox("normal").duplicate()
-	_warehouse_button_styles["hover"] = botao_armazem.get_theme_stylebox("hover").duplicate()
-	_warehouse_button_styles["pressed"] = botao_armazem.get_theme_stylebox("pressed").duplicate()
-	_world_button_styles["normal"] = botao_mundo.get_theme_stylebox("normal").duplicate()
-	_world_button_styles["hover"] = botao_mundo.get_theme_stylebox("hover").duplicate()
-	_world_button_styles["pressed"] = botao_mundo.get_theme_stylebox("pressed").duplicate()
-	botao_armazem.pressed.connect(_on_warehouse_button_pressed)
-	botao_mundo.pressed.connect(_on_world_button_pressed)
-	botao_armazem.icon = load("res://sprites/ui/bau.png")
-	botao_armazem.text = ""
-	botao_armazem.expand_icon = true
-	botao_armazem.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	botao_armazem.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
-	botao_armazem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	botao_armazem.add_theme_constant_override("icon_max_width", 52)
-	botao_armazem.tooltip_text = "Armazém"
+	_warehouse_button_styles["normal"] = warehouse_button.get_theme_stylebox("normal").duplicate()
+	_warehouse_button_styles["hover"] = warehouse_button.get_theme_stylebox("hover").duplicate()
+	_warehouse_button_styles["pressed"] = warehouse_button.get_theme_stylebox("pressed").duplicate()
+	_world_button_styles["normal"] = world_button.get_theme_stylebox("normal").duplicate()
+	_world_button_styles["hover"] = world_button.get_theme_stylebox("hover").duplicate()
+	_world_button_styles["pressed"] = world_button.get_theme_stylebox("pressed").duplicate()
+	warehouse_button.pressed.connect(_on_warehouse_button_pressed)
+	world_button.pressed.connect(_on_world_button_pressed)
+	warehouse_button.icon = load("res://sprites/ui/bau.png")
+	warehouse_button.text = ""
+	warehouse_button.expand_icon = true
+	warehouse_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	warehouse_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	warehouse_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	warehouse_button.add_theme_constant_override("icon_max_width", 52)
+	warehouse_button.tooltip_text = tr(LocaleKeys.UI_WAREHOUSE)
 	_apply_bottom_bar_icons()
 	_connect_main_skill_slots()
 	if not HeroEquipment.equipment_changed.is_connected(_on_equipment_skills_changed):
 		HeroEquipment.equipment_changed.connect(_on_equipment_skills_changed)
 	if botao_skills:
 		botao_skills.pressed.connect(_on_skills_button_pressed)
-	if botao_atributos_personagem:
-		botao_atributos_personagem.pressed.connect(_on_attributes_button_pressed)
-	if painel_atributos:
-		painel_atributos.configure(self)
-		if not painel_atributos.panel_open_changed.is_connected(_on_attributes_visibility_changed):
-			painel_atributos.panel_open_changed.connect(_on_attributes_visibility_changed)
-	if painel_arvore:
-		painel_arvore.configure(self)
-		if not painel_arvore.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
-			painel_arvore.panel_open_changed.connect(_on_skill_tree_visibility_changed)
+	if character_attributes_button:
+		character_attributes_button.pressed.connect(_on_attributes_button_pressed)
+	if attributes_panel_node:
+		attributes_panel_node.configure(self)
+		if not attributes_panel_node.panel_open_changed.is_connected(_on_attributes_visibility_changed):
+			attributes_panel_node.panel_open_changed.connect(_on_attributes_visibility_changed)
+	if skill_tree_panel_node:
+		skill_tree_panel_node.configure(self)
+		if not skill_tree_panel_node.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
+			skill_tree_panel_node.panel_open_changed.connect(_on_skill_tree_visibility_changed)
 	botao_inventario.pressed.connect(_on_skill_tree_button_pressed)
-	if painel_ouro:
-		painel_ouro.resized.connect(_align_gold_spacer)
+	if gold_panel:
+		gold_panel.resized.connect(_align_gold_spacer)
 		_align_gold_spacer()
 	call_deferred("_align_gold_spacer")
 	_restore_base_panel()
@@ -202,37 +199,37 @@ func _ready() -> void:
 
 func _create_character_equipment() -> void:
 	for classe in CLASSES:
-		var esquerda := _create_equipment_grid("EquipEsq_%s" % classe.id, EQUIP_ESQUERDA)
+		var esquerda := _create_equipment_grid("EquipEsq_%s" % classe.id, EQUIP_LEFT_TYPES)
 		esquerda.visible = false
-		equip_esquerda.add_child(esquerda)
+		equip_left.add_child(esquerda)
 		_left_equipment_by_class[classe.id] = esquerda
 
-		var direita := _create_equipment_grid("EquipDir_%s" % classe.id, EQUIP_DIREITA)
+		var direita := _create_equipment_grid("EquipDir_%s" % classe.id, EQUIP_RIGHT_TYPES)
 		direita.visible = false
-		equip_direita.add_child(direita)
+		equip_right.add_child(direita)
 		_right_equipment_by_class[classe.id] = direita
 
 
-func _create_equipment_grid(nome_no: String, nomes_slots: Array[String]) -> GridContainer:
+func _create_equipment_grid(nome_no: String, tipos_slots: Array[ItemData.Type]) -> GridContainer:
 	var grade := GridContainer.new()
 	grade.name = nome_no
 	grade.columns = EQUIP_COLUNAS
 	grade.add_theme_constant_override("h_separation", 4)
 	grade.add_theme_constant_override("v_separation", 3)
-	_create_equipment_slots(grade, nomes_slots)
+	_create_equipment_slots(grade, tipos_slots)
 	return grade
 
 
-func _create_equipment_slots(grade: GridContainer, nomes: Array[String]) -> void:
+func _create_equipment_slots(grade: GridContainer, tipos: Array[ItemData.Type]) -> void:
 	grade.columns = EQUIP_COLUNAS
 	var estilo := _create_slot_style()
-	for nome in nomes:
+	for tipo in tipos:
 		var fundo := ItemSlot.new()
-		fundo.name = "Slot%s" % nome.replace(" ", "")
+		fundo.name = "Slot%s" % ItemData.type_display_name(tipo).replace(" ", "")
 		fundo.custom_minimum_size = TAMANHO_SLOT_EQUIP
 		fundo.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		fundo.add_theme_stylebox_override("panel", estilo)
-		fundo.nome_slot = nome
+		fundo.nome_slot = tr(ItemData.equip_slot_label_key(tipo))
 
 		var icone := TextureRect.new()
 		icone.name = "Icone"
@@ -246,7 +243,7 @@ func _create_equipment_slots(grade: GridContainer, nomes: Array[String]) -> void
 		icone.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fundo.add_child(icone)
-		fundo.configure(icone, TIPOS_EQUIP.get(nome, ItemData.Tipo.ARMA), false)
+		fundo.configure(icone, tipo, false)
 		fundo.item_clicked.connect(_on_slot_clicked)
 		fundo.item_double_clicked.connect(_on_slot_double_clicked)
 		fundo.item_right_clicked.connect(_on_slot_right_clicked)
@@ -255,14 +252,14 @@ func _create_equipment_slots(grade: GridContainer, nomes: Array[String]) -> void
 
 
 func _create_inventory_slots() -> void:
-	grade_inventario.columns = INVENTARIO_COLUNAS
+	inventory_grid.columns = INVENTORY_COLUMNS
 	var estilo := _create_slot_style()
-	var total := INVENTARIO_COLUNAS * INVENTARIO_LINHAS
+	var total := INVENTORY_COLUMNS * INVENTORY_ROWS
 
 	for stage_index in total:
 		var slot := ItemSlot.new()
 		slot.name = "SlotInventario_%02d" % (stage_index + 1)
-		slot.custom_minimum_size = TAMANHO_SLOT
+		slot.custom_minimum_size = SLOT_SIZE
 		slot.add_theme_stylebox_override("panel", estilo)
 
 		var icone := TextureRect.new()
@@ -276,12 +273,12 @@ func _create_inventory_slots() -> void:
 		icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.add_child(icone)
-		slot.configure(icone, ItemData.Tipo.ARMA, true)
+		slot.configure(icone, ItemData.Type.WEAPON, true)
 		slot.item_clicked.connect(_on_slot_clicked)
 		slot.item_double_clicked.connect(_on_slot_double_clicked)
 		slot.item_right_clicked.connect(_on_slot_right_clicked)
 		slot.item_dropped.connect(_on_slot_dropped)
-		grade_inventario.add_child(slot)
+		inventory_grid.add_child(slot)
 		_inventory_slot_list.append(slot)
 
 
@@ -298,28 +295,28 @@ func _create_character_selector() -> void:
 		botao.add_theme_stylebox_override("hover", _create_character_style(false))
 		botao.add_theme_stylebox_override("pressed", _create_character_style(true))
 		botao.pressed.connect(select_character.bind(stage_index))
-		grade_personagens.add_child(botao)
+		character_row.add_child(botao)
 		_character_buttons.append(botao)
 	select_character(0)
 
 
 func select_character(stage_index: int) -> void:
-	if ui_equipe and ui_equipe._party:
-		var party: PartyService = ui_equipe._party
+	if team_ui and team_ui._party:
+		var party: PartyService = team_ui._party
 		if stage_index < 0 or stage_index >= PartyService.SLOTS or not (party.active_party[stage_index] is ClassData):
 			stage_index = party.first_occupied_slot()
 	_character_index = stage_index
 	var dados: Dictionary = PERSONAGENS[stage_index]
 	var hero_progress := _progress_for_index(stage_index)
-	nome_personagem.text = str(dados["nome"])
-	nivel_personagem.text = "Lv. %d" % int(hero_progress["nivel"])
+	character_name_label.text = str(dados["nome"])
+	character_level_label.text = tr(LocaleKeys.UI_LEVEL_SHORT) % int(hero_progress["nivel"])
 	_update_xp_bar()
-	if painel_atributos and painel_atributos.is_open():
-		painel_atributos.update()
-	if painel_arvore and painel_arvore.is_open():
-		painel_arvore.update()
-	if ui_equipe:
-		ui_equipe.select_slot(stage_index, false)
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.update()
+	if skill_tree_panel_node and skill_tree_panel_node.is_open():
+		skill_tree_panel_node.update()
+	if team_ui:
+		team_ui.select_slot(stage_index, false)
 	_update_portrait()
 	_update_main_skill_slots()
 
@@ -362,11 +359,11 @@ func get_equipped_items(stage_index: int = -1) -> Array[ItemData]:
 
 
 func update_displayed_level(nivel: int, xp: int = -1, xp_proximo: int = -1) -> void:
-	nivel_personagem.text = "Lv. %d" % nivel
+	character_level_label.text = tr(LocaleKeys.UI_LEVEL_SHORT) % nivel
 	_update_xp_bar(xp, xp_proximo)
 	_sync_party_names()
-	if painel_atributos and painel_atributos.is_open():
-		painel_atributos.update()
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.update()
 
 
 func _progress_for_index(stage_index: int) -> Dictionary:
@@ -378,20 +375,20 @@ func _progress_for_index(stage_index: int) -> Dictionary:
 
 
 func _configure_ui_anchor() -> void:
-	centralizar.set_anchors_preset(Control.PRESET_TOP_WIDE, false)
-	centralizar.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	centralizar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	center_anchor.set_anchors_preset(Control.PRESET_TOP_WIDE, false)
+	center_anchor.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	center_anchor.grow_vertical = Control.GROW_DIRECTION_BEGIN
 
 
 func set_below_combat(abaixo: bool) -> void:
 	_menus_abaixo = abaixo
 	_configure_ui_anchor()
 	if abaixo:
-		centralizar.offset_top = ESPACO_RESERVADO_COMBATE
-		centralizar.offset_bottom = ALTURA_JANELA - MARGEM_TOPO_UI
+		center_anchor.offset_top = COMBAT_RESERVED_SPACE
+		center_anchor.offset_bottom = WINDOW_HEIGHT - MARGEM_TOPO_UI
 	else:
-		centralizar.offset_top = MARGEM_TOPO_UI
-		centralizar.offset_bottom = ALTURA_JANELA - ESPACO_RESERVADO_COMBATE
+		center_anchor.offset_top = MARGEM_TOPO_UI
+		center_anchor.offset_bottom = WINDOW_HEIGHT - COMBAT_RESERVED_SPACE
 	_align_side_panels()
 
 
@@ -399,34 +396,34 @@ func get_clickable_rects() -> Array[Rect2]:
 	if not visible:
 		return []
 	var rects: Array[Rect2] = []
-	if painel_formacao and painel_formacao.visible:
-		rects.append(painel_formacao.get_global_rect().grow(4.0))
-	elif painel_skills and painel_skills.visible:
-		rects.append(painel_skills.get_global_rect().grow(4.0))
-	elif painel_atributos and painel_atributos.visible:
-		rects.append(painel_atributos.get_global_rect().grow(4.0))
-	elif painel_arvore and painel_arvore.visible:
-		rects.append(painel_arvore.get_global_rect().grow(4.0))
+	if formation_panel_node and formation_panel_node.visible:
+		rects.append(formation_panel_node.get_global_rect().grow(4.0))
+	elif skills_panel_node and skills_panel_node.visible:
+		rects.append(skills_panel_node.get_global_rect().grow(4.0))
+	elif attributes_panel_node and attributes_panel_node.visible:
+		rects.append(attributes_panel_node.get_global_rect().grow(4.0))
+	elif skill_tree_panel_node and skill_tree_panel_node.visible:
+		rects.append(skill_tree_panel_node.get_global_rect().grow(4.0))
 	elif painel:
 		rects.append(painel.get_global_rect().grow(4.0))
-	if painel_armazem and painel_armazem.visible:
-		rects.append(painel_armazem.get_global_rect().grow(4.0))
-	if painel_ferraria and painel_ferraria.visible:
-		rects.append(painel_ferraria.get_global_rect().grow(4.0))
-	if painel_mundos and painel_mundos.visible:
-		rects.append(painel_mundos.get_global_rect().grow(4.0))
-	if painel_configuracoes and painel_configuracoes.visible:
-		rects.append(painel_configuracoes.get_global_rect().grow(4.0))
+	if warehouse_panel_node and warehouse_panel_node.visible:
+		rects.append(warehouse_panel_node.get_global_rect().grow(4.0))
+	if forge_panel_node and forge_panel_node.visible:
+		rects.append(forge_panel_node.get_global_rect().grow(4.0))
+	if worlds_panel_node and worlds_panel_node.visible:
+		rects.append(worlds_panel_node.get_global_rect().grow(4.0))
+	if settings_panel and settings_panel.visible:
+		rects.append(settings_panel.get_global_rect().grow(4.0))
 	return rects
 
 
 func width_for_window() -> int:
-	return PanelLayout.largura_janela(painel, painel_armazem, painel_ferraria, painel_mundos, painel_formacao)
+	return PanelLayout.window_width(painel, warehouse_panel_node, forge_panel_node, worlds_panel_node, formation_panel_node)
 
 
 func _align_side_panels() -> void:
 	_restore_base_panel()
-	PanelLayout.alinhar(painel, area_menus, painel_armazem, painel_ferraria, painel_mundos, _menus_abaixo, painel_formacao, painel_atributos, painel_skills, painel_arvore)
+	PanelLayout.align_panel(painel, menu_area, warehouse_panel_node, forge_panel_node, worlds_panel_node, _menus_abaixo, formation_panel_node, attributes_panel_node, skills_panel_node, skill_tree_panel_node)
 	_align_settings()
 	menu_width_changed.emit()
 	call_deferred("_apply_hero_layout")
@@ -434,10 +431,10 @@ func _align_side_panels() -> void:
 
 func _apply_hero_layout() -> void:
 	var layout := layout_inventario if layout_inventario else InventoryLayout.new()
-	if secao_heroi_visual:
-		secao_heroi_visual.set_visual_offset(layout.offset_regiao_retrato)
-	if host_botao_formacao:
-		host_botao_formacao.set_visual_offset(layout.offset_botao_formacao)
+	if hero_visual_section:
+		hero_visual_section.set_visual_offset(layout.offset_regiao_retrato)
+	if formation_button_host:
+		formation_button_host.set_visual_offset(layout.offset_botao_formacao)
 
 
 func _restore_base_panel() -> void:
@@ -468,7 +465,7 @@ func inventory_slots() -> Array[ItemSlot]:
 	return _inventory_slot_list
 
 
-static func ordenar_slots(slots: Array[ItemSlot]) -> void:
+static func sort_slots(slots: Array[ItemSlot]) -> void:
 	var itens: Array[ItemData] = []
 	for slot in slots:
 		if slot.item != null:
@@ -478,7 +475,7 @@ static func ordenar_slots(slots: Array[ItemSlot]) -> void:
 		slots[i].set_item(itens[i] if i < itens.size() else null)
 
 
-static func configurar_botao_icone(botao: Button, caminho_icone: String, lado: int = 42) -> void:
+static func setup_icon_button(botao: Button, caminho_icone: String, lado: int = 42) -> void:
 	if botao == null:
 		return
 	var sem_fundo := StyleBoxEmpty.new()
@@ -498,32 +495,32 @@ static func configurar_botao_icone(botao: Button, caminho_icone: String, lado: i
 
 
 func _setup_inventory_sort_button() -> void:
-	if botao_ordenar_inventario == null:
+	if sort_inventory_button == null:
 		return
-	configurar_botao_icone(botao_ordenar_inventario, "res://sprites/ui/sort_inventory.png")
-	if not botao_ordenar_inventario.pressed.is_connected(_on_inventory_sort_pressed):
-		botao_ordenar_inventario.pressed.connect(_on_inventory_sort_pressed)
+	setup_icon_button(sort_inventory_button, "res://sprites/ui/sort_inventory.png")
+	if not sort_inventory_button.pressed.is_connected(_on_inventory_sort_pressed):
+		sort_inventory_button.pressed.connect(_on_inventory_sort_pressed)
 
 
 func _on_inventory_sort_pressed() -> void:
-	ordenar_slots(_inventory_slot_list)
+	sort_slots(_inventory_slot_list)
 	_set_selection(null)
 	equipment_changed.emit()
-	botao_ordenar_inventario.release_focus()
+	sort_inventory_button.release_focus()
 
 
 func warehouse_slots() -> Array[ItemSlot]:
-	if painel_armazem:
-		return painel_armazem.all_slots()
+	if warehouse_panel_node:
+		return warehouse_panel_node.all_slots()
 	var vazio: Array[ItemSlot] = []
 	return vazio
 
 
 func update_gold(valor: int) -> void:
-	if label_ouro:
-		label_ouro.text = "Ouro  %d" % valor
-	if painel_arvore and painel_arvore.is_open():
-		painel_arvore.update()
+	if gold_label:
+		gold_label.text = tr(LocaleKeys.UI_GOLD_FORMAT) % valor
+	if skill_tree_panel_node and skill_tree_panel_node.is_open():
+		skill_tree_panel_node.update()
 
 
 func get_current_gold() -> int:
@@ -558,7 +555,7 @@ func skill_tree_bonus_for_slot(stage_index: int = -1) -> Dictionary:
 
 
 func _equipped_gem_bonuses(stage_index: int) -> Dictionary:
-	var total := SkillTreeDefinition.bonus_vazio()
+	var total := SkillTreeDefinition.empty_bonus()
 	for item in get_equipped_items(stage_index):
 		var parcial := item.embedded_gem_bonus()
 		for chave in parcial.keys():
@@ -574,18 +571,18 @@ static func _somar_bonus(destino: Dictionary, origem: Dictionary) -> void:
 func notify_skill_tree_changed() -> void:
 	skill_tree_changed.emit()
 	_sync_warehouse_skill_tree()
-	if painel_atributos and painel_atributos.is_open():
-		painel_atributos.update()
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.update()
 	equipment_changed.emit()
 	SaveSystem.save_game()
 
 
 func _align_gold_spacer() -> void:
-	if painel_ouro == null or espaco_ouro == null:
+	if gold_panel == null or gold_spacer == null:
 		return
-	var altura := maxf(painel_ouro.size.y, painel_ouro.get_combined_minimum_size().y)
-	if espaco_ouro.custom_minimum_size.y != altura:
-		espaco_ouro.custom_minimum_size = Vector2(0, altura)
+	var altura := maxf(gold_panel.size.y, gold_panel.get_combined_minimum_size().y)
+	if gold_spacer.custom_minimum_size.y != altura:
+		gold_spacer.custom_minimum_size = Vector2(0, altura)
 
 
 func first_empty_inventory_slot() -> ItemSlot:
@@ -596,8 +593,8 @@ func first_empty_inventory_slot() -> ItemSlot:
 
 
 func first_empty_warehouse_slot() -> ItemSlot:
-	if painel_armazem:
-		return painel_armazem.first_empty_slot()
+	if warehouse_panel_node:
+		return warehouse_panel_node.first_empty_slot()
 	return null
 
 
@@ -625,11 +622,11 @@ func drag_window_from_event(event: InputEvent) -> void:
 func _generate_initial_item() -> void:
 	var espada := ItemData.new()
 	espada.id = "espada_madeira"
-	espada.nome = "Espada de Madeira"
-	espada.tipo = ItemData.Tipo.ARMA
-	espada.raridade = ItemData.Raridade.COMUM
-	espada.nivel_item = ItemData.NIVEIS_ITEM[0]
-	espada.dano_bonus = 5
+	espada.display_name = "Espada de Madeira"
+	espada.item_type = ItemData.Type.WEAPON
+	espada.rarity = ItemData.Rarity.COMMON
+	espada.item_level = ItemData.ITEM_LEVELS[0]
+	espada.damage_bonus = 5
 	espada.required_class = ItemData.RequiredClass.ALL
 	espada.icone = _create_wooden_sword_icon()
 	_inventory_slot_list[0].set_item(espada)
@@ -676,7 +673,7 @@ func _on_slot_double_clicked(slot: ItemSlot) -> void:
 	if slot.aceita_qualquer:
 		if slot.item.is_gem():
 			return
-		var destino := _current_equipment_slot(slot.item.tipo)
+		var destino := _current_equipment_slot(slot.item.item_type)
 		if destino and _can_use_item(slot.item):
 			_move_item(slot, destino)
 			_set_selection(null)
@@ -691,7 +688,7 @@ func _on_slot_right_clicked(slot: ItemSlot) -> void:
 	if slot.item == null:
 		return
 	if _is_forge_slot(slot):
-		painel_ferraria.interact_slot(slot)
+		forge_panel_node.interact_slot(slot)
 		_set_selection(null)
 		equipment_changed.emit()
 		return
@@ -701,14 +698,14 @@ func _on_slot_right_clicked(slot: ItemSlot) -> void:
 			_move_item(slot, vazio_inv)
 			_set_selection(null)
 		return
-	if painel_ferraria.is_open():
-		var destino := painel_ferraria.first_empty_slot()
+	if forge_panel_node.is_open():
+		var destino := forge_panel_node.first_empty_slot()
 		if destino and _can_move_to_slot(slot, destino):
 			_move_item(slot, destino)
 			_set_selection(null)
 		return
-	if painel_armazem.is_open():
-		var destino_armazem := painel_armazem.first_empty_slot()
+	if warehouse_panel_node.is_open():
+		var destino_armazem := warehouse_panel_node.first_empty_slot()
 		if destino_armazem:
 			_move_item(slot, destino_armazem)
 			_set_selection(null)
@@ -717,11 +714,11 @@ func _on_slot_right_clicked(slot: ItemSlot) -> void:
 
 
 func _is_forge_slot(slot: ItemSlot) -> bool:
-	return painel_ferraria != null and painel_ferraria.is_forge_slot(slot)
+	return forge_panel_node != null and forge_panel_node.is_forge_slot(slot)
 
 
 func _is_warehouse_slot(slot: ItemSlot) -> bool:
-	return painel_armazem != null and slot in painel_armazem.all_slots()
+	return warehouse_panel_node != null and slot in warehouse_panel_node.all_slots()
 
 
 func _on_slot_dropped(destino: ItemSlot, _item: ItemData, origem: ItemSlot) -> void:
@@ -740,23 +737,23 @@ func _on_slot_dropped(destino: ItemSlot, _item: ItemData, origem: ItemSlot) -> v
 
 
 func _move_item(origem: ItemSlot, destino: ItemSlot) -> void:
-	if painel_ferraria and painel_ferraria.is_open():
-		var origem_ferraria := painel_ferraria.is_forge_slot(origem)
-		var destino_ferraria := painel_ferraria.is_forge_slot(destino)
+	if forge_panel_node and forge_panel_node.is_open():
+		var origem_ferraria := forge_panel_node.is_forge_slot(origem)
+		var destino_ferraria := forge_panel_node.is_forge_slot(destino)
 		if destino_ferraria and not origem_ferraria:
-			if painel_ferraria.reserve_item(origem, destino):
+			if forge_panel_node.reserve_item(origem, destino):
 				equipment_changed.emit()
 			return
 		if origem_ferraria and not destino_ferraria:
-			if painel_ferraria.is_pending_result(origem):
-				if painel_ferraria.collect_result_to(destino):
+			if forge_panel_node.is_pending_result(origem):
+				if forge_panel_node.collect_result_to(destino):
 					equipment_changed.emit()
 				return
-			painel_ferraria.release_forge_slot(origem)
+			forge_panel_node.release_forge_slot(origem)
 			equipment_changed.emit()
 			return
 		if origem_ferraria and destino_ferraria:
-			painel_ferraria.swap_reservations(origem, destino)
+			forge_panel_node.swap_reservations(origem, destino)
 			equipment_changed.emit()
 			return
 	if origem.reservado_ferraria or destino.reservado_ferraria:
@@ -771,12 +768,12 @@ func _move_item(origem: ItemSlot, destino: ItemSlot) -> void:
 func _can_move_to_slot(origem: ItemSlot, destino: ItemSlot) -> bool:
 	if origem == null or destino == null:
 		return false
-	if painel_ferraria == null or not painel_ferraria.is_open():
+	if forge_panel_node == null or not forge_panel_node.is_open():
 		if origem.reservado_ferraria or destino.reservado_ferraria:
 			return false
 		return true
-	var origem_ferraria := painel_ferraria.is_forge_slot(origem)
-	var destino_ferraria := painel_ferraria.is_forge_slot(destino)
+	var origem_ferraria := forge_panel_node.is_forge_slot(origem)
+	var destino_ferraria := forge_panel_node.is_forge_slot(destino)
 	if origem.reservado_ferraria and not origem_ferraria:
 		return false
 	if destino.reservado_ferraria:
@@ -784,19 +781,19 @@ func _can_move_to_slot(origem: ItemSlot, destino: ItemSlot) -> bool:
 	if destino_ferraria and not origem_ferraria:
 		if origem.item == null or destino.item != null:
 			return false
-		if painel_ferraria.is_origin_reserved(origem):
+		if forge_panel_node.is_origin_reserved(origem):
 			return false
-		if painel_ferraria.is_jewelry_target_slot(destino):
-			return painel_ferraria.can_accept_target_jewelry(origem.item)
-		if painel_ferraria.is_jewelry_gem_slot(destino):
-			return painel_ferraria.can_accept_gem_jewelry(origem.item)
-		if painel_ferraria.is_synthesis_slot(destino):
-			if not painel_ferraria.can_accept_in_synthesis(origem.item):
-				painel_ferraria.notify_blocked_category(origem.item)
+		if forge_panel_node.is_jewelry_target_slot(destino):
+			return forge_panel_node.can_accept_target_jewelry(origem.item)
+		if forge_panel_node.is_jewelry_gem_slot(destino):
+			return forge_panel_node.can_accept_gem_jewelry(origem.item)
+		if forge_panel_node.is_synthesis_slot(destino):
+			if not forge_panel_node.can_accept_in_synthesis(origem.item):
+				forge_panel_node.notify_blocked_category(origem.item)
 				return false
 		return true
 	if origem_ferraria and not destino_ferraria:
-		if painel_ferraria.is_pending_result(origem):
+		if forge_panel_node.is_pending_result(origem):
 			return destino.item == null and not destino.reservado_ferraria
 		return true
 	return true
@@ -819,11 +816,11 @@ func _create_selected_slot_style() -> StyleBoxFlat:
 	return estilo
 
 
-func _current_equipment_slot(tipo: ItemData.Tipo) -> ItemSlot:
+func _current_equipment_slot(tipo: ItemData.Type) -> ItemSlot:
 	for grade in _grids_for_slot(_character_index):
 		for grupo in grade.get_children():
 			var fundo := grupo.get_node_or_null("FundoSlot") as ItemSlot
-			if fundo and fundo.tipo_aceitavel == tipo:
+			if fundo and fundo.item_type_aceitavel == tipo:
 				return fundo
 	return null
 
@@ -843,8 +840,8 @@ func add_item(item: ItemData) -> bool:
 
 
 func get_current_class() -> ClassData:
-	if ui_equipe and ui_equipe._party:
-		var classe: Variant = ui_equipe._party.active_party[_character_index]
+	if team_ui and team_ui._party:
+		var classe: Variant = team_ui._party.active_party[_character_index]
 		if classe is ClassData:
 			return classe
 	return null
@@ -853,14 +850,14 @@ func get_current_class() -> ClassData:
 func get_equipped_damage(stage_index: int) -> int:
 	var total := 0
 	for item in get_equipped_items(stage_index):
-		total += item.dano_bonus
+		total += item.damage_bonus
 	return total
 
 
 func get_equipped_hp(stage_index: int) -> int:
 	var total := 0
 	for item in get_equipped_items(stage_index):
-		total += item.vida_bonus
+		total += item.hp_bonus
 	return total
 
 
@@ -869,7 +866,7 @@ func current_hero_stats() -> Dictionary:
 	var dados: Dictionary = PERSONAGENS[stage_index] if stage_index >= 0 and stage_index < PERSONAGENS.size() else {}
 	var hero_progress := _progress_for_index(stage_index)
 	var classe: ClassData = get_current_class()
-	var party: PartyService = ui_equipe._party if ui_equipe else null
+	var party: PartyService = team_ui._party if team_ui else null
 	var ataque := 0
 	var vida := 0
 	if party:
@@ -911,7 +908,7 @@ func current_hero_stats() -> Dictionary:
 
 
 func _update_xp_bar(xp: int = -1, xp_proximo: int = -1) -> void:
-	if barra_xp_personagem == null:
+	if character_xp_bar == null:
 		return
 	var hero_progress := _progress_for_index(_character_index)
 	if xp < 0:
@@ -919,41 +916,41 @@ func _update_xp_bar(xp: int = -1, xp_proximo: int = -1) -> void:
 	if xp_proximo <= 0:
 		xp_proximo = maxi(1, int(hero_progress.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)))
 	var nivel := int(hero_progress.get("nivel", 1))
-	barra_xp_personagem.max_value = float(xp_proximo)
-	barra_xp_personagem.value = clampf(float(xp), 0.0, float(xp_proximo))
-	if label_xp_personagem:
-		label_xp_personagem.text = "Nv.%d  %d/%d" % [nivel, xp, xp_proximo]
+	character_xp_bar.max_value = float(xp_proximo)
+	character_xp_bar.value = clampf(float(xp), 0.0, float(xp_proximo))
+	if character_xp_label:
+		character_xp_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [nivel, xp, xp_proximo]
 
 
 func setup_party(party: PartyService) -> void:
-	ui_equipe.configure(party, _character_index)
+	team_ui.configure(party, _character_index)
 	call_deferred("_apply_hero_layout")
-	if not ui_equipe.slot_selected.is_connected(select_character):
-		ui_equipe.slot_selected.connect(select_character)
-	if not ui_equipe.class_assigned.is_connected(_on_class_assigned):
-		ui_equipe.class_assigned.connect(_on_class_assigned)
-	if not ui_equipe.formation_requested.is_connected(_on_formation_requested):
-		ui_equipe.formation_requested.connect(_on_formation_requested)
-	if painel_formacao:
-		painel_formacao.configure(self, party)
-		if not painel_formacao.slot_selected.is_connected(select_character):
-			painel_formacao.slot_selected.connect(select_character)
-		if not painel_formacao.panel_open_changed.is_connected(_on_formation_visibility_changed):
-			painel_formacao.panel_open_changed.connect(_on_formation_visibility_changed)
-	if painel_skills:
-		painel_skills.configure(self, party)
-		if not painel_skills.slot_selected.is_connected(select_character):
-			painel_skills.slot_selected.connect(select_character)
-		if not painel_skills.panel_open_changed.is_connected(_on_skills_visibility_changed):
-			painel_skills.panel_open_changed.connect(_on_skills_visibility_changed)
-	if painel_atributos:
-		painel_atributos.configure(self)
-		if not painel_atributos.panel_open_changed.is_connected(_on_attributes_visibility_changed):
-			painel_atributos.panel_open_changed.connect(_on_attributes_visibility_changed)
-	if painel_arvore:
-		painel_arvore.configure(self)
-		if not painel_arvore.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
-			painel_arvore.panel_open_changed.connect(_on_skill_tree_visibility_changed)
+	if not team_ui.slot_selected.is_connected(select_character):
+		team_ui.slot_selected.connect(select_character)
+	if not team_ui.class_assigned.is_connected(_on_class_assigned):
+		team_ui.class_assigned.connect(_on_class_assigned)
+	if not team_ui.formation_requested.is_connected(_on_formation_requested):
+		team_ui.formation_requested.connect(_on_formation_requested)
+	if formation_panel_node:
+		formation_panel_node.configure(self, party)
+		if not formation_panel_node.slot_selected.is_connected(select_character):
+			formation_panel_node.slot_selected.connect(select_character)
+		if not formation_panel_node.panel_open_changed.is_connected(_on_formation_visibility_changed):
+			formation_panel_node.panel_open_changed.connect(_on_formation_visibility_changed)
+	if skills_panel_node:
+		skills_panel_node.configure(self, party)
+		if not skills_panel_node.slot_selected.is_connected(select_character):
+			skills_panel_node.slot_selected.connect(select_character)
+		if not skills_panel_node.panel_open_changed.is_connected(_on_skills_visibility_changed):
+			skills_panel_node.panel_open_changed.connect(_on_skills_visibility_changed)
+	if attributes_panel_node:
+		attributes_panel_node.configure(self)
+		if not attributes_panel_node.panel_open_changed.is_connected(_on_attributes_visibility_changed):
+			attributes_panel_node.panel_open_changed.connect(_on_attributes_visibility_changed)
+	if skill_tree_panel_node:
+		skill_tree_panel_node.configure(self)
+		if not skill_tree_panel_node.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
+			skill_tree_panel_node.panel_open_changed.connect(_on_skill_tree_visibility_changed)
 	if not party.party_changed.is_connected(_on_party_changed):
 		party.party_changed.connect(_on_party_changed)
 	_sync_party_names()
@@ -977,9 +974,9 @@ func _on_party_changed() -> void:
 
 
 func _sync_party_names() -> void:
-	if ui_equipe == null or ui_equipe._party == null:
+	if team_ui == null or team_ui._party == null:
 		return
-	var party: PartyService = ui_equipe._party
+	var party: PartyService = team_ui._party
 	for i in PartyService.SLOTS:
 		var classe: Variant = party.active_party[i]
 		var dados: Dictionary = PERSONAGENS[i].duplicate()
@@ -992,15 +989,15 @@ func _sync_party_names() -> void:
 		if i < _character_buttons.size():
 			var hero_progress := _progress_for_index(i)
 			_character_buttons[i].text = "%s Lv.%d" % [dados["nome"], int(hero_progress.get("nivel", 1))]
-	nome_personagem.text = str(PERSONAGENS[_character_index]["nome"])
+	character_name_label.text = str(PERSONAGENS[_character_index]["nome"])
 
 
 func _update_portrait() -> void:
-	if foto_personagem == null:
+	if character_portrait == null:
 		return
 	var classe: ClassData = get_current_class()
-	foto_personagem.texture = classe.character_sprite if classe else null
-	foto_personagem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	character_portrait.texture = classe.character_sprite if classe else null
+	character_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _connect_main_skill_slots() -> void:
@@ -1027,14 +1024,14 @@ func _on_equipment_skills_changed(_classe_id: String) -> void:
 
 
 func _update_main_skill_slots() -> void:
-	if linha_card_heroi == null:
+	if hero_card_row == null:
 		return
 	var classe: ClassData = get_current_class()
 	var mostrar := classe != null
-	if coluna_ativas:
-		coluna_ativas.visible = mostrar
-	if coluna_passivas:
-		coluna_passivas.visible = mostrar
+	if active_column:
+		active_column.visible = mostrar
+	if passive_column:
+		passive_column.visible = mostrar
 	if not mostrar:
 		return
 	var classe_id := classe.id
@@ -1048,7 +1045,7 @@ func _apply_skill_slot_text(botao: Button, skill: SkillResource) -> void:
 	if botao == null:
 		return
 	if skill == null:
-		botao.text = TEXTO_SLOT_SKILL_VAZIO
+		botao.text = EMPTY_SKILL_SLOT_TEXT
 		SkillIcons.apply_to_button(botao, null, TAMANHO_SLOT_SKILL)
 	else:
 		botao.text = ""
@@ -1107,17 +1104,17 @@ func apply_inventory(lista: Array) -> void:
 
 
 func update_world_progress(world: int, stage: int, difficulty: int, liberadas: Array) -> void:
-	if painel_mundos:
-		painel_mundos.set_state(world, stage, difficulty, liberadas)
+	if worlds_panel_node:
+		worlds_panel_node.set_state(world, stage, difficulty, liberadas)
 
 
 func serialize_warehouse() -> Dictionary:
-	return painel_armazem.serialize() if painel_armazem else {}
+	return warehouse_panel_node.serialize() if warehouse_panel_node else {}
 
 
 func apply_warehouse(dados: Variant) -> void:
-	if painel_armazem:
-		painel_armazem.apply(dados)
+	if warehouse_panel_node:
+		warehouse_panel_node.apply(dados)
 	_sync_warehouse_skill_tree()
 
 
@@ -1131,9 +1128,9 @@ func apply_skill_tree(dados: Variant) -> void:
 
 
 func _sync_warehouse_skill_tree() -> void:
-	if painel_armazem == null:
+	if warehouse_panel_node == null:
 		return
-	painel_armazem.apply_skill_tree_unlocks(_skill_tree_progress.unlocked_warehouse_indices())
+	warehouse_panel_node.apply_skill_tree_unlocks(_skill_tree_progress.unlocked_warehouse_indices())
 
 
 func serialize_equipment() -> Dictionary:
@@ -1142,7 +1139,7 @@ func serialize_equipment() -> Dictionary:
 		var lista: Array = []
 		for slot in _slots_for_class(str(id_classe)):
 			lista.append({
-				"tipo": int(slot.tipo_aceitavel),
+				"tipo": int(slot.item_type_aceitavel),
 				"item": slot.item.to_dictionary() if slot.item else {},
 			})
 		todos[str(id_classe)] = lista
@@ -1170,15 +1167,15 @@ func _apply_slot_list(slots: Array[ItemSlot], lista: Array) -> void:
 			por_tipo[int(entrada.get("tipo", -1))] = entrada.get("item", {})
 	for slot in slots:
 		var item: ItemData = null
-		var dados: Variant = por_tipo.get(int(slot.tipo_aceitavel), {})
+		var dados: Variant = por_tipo.get(int(slot.item_type_aceitavel), {})
 		if dados is Dictionary:
 			item = ItemData.de_dicionario(dados)
 		slot.set_item(item)
 
 
 func _class_id_for_slot(stage_index: int) -> String:
-	if ui_equipe and ui_equipe._party:
-		var classe: Variant = ui_equipe._party.active_party[stage_index]
+	if team_ui and team_ui._party:
+		var classe: Variant = team_ui._party.active_party[stage_index]
 		if classe is ClassData:
 			return (classe as ClassData).id
 	return ""
@@ -1235,9 +1232,9 @@ func _create_slot_style() -> StyleBoxFlat:
 func _apply_bottom_bar_icons() -> void:
 	if botao_skills:
 		_setup_bar_button(botao_skills, "skills")
-	_setup_bar_button(botao_inventario, "inventario")
-	_setup_bar_button(botao_ferraria, "ferraria")
-	_setup_bar_button(botao_mundo, "mundo")
+	_setup_bar_button(botao_inventario, "inventory")
+	_setup_bar_button(forge_button, "forge")
+	_setup_bar_button(world_button, "world")
 
 
 func _setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> void:
@@ -1267,41 +1264,41 @@ func _setup_bar_button(botao: Button, chave: String, destacado: bool = false) ->
 
 
 func _store_forge_button_styles() -> void:
-	_forge_button_styles["normal"] = botao_ferraria.get_theme_stylebox("normal").duplicate()
-	_forge_button_styles["hover"] = botao_ferraria.get_theme_stylebox("hover").duplicate()
-	_forge_button_styles["pressed"] = botao_ferraria.get_theme_stylebox("pressed").duplicate()
+	_forge_button_styles["normal"] = forge_button.get_theme_stylebox("normal").duplicate()
+	_forge_button_styles["hover"] = forge_button.get_theme_stylebox("hover").duplicate()
+	_forge_button_styles["pressed"] = forge_button.get_theme_stylebox("pressed").duplicate()
 
 
 func _on_forge_button_pressed() -> void:
-	if painel_ferraria.is_open():
-		painel_ferraria.close()
+	if forge_panel_node.is_open():
+		forge_panel_node.close()
 	else:
-		_close_right_panels(painel_ferraria)
-		painel_ferraria.open()
-	botao_ferraria.release_focus()
+		_close_right_panels(forge_panel_node)
+		forge_panel_node.open()
+	forge_button.release_focus()
 
 
 func _on_warehouse_button_pressed() -> void:
-	painel_armazem.toggle()
-	botao_armazem.release_focus()
+	warehouse_panel_node.toggle()
+	warehouse_button.release_focus()
 
 
 func _on_world_button_pressed() -> void:
-	if painel_mundos.is_open():
-		painel_mundos.close()
+	if worlds_panel_node.is_open():
+		worlds_panel_node.close()
 	else:
-		_close_right_panels(painel_mundos)
-		painel_mundos.open()
-	botao_mundo.release_focus()
+		_close_right_panels(worlds_panel_node)
+		worlds_panel_node.open()
+	world_button.release_focus()
 
 
 func _on_formation_requested() -> void:
-	if painel_formacao.is_open():
-		painel_formacao.close()
+	if formation_panel_node.is_open():
+		formation_panel_node.close()
 		return
-	_close_overlay_panels(painel_formacao)
+	_close_overlay_panels(formation_panel_node)
 	_close_right_panels()
-	painel_formacao.open()
+	formation_panel_node.open()
 
 
 func _on_formation_visibility_changed(aberta: bool) -> void:
@@ -1311,8 +1308,8 @@ func _on_formation_visibility_changed(aberta: bool) -> void:
 
 
 func _on_skills_button_pressed() -> void:
-	if painel_skills and painel_skills.is_open():
-		painel_skills.close()
+	if skills_panel_node and skills_panel_node.is_open():
+		skills_panel_node.close()
 	else:
 		_open_skills()
 	if botao_skills:
@@ -1332,11 +1329,11 @@ func _open_skills(
 	tipo_slot: SkillResource.Type = SkillResource.Type.ACTIVE,
 	indice_slot: int = 0
 ) -> void:
-	_close_overlay_panels(painel_skills)
+	_close_overlay_panels(skills_panel_node)
 	_close_right_panels()
-	if painel_skills:
+	if skills_panel_node:
 		var heroi := slot_heroi if slot_heroi >= 0 else _character_index
-		painel_skills.open(heroi, tipo_slot, indice_slot)
+		skills_panel_node.open(heroi, tipo_slot, indice_slot)
 
 
 func _on_skills_visibility_changed(aberta: bool) -> void:
@@ -1346,33 +1343,33 @@ func _on_skills_visibility_changed(aberta: bool) -> void:
 
 
 func _on_attributes_button_pressed() -> void:
-	if painel_atributos and painel_atributos.is_open():
-		painel_atributos.close()
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.close()
 	else:
 		_open_attributes()
-	if botao_atributos_personagem:
-		botao_atributos_personagem.release_focus()
+	if character_attributes_button:
+		character_attributes_button.release_focus()
 
 
 func _open_attributes() -> void:
-	_close_overlay_panels(painel_atributos)
-	if painel_atributos:
-		painel_atributos.open()
+	_close_overlay_panels(attributes_panel_node)
+	if attributes_panel_node:
+		attributes_panel_node.open()
 
 
 func _on_skill_tree_button_pressed() -> void:
-	if painel_arvore and painel_arvore.is_open():
-		painel_arvore.close()
+	if skill_tree_panel_node and skill_tree_panel_node.is_open():
+		skill_tree_panel_node.close()
 	else:
 		_open_skill_tree()
 	botao_inventario.release_focus()
 
 
 func _open_skill_tree() -> void:
-	_close_overlay_panels(painel_arvore)
+	_close_overlay_panels(skill_tree_panel_node)
 	_close_right_panels()
-	if painel_arvore:
-		painel_arvore.open()
+	if skill_tree_panel_node:
+		skill_tree_panel_node.open()
 
 
 func _on_skill_tree_visibility_changed(aberta: bool) -> void:
@@ -1389,21 +1386,21 @@ func _on_attributes_visibility_changed(aberta: bool) -> void:
 
 
 func _close_overlay_panels(exceto: Control = null) -> void:
-	if painel_formacao and painel_formacao != exceto and painel_formacao.is_open():
-		painel_formacao.close()
-	if painel_atributos and painel_atributos != exceto and painel_atributos.is_open():
-		painel_atributos.close()
-	if painel_skills and painel_skills != exceto and painel_skills.is_open():
-		painel_skills.close()
-	if painel_arvore and painel_arvore != exceto and painel_arvore.is_open():
-		painel_arvore.close()
+	if formation_panel_node and formation_panel_node != exceto and formation_panel_node.is_open():
+		formation_panel_node.close()
+	if attributes_panel_node and attributes_panel_node != exceto and attributes_panel_node.is_open():
+		attributes_panel_node.close()
+	if skills_panel_node and skills_panel_node != exceto and skills_panel_node.is_open():
+		skills_panel_node.close()
+	if skill_tree_panel_node and skill_tree_panel_node != exceto and skill_tree_panel_node.is_open():
+		skill_tree_panel_node.close()
 
 
 func _close_right_panels(exceto: Control = null) -> void:
-	if painel_ferraria and painel_ferraria != exceto and painel_ferraria.is_open():
-		painel_ferraria.close()
-	if painel_mundos and painel_mundos != exceto and painel_mundos.is_open():
-		painel_mundos.close()
+	if forge_panel_node and forge_panel_node != exceto and forge_panel_node.is_open():
+		forge_panel_node.close()
+	if worlds_panel_node and worlds_panel_node != exceto and worlds_panel_node.is_open():
+		worlds_panel_node.close()
 
 
 func _on_forge_visibility_changed(aberta: bool) -> void:
@@ -1413,32 +1410,32 @@ func _on_forge_visibility_changed(aberta: bool) -> void:
 		_align_side_panels()
 		return
 	var estilo := _create_active_forge_button_style()
-	botao_ferraria.add_theme_stylebox_override("normal", estilo)
-	botao_ferraria.add_theme_stylebox_override("hover", estilo)
-	botao_ferraria.add_theme_stylebox_override("pressed", estilo)
+	forge_button.add_theme_stylebox_override("normal", estilo)
+	forge_button.add_theme_stylebox_override("hover", estilo)
+	forge_button.add_theme_stylebox_override("pressed", estilo)
 	_align_side_panels()
 
 
 func _on_warehouse_visibility_changed(aberta: bool) -> void:
 	if aberta:
 		var estilo := _create_active_forge_button_style()
-		botao_armazem.add_theme_stylebox_override("normal", estilo)
-		botao_armazem.add_theme_stylebox_override("hover", estilo)
-		botao_armazem.add_theme_stylebox_override("pressed", estilo)
+		warehouse_button.add_theme_stylebox_override("normal", estilo)
+		warehouse_button.add_theme_stylebox_override("hover", estilo)
+		warehouse_button.add_theme_stylebox_override("pressed", estilo)
 		_align_side_panels()
 		return
 	for nome in _warehouse_button_styles.keys():
-		botao_armazem.add_theme_stylebox_override(str(nome), _warehouse_button_styles[nome])
-	botao_armazem.release_focus()
-	botao_armazem.set_pressed_no_signal(false)
+		warehouse_button.add_theme_stylebox_override(str(nome), _warehouse_button_styles[nome])
+	warehouse_button.release_focus()
+	warehouse_button.set_pressed_no_signal(false)
 	_align_side_panels()
 
 
 func _restore_forge_button_style() -> void:
 	for nome in _forge_button_styles.keys():
-		botao_ferraria.add_theme_stylebox_override(str(nome), _forge_button_styles[nome])
-	botao_ferraria.release_focus()
-	botao_ferraria.set_pressed_no_signal(false)
+		forge_button.add_theme_stylebox_override(str(nome), _forge_button_styles[nome])
+	forge_button.release_focus()
+	forge_button.set_pressed_no_signal(false)
 
 
 func _create_active_forge_button_style() -> StyleBoxFlat:
@@ -1457,15 +1454,15 @@ func _create_active_forge_button_style() -> StyleBoxFlat:
 func _on_worlds_visibility_changed(aberta: bool) -> void:
 	if aberta:
 		var estilo := _create_active_forge_button_style()
-		botao_mundo.add_theme_stylebox_override("normal", estilo)
-		botao_mundo.add_theme_stylebox_override("hover", estilo)
-		botao_mundo.add_theme_stylebox_override("pressed", estilo)
+		world_button.add_theme_stylebox_override("normal", estilo)
+		world_button.add_theme_stylebox_override("hover", estilo)
+		world_button.add_theme_stylebox_override("pressed", estilo)
 		_align_side_panels()
 		return
 	for nome in _world_button_styles.keys():
-		botao_mundo.add_theme_stylebox_override(str(nome), _world_button_styles[nome])
-	botao_mundo.release_focus()
-	botao_mundo.set_pressed_no_signal(false)
+		world_button.add_theme_stylebox_override(str(nome), _world_button_styles[nome])
+	world_button.release_focus()
+	world_button.set_pressed_no_signal(false)
 	_align_side_panels()
 
 
@@ -1473,15 +1470,15 @@ func _on_stage_started(world: int, stage: int, difficulty: int) -> void:
 	stage_started.emit(world, stage, difficulty)
 
 
-func _on_forge_gold_spent(quantidade: int) -> void:
-	gold_gained.emit(quantidade)
+func _on_forge_gold_spent(amount: int) -> void:
+	gold_gained.emit(amount)
 
 
 func _on_menu_visibility_changed() -> void:
 	if not visible:
-		painel_ferraria.close()
-		painel_armazem.close()
-		painel_mundos.close()
+		forge_panel_node.close()
+		warehouse_panel_node.close()
+		worlds_panel_node.close()
 		_close_overlay_panels()
 		_close_settings()
 		return
@@ -1499,7 +1496,7 @@ func _on_quit_button_pressed() -> void:
 
 
 func _on_settings_button_pressed() -> void:
-	if painel_configuracoes.visible:
+	if settings_panel.visible:
 		_close_settings()
 	else:
 		_open_settings()
@@ -1510,33 +1507,33 @@ func _open_settings() -> void:
 	_update_volume_text(int(slider_volume.value))
 	_sync_locale_selector()
 	_update_localized_texts()
-	painel_configuracoes.show()
+	settings_panel.show()
 	_align_settings()
 	menu_width_changed.emit()
 
 
 func _close_settings() -> void:
-	if painel_configuracoes:
-		painel_configuracoes.hide()
+	if settings_panel:
+		settings_panel.hide()
 	menu_width_changed.emit()
 
 
 func _align_settings() -> void:
-	if painel_configuracoes == null or not painel_configuracoes.visible or painel == null:
+	if settings_panel == null or not settings_panel.visible or painel == null:
 		return
-	var tam := painel_configuracoes.get_combined_minimum_size()
-	tam.x = maxf(tam.x, painel_configuracoes.custom_minimum_size.x)
-	painel_configuracoes.size = tam
+	var tam := settings_panel.get_combined_minimum_size()
+	tam.x = maxf(tam.x, settings_panel.custom_minimum_size.x)
+	settings_panel.size = tam
 	var origem := painel.position
-	if painel_formacao and painel_formacao.visible:
-		origem = painel_formacao.position
-	elif painel_skills and painel_skills.visible:
-		origem = painel_skills.position
-	elif painel_atributos and painel_atributos.visible:
-		origem = painel_atributos.position
-	elif painel_arvore and painel_arvore.visible:
-		origem = painel_arvore.position
-	painel_configuracoes.position = origem + Vector2(
+	if formation_panel_node and formation_panel_node.visible:
+		origem = formation_panel_node.position
+	elif skills_panel_node and skills_panel_node.visible:
+		origem = skills_panel_node.position
+	elif attributes_panel_node and attributes_panel_node.visible:
+		origem = attributes_panel_node.position
+	elif skill_tree_panel_node and skill_tree_panel_node.visible:
+		origem = skill_tree_panel_node.position
+	settings_panel.position = origem + Vector2(
 		painel.size.x - tam.x,
 		0.0
 	)
@@ -1584,8 +1581,20 @@ func _on_locale_changed(_locale_code: String) -> void:
 	_update_localized_texts()
 	_sync_locale_selector()
 	_sync_party_names()
-	if painel_mundos:
-		painel_mundos.refresh_locale()
+	if worlds_panel_node:
+		worlds_panel_node.refresh_locale()
+	if forge_panel_node and forge_panel_node.has_method("refresh_locale"):
+		forge_panel_node.refresh_locale()
+	if warehouse_panel_node and warehouse_panel_node.has_method("refresh_locale"):
+		warehouse_panel_node.refresh_locale()
+	if formation_panel_node and formation_panel_node.has_method("refresh_locale"):
+		formation_panel_node.refresh_locale()
+	if skills_panel_node and skills_panel_node.has_method("refresh_locale"):
+		skills_panel_node.refresh_locale()
+	if attributes_panel_node and attributes_panel_node.has_method("refresh_locale"):
+		attributes_panel_node.refresh_locale()
+	if skill_tree_panel_node and skill_tree_panel_node.has_method("refresh_locale"):
+		skill_tree_panel_node.refresh_locale()
 
 
 func _update_localized_texts() -> void:
@@ -1595,6 +1604,28 @@ func _update_localized_texts() -> void:
 		label_volume_titulo.text = tr(LocaleKeys.SETTINGS_VOLUME)
 	if label_language_title:
 		label_language_title.text = tr(LocaleKeys.SETTINGS_LANGUAGE)
+	if quit_game_button:
+		quit_game_button.text = tr(LocaleKeys.BTN_QUIT_GAME)
+	if settings_button:
+		settings_button.tooltip_text = tr(LocaleKeys.BTN_SETTINGS)
+	if exit_button:
+		exit_button.text = tr(LocaleKeys.BTN_CLOSE)
+	if close_settings_button:
+		close_settings_button.text = tr(LocaleKeys.BTN_CLOSE)
+	if character_attributes_button:
+		character_attributes_button.text = tr(LocaleKeys.BTN_ATTRIBUTES)
+	if sort_inventory_button:
+		sort_inventory_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
+	if botao_skills:
+		botao_skills.text = tr(LocaleKeys.UI_SKILLS)
+	if botao_inventario:
+		botao_inventario.text = tr(LocaleKeys.UI_SKILL_TREE)
+	if forge_button:
+		forge_button.text = tr(LocaleKeys.UI_FORGE)
+	if world_button:
+		world_button.text = tr(LocaleKeys.UI_WORLD)
+	if gold_label and query_gold.is_valid():
+		gold_label.text = tr(LocaleKeys.UI_GOLD_FORMAT) % get_current_gold()
 	if option_locale:
 		for i in option_locale.item_count:
 			var locale_code := str(option_locale.get_item_metadata(i))

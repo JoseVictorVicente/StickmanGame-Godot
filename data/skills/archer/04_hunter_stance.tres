@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "hunter_stance"
+skill_name = "Postura do Caçador"
+description = "A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos."
+name_key = "SKILL_hunter_stance"
+description_key = "SKILL_hunter_stance_DESC"
+type = 0
+cooldown = 10
+icon_path = "res://sprites/ui/skills/archer/hunter_stance.png"
+icon_inner_only = true
+sort_order = 4
+stat_value = 0.0

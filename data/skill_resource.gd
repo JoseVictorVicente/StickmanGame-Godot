@@ -1,12 +1,14 @@
 class_name SkillResource
 extends Resource
-## Dados de uma habilidade (ativa ou passiva).
+## Skill data (active or passive).
 
 enum Type { ACTIVE, PASSIVE }
 
 @export var skill_id: String = ""
 @export var skill_name: String = ""
 @export var description: String = ""
+@export var name_key: String = ""
+@export var description_key: String = ""
 @export var type: Type = Type.ACTIVE
 @export var cooldown: float = 0.0
 @export var icon_path: String = ""
@@ -16,12 +18,28 @@ enum Type { ACTIVE, PASSIVE }
 @export var stat_value: float = 0.0
 
 
+func get_display_name() -> String:
+	if name_key != "":
+		var translated := tr(name_key)
+		if translated != name_key:
+			return translated
+	return skill_name
+
+
+func get_description() -> String:
+	if description_key != "":
+		var translated := tr(description_key)
+		if translated != description_key:
+			return translated
+	return description
+
+
 func type_text() -> String:
-	return "Ativa" if type == Type.ACTIVE else "Passiva"
+	return tr(LocaleKeys.SKILL_TYPE_ACTIVE) if type == Type.ACTIVE else tr(LocaleKeys.SKILL_TYPE_PASSIVE)
 
 
 func button_text() -> String:
-	return "%s\n%s" % [skill_name, type_text()]
+	return "%s\n%s" % [get_display_name(), type_text()]
 
 
 func get_icon() -> Texture2D:
@@ -30,11 +48,11 @@ func get_icon() -> Texture2D:
 
 func type_cooldown_line() -> String:
 	if type == Type.PASSIVE:
-		return "Passiva"
+		return tr(LocaleKeys.SKILL_TYPE_PASSIVE)
 	if cooldown <= 0.0:
-		return "Ativa"
-	return "Ativa | Recarga: %.1fs" % cooldown
+		return tr(LocaleKeys.SKILL_TYPE_ACTIVE)
+	return tr(LocaleKeys.SKILL_COOLDOWN_LINE) % cooldown
 
 
 func tooltip_text() -> String:
-	return "%s\n%s\n\n%s" % [skill_name, type_cooldown_line(), description]
+	return "%s\n%s\n\n%s" % [get_display_name(), type_cooldown_line(), get_description()]

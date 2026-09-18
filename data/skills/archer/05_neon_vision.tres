@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "neon_vision"
+skill_name = "Visão Neon"
+description = "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."
+name_key = "SKILL_neon_vision"
+description_key = "SKILL_neon_vision_DESC"
+type = 0
+cooldown = 12
+icon_path = "res://sprites/ui/skills/archer/neon_vision.png"
+sort_order = 5
+stat_value = 0.0

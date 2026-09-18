@@ -41,7 +41,7 @@ timers/tooltip_delay_sec=0.0
 [internationalization]
 
 locale/translations=PackedStringArray("res://locales/pt_BR.po", "res://locales/en.po")
-locale/fallback="pt_BR"
+locale/fallback="en"
 
 [physics]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://c8ferraria01"]
 
 [ext_resource type="Script" uid="uid://dxep2fv4y12m4" path="res://presentation/inventory/forge_panel.gd" id="1_ferraria"]
-[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="2_fundo_mundos"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
 content_margin_left = 21.0

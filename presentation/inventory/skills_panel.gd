@@ -5,24 +5,30 @@ extends PanelContainer
 signal panel_open_changed(is_open: bool)
 signal slot_selected(stage_index: int)
 
-const TEXTO_SLOT_VAZIO := "[ Vazio ]"
 const SKILLS_ATIVAS_DISPONIVEIS := 5
 const SKILLS_PASSIVAS_DISPONIVEIS := 10
 const COLUNAS_GRADE := 5
 const TAMANHO_SLOT_EQUIPADO := Vector2(120, 64)
 const TAMANHO_SLOT_HABILIDADE := Vector2(64, 64)
 
-@onready var botao_fechar: Button = %BotaoFecharSkills
-@onready var cabecalho: HBoxContainer = %CabecalhoSkills
-@onready var slots_heroi: HBoxContainer = %SlotsHeroiSkills
-@onready var label_skills_heroi: Label = %LabelSkillsHeroi
-@onready var sessao_equipadas: VBoxContainer = %SessaoEquipadas
-@onready var sessao_ativas: VBoxContainer = %SessaoAtivas
-@onready var sessao_passivas: VBoxContainer = %SessaoPassivas
-@onready var grade_equip_ativas: GridContainer = %GradeEquipAtivas
-@onready var grade_equip_passivas: GridContainer = %GradeEquipPassivas
-@onready var grade_ativas: GridContainer = %GradeAtivas
-@onready var grade_passivas: GridContainer = %GradePassivas
+@onready var botao_fechar: Button = %CloseSkillsButton
+@onready var cabecalho: HBoxContainer = %SkillsHeader
+@onready var hero_slots: HBoxContainer = %HeroSkillSlots
+@onready var hero_skills_label: Label = %HeroSkillsLabel
+@onready var equipped_section: VBoxContainer = %EquippedSection
+@onready var active_section: VBoxContainer = %ActiveSkillsSection
+@onready var passive_section: VBoxContainer = %PassiveSkillsSection
+@onready var equipped_active_grid: GridContainer = %GradeEquipAtivas
+@onready var equipped_passive_grid: GridContainer = %GradeEquipPassivas
+@onready var active_grid: GridContainer = %GradeAtivas
+@onready var passive_grid: GridContainer = %GradePassivas
+@onready var title_label: Label = $Conteudo/SkillsHeader/BannerTitulo/Titulo
+@onready var hero_title_label: Label = $Conteudo/TituloHeroi
+@onready var equipped_active_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/TituloEquipAtivas
+@onready var equipped_passive_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/TituloEquipPassivas
+@onready var available_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/TituloDisponiveis
+@onready var available_active_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection/TituloAtivas
+@onready var available_passive_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection/TituloPassivas
 
 var _menu: InventoryMenu
 var _party: PartyService
@@ -48,6 +54,8 @@ func _ready() -> void:
 	_build_skill_grids()
 	if not HeroEquipment.equipment_changed.is_connected(_on_equipment_changed):
 		HeroEquipment.equipment_changed.connect(_on_equipment_changed)
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 
 
 func configure(menu: InventoryMenu, party: PartyService) -> void:
@@ -77,7 +85,7 @@ func open(
 	show()
 	update()
 	panel_open_changed.emit(true)
-	call_deferred("_reforcar_layout")
+	call_deferred("_enforce_layout")
 
 
 func set_equipment_slot(tipo: SkillResource.Type, stage_index: int) -> void:
@@ -87,7 +95,7 @@ func set_equipment_slot(tipo: SkillResource.Type, stage_index: int) -> void:
 		_slot_passivo_selecionado = clampi(stage_index, 0, HeroEquipment.MAX_PASSIVE - 1)
 
 
-func _reforcar_layout() -> void:
+func _enforce_layout() -> void:
 	if visible:
 		panel_open_changed.emit(true)
 
@@ -114,16 +122,16 @@ func _build_skill_grids() -> void:
 	if not _grades_montadas:
 		_create_equipped_slots()
 	else:
-		for filho in grade_ativas.get_children():
+		for filho in active_grid.get_children():
 			filho.queue_free()
-		for filho in grade_passivas.get_children():
+		for filho in passive_grid.get_children():
 			filho.queue_free()
 		_slots_ativos.clear()
 		_slots_passivos.clear()
-	grade_ativas.columns = COLUNAS_GRADE
-	grade_passivas.columns = COLUNAS_GRADE
-	_create_framed_active_slots(grade_ativas, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
-	_create_skill_slots(grade_passivas, _slots_passivos, SKILLS_PASSIVAS_DISPONIVEIS)
+	active_grid.columns = COLUNAS_GRADE
+	passive_grid.columns = COLUNAS_GRADE
+	_create_framed_active_slots(active_grid, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
+	_create_skill_slots(passive_grid, _slots_passivos, SKILLS_PASSIVAS_DISPONIVEIS)
 	_grades_montadas = true
 	_grid_build_version = _GRID_BUILD_VERSION
 
@@ -133,11 +141,11 @@ func _create_equipped_slots() -> void:
 	_slots_equipados_passivos.clear()
 	for stage_index in HeroEquipment.MAX_ACTIVE:
 		var botao := _create_equipped_slot_button("SlotAtiva%d" % stage_index, stage_index, true)
-		grade_equip_ativas.add_child(botao)
+		equipped_active_grid.add_child(botao)
 		_slots_equipados_ativos.append(botao)
 	for stage_index in HeroEquipment.MAX_PASSIVE:
 		var botao := _create_equipped_slot_button("SlotPassiva%d" % stage_index, stage_index, false)
-		grade_equip_passivas.add_child(botao)
+		equipped_passive_grid.add_child(botao)
 		_slots_equipados_passivos.append(botao)
 
 
@@ -145,7 +153,7 @@ func _create_equipped_slot_button(nome: String, stage_index: int, ativo: bool) -
 	var botao := Button.new()
 	botao.name = nome
 	botao.custom_minimum_size = TAMANHO_SLOT_EQUIPADO
-	botao.text = TEXTO_SLOT_VAZIO
+	botao.text = _empty_slot_text()
 	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	botao.add_theme_font_size_override("font_size", 10)
 	botao.set_meta("slot_equipado_ativo", ativo)
@@ -181,9 +189,9 @@ func _create_framed_active_slots(grade: GridContainer, destino: Array[TextureBut
 		destino.append(slot)
 
 
-func _create_skill_slots(grade: GridContainer, destino: Array[Button], quantidade: int) -> void:
+func _create_skill_slots(grade: GridContainer, destino: Array[Button], amount: int) -> void:
 	destino.clear()
-	for stage_index in quantidade:
+	for stage_index in amount:
 		var slot := Button.new()
 		slot.name = "SlotHabilidade%d" % (stage_index + 1)
 		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
@@ -201,7 +209,7 @@ func _create_skill_slots(grade: GridContainer, destino: Array[Button], quantidad
 
 
 func _build_hero_selector() -> void:
-	for filho in slots_heroi.get_children():
+	for filho in hero_slots.get_children():
 		filho.queue_free()
 	_hero_buttons.clear()
 	_hero_indices.clear()
@@ -212,7 +220,7 @@ func _build_hero_selector() -> void:
 		var dados := classe as ClassData
 		var botao := Button.new()
 		botao.custom_minimum_size = Vector2(72, 82)
-		botao.text = dados.display_name
+		botao.text = dados.get_localized_name()
 		botao.icon = dados.character_sprite
 		botao.expand_icon = true
 		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -222,20 +230,20 @@ func _build_hero_selector() -> void:
 		botao.add_theme_constant_override("icon_max_width", 48)
 		botao.add_theme_font_size_override("font_size", 9)
 		botao.pressed.connect(_on_hero_slot_pressed.bind(i))
-		slots_heroi.add_child(botao)
+		hero_slots.add_child(botao)
 		_hero_buttons.append(botao)
 		_hero_indices.append(i)
 		_paint_hero(botao, i == _slot_alvo)
 
 
 func _update_header() -> void:
-	if label_skills_heroi == null or _party == null:
+	if hero_skills_label == null or _party == null:
 		return
 	var classe: Variant = _party.active_party[_slot_alvo]
 	if classe is ClassData:
-		label_skills_heroi.text = (classe as ClassData).display_name
+		hero_skills_label.text = (classe as ClassData).get_localized_name()
 	else:
-		label_skills_heroi.text = "Nenhum herói"
+		hero_skills_label.text = tr(LocaleKeys.SKILLS_NO_HERO)
 
 
 func _get_class_id() -> String:
@@ -320,7 +328,7 @@ func _setup_available_slot(slot: Button, skill: SkillResource, classe_id: String
 
 func _update_slot_text(botao: Button, skill: SkillResource) -> void:
 	if skill == null:
-		botao.text = TEXTO_SLOT_VAZIO
+		botao.text = _empty_slot_text()
 		SkillIcons.apply_to_button(botao, null, TAMANHO_SLOT_EQUIPADO)
 	else:
 		botao.text = ""
@@ -426,6 +434,40 @@ func _paint_equipped_slot(botao: Button, selecionado: bool) -> void:
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
 	botao.add_theme_stylebox_override("pressed", estilo)
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	update()
+
+
+func _empty_slot_text() -> String:
+	return tr(LocaleKeys.SKILLS_EMPTY_SLOT)
+
+
+func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.SKILLS_TITLE).to_upper()
+	if botao_fechar:
+		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+	if hero_title_label:
+		hero_title_label.text = tr(LocaleKeys.SKILLS_SELECTED_HERO)
+	if equipped_active_title:
+		equipped_active_title.text = tr(LocaleKeys.SKILLS_ACTIVE)
+	if equipped_passive_title:
+		equipped_passive_title.text = tr(LocaleKeys.SKILLS_PASSIVE)
+	if available_title:
+		available_title.text = tr(LocaleKeys.SKILLS_AVAILABLE)
+	if available_active_title:
+		available_active_title.text = tr(LocaleKeys.SKILLS_ACTIVE)
+	if available_passive_title:
+		available_passive_title.text = tr(LocaleKeys.SKILLS_PASSIVE)
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
+	if is_open():
+		update()
 
 
 func _on_header_gui_input(evento: InputEvent) -> void:

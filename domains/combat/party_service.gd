@@ -50,18 +50,18 @@ func get_class_by_id(class_id: String) -> ClassData:
 	return null
 
 
-func scale_character(slot_index: int, nova_classe: ClassData = null) -> void:
+func scale_character(slot_index: int, new_class: ClassData = null) -> void:
 	if slot_index < 0 or slot_index >= SLOTS:
 		return
-	if nova_classe != null:
-		var ocupado := _index_of_class(nova_classe.id)
+	if new_class != null:
+		var ocupado := _index_of_class(new_class.id)
 		if ocupado == slot_index:
 			return
 		if ocupado >= 0:
 			var anterior: Variant = active_party[slot_index]
 			var hp_slot := _vida_atual[slot_index]
 			var hp_outro := _vida_atual[ocupado]
-			active_party[slot_index] = nova_classe
+			active_party[slot_index] = new_class
 			active_party[ocupado] = anterior
 			_vida_atual[slot_index] = hp_outro
 			_vida_atual[ocupado] = hp_slot
@@ -74,7 +74,7 @@ func scale_character(slot_index: int, nova_classe: ClassData = null) -> void:
 			_emit_dps()
 			party_changed.emit()
 			return
-	active_party[slot_index] = nova_classe
+	active_party[slot_index] = new_class
 	_update_max_hp_slot(slot_index, true)
 	_update_sprite_slot(slot_index)
 	_update_timer_slot(slot_index)
@@ -206,7 +206,7 @@ func hero_max_hp(slot_index: int) -> int:
 
 
 func _skill_tree_bonus(slot_index: int) -> Dictionary:
-	var bonus := SkillTreeDefinition.bonus_vazio()
+	var bonus := SkillTreeDefinition.empty_bonus()
 	if get_skill_tree_bonus.is_valid():
 		var raw: Variant = get_skill_tree_bonus.call(slot_index)
 		if raw is Dictionary:
@@ -238,15 +238,15 @@ func right_target_index() -> int:
 	return -1
 
 
-func apply_damage_to_hero(slot_index: int, quantidade: int) -> bool:
+func apply_damage_to_hero(slot_index: int, amount: int) -> bool:
 	if not is_hero_alive(slot_index):
 		return false
-	_vida_atual[slot_index] = maxi(0, _vida_atual[slot_index] - maxi(0, quantidade))
+	_vida_atual[slot_index] = maxi(0, _vida_atual[slot_index] - maxi(0, amount))
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	if sprite.has_method("flash_damage"):
 		sprite.flash_damage()
 	_update_bar_slot(slot_index)
-	DamageNumber.spawn(get_parent(), sprite.global_position, quantidade, Color(1, 0.38, 0.32, 1))
+	DamageNumber.spawn(get_parent(), sprite.global_position, amount, Color(1, 0.38, 0.32, 1))
 	if _vida_atual[slot_index] <= 0:
 		_set_fallen(slot_index, true)
 		_emit_dps()
@@ -385,13 +385,13 @@ func _update_timer_slot(slot_index: int) -> void:
 		timer.start()
 
 
-func _update_max_hp_slot(slot_index: int, resetar: bool) -> void:
+func _update_max_hp_slot(slot_index: int, reset_hp: bool) -> void:
 	var novo_max := hero_max_hp(slot_index)
 	if novo_max <= 0:
 		_vida_max[slot_index] = 0
 		_vida_atual[slot_index] = 0
 		return
-	if resetar:
+	if reset_hp:
 		_vida_max[slot_index] = novo_max
 		_vida_atual[slot_index] = novo_max
 		return
@@ -409,13 +409,13 @@ func _update_bar_slot(slot_index: int) -> void:
 		sprite.update_hp(_vida_atual[slot_index], _vida_max[slot_index])
 
 
-func _set_fallen(slot_index: int, caido: bool) -> void:
+func _set_fallen(slot_index: int, fallen: bool) -> void:
 	if slot_index < 0 or slot_index >= _sprites.size():
 		return
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	if sprite.has_method("set_fallen"):
-		sprite.set_fallen(caido)
-	if caido:
+		sprite.set_fallen(fallen)
+	if fallen:
 		_timers[slot_index].stop()
 
 

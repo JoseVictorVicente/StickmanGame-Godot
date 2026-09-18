@@ -22,8 +22,8 @@ tests/
 │   ├── test_hero_progress.gd
 │   └── test_skill_tree.gd
 └── integration/
-    ├── test_save_v4_roundtrip.gd
-    └── test_save_migration_v3_to_v4.gd
+	├── test_save_v4_roundtrip.gd
+	└── test_save_migration_v3_to_v4.gd
 ```
 
 ## Coverage priority
@@ -53,10 +53,10 @@ tests/
 extends GutTest
 
 func test_xp_level_up():
-    var progress := HeroProgress.new()
-    var party := [ClassData.get_by_id("warrior"), null, null]
-    var levels := progress.apply_xp(10000, party)
-    assert_gt(progress.get_level_at_slot(0, party), 1)
+	var progress := HeroProgress.new()
+	var party := [ClassData.get_by_id("warrior"), null, null]
+	var levels := progress.apply_xp(10000, party)
+	assert_gt(progress.get_level_at_slot(0, party), 1)
 ```
 
 ## CI (future)

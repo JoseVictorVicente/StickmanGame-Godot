@@ -74,7 +74,7 @@ func unlock(id_no: int) -> bool:
 
 
 func global_bonus() -> Dictionary:
-	var total := SkillTreeDefinition.bonus_vazio()
+	var total := SkillTreeDefinition.empty_bonus()
 	for id_no in _niveis.keys():
 		var nivel := node_level(int(id_no))
 		if nivel <= 0:
@@ -82,10 +82,10 @@ func global_bonus() -> Dictionary:
 		var no := node_by_id(int(id_no))
 		if no.is_empty():
 			continue
-		var chave := SkillTreeDefinition.chave_bonus(int(no.get("tipo", 0)))
+		var chave := SkillTreeDefinition.bonus_key(int(no.get("tipo", 0)))
 		if chave == "":
 			continue
-		var valor := SkillTreeDefinition.valor_bonus(no, nivel)
+		var valor := SkillTreeDefinition.bonus_value(no, nivel)
 		if chave in ["ataque", "vida"]:
 			total[chave] = int(total[chave]) + int(valor)
 		elif chave == "ataque_pct":
@@ -103,7 +103,7 @@ func unlocked_warehouse_indices() -> Array[int]:
 		var no := node_by_id(int(id_no))
 		if no.is_empty():
 			continue
-		if int(no.get("tipo", -1)) != SkillTreeDefinition.TipoBonus.ARMAZEM:
+		if int(no.get("tipo", -1)) != SkillTreeDefinition.BonusType.WAREHOUSE:
 			continue
 		saida.append(int(no.get("valor_base", no.get("valor", 0))))
 	return saida
@@ -177,15 +177,15 @@ func _migrate_saves() -> void:
 			continue
 		validos[id] = clampi(node_level(id), 0, max_level(id))
 	_niveis = validos
-	for secao in SkillTreeDefinition.NUM_SECOES:
+	for secao in SkillTreeDefinition.NUM_SECTIONS:
 		_repair_section_chain(secao)
 
 
 func _repair_section_chain(secao: int) -> void:
-	for slot in SkillTreeDefinition.NOS_POR_SECAO:
-		var id := SkillTreeDefinition.id_do_no(secao, slot)
+	for slot in SkillTreeDefinition.NODES_PER_SECTION:
+		var id := SkillTreeDefinition.node_id(secao, slot)
 		if node_level(id) <= 0:
 			continue
-		for id_pai in SkillTreeDefinition.pais_do_slot(secao, slot):
+		for id_pai in SkillTreeDefinition.parent_slots(secao, slot):
 			if node_level(id_pai) < 1:
 				_niveis[id_pai] = 1

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c8painmun001" path="res://presentation/worlds/worlds_panel.gd" id="1_mundos"]
 [ext_resource type="Script" uid="uid://c8mapafas001" path="res://presentation/worlds/stage_map.gd" id="2_mapa"]
 [ext_resource type="Texture2D" path="res://sprites/environment/forest_map_clean.png" id="3_floresta"]
-[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="4_fundo_mundos"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="4_fundo_mundos"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
 content_margin_left = 21.0
@@ -127,12 +127,12 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="CabecalhoMundos" type="HBoxContainer" parent="Camada/Conteudo"]
+[node name="WorldsHeader" type="HBoxContainer" parent="Camada/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BotaoVoltarMundos" type="Button" parent="Camada/Conteudo/CabecalhoMundos"]
+[node name="WorldsBackButton" type="Button" parent="Camada/Conteudo/WorldsHeader"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(36, 36)
@@ -145,12 +145,12 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "←"
 
-[node name="BannerTitulo" type="PanelContainer" parent="Camada/Conteudo/CabecalhoMundos"]
+[node name="BannerTitulo" type="PanelContainer" parent="Camada/Conteudo/WorldsHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="TituloMundos" type="Label" parent="Camada/Conteudo/CabecalhoMundos/BannerTitulo"]
+[node name="WorldsTitle" type="Label" parent="Camada/Conteudo/WorldsHeader/BannerTitulo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
@@ -159,7 +159,7 @@ text = "MUNDOS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoFecharMundos" type="Button" parent="Camada/Conteudo/CabecalhoMundos"]
+[node name="CloseWorldsButton" type="Button" parent="Camada/Conteudo/WorldsHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -171,23 +171,23 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="PainelListaMundos" type="VBoxContainer" parent="Camada/Conteudo"]
+[node name="WorldListPanel" type="VBoxContainer" parent="Camada/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="ListaMundos" type="VBoxContainer" parent="Camada/Conteudo/PainelListaMundos"]
+[node name="WorldList" type="VBoxContainer" parent="Camada/Conteudo/WorldListPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
-[node name="RodapeDificuldade" type="HBoxContainer" parent="Camada/Conteudo/PainelListaMundos"]
+[node name="RodapeDificuldade" type="HBoxContainer" parent="Camada/Conteudo/WorldListPanel"]
 layout_mode = 2
 alignment = 2
 
-[node name="BotaoDificuldade" type="Button" parent="Camada/Conteudo/PainelListaMundos/RodapeDificuldade"]
+[node name="DifficultyButton" type="Button" parent="Camada/Conteudo/WorldListPanel/RodapeDificuldade"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 32)
 layout_mode = 2
@@ -212,7 +212,7 @@ layout_mode = 2
 mouse_filter = 0
 script = ExtResource("2_mapa")
 
-[node name="FundoMapa" type="TextureRect" parent="Camada/Conteudo/PainelStageMap/StageMap"]
+[node name="MapBackground" type="TextureRect" parent="Camada/Conteudo/PainelStageMap/StageMap"]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1
@@ -228,7 +228,7 @@ texture = ExtResource("3_floresta")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="FundoMenuDificuldade" type="ColorRect" parent="Camada"]
+[node name="DifficultyMenuBackdrop" type="ColorRect" parent="Camada"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -240,14 +240,14 @@ grow_vertical = 2
 mouse_filter = 0
 color = Color(0, 0, 0, 0.01)
 
-[node name="MenuDificuldade" type="PanelContainer" parent="Camada"]
+[node name="DifficultyMenu" type="PanelContainer" parent="Camada"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
 mouse_filter = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_dificuldade")
 
-[node name="OpcoesDificuldade" type="VBoxContainer" parent="Camada/MenuDificuldade"]
+[node name="DifficultyOptions" type="VBoxContainer" parent="Camada/DifficultyMenu"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4

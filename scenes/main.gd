@@ -1,22 +1,22 @@
 extends Node2D
 ## Orquestra HUD, inventário, combat_root e janela.
 
-@onready var inventory_menu: InventoryMenu = $HudInventario/InventoryMenu
-@onready var area_botao_menu: ColorRect = $HudBotao/AreaBotaoMenu
-@onready var open_inventory_button: Button = $HudBotao/AreaBotaoMenu/BotaoAbrirInventario
-@onready var battle_panel: PanelContainer = $HudBatalha/PainelBatalha
-@onready var enemy_label: Label = %LabelInimigo
-@onready var enemy_health_bar: ProgressBar = %BarraVidaInimigo
-@onready var level_label: Label = %LabelNivel
-@onready var label_dano: Label = %LabelDano
-@onready var repeat_stage_button: Button = %BotaoRepetirFase
-@onready var notice_label: Label = %LabelAviso
-@onready var stage_panel: Control = $HudBatalha/Palco
-@onready var floor: TextureRect = %Chao
-@onready var combat_root: Node2D = $HudBatalha/Combate
-@onready var party: PartyService = $HudBatalha/Combate/PartyService
-@onready var enemy_visual: Sprite2D = $HudBatalha/Combate/InimigoVisual
-@onready var coin_effect_layer: Control = $HudBatalha/CamadaEfeitos
+@onready var inventory_menu: InventoryMenu = $InventoryHud/InventoryMenu
+@onready var menu_button_area: ColorRect = $ButtonHud/MenuButtonArea
+@onready var open_inventory_button: Button = $ButtonHud/MenuButtonArea/OpenInventoryButton
+@onready var battle_panel: PanelContainer = $BattleHud/BattlePanel
+@onready var enemy_label: Label = %EnemyLabel
+@onready var enemy_health_bar: ProgressBar = %EnemyHealthBar
+@onready var level_label: Label = %LevelLabel
+@onready var damage_label: Label = %DamageLabel
+@onready var repeat_stage_button: Button = %RepeatStageButton
+@onready var notice_label: Label = %NoticeLabel
+@onready var stage_panel: Control = $BattleHud/StageArea
+@onready var floor: TextureRect = %Floor
+@onready var combat_root: Node2D = $BattleHud/Combate
+@onready var party: PartyService = $BattleHud/Combate/PartyService
+@onready var enemy_visual: Sprite2D = $BattleHud/Combate/EnemyVisual
+@onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
 var _notice_tween: Tween
@@ -32,7 +32,7 @@ func _ready() -> void:
 	_window_manager.name = "WindowManager"
 	_window_manager.stage_panel = stage_panel
 	_window_manager.battle_panel = battle_panel
-	_window_manager.area_botao_menu = area_botao_menu
+	_window_manager.menu_button_area = menu_button_area
 	_window_manager.combat_root = combat_root
 	_window_manager.floor = floor
 	_window_manager.open_inventory_button = open_inventory_button
@@ -62,7 +62,7 @@ func _ready() -> void:
 	_combat.hero_level_changed.connect(_on_hero_level_changed)
 
 	inventory_menu.hide()
-	area_botao_menu.show()
+	menu_button_area.show()
 	open_inventory_button.pressed.connect(_toggle_inventory)
 	inventory_menu.closed.connect(_close_inventory)
 	inventory_menu.window_released.connect(_apply_menu_direction)
@@ -159,7 +159,7 @@ func recalculate_attributes() -> void:
 
 func _on_dps_changed(dps: float, dano_grupo: int) -> void:
 	total_damage = dano_grupo
-	label_dano.text = "DPS %.1f" % dps
+	damage_label.text = "DPS %.1f" % dps
 
 
 func _on_hero_class_changed(_indice: int, _classe: ClassData) -> void:
@@ -199,16 +199,16 @@ func _apply_menu_direction() -> void:
 
 func _gold_destination() -> Vector2:
 	if inventory_menu.visible:
-		return inventory_menu.label_ouro.get_global_rect().get_center()
+		return inventory_menu.gold_label.get_global_rect().get_center()
 	return battle_panel.get_global_rect().get_center()
 
 
-func _on_coin_effect(origem: Vector2, destino: Vector2, quantidade: int) -> void:
-	coin_effect_layer.launch(origem, destino, quantidade)
+func _on_coin_effect(origem: Vector2, destino: Vector2, amount: int) -> void:
+	coin_effect_layer.launch(origem, destino, amount)
 
 
-func _on_combat_gold(quantidade: int) -> void:
-	_game_state.add_gold(quantidade)
+func _on_combat_gold(amount: int) -> void:
+	_game_state.add_gold(amount)
 	AudioManager.play_coin_sound()
 	_update_hud()
 
@@ -219,7 +219,7 @@ func _on_gold_changed(_new_amount: int) -> void:
 
 func _on_item_dropped(item: ItemData) -> void:
 	if inventory_menu.add_item(item):
-		_show_notice(tr(LocaleKeys.UI_DROP_PREFIX) % item.nome)
+		_show_notice(tr(LocaleKeys.UI_DROP_PREFIX) % item.get_display_name())
 		AudioManager.play_coin_sound()
 	else:
 		_show_notice(tr(LocaleKeys.UI_INVENTORY_FULL))
@@ -262,14 +262,14 @@ func _on_character_changed(_indice: int) -> void:
 	recalculate_attributes()
 
 
-func _on_menu_gold_gained(quantidade: int) -> void:
-	_game_state.add_gold(maxi(0, quantidade))
+func _on_menu_gold_gained(amount: int) -> void:
+	_game_state.add_gold(maxi(0, amount))
 	AudioManager.play_coin_sound()
 	SaveSystem.save()
 
 
-func _on_menu_gold_spent(quantidade: int) -> void:
-	var spent := maxi(0, quantidade)
+func _on_menu_gold_spent(amount: int) -> void:
+	var spent := maxi(0, amount)
 	if spent > 0:
 		_game_state.set_gold(maxi(0, _game_state.get_gold() - spent))
 		_game_state.save_requested.emit()
@@ -278,7 +278,7 @@ func _on_menu_gold_spent(quantidade: int) -> void:
 func _update_hud() -> void:
 	if _combat.current_enemy:
 		enemy_label.text = "%s  %s" % [
-			_combat.current_enemy.nome,
+			_combat.current_enemy.display_name,
 			WorldProgress.difficulty_name(_combat.difficulty),
 		]
 	inventory_menu.update_gold(_game_state.get_gold())
@@ -293,7 +293,7 @@ func _update_hud() -> void:
 		int(hero_progress["xp"]),
 		int(hero_progress["xp_proximo"]),
 	)
-	label_dano.text = tr(LocaleKeys.UI_DPS_FORMAT) % party.party_dps()
+	damage_label.text = tr(LocaleKeys.UI_DPS_FORMAT) % party.party_dps()
 
 
 func _toggle_inventory() -> void:
@@ -306,7 +306,7 @@ func _toggle_inventory() -> void:
 func _open_inventory() -> void:
 	_apply_menu_direction()
 	inventory_menu.show()
-	area_botao_menu.show()
+	menu_button_area.show()
 	_window_manager.adjust_width(true, inventory_menu.width_for_window())
 	_window_manager.update_click_through()
 
@@ -319,7 +319,7 @@ func _on_menu_width_changed() -> void:
 
 func _close_inventory() -> void:
 	inventory_menu.hide()
-	area_botao_menu.show()
+	menu_button_area.show()
 	_window_manager.adjust_width(false, inventory_menu.width_for_window())
 	_window_manager.update_click_through()
 	SaveSystem.save_game()

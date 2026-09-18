@@ -5,12 +5,13 @@ extends PanelContainer
 signal panel_open_changed(is_open: bool)
 signal slot_selected(stage_index: int)
 
-@onready var botao_fechar: Button = %BotaoFecharFormacao
-@onready var cabecalho: HBoxContainer = %CabecalhoFormacao
-@onready var slots_equipe: HBoxContainer = %SlotsFormacao
-@onready var rolagem_herois: ScrollContainer = %RolagemHerois
-@onready var grade_herois: GridContainer = %GradeHeroisFormacao
-@onready var label_dica: Label = %LabelDicaFormacao
+@onready var botao_fechar: Button = %CloseFormationButton
+@onready var cabecalho: HBoxContainer = %FormationHeader
+@onready var party_slots: HBoxContainer = %FormationSlots
+@onready var hero_scroll: ScrollContainer = %HeroScroll
+@onready var hero_grid: GridContainer = %FormationHeroGrid
+@onready var hint_label: Label = %FormationHintLabel
+@onready var title_label: Label = $Conteudo/FormationHeader/BannerTitulo/Titulo
 
 var _menu: InventoryMenu
 var _party: PartyService
@@ -25,10 +26,12 @@ func _ready() -> void:
 	botao_fechar.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
-	if rolagem_herois:
-		rolagem_herois.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		rolagem_herois.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-		rolagem_herois.custom_minimum_size.y = 160
+	if hero_scroll:
+		hero_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		hero_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+		hero_scroll.custom_minimum_size.y = 160
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 
 
 func configure(menu: InventoryMenu, party: PartyService) -> void:
@@ -49,10 +52,10 @@ func open() -> void:
 	show()
 	update()
 	panel_open_changed.emit(true)
-	call_deferred("_reforcar_layout")
+	call_deferred("_enforce_layout")
 
 
-func _reforcar_layout() -> void:
+func _enforce_layout() -> void:
 	if visible:
 		panel_open_changed.emit(true)
 
@@ -70,15 +73,15 @@ func update() -> void:
 		_slot_alvo = _party.first_occupied_slot()
 	_build_slots()
 	_build_heroes()
-	if label_dica:
+	if hint_label:
 		if _party.can_remove():
-			label_dica.text = "Toque num herói para colocar na equipe. O último em campo não pode sair."
+			hint_label.text = tr(LocaleKeys.FORMATION_HINT_CAN_REMOVE)
 		else:
-			label_dica.text = "Pelo menos 1 herói precisa ficar em campo."
+			hint_label.text = tr(LocaleKeys.FORMATION_HINT_MIN_ONE)
 
 
 func _build_slots() -> void:
-	for filho in slots_equipe.get_children():
+	for filho in party_slots.get_children():
 		filho.queue_free()
 	_botoes_slot.clear()
 	_botoes_retirar.clear()
@@ -101,35 +104,35 @@ func _build_slots() -> void:
 		if classe is ClassData:
 			var dados := classe as ClassData
 			botao.icon = dados.character_sprite
-			botao.text = dados.display_name
+			botao.text = dados.get_localized_name()
 		else:
-			botao.text = "Vazio"
+			botao.text = tr(LocaleKeys.UI_EMPTY_SLOT)
 			botao.disabled = true
 		caixa.add_child(botao)
 		var retirar := Button.new()
-		retirar.text = "Retirar"
+		retirar.text = tr(LocaleKeys.FORMATION_REMOVE)
 		retirar.add_theme_font_size_override("font_size", 10)
 		retirar.pressed.connect(_on_retirar.bind(i))
 		var ocupado := classe is ClassData
 		retirar.disabled = not ocupado or not _party.can_remove()
-		retirar.tooltip_text = "O último herói não pode ser retirado." if retirar.disabled and ocupado else "Tira este herói da equipe."
+		retirar.tooltip_text = tr(LocaleKeys.FORMATION_REMOVE_BLOCKED) if retirar.disabled and ocupado else tr(LocaleKeys.FORMATION_REMOVE_TOOLTIP)
 		caixa.add_child(retirar)
-		slots_equipe.add_child(caixa)
+		party_slots.add_child(caixa)
 		_botoes_slot.append(botao)
 		_botoes_retirar.append(retirar)
 		_paint_slot(botao, i == _slot_alvo and ocupado)
 
 
 func _build_heroes() -> void:
-	for filho in grade_herois.get_children():
+	for filho in hero_grid.get_children():
 		filho.queue_free()
 	_hero_buttons.clear()
-	grade_herois.columns = 3
+	hero_grid.columns = 3
 	for classe in _party.unlocked_classes:
 		var botao := Button.new()
 		botao.custom_minimum_size = Vector2(86, 98)
-		botao.text = classe.display_name
-		botao.tooltip_text = classe.display_name
+		botao.text = classe.get_localized_name()
+		botao.tooltip_text = classe.get_localized_name()
 		botao.icon = classe.character_sprite
 		botao.expand_icon = true
 		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -139,7 +142,7 @@ func _build_heroes() -> void:
 		botao.add_theme_constant_override("icon_max_width", 56)
 		botao.add_theme_font_size_override("font_size", 10)
 		botao.pressed.connect(_on_hero_pressed.bind(classe))
-		grade_herois.add_child(botao)
+		hero_grid.add_child(botao)
 		_hero_buttons.append(botao)
 		var na_equipe := _party._index_of_class(classe.id) >= 0
 		_paint_hero(botao, na_equipe)
@@ -203,6 +206,26 @@ func _paint_hero(botao: Button, na_equipe: bool) -> void:
 		estilo.set_border_width_all(1)
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	update()
+
+
+func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.FORMATION_TITLE).to_upper()
+	if botao_fechar:
+		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+	if botao_fechar:
+		botao_fechar.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
+	if is_open():
+		update()
 
 
 func _on_header_gui_input(evento: InputEvent) -> void:

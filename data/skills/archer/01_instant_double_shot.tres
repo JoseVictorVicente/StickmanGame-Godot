@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "instant_double_shot"
+skill_name = "Tiro Duplo Instantâneo"
+description = "Executa dois disparos rapidos consecutivos com 200% de dano critico."
+name_key = "SKILL_instant_double_shot"
+description_key = "SKILL_instant_double_shot_DESC"
+type = 0
+cooldown = 5
+icon_path = "res://sprites/ui/skills/archer/instant_double_shot.png"
+sort_order = 1
+stat_value = 0.0

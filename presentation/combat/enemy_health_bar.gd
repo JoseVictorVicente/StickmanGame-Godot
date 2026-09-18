@@ -2,7 +2,7 @@ class_name EnemyHealthBar
 extends ProgressBar
 ## Enemy health bar with tweened fill and hit flash.
 
-const COR_VIDA := Color(0.78, 0.18, 0.16, 1)
+const HP_COLOR := Color(0.78, 0.18, 0.16, 1)
 const DURACAO_TWEEN := 0.22
 
 @onready var label_hp: Label = $LabelHP
@@ -32,7 +32,7 @@ func initialize_bar(hp_max: int) -> void:
 	_update_text()
 
 
-func esmaecer() -> void:
+func fade_out() -> void:
 	if _tween_valor:
 		_tween_valor.kill()
 	if _tween_flash:
@@ -52,7 +52,7 @@ func show_up() -> void:
 func update_hp(hp_atual: int) -> void:
 	_hp_atual = clampi(hp_atual, 0, int(max_value))
 	_update_text()
-	_animar_preenchimento()
+	_animate_fill()
 	_flash_damage()
 
 
@@ -61,7 +61,7 @@ func _update_text() -> void:
 		label_hp.text = "%d / %d" % [_hp_atual, int(max_value)]
 
 
-func _animar_preenchimento() -> void:
+func _animate_fill() -> void:
 	if _tween_valor:
 		_tween_valor.kill()
 	_tween_valor = create_tween()
@@ -86,7 +86,7 @@ func _apply_styles() -> void:
 	fundo.border_color = Color(0.42, 0.32, 0.2, 1)
 
 	var preenchimento := StyleBoxFlat.new()
-	preenchimento.bg_color = COR_VIDA
+	preenchimento.bg_color = HP_COLOR
 	preenchimento.set_corner_radius_all(3)
 
 	add_theme_stylebox_override("background", fundo)

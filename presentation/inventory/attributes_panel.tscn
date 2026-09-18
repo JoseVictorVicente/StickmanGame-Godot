@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c8atrib0001"]
 
 [ext_resource type="Script" path="res://presentation/inventory/attributes_panel.gd" id="1_atributos"]
-[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/fundo_painel.png" id="2_fundo_painel"]
+[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
@@ -92,12 +92,12 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="CabecalhoAtributos" type="HBoxContainer" parent="Conteudo"]
+[node name="AttributesHeader" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BotaoVoltarAtributos" type="Button" parent="Conteudo/CabecalhoAtributos"]
+[node name="AttributesBackButton" type="Button" parent="Conteudo/AttributesHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -110,12 +110,12 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "←"
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoAtributos"]
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/AttributesHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/CabecalhoAtributos/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Conteudo/AttributesHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
@@ -129,7 +129,7 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ListaAtributos" type="VBoxContainer" parent="Conteudo/RolagemAtributos"]
+[node name="AttributesList" type="VBoxContainer" parent="Conteudo/RolagemAtributos"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

@@ -4,22 +4,25 @@ extends PanelContainer
 
 signal panel_open_changed(is_open: bool)
 
-@onready var botao_voltar: Button = %BotaoVoltarArvore
-@onready var cabecalho: HBoxContainer = %CabecalhoArvore
+@onready var back_button: Button = %SkillTreeBackButton
+@onready var cabecalho: HBoxContainer = %SkillTreeHeader
 @onready var mapa: SkillTreeMap = %SkillTreeMap
-@onready var label_ouro: Label = %LabelOuroArvore
-@onready var label_mensagem: Label = %LabelMensagemArvore
+@onready var gold_label: Label = %SkillTreeGoldLabel
+@onready var message_label: Label = %SkillTreeMessageLabel
+@onready var title_label: Label = $Conteudo/SkillTreeHeader/BannerTitulo/Titulo
 
 var _menu: InventoryMenu
 
 
 func _ready() -> void:
 	hide()
-	botao_voltar.pressed.connect(close)
+	back_button.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
 	if mapa:
 		mapa.node_selected.connect(_on_node_selected)
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 
 
 func configure(menu: InventoryMenu) -> void:
@@ -36,20 +39,20 @@ func open() -> void:
 	show()
 	update()
 	panel_open_changed.emit(true)
-	call_deferred("_reforcar_layout")
+	call_deferred("_enforce_layout")
 
 
 func update() -> void:
 	if _menu == null or mapa == null:
 		return
 	mapa.configure(_menu.skill_tree_progress(), _menu.get_current_gold())
-	if label_ouro:
-		label_ouro.text = "Ouro  %d" % _menu.get_current_gold()
-	if label_mensagem:
-		label_mensagem.text = "Cada habilidade tem até 5 níveis (armazém: 1). Role para baixo."
+	if gold_label:
+		gold_label.text = tr(LocaleKeys.UI_GOLD_FORMAT) % _menu.get_current_gold()
+	if message_label:
+		message_label.text = tr(LocaleKeys.TREE_HINT)
 
 
-func _reforcar_layout() -> void:
+func _enforce_layout() -> void:
 	if visible:
 		panel_open_changed.emit(true)
 
@@ -67,35 +70,55 @@ func _on_node_selected(id_no: int) -> void:
 	if no.is_empty():
 		return
 	if hero_progress.is_at_max_level(id_no):
-		_show_message("Nível máximo alcançado nesta habilidade.")
+		_show_message(tr(LocaleKeys.TREE_MAX_LEVEL))
 		return
 	if not hero_progress.can_purchase(id_no):
-		_show_message("Desbloqueie todos os nós acima deste primeiro.")
+		_show_message(tr(LocaleKeys.TREE_UNLOCK_FIRST))
 		return
 	var nivel_atual := hero_progress.node_level(id_no)
-	var custo := SkillTreeDefinition.custo_proximo_nivel(no, nivel_atual)
+	var custo := SkillTreeDefinition.next_level_cost(no, nivel_atual)
 	if not _menu.try_spend_gold(custo):
-		_show_message("Ouro insuficiente (%d necessários)." % custo)
+		_show_message(tr(LocaleKeys.TREE_NOT_ENOUGH_GOLD) % custo)
 		return
 	hero_progress.level_up(id_no)
 	_menu.notify_skill_tree_changed()
 	update()
 	var novo_nivel := hero_progress.node_level(id_no)
-	var msg := "Nível %d/%d: %s" % [
+	var msg := tr(LocaleKeys.TREE_LEVEL_UP) % [
 		novo_nivel,
 		hero_progress.max_level(id_no),
 		SkillTreeDefinition.descricao_bonus(no, novo_nivel),
 	]
-	if int(no.get("tipo", -1)) == SkillTreeDefinition.TipoBonus.ARMAZEM:
-		msg += " — nova página do armazém liberada."
+	if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
+		msg += tr(LocaleKeys.TREE_WAREHOUSE_UNLOCK)
 	else:
-		msg += " (todos os heróis)"
+		msg += tr(LocaleKeys.TREE_ALL_HEROES)
 	_show_message(msg)
 
 
 func _show_message(texto: String) -> void:
-	if label_mensagem:
-		label_mensagem.text = texto
+	if message_label:
+		message_label.text = texto
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	update()
+
+
+func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.TREE_TITLE).to_upper()
+	if back_button:
+		back_button.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
+	if mapa:
+		mapa.queue_redraw()
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
+	if is_open():
+		update()
 
 
 func _on_header_gui_input(event: InputEvent) -> void:

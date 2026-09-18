@@ -33,7 +33,7 @@ func compute_global_skill_tree_bonus() -> Dictionary:
 		var result: Variant = get_skill_tree_bonus.call(-1)
 		if result is Dictionary:
 			return result
-	return SkillTreeDefinition.bonus_vazio()
+	return SkillTreeDefinition.empty_bonus()
 
 
 static func _compute_damage(class_data: ClassData, level: int, equip_damage: int, bonus: Dictionary) -> int:
@@ -72,7 +72,7 @@ func _skill_tree_bonus(slot_index: int) -> Dictionary:
 		var bonus: Variant = get_skill_tree_bonus.call(slot_index)
 		if bonus is Dictionary:
 			return bonus
-	return SkillTreeDefinition.bonus_vazio()
+	return SkillTreeDefinition.empty_bonus()
 
 
 static func _empty() -> Dictionary:
@@ -83,5 +83,5 @@ static func _empty() -> Dictionary:
 		"crit_chance": 0.0,
 		"gold_bonus": 0.0,
 		"xp_bonus": 0.0,
-		"skill_tree_bonus": SkillTreeDefinition.bonus_vazio(),
+		"skill_tree_bonus": SkillTreeDefinition.empty_bonus(),
 	}

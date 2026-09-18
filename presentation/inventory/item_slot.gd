@@ -10,14 +10,20 @@ signal item_dropped(destino: ItemSlot, item: ItemData, origem: ItemSlot)
 const OFFSET_LEGENDA := Vector2(10, 0)
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
-const EQUIP_DIREITA_NOMES: Array[String] = ["Cinto", "Pingente", "Anel", "Bracelete", "Pet"]
+const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
+	ItemData.Type.BELT,
+	ItemData.Type.PENDANT,
+	ItemData.Type.RING,
+	ItemData.Type.BRACELET,
+	ItemData.Type.PET,
+]
 
 static var _camada_legenda: CanvasLayer
 static var _caixa_legenda: PanelContainer
 static var _slot_legenda: ItemSlot
 
 var item: ItemData = null
-var tipo_aceitavel: ItemData.Tipo = ItemData.Tipo.ARMA
+var tipo_aceitavel: ItemData.Type = ItemData.Type.WEAPON
 var aceita_qualquer: bool = true
 var nome_slot: String = ""
 var validar_drop_extra: Callable
@@ -35,7 +41,7 @@ func _ready() -> void:
 	tree_exiting.connect(_hide_tooltip)
 
 
-func configure(p_icone: TextureRect, p_tipo: ItemData.Tipo = ItemData.Tipo.ARMA, p_qualquer: bool = true) -> void:
+func configure(p_icone: TextureRect, p_tipo: ItemData.Type = ItemData.Type.WEAPON, p_qualquer: bool = true) -> void:
 	icone_rect = p_icone
 	tipo_aceitavel = p_tipo
 	aceita_qualquer = p_qualquer
@@ -61,7 +67,7 @@ func update_visual(selecionado: bool = _selecionado) -> void:
 	if _label_sigla:
 		if item:
 			_label_sigla.text = item.type_abbreviation()
-			_label_sigla.add_theme_color_override("font_color", item.rarity_color())
+			_label_sigla.add_theme_color_override("font_color", item.get_rarity_color())
 			_label_sigla.visible = true
 		else:
 			_label_sigla.text = ""
@@ -87,7 +93,7 @@ func aceita(candidato: ItemData) -> bool:
 		return false
 	if aceita_qualquer:
 		return true
-	return candidato.tipo == tipo_aceitavel
+	return candidato.item_type == tipo_aceitavel
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -171,7 +177,7 @@ func _position_tooltip() -> void:
 
 
 func _should_open_tooltip_left(slot_rect: Rect2) -> bool:
-	if EQUIP_DIREITA_NOMES.has(nome_slot) or _is_in_right_column():
+	if EQUIP_RIGHT_TYPES.has(tipo_aceitavel) or _is_in_right_column():
 		return true
 	var hud := _get_hud_rect()
 	if hud.size.x <= 0.0:
@@ -182,7 +188,7 @@ func _should_open_tooltip_left(slot_rect: Rect2) -> bool:
 func _is_in_right_column() -> bool:
 	var no: Node = self
 	while no:
-		if no.name == "EquipDireita" or str(no.name).begins_with("EquipDir_"):
+		if no.name == "EquipRight" or str(no.name).begins_with("EquipDir_"):
 			return true
 		no = no.get_parent()
 	return false
@@ -216,7 +222,7 @@ func _fill_tooltip(caixa: PanelContainer, dados: ItemData) -> void:
 		caixa.get_child(0).free()
 	var fundo := StyleBoxFlat.new()
 	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
-	fundo.border_color = dados.rarity_color()
+	fundo.border_color = dados.get_rarity_color()
 	fundo.set_border_width_all(2)
 	fundo.set_corner_radius_all(4)
 	fundo.content_margin_left = 10
@@ -228,27 +234,27 @@ func _fill_tooltip(caixa: PanelContainer, dados: ItemData) -> void:
 	var coluna := VBoxContainer.new()
 	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	coluna.add_theme_constant_override("separation", 3)
-	coluna.add_child(_tooltip_label(dados.nome, dados.rarity_color(), 13, true))
-	coluna.add_child(_tooltip_label(dados.rarity_name(), dados.rarity_color(), 11, false))
+	coluna.add_child(_tooltip_label(dados.get_display_name(), dados.get_rarity_color(), 13, true))
+	coluna.add_child(_tooltip_label(dados.rarity_name(), dados.get_rarity_color(), 11, false))
 	if dados.is_gem():
 		coluna.add_child(_tooltip_label(
-			"%s: +%s" % [ItemData.nome_atributo_gema(dados.atributo_gema), dados.gem_value_text()],
+			tr(LocaleKeys.ITEM_GEM_ATTR_VALUE) % [ItemData.gem_attribute_name(dados.gem_attribute), dados.gem_value_text()],
 			Color(0.92, 0.86, 0.7, 1),
 			11,
 			false
 		))
 	else:
-		coluna.add_child(_tooltip_label("Dano Bônus: +%d" % dados.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
-		if dados.vida_bonus != 0:
-			coluna.add_child(_tooltip_label("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
+		coluna.add_child(_tooltip_label(tr(LocaleKeys.ITEM_BONUS_DAMAGE) % dados.damage_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
+		if dados.hp_bonus != 0:
+			coluna.add_child(_tooltip_label(tr(LocaleKeys.ITEM_BONUS_HP) % dados.hp_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
 		var linha_gema := dados.gem_slot_line()
 		if linha_gema != "":
 			coluna.add_child(_tooltip_label(linha_gema, dados.gem_slot_label_color(), 11, false))
 	if dados.required_class != ItemData.RequiredClass.ALL:
-		coluna.add_child(_tooltip_label("Classe: %s" % dados.required_class_name(), Color(0.85, 0.78, 0.55, 1), 11, false))
+		coluna.add_child(_tooltip_label(tr(LocaleKeys.ITEM_CLASS_REQUIRED) % dados.required_class_display_name(), Color(0.85, 0.78, 0.55, 1), 11, false))
 	if not dados.is_gem():
-		coluna.add_child(_tooltip_label("Nível: %d" % dados.nivel_item, Color(0.78, 0.82, 0.95, 1), 11, false))
-	coluna.add_child(_tooltip_label("Valor: %d ouro" % dados.dismantle_value(), Color(1, 0.86, 0.38, 1), 11, false))
+		coluna.add_child(_tooltip_label(tr(LocaleKeys.ITEM_LEVEL) % dados.item_level, Color(0.78, 0.82, 0.95, 1), 11, false))
+	coluna.add_child(_tooltip_label(tr(LocaleKeys.ITEM_VALUE) % dados.dismantle_value(), Color(1, 0.86, 0.38, 1), 11, false))
 	caixa.add_child(coluna)
 
 
@@ -334,7 +340,7 @@ func _current_style() -> StyleBoxFlat:
 	var estilo := StyleBoxFlat.new()
 	estilo.set_corner_radius_all(3)
 	if item:
-		var raridade := item.rarity_color()
+		var raridade := item.get_rarity_color()
 		estilo.bg_color = Color(raridade.r * 0.18, raridade.g * 0.16, raridade.b * 0.16, 1)
 		estilo.border_color = raridade
 	else:

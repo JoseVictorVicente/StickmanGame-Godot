@@ -5,19 +5,19 @@ extends RefCounted
 const CHARACTER_SLOTS := 3
 const EQUIP_SLOT_COUNT := 12
 
-const EQUIP_TYPES: Array[ItemData.Tipo] = [
-	ItemData.Tipo.ARMA,
-	ItemData.Tipo.SECUNDARIA,
-	ItemData.Tipo.CAPACETE,
-	ItemData.Tipo.PEITORAL,
-	ItemData.Tipo.LUVA,
-	ItemData.Tipo.CALCA,
-	ItemData.Tipo.BOTA,
-	ItemData.Tipo.CINTO,
-	ItemData.Tipo.PINGENTE,
-	ItemData.Tipo.ANEL,
-	ItemData.Tipo.BRACELETE,
-	ItemData.Tipo.PET,
+const EQUIP_TYPES: Array[ItemData.Type] = [
+	ItemData.Type.WEAPON,
+	ItemData.Type.OFFHAND,
+	ItemData.Type.HELMET,
+	ItemData.Type.CHEST,
+	ItemData.Type.GLOVES,
+	ItemData.Type.PANTS,
+	ItemData.Type.BOOTS,
+	ItemData.Type.BELT,
+	ItemData.Type.PENDANT,
+	ItemData.Type.RING,
+	ItemData.Type.BRACELET,
+	ItemData.Type.PET,
 ]
 
 var _by_character: Array = []
@@ -36,7 +36,7 @@ func _reset_storage() -> void:
 		_by_character.append(loadout)
 
 
-func get_equipped(character_index: int, item_type: ItemData.Tipo) -> ItemData:
+func get_equipped(character_index: int, item_type: ItemData.Type) -> ItemData:
 	if not _valid_character(character_index):
 		return null
 	var loadout: Dictionary = _by_character[character_index]
@@ -65,7 +65,7 @@ func can_equip(
 		return false
 	if item.is_gem():
 		return false
-	if not EQUIP_TYPES.has(item.tipo):
+	if not EQUIP_TYPES.has(item.item_type):
 		return false
 	if not _class_can_use(item, hero_class):
 		return false
@@ -81,11 +81,11 @@ func equip(
 	if not can_equip(item, character_index, hero_level, hero_class):
 		return false
 	var loadout: Dictionary = _by_character[character_index]
-	loadout[int(item.tipo)] = item
+	loadout[int(item.item_type)] = item
 	return true
 
 
-func unequip(character_index: int, item_type: ItemData.Tipo) -> ItemData:
+func unequip(character_index: int, item_type: ItemData.Type) -> ItemData:
 	if not _valid_character(character_index):
 		return null
 	var loadout: Dictionary = _by_character[character_index]
@@ -98,14 +98,14 @@ func unequip(character_index: int, item_type: ItemData.Tipo) -> ItemData:
 func total_damage_bonus(character_index: int) -> int:
 	var total := 0
 	for item in get_all_equipped(character_index):
-		total += item.dano_bonus
+		total += item.damage_bonus
 	return total
 
 
 func total_hp_bonus(character_index: int) -> int:
 	var total := 0
 	for item in get_all_equipped(character_index):
-		total += item.vida_bonus
+		total += item.hp_bonus
 	return total
 
 

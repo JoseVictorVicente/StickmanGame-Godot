@@ -1,4 +1,4 @@
-# Translation template — Stickman Idle
+# Translation template â€” Stickman Idle
 # Copy new msgid entries to locales/pt_BR.po and locales/en.po
 # Godot loads .po files listed in project.godot [internationalization]
 
@@ -7,6 +7,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 msgid "UI_GOLD"
+msgstr ""
+
+msgid "UI_GOLD_FORMAT"
 msgstr ""
 
 msgid "UI_INVENTORY_TITLE"
@@ -31,6 +34,9 @@ msgid "UI_DPS_FORMAT"
 msgstr ""
 
 msgid "UI_LEVEL_FORMAT"
+msgstr ""
+
+msgid "UI_LEVEL_SHORT"
 msgstr ""
 
 msgid "COMBAT_DIFFICULTY_UNLOCKED"
@@ -87,5 +93,779 @@ msgstr ""
 msgid "CLASS_PRIEST"
 msgstr ""
 
+msgid "CLASS_ALL"
+msgstr ""
+
 msgid "UI_EMPTY_SLOT"
+msgstr ""
+
+msgid "BTN_CLOSE"
+msgstr ""
+
+msgid "BTN_BACK"
+msgstr ""
+
+msgid "BTN_BACK_INVENTORY"
+msgstr ""
+
+msgid "BTN_REMOVE"
+msgstr ""
+
+msgid "BTN_SORT"
+msgstr ""
+
+msgid "BTN_QUIT_GAME"
+msgstr ""
+
+msgid "BTN_SETTINGS"
+msgstr ""
+
+msgid "BTN_ATTRIBUTES"
+msgstr ""
+
+msgid "BTN_FORMATION"
+msgstr ""
+
+msgid "UI_WAREHOUSE"
+msgstr ""
+
+msgid "UI_WAREHOUSE_N"
+msgstr ""
+
+msgid "UI_WAREHOUSE_TAB_LOCKED"
+msgstr ""
+
+msgid "UI_TEAM"
+msgstr ""
+
+msgid "UI_CLASSES_UNLOCKED"
+msgstr ""
+
+msgid "UI_SKILLS"
+msgstr ""
+
+msgid "UI_SKILL_TREE"
+msgstr ""
+
+msgid "UI_FORGE"
+msgstr ""
+
+msgid "UI_WORLD"
+msgstr ""
+
+msgid "UI_INVENTORY"
+msgstr ""
+
+msgid "UI_HERO_N"
+msgstr ""
+
+msgid "INV_SLOT_PRIMARY"
+msgstr ""
+
+msgid "INV_SLOT_OFFHAND"
+msgstr ""
+
+msgid "INV_SLOT_HELMET"
+msgstr ""
+
+msgid "INV_SLOT_CHEST"
+msgstr ""
+
+msgid "INV_SLOT_GLOVES"
+msgstr ""
+
+msgid "INV_SLOT_PANTS"
+msgstr ""
+
+msgid "INV_SLOT_BOOTS"
+msgstr ""
+
+msgid "INV_SLOT_BELT"
+msgstr ""
+
+msgid "INV_SLOT_PENDANT"
+msgstr ""
+
+msgid "INV_SLOT_RING"
+msgstr ""
+
+msgid "INV_SLOT_BRACELET"
+msgstr ""
+
+msgid "INV_SLOT_PET"
+msgstr ""
+
+msgid "ITEM_TYPE_HELMET"
+msgstr ""
+
+msgid "ITEM_TYPE_CHEST"
+msgstr ""
+
+msgid "ITEM_TYPE_WEAPON"
+msgstr ""
+
+msgid "ITEM_TYPE_OFFHAND"
+msgstr ""
+
+msgid "ITEM_TYPE_GLOVES"
+msgstr ""
+
+msgid "ITEM_TYPE_PANTS"
+msgstr ""
+
+msgid "ITEM_TYPE_BOOTS"
+msgstr ""
+
+msgid "ITEM_TYPE_BELT"
+msgstr ""
+
+msgid "ITEM_TYPE_PENDANT"
+msgstr ""
+
+msgid "ITEM_TYPE_RING"
+msgstr ""
+
+msgid "ITEM_TYPE_BRACELET"
+msgstr ""
+
+msgid "ITEM_TYPE_PET"
+msgstr ""
+
+msgid "ITEM_TYPE_GEM"
+msgstr ""
+
+msgid "ITEM_TYPE_GENERIC"
+msgstr ""
+
+msgid "ITEM_CATEGORY_EQUIPMENT"
+msgstr ""
+
+msgid "ITEM_CATEGORY_ACCESSORY"
+msgstr ""
+
+msgid "ITEM_CATEGORY_GEM"
+msgstr ""
+
+msgid "RARITY_ALL"
+msgstr ""
+
+msgid "RARITY_COMMON"
+msgstr ""
+
+msgid "RARITY_UNCOMMON"
+msgstr ""
+
+msgid "RARITY_RARE"
+msgstr ""
+
+msgid "RARITY_EPIC"
+msgstr ""
+
+msgid "RARITY_LEGENDARY"
+msgstr ""
+
+msgid "RARITY_MYTHIC"
+msgstr ""
+
+msgid "RARITY_PRIMORDIAL"
+msgstr ""
+
+msgid "RARITY_ASTRAL"
+msgstr ""
+
+msgid "RARITY_DIVINE"
+msgstr ""
+
+msgid "RARITY_TRANSCENDENTAL"
+msgstr ""
+
+msgid "GEM_ATTR_ATTACK"
+msgstr ""
+
+msgid "GEM_ATTR_ATTACK_PCT"
+msgstr ""
+
+msgid "GEM_ATTR_HP"
+msgstr ""
+
+msgid "GEM_ATTR_HP_PCT"
+msgstr ""
+
+msgid "GEM_ATTR_ATTACK_SPEED"
+msgstr ""
+
+msgid "GEM_ATTR_CRIT_CHANCE"
+msgstr ""
+
+msgid "GEM_ATTR_CRIT_DAMAGE"
+msgstr ""
+
+msgid "GEM_ATTR_EVASION"
+msgstr ""
+
+msgid "GEM_ATTR_PHYS_RES"
+msgstr ""
+
+msgid "GEM_ATTR_ARCANE_RES"
+msgstr ""
+
+msgid "GEM_ATTR_ELEMENTAL_RES"
+msgstr ""
+
+msgid "GEM_ATTR_GENERIC"
+msgstr ""
+
+msgid "ITEM_GEM_OF"
+msgstr ""
+
+msgid "ITEM_BONUS_DAMAGE"
+msgstr ""
+
+msgid "ITEM_BONUS_HP"
+msgstr ""
+
+msgid "ITEM_VALUE"
+msgstr ""
+
+msgid "ITEM_LEVEL"
+msgstr ""
+
+msgid "ITEM_CLASS_REQUIRED"
+msgstr ""
+
+msgid "ITEM_GEM_SLOT"
+msgstr ""
+
+msgid "ITEM_GEM_EMBEDDED"
+msgstr ""
+
+msgid "ITEM_GEM_ATTR_VALUE"
+msgstr ""
+
+msgid "SKILL_TYPE_ACTIVE"
+msgstr ""
+
+msgid "SKILL_TYPE_PASSIVE"
+msgstr ""
+
+msgid "SKILL_COOLDOWN_LINE"
+msgstr ""
+
+msgid "SKILLS_TITLE"
+msgstr ""
+
+msgid "SKILLS_SELECTED_HERO"
+msgstr ""
+
+msgid "SKILLS_NO_HERO"
+msgstr ""
+
+msgid "SKILLS_EMPTY_SLOT"
+msgstr ""
+
+msgid "SKILLS_EQUIPPED"
+msgstr ""
+
+msgid "SKILLS_ACTIVE"
+msgstr ""
+
+msgid "SKILLS_PASSIVE"
+msgstr ""
+
+msgid "SKILLS_AVAILABLE"
+msgstr ""
+
+msgid "ATTR_TITLE"
+msgstr ""
+
+msgid "ATTR_ATTACK"
+msgstr ""
+
+msgid "ATTR_HP"
+msgstr ""
+
+msgid "ATTR_XP_NEXT"
+msgstr ""
+
+msgid "ATTR_BONUS_XP"
+msgstr ""
+
+msgid "ATTR_BONUS_GOLD"
+msgstr ""
+
+msgid "ATTR_ATTACK_SPEED"
+msgstr ""
+
+msgid "ATTR_CRIT_CHANCE"
+msgstr ""
+
+msgid "ATTR_CRIT_DAMAGE"
+msgstr ""
+
+msgid "ATTR_EVASION"
+msgstr ""
+
+msgid "ATTR_PHYS_RES"
+msgstr ""
+
+msgid "ATTR_ARCANE_RES"
+msgstr ""
+
+msgid "ATTR_ELEMENTAL_RES"
+msgstr ""
+
+msgid "FORMATION_TITLE"
+msgstr ""
+
+msgid "FORMATION_HINT_CAN_REMOVE"
+msgstr ""
+
+msgid "FORMATION_HINT_MIN_ONE"
+msgstr ""
+
+msgid "FORMATION_REMOVE"
+msgstr ""
+
+msgid "FORMATION_REMOVE_TOOLTIP"
+msgstr ""
+
+msgid "FORMATION_REMOVE_BLOCKED"
+msgstr ""
+
+msgid "FORGE_TITLE"
+msgstr ""
+
+msgid "FORGE_TAB_SYNTHESIS"
+msgstr ""
+
+msgid "FORGE_TAB_DISMANTLE"
+msgstr ""
+
+msgid "FORGE_TAB_GEMS"
+msgstr ""
+
+msgid "FORGE_AUTOFILL"
+msgstr ""
+
+msgid "FORGE_FILTER"
+msgstr ""
+
+msgid "FORGE_SYNTHESIZE"
+msgstr ""
+
+msgid "FORGE_DISMANTLE"
+msgstr ""
+
+msgid "FORGE_IMBUE"
+msgstr ""
+
+msgid "FORGE_SYNTHESIS_HINT"
+msgstr ""
+
+msgid "FORGE_DISMANTLE_HINT"
+msgstr ""
+
+msgid "FORGE_GEMS_HINT"
+msgstr ""
+
+msgid "FORGE_DISMANTLE_VALUE"
+msgstr ""
+
+msgid "FORGE_WAREHOUSE_TOGGLE"
+msgstr ""
+
+msgid "FORGE_SUCCESS_CHANCE"
+msgstr ""
+
+msgid "FORGE_PROGRESS"
+msgstr ""
+
+msgid "FORGE_FAMILY_LOCKED"
+msgstr ""
+
+msgid "FORGE_MIXED_CATEGORY"
+msgstr ""
+
+msgid "FORGE_RECIPE_INVALID"
+msgstr ""
+
+msgid "FORGE_SUCCESS"
+msgstr ""
+
+msgid "FORGE_FAILED"
+msgstr ""
+
+msgid "FORGE_ITEM_READY"
+msgstr ""
+
+msgid "FORGE_INVENTORY_FULL"
+msgstr ""
+
+msgid "FORGE_INVENTORY_FULL_FORGE"
+msgstr ""
+
+msgid "FORGE_CLEAR_CENTRAL"
+msgstr ""
+
+msgid "FORGE_NO_GROUP"
+msgstr ""
+
+msgid "FORGE_NO_GROUP_FILTER"
+msgstr ""
+
+msgid "FORGE_NO_DISMANTLE"
+msgstr ""
+
+msgid "FORGE_NO_DISMANTLE_FILTER"
+msgstr ""
+
+msgid "FORGE_DISMANTLE_FILLED"
+msgstr ""
+
+msgid "FORGE_DISMANTLE_PLACE"
+msgstr ""
+
+msgid "FORGE_DISMANTLE_DONE"
+msgstr ""
+
+msgid "FORGE_SOURCE_INVENTORY"
+msgstr ""
+
+msgid "FORGE_SOURCE_BOTH"
+msgstr ""
+
+msgid "FORGE_JEWELRY_NEED_GEAR"
+msgstr ""
+
+msgid "FORGE_JEWELRY_SELECT_GEM"
+msgstr ""
+
+msgid "FORGE_JEWELRY_SELECT_BOTH"
+msgstr ""
+
+msgid "FORGE_JEWELRY_INVALID"
+msgstr ""
+
+msgid "FORGE_JEWELRY_DRAG_GEM"
+msgstr ""
+
+msgid "FORGE_JEWELRY_FAILED"
+msgstr ""
+
+msgid "FORGE_JEWELRY_SUCCESS"
+msgstr ""
+
+msgid "FORGE_JEWELRY_IMBUE"
+msgstr ""
+
+msgid "FORGE_LEVEL_HINT_EMPTY"
+msgstr ""
+
+msgid "FORGE_LEVEL_HINT_TITLE"
+msgstr ""
+
+msgid "FORGE_LEVEL_HINT_ROW"
+msgstr ""
+
+msgid "FORGE_LEVEL_HINT_PARTIAL"
+msgstr ""
+
+msgid "TREE_TITLE"
+msgstr ""
+
+msgid "TREE_HINT"
+msgstr ""
+
+msgid "TREE_REGION_ATTACK"
+msgstr ""
+
+msgid "TREE_REGION_DEFENSE"
+msgstr ""
+
+msgid "TREE_REGION_UTILITY"
+msgstr ""
+
+msgid "TREE_POINTS"
+msgstr ""
+
+msgid "TREE_MAX_LEVEL"
+msgstr ""
+
+msgid "TREE_UNLOCK_FIRST"
+msgstr ""
+
+msgid "TREE_NOT_ENOUGH_GOLD"
+msgstr ""
+
+msgid "TREE_LEVEL_UP"
+msgstr ""
+
+msgid "TREE_WAREHOUSE_UNLOCK"
+msgstr ""
+
+msgid "TREE_ALL_HEROES"
+msgstr ""
+
+msgid "TREE_CURRENT"
+msgstr ""
+
+msgid "TREE_WAREHOUSE_NODE"
+msgstr ""
+
+msgid "TREE_ALL_HEROES_NOTE"
+msgstr ""
+
+msgid "TREE_PREMIUM_COST"
+msgstr ""
+
+msgid "TREE_NEXT"
+msgstr ""
+
+msgid "TREE_COST"
+msgstr ""
+
+msgid "TREE_UNLOCK_ABOVE"
+msgstr ""
+
+msgid "TREE_MAX_LEVEL_NODE"
+msgstr ""
+
+msgid "WORLDS_TITLE"
+msgstr ""
+
+msgid "WORLD_N"
+msgstr ""
+
+msgid "WORLD_LOCKED"
+msgstr ""
+
+msgid "ITEM_espada_ferro"
+msgstr ""
+
+msgid "ITEM_espada_treino"
+msgstr ""
+
+msgid "ITEM_escudo_madeira"
+msgstr ""
+
+msgid "ITEM_elmo_guerreiro"
+msgstr ""
+
+msgid "ITEM_peitoral_guerreiro"
+msgstr ""
+
+msgid "ITEM_luvas_guerreiro"
+msgstr ""
+
+msgid "ITEM_calca_guerreiro"
+msgstr ""
+
+msgid "ITEM_botas_guerreiro"
+msgstr ""
+
+msgid "ITEM_mascote_leao"
+msgstr ""
+
+msgid "ITEM_anel_honra"
+msgstr ""
+
+msgid "ITEM_bracelete_guerreiro"
+msgstr ""
+
+msgid "ITEM_cajado_arcano"
+msgstr ""
+
+msgid "ITEM_grimorio"
+msgstr ""
+
+msgid "ITEM_familiar"
+msgstr ""
+
+msgid "ITEM_manto_mistico"
+msgstr ""
+
+msgid "ITEM_tiara_arcano"
+msgstr ""
+
+msgid "ITEM_luvas_mago"
+msgstr ""
+
+msgid "ITEM_calca_mago"
+msgstr ""
+
+msgid "ITEM_botas_mago"
+msgstr ""
+
+msgid "ITEM_cinto_arcano"
+msgstr ""
+
+msgid "ITEM_pingente_mana"
+msgstr ""
+
+msgid "ITEM_arco_curto"
+msgstr ""
+
+msgid "ITEM_aljava"
+msgstr ""
+
+msgid "ITEM_capuz_couro"
+msgstr ""
+
+msgid "ITEM_peitoral_arqueiro"
+msgstr ""
+
+msgid "ITEM_luvas_arqueiro"
+msgstr ""
+
+msgid "ITEM_calca_arqueiro"
+msgstr ""
+
+msgid "ITEM_botas_arqueiro"
+msgstr ""
+
+msgid "ITEM_falcao_companheiro"
+msgstr ""
+
+msgid "ITEM_anel_precisao"
+msgstr ""
+
+msgid "ITEM_adaga_sombria"
+msgstr ""
+
+msgid "ITEM_adaga_secundaria"
+msgstr ""
+
+msgid "ITEM_capuz_assassino"
+msgstr ""
+
+msgid "ITEM_peitoral_sombrio"
+msgstr ""
+
+msgid "ITEM_luvas_assassino"
+msgstr ""
+
+msgid "ITEM_calca_assassino"
+msgstr ""
+
+msgid "ITEM_botas_assassino"
+msgstr ""
+
+msgid "ITEM_cinto_sombrio"
+msgstr ""
+
+msgid "ITEM_bracelete_sombrio"
+msgstr ""
+
+msgid "ITEM_maca_pesada"
+msgstr ""
+
+msgid "ITEM_escudo_torre"
+msgstr ""
+
+msgid "ITEM_peitoral_ferro"
+msgstr ""
+
+msgid "ITEM_elmo_torre"
+msgstr ""
+
+msgid "ITEM_luvas_tanque"
+msgstr ""
+
+msgid "ITEM_calca_tanque"
+msgstr ""
+
+msgid "ITEM_botas_tanque"
+msgstr ""
+
+msgid "ITEM_mascote_tartaruga"
+msgstr ""
+
+msgid "ITEM_pingente_guardiao"
+msgstr ""
+
+msgid "ITEM_cajado_sagrado"
+msgstr ""
+
+msgid "ITEM_tomo_luz"
+msgstr ""
+
+msgid "ITEM_manto_clerical"
+msgstr ""
+
+msgid "ITEM_pingente_fe"
+msgstr ""
+
+msgid "ITEM_tiara_sagrada"
+msgstr ""
+
+msgid "ITEM_luvas_sacerdote"
+msgstr ""
+
+msgid "ITEM_calca_sacerdote"
+msgstr ""
+
+msgid "ITEM_botas_sacerdote"
+msgstr ""
+
+msgid "ITEM_anel_devocao"
+msgstr ""
+
+msgid "ITEM_luvas_tecido"
+msgstr ""
+
+msgid "ITEM_calca_couro"
+msgstr ""
+
+msgid "ITEM_botas_viagem"
+msgstr ""
+
+msgid "ITEM_cinto_simples"
+msgstr ""
+
+msgid "ITEM_anel_bruto"
+msgstr ""
+
+msgid "ITEM_bracelete_ferro"
+msgstr ""
+
+msgid "ITEM_capuz_viagem"
+msgstr ""
+
+msgid "ITEM_peitoral_couro"
+msgstr ""
+
+msgid "ITEM_pingente_simples"
+msgstr ""
+
+msgid "ITEM_mascote_rato"
+msgstr ""
+
+msgid "SKILL_instant_double_shot"
+msgstr ""
+
+msgid "SKILL_instant_double_shot_DESC"
+msgstr ""
+
+msgid "SKILL_dark_volley"
+msgstr ""
+
+msgid "SKILL_dark_volley_DESC"
+msgstr ""
+
+msgid "SKILL_precision_shot"
+msgstr ""
+
+msgid "SKILL_precision_shot_DESC"
+msgstr ""
+
+msgid "SKILL_hunter_stance"
+msgstr ""
+
+msgid "SKILL_hunter_stance_DESC"
+msgstr ""
+
+msgid "SKILL_neon_vision"
+msgstr ""
+
+msgid "SKILL_neon_vision_DESC"
 msgstr ""

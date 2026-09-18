@@ -57,25 +57,25 @@ func serializar() -> Dictionary  # {"classes": [...], "desbloqueadas": [...]}
 
 ```mermaid
 sequenceDiagram
-    participant PM as PartyService
-    participant CC as CombatController
-    participant EN as Enemy
+	participant PM as PartyService
+	participant CC as CombatController
+	participant EN as Enemy
 
-    PM->>CC: heroi_atacou(slot, dano)
-    CC->>EN: take_damage(dano)
-    alt enemy died
-        CC->>CC: _resolver_morte
-        Note over CC: gold, XP, drop, advance stage
-        CC->>PM: curar_equipe
-        CC->>CC: gerar_inimigo
-    end
+	PM->>CC: heroi_atacou(slot, dano)
+	CC->>EN: take_damage(dano)
+	alt enemy died
+		CC->>CC: _resolver_morte
+		Note over CC: gold, XP, drop, advance stage
+		CC->>PM: curar_equipe
+		CC->>CC: gerar_inimigo
+	end
 
-    Note over CC: Enemy timer (1.35s)
-    CC->>PM: aplicar_dano_no_heroi(right_target)
-    alt all heroes down
-        CC->>CC: _resolver_derrota
-        CC->>PM: curar_equipe
-    end
+	Note over CC: Enemy timer (1.35s)
+	CC->>PM: aplicar_dano_no_heroi(right_target)
+	alt all heroes down
+		CC->>CC: _resolver_derrota
+		CC->>PM: curar_equipe
+	end
 ```
 
 ### Resolution states

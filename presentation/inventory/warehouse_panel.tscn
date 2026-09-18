@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://c8arma0em01"]
 
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://presentation/inventory/warehouse_panel.gd" id="1_armazem"]
-[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/fundo_mundos.png" id="2_fundo_mundos"]
+[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
 content_margin_left = 21.0
@@ -91,17 +91,17 @@ script = ExtResource("1_armazem")
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="CabecalhoArmazem" type="HBoxContainer" parent="Conteudo"]
+[node name="WarehouseHeader" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoArmazem"]
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/WarehouseHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/CabecalhoArmazem/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Conteudo/WarehouseHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
@@ -109,7 +109,7 @@ text = "ARMAZÉM"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoFecharArmazem" type="Button" parent="Conteudo/CabecalhoArmazem"]
+[node name="CloseWarehouseButton" type="Button" parent="Conteudo/WarehouseHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -132,7 +132,7 @@ columns = 4
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GradeArmazem" type="GridContainer" parent="Conteudo/CentralizarGrade"]
+[node name="WarehouseGrid" type="GridContainer" parent="Conteudo/CentralizarGrade"]
 unique_name_in_owner = true
 layout_mode = 2
 columns = 1
@@ -141,13 +141,13 @@ columns = 1
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BotaoOrdenarArmazem" type="Button" parent="Conteudo/RodapeArmazem"]
+[node name="SortWarehouseButton" type="Button" parent="Conteudo/RodapeArmazem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 tooltip_text = "Organizar página"
 
-[node name="LabelStatusArmazem" type="Label" parent="Conteudo/RodapeArmazem"]
+[node name="WarehouseStatusLabel" type="Label" parent="Conteudo/RodapeArmazem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 0)
 layout_mode = 2

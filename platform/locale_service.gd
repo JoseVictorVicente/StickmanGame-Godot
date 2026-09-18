@@ -4,7 +4,7 @@ extends Node
 signal locale_changed(locale_code: String)
 
 const SAVE_PATH := "user://locale.cfg"
-const DEFAULT_LOCALE := "pt_BR"
+const DEFAULT_LOCALE := "en"
 
 const AVAILABLE_LOCALES: Array[String] = ["pt_BR", "en"]
 

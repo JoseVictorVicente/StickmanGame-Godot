@@ -3,8 +3,8 @@ extends Node
 ## Idle combat rules: heroes attack, enemy counters, phase advances.
 
 signal notice(texto: String)
-signal coin_effect_requested(origem: Vector2, destino: Vector2, quantidade: int)
-signal gold_gained(quantidade: int)
+signal coin_effect_requested(origem: Vector2, destino: Vector2, amount: int)
+signal gold_gained(amount: int)
 signal item_dropped(item: ItemData)
 signal progression_changed
 signal hud_refresh
@@ -14,7 +14,7 @@ signal enemy_hp_changed(current: int, max_hp: int)
 signal enemy_hit(damage: int, current: int, max_hp: int)
 signal enemy_died
 
-const INTERVALO_ATAQUE_INIMIGO := 1.35
+const ENEMY_ATTACK_INTERVAL := 1.35
 
 var world: int = 1
 var stage: int = 1
@@ -35,15 +35,15 @@ var get_skill_tree_bonus: Callable
 var _drops := DropManager.new()
 var _resolvendo_morte: bool = false
 var _resolvendo_derrota: bool = false
-var _timer_inimigo: Timer
+var _enemy_timer: Timer
 
 
 func _ready() -> void:
-	_timer_inimigo = Timer.new()
-	_timer_inimigo.wait_time = INTERVALO_ATAQUE_INIMIGO
-	_timer_inimigo.timeout.connect(on_enemy_attacked)
-	add_child(_timer_inimigo)
-	_timer_inimigo.start()
+	_enemy_timer = Timer.new()
+	_enemy_timer.wait_time = ENEMY_ATTACK_INTERVAL
+	_enemy_timer.timeout.connect(on_enemy_attacked)
+	add_child(_enemy_timer)
+	_enemy_timer.start()
 
 
 func on_hero_attacked(_slot_index: int, dano: int) -> void:
@@ -54,10 +54,10 @@ func on_hero_attacked(_slot_index: int, dano: int) -> void:
 	AudioManager.play_attack_sound()
 	var morreu := current_enemy.take_damage(dano)
 	_emit_enemy_hp()
-	enemy_hit.emit(dano, current_enemy.vida_atual, current_enemy.vida_maxima)
-	enemy_health_bar.update_hp(current_enemy.vida_atual)
+	enemy_hit.emit(dano, current_enemy.current_hp, current_enemy.max_hp)
+	enemy_health_bar.update_hp(current_enemy.current_hp)
 	if enemy_visual.has_method("update_hp"):
-		enemy_visual.update_hp(current_enemy.vida_atual, current_enemy.vida_maxima)
+		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
 	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, dano)
 	enemy_visual.flash_hit()
 	AudioManager.play_hit_sound()
@@ -87,10 +87,10 @@ func on_enemy_attacked() -> void:
 		await _resolve_defeat()
 
 
-func start_stage(novo_mundo: int, nova_fase: int, nova_dificuldade: int) -> void:
-	var m := clampi(novo_mundo, 1, WorldProgress.TOTAL_MUNDOS)
-	var f := clampi(nova_fase, 1, WorldProgress.FASES_POR_MUNDO)
-	var d := clampi(nova_dificuldade, 0, 2)
+func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
+	var m := clampi(new_world, 1, WorldProgress.TOTAL_WORLDS)
+	var f := clampi(new_stage, 1, WorldProgress.STAGES_PER_WORLD)
+	var d := clampi(new_difficulty, 0, 2)
 	if not WorldProgress.is_difficulty_unlocked(d, unlocked_stages):
 		return
 	if WorldProgress.stage_index(m, f) > unlocked_stages[d]:
@@ -121,10 +121,10 @@ func spawn_enemy() -> void:
 		int(stats["xp"]),
 		int(stats.get("dano", 1))
 	)
-	enemy_health_bar.initialize_bar(current_enemy.vida_maxima)
+	enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
 	if enemy_visual and enemy_visual.has_method("update_hp"):
-		enemy_visual.update_hp(current_enemy.vida_atual, current_enemy.vida_maxima)
+		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
 
 
 func toggle_repeat() -> void:
@@ -134,14 +134,14 @@ func toggle_repeat() -> void:
 
 func apply_state(dados: Dictionary) -> void:
 	wave = maxi(1, int(dados.get("wave", dados.get("onda", 1))))
-	world = clampi(int(dados.get("world", dados.get("mundo", 1))), 1, WorldProgress.TOTAL_MUNDOS)
-	stage = clampi(int(dados.get("stage", dados.get("fase", 1))), 1, WorldProgress.FASES_POR_MUNDO)
+	world = clampi(int(dados.get("world", dados.get("mundo", 1))), 1, WorldProgress.TOTAL_WORLDS)
+	stage = clampi(int(dados.get("stage", dados.get("fase", 1))), 1, WorldProgress.STAGES_PER_WORLD)
 	difficulty = clampi(int(dados.get("difficulty", dados.get("dificuldade", 0))), 0, 2)
 	var liberadas: Variant = dados.get("unlocked_stages", dados.get("fases_liberadas", [1, 1, 1]))
 	unlocked_stages = [1, 1, 1]
 	if liberadas is Array:
 		for i in mini(liberadas.size(), 3):
-			unlocked_stages[i] = clampi(int(liberadas[i]), 1, WorldProgress.PROGRESSO_COMPLETO)
+			unlocked_stages[i] = clampi(int(liberadas[i]), 1, WorldProgress.FULL_PROGRESS)
 	while difficulty > 0 and not WorldProgress.is_difficulty_unlocked(difficulty, unlocked_stages):
 		difficulty -= 1
 	repeat_stage = bool(dados.get("repeat_stage", dados.get("repetir_fase", false)))
@@ -153,17 +153,17 @@ func _resolve_death() -> void:
 	_resolvendo_morte = true
 	party.combat_paused = true
 	AudioManager.play_death_sound()
-	var ouro := _drops.gold_with_variance(current_enemy.ouro_recompensa)
+	var ouro := _drops.gold_with_variance(current_enemy.gold_reward)
 	ouro = _apply_gold_bonus(ouro)
 	var destino := Vector2.ZERO
 	if get_gold_destination.is_valid():
 		destino = get_gold_destination.call()
 	coin_effect_requested.emit(enemy_visual.global_position, destino, 2 + ouro / 2)
-	enemy_visual.esmaecer()
-	enemy_health_bar.esmaecer()
+	enemy_visual.fade_out()
+	enemy_health_bar.fade_out()
 	await get_tree().create_timer(0.4).timeout
 	gold_gained.emit(ouro)
-	_apply_xp(_apply_xp_bonus(current_enemy.xp_recompensa))
+	_apply_xp(_apply_xp_bonus(current_enemy.xp_reward))
 	_try_drop()
 	_advance_stage()
 	party.heal_party()
@@ -214,10 +214,10 @@ func _advance_stage() -> void:
 			notice.emit(tr(LocaleKeys.COMBAT_WORLD_UNLOCKED) % seguinte.x)
 
 
-func _apply_xp(quantidade: int) -> void:
+func _apply_xp(amount: int) -> void:
 	if hero_progress == null:
 		return
-	var niveis: PackedInt32Array = hero_progress.apply_xp(quantidade, party.active_party)
+	var niveis: PackedInt32Array = hero_progress.apply_xp(amount, party.active_party)
 	for stage_index in HeroProgress.SLOTS:
 		if stage_index < niveis.size():
 			hero_level_changed.emit(stage_index, niveis[stage_index])
@@ -229,7 +229,7 @@ func _skill_tree_bonus() -> Dictionary:
 		var bonus: Variant = get_skill_tree_bonus.call()
 		if bonus is Dictionary:
 			return bonus
-	return SkillTreeDefinition.bonus_vazio()
+	return SkillTreeDefinition.empty_bonus()
 
 
 func _apply_gold_bonus(valor: int) -> int:
@@ -251,4 +251,4 @@ func _try_drop() -> void:
 func _emit_enemy_hp() -> void:
 	if current_enemy == null:
 		return
-	enemy_hp_changed.emit(current_enemy.vida_atual, current_enemy.vida_maxima)
+	enemy_hp_changed.emit(current_enemy.current_hp, current_enemy.max_hp)

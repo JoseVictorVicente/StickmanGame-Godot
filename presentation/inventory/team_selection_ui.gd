@@ -11,11 +11,11 @@ var _slot_alvo: int = 0
 var _botoes_slot: Array[Button] = []
 var _indices_slot: Array[int] = []
 
-@onready var slots_equipe: HBoxContainer = %SlotsEquipe
+@onready var party_slots: HBoxContainer = %PartySlots
 @onready var grade_classes: GridContainer = %GradeClasses
-@onready var botao_formacao: Button = %BotaoFormacao
-@onready var titulo_equipe: Label = $TituloEquipe
-@onready var titulo_classes: Label = $TituloClasses
+@onready var formation_button: Button = %FormationButton
+@onready var party_title: Label = $PartyTitle
+@onready var classes_title: Label = $ClassesTitle
 
 
 func configure(party: PartyService, slot_inicial: int = 0) -> void:
@@ -23,12 +23,12 @@ func configure(party: PartyService, slot_inicial: int = 0) -> void:
 	_slot_alvo = slot_inicial
 	if grade_classes:
 		grade_classes.visible = false
-	if titulo_classes:
-		titulo_classes.visible = false
-	if titulo_equipe:
-		titulo_equipe.visible = false
-	if botao_formacao and not botao_formacao.pressed.is_connected(_on_formation_pressed):
-		botao_formacao.pressed.connect(_on_formation_pressed)
+	if classes_title:
+		classes_title.visible = false
+	if party_title:
+		party_title.visible = false
+	if formation_button and not formation_button.pressed.is_connected(_on_formation_pressed):
+		formation_button.pressed.connect(_on_formation_pressed)
 	_build_slots()
 	update()
 	if not _party.party_changed.is_connected(update):
@@ -56,7 +56,7 @@ func _on_formation_pressed() -> void:
 
 
 func _build_slots() -> void:
-	for filho in slots_equipe.get_children():
+	for filho in party_slots.get_children():
 		filho.queue_free()
 	_botoes_slot.clear()
 	_indices_slot.clear()
@@ -81,7 +81,7 @@ func _build_slots() -> void:
 		botao.add_theme_constant_override("icon_max_width", 52)
 		botao.add_theme_font_size_override("font_size", 9)
 		botao.pressed.connect(select_slot.bind(i))
-		slots_equipe.add_child(botao)
+		party_slots.add_child(botao)
 		_botoes_slot.append(botao)
 		_indices_slot.append(i)
 

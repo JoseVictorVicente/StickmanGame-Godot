@@ -6,6 +6,9 @@ msgstr ""
 msgid "UI_GOLD"
 msgstr "Gold"
 
+msgid "UI_GOLD_FORMAT"
+msgstr "Gold  %d"
+
 msgid "UI_INVENTORY_TITLE"
 msgstr "Inventory"
 
@@ -29,6 +32,9 @@ msgstr "DPS %.1f"
 
 msgid "UI_LEVEL_FORMAT"
 msgstr "Lv.%d  %d/%d"
+
+msgid "UI_LEVEL_SHORT"
+msgstr "Lv.%d"
 
 msgid "COMBAT_DIFFICULTY_UNLOCKED"
 msgstr "%s unlocked!"
@@ -84,5 +90,779 @@ msgstr "Tank"
 msgid "CLASS_PRIEST"
 msgstr "Priest"
 
+msgid "CLASS_ALL"
+msgstr "All Classes"
+
 msgid "UI_EMPTY_SLOT"
 msgstr "Empty"
+
+msgid "BTN_CLOSE"
+msgstr "Close"
+
+msgid "BTN_BACK"
+msgstr "Back"
+
+msgid "BTN_BACK_INVENTORY"
+msgstr "Back to inventory"
+
+msgid "BTN_REMOVE"
+msgstr "Remove"
+
+msgid "BTN_SORT"
+msgstr "Sort"
+
+msgid "BTN_QUIT_GAME"
+msgstr "Quit game"
+
+msgid "BTN_SETTINGS"
+msgstr "Settings"
+
+msgid "BTN_ATTRIBUTES"
+msgstr "Attributes"
+
+msgid "BTN_FORMATION"
+msgstr "Formation"
+
+msgid "UI_WAREHOUSE"
+msgstr "Warehouse"
+
+msgid "UI_WAREHOUSE_N"
+msgstr "Warehouse %d"
+
+msgid "UI_WAREHOUSE_TAB_LOCKED"
+msgstr "Warehouse %d (locked)"
+
+msgid "UI_TEAM"
+msgstr "Team"
+
+msgid "UI_CLASSES_UNLOCKED"
+msgstr "Classes unlocked"
+
+msgid "UI_SKILLS"
+msgstr "Skills"
+
+msgid "UI_SKILL_TREE"
+msgstr "Skill Tree"
+
+msgid "UI_FORGE"
+msgstr "Forge"
+
+msgid "UI_WORLD"
+msgstr "World"
+
+msgid "UI_INVENTORY"
+msgstr "Inventory"
+
+msgid "UI_HERO_N"
+msgstr "Hero %d"
+
+msgid "INV_SLOT_PRIMARY"
+msgstr "Weapon"
+
+msgid "INV_SLOT_OFFHAND"
+msgstr "Off-hand"
+
+msgid "INV_SLOT_HELMET"
+msgstr "Helmet"
+
+msgid "INV_SLOT_CHEST"
+msgstr "Chest"
+
+msgid "INV_SLOT_GLOVES"
+msgstr "Gloves"
+
+msgid "INV_SLOT_PANTS"
+msgstr "Pants"
+
+msgid "INV_SLOT_BOOTS"
+msgstr "Boots"
+
+msgid "INV_SLOT_BELT"
+msgstr "Belt"
+
+msgid "INV_SLOT_PENDANT"
+msgstr "Pendant"
+
+msgid "INV_SLOT_RING"
+msgstr "Ring"
+
+msgid "INV_SLOT_BRACELET"
+msgstr "Bracelet"
+
+msgid "INV_SLOT_PET"
+msgstr "Pet"
+
+msgid "ITEM_TYPE_HELMET"
+msgstr "Helmet"
+
+msgid "ITEM_TYPE_CHEST"
+msgstr "Chest"
+
+msgid "ITEM_TYPE_WEAPON"
+msgstr "Weapon"
+
+msgid "ITEM_TYPE_OFFHAND"
+msgstr "Off-hand"
+
+msgid "ITEM_TYPE_GLOVES"
+msgstr "Gloves"
+
+msgid "ITEM_TYPE_PANTS"
+msgstr "Pants"
+
+msgid "ITEM_TYPE_BOOTS"
+msgstr "Boots"
+
+msgid "ITEM_TYPE_BELT"
+msgstr "Belt"
+
+msgid "ITEM_TYPE_PENDANT"
+msgstr "Pendant"
+
+msgid "ITEM_TYPE_RING"
+msgstr "Ring"
+
+msgid "ITEM_TYPE_BRACELET"
+msgstr "Bracelet"
+
+msgid "ITEM_TYPE_PET"
+msgstr "Pet"
+
+msgid "ITEM_TYPE_GEM"
+msgstr "Gem"
+
+msgid "ITEM_TYPE_GENERIC"
+msgstr "Item"
+
+msgid "ITEM_CATEGORY_EQUIPMENT"
+msgstr "Equipment"
+
+msgid "ITEM_CATEGORY_ACCESSORY"
+msgstr "Accessory"
+
+msgid "ITEM_CATEGORY_GEM"
+msgstr "Gem"
+
+msgid "RARITY_ALL"
+msgstr "All"
+
+msgid "RARITY_COMMON"
+msgstr "Common"
+
+msgid "RARITY_UNCOMMON"
+msgstr "Uncommon"
+
+msgid "RARITY_RARE"
+msgstr "Rare"
+
+msgid "RARITY_EPIC"
+msgstr "Epic"
+
+msgid "RARITY_LEGENDARY"
+msgstr "Legendary"
+
+msgid "RARITY_MYTHIC"
+msgstr "Mythic"
+
+msgid "RARITY_PRIMORDIAL"
+msgstr "Primordial"
+
+msgid "RARITY_ASTRAL"
+msgstr "Astral"
+
+msgid "RARITY_DIVINE"
+msgstr "Divine"
+
+msgid "RARITY_TRANSCENDENTAL"
+msgstr "Transcendental"
+
+msgid "GEM_ATTR_ATTACK"
+msgstr "Attack"
+
+msgid "GEM_ATTR_ATTACK_PCT"
+msgstr "Attack %"
+
+msgid "GEM_ATTR_HP"
+msgstr "HP"
+
+msgid "GEM_ATTR_HP_PCT"
+msgstr "HP %"
+
+msgid "GEM_ATTR_ATTACK_SPEED"
+msgstr "Attack Speed"
+
+msgid "GEM_ATTR_CRIT_CHANCE"
+msgstr "Crit Chance"
+
+msgid "GEM_ATTR_CRIT_DAMAGE"
+msgstr "Crit Damage"
+
+msgid "GEM_ATTR_EVASION"
+msgstr "Evasion"
+
+msgid "GEM_ATTR_PHYS_RES"
+msgstr "Physical Res."
+
+msgid "GEM_ATTR_ARCANE_RES"
+msgstr "Arcane Res."
+
+msgid "GEM_ATTR_ELEMENTAL_RES"
+msgstr "Elemental Res."
+
+msgid "GEM_ATTR_GENERIC"
+msgstr "Attribute"
+
+msgid "ITEM_GEM_OF"
+msgstr "Gem of %s"
+
+msgid "ITEM_BONUS_DAMAGE"
+msgstr "+%d Damage"
+
+msgid "ITEM_BONUS_HP"
+msgstr "+%d HP"
+
+msgid "ITEM_VALUE"
+msgstr "Value: %d gold"
+
+msgid "ITEM_LEVEL"
+msgstr "Item Level %d"
+
+msgid "ITEM_CLASS_REQUIRED"
+msgstr "Requires: %s"
+
+msgid "ITEM_GEM_SLOT"
+msgstr "Empty gem slot"
+
+msgid "ITEM_GEM_EMBEDDED"
+msgstr "Gem: %s %s"
+
+msgid "ITEM_GEM_ATTR_VALUE"
+msgstr "%s %s"
+
+msgid "SKILL_TYPE_ACTIVE"
+msgstr "Active"
+
+msgid "SKILL_TYPE_PASSIVE"
+msgstr "Passive"
+
+msgid "SKILL_COOLDOWN_LINE"
+msgstr "Active | Cooldown: %.1fs"
+
+msgid "SKILLS_TITLE"
+msgstr "Skills"
+
+msgid "SKILLS_SELECTED_HERO"
+msgstr "Selected hero"
+
+msgid "SKILLS_NO_HERO"
+msgstr "No hero selected"
+
+msgid "SKILLS_EMPTY_SLOT"
+msgstr "Empty slot"
+
+msgid "SKILLS_EQUIPPED"
+msgstr "Equipped"
+
+msgid "SKILLS_ACTIVE"
+msgstr "Active"
+
+msgid "SKILLS_PASSIVE"
+msgstr "Passive"
+
+msgid "SKILLS_AVAILABLE"
+msgstr "Available"
+
+msgid "ATTR_TITLE"
+msgstr "Attributes"
+
+msgid "ATTR_ATTACK"
+msgstr "Attack"
+
+msgid "ATTR_HP"
+msgstr "HP"
+
+msgid "ATTR_XP_NEXT"
+msgstr "XP to next level"
+
+msgid "ATTR_BONUS_XP"
+msgstr "XP Bonus"
+
+msgid "ATTR_BONUS_GOLD"
+msgstr "Gold Bonus"
+
+msgid "ATTR_ATTACK_SPEED"
+msgstr "Attack Speed"
+
+msgid "ATTR_CRIT_CHANCE"
+msgstr "Crit Chance"
+
+msgid "ATTR_CRIT_DAMAGE"
+msgstr "Crit Damage"
+
+msgid "ATTR_EVASION"
+msgstr "Evasion"
+
+msgid "ATTR_PHYS_RES"
+msgstr "Physical Res."
+
+msgid "ATTR_ARCANE_RES"
+msgstr "Arcane Res."
+
+msgid "ATTR_ELEMENTAL_RES"
+msgstr "Elemental Res."
+
+msgid "FORMATION_TITLE"
+msgstr "Formation"
+
+msgid "FORMATION_HINT_CAN_REMOVE"
+msgstr "Tap a hero to remove from formation"
+
+msgid "FORMATION_HINT_MIN_ONE"
+msgstr "At least one hero must remain"
+
+msgid "FORMATION_REMOVE"
+msgstr "Remove"
+
+msgid "FORMATION_REMOVE_TOOLTIP"
+msgstr "Remove from formation"
+
+msgid "FORMATION_REMOVE_BLOCKED"
+msgstr "Cannot remove — minimum one hero"
+
+msgid "FORGE_TITLE"
+msgstr "Forge"
+
+msgid "FORGE_TAB_SYNTHESIS"
+msgstr "Synthesis"
+
+msgid "FORGE_TAB_DISMANTLE"
+msgstr "Dismantle"
+
+msgid "FORGE_TAB_GEMS"
+msgstr "Gems"
+
+msgid "FORGE_AUTOFILL"
+msgstr "Autofill"
+
+msgid "FORGE_FILTER"
+msgstr "Filter: %s"
+
+msgid "FORGE_SYNTHESIZE"
+msgstr "Synthesize"
+
+msgid "FORGE_DISMANTLE"
+msgstr "Dismantle"
+
+msgid "FORGE_IMBUE"
+msgstr "Imbue"
+
+msgid "FORGE_SYNTHESIS_HINT"
+msgstr "Forge 9 items of the same rarity and family."
+
+msgid "FORGE_DISMANTLE_HINT"
+msgstr "Place an item to dismantle it for gold."
+
+msgid "FORGE_GEMS_HINT"
+msgstr "Drag a gem onto equipment to imbue."
+
+msgid "FORGE_DISMANTLE_VALUE"
+msgstr "Dismantle value: %d gold"
+
+msgid "FORGE_WAREHOUSE_TOGGLE"
+msgstr "Include warehouse items"
+
+msgid "FORGE_SUCCESS_CHANCE"
+msgstr "Success chance: %d%%"
+
+msgid "FORGE_PROGRESS"
+msgstr "%d/9 — same rarity and family. Levels may be mixed.%s"
+
+msgid "FORGE_FAMILY_LOCKED"
+msgstr " Family: %s."
+
+msgid "FORGE_MIXED_CATEGORY"
+msgstr "Mixed categories: %s and %s"
+
+msgid "FORGE_RECIPE_INVALID"
+msgstr "Invalid recipe — check items."
+
+msgid "FORGE_SUCCESS"
+msgstr "Success! %s (%s, Lv.%d)"
+
+msgid "FORGE_FAILED"
+msgstr "Forge failed (%d%%). Received: %s (%s, Lv.%d). Collect from center slot."
+
+msgid "FORGE_ITEM_READY"
+msgstr "Item ready: %s (%s, Lv.%d). Collect from center slot."
+
+msgid "FORGE_INVENTORY_FULL"
+msgstr "Inventory full. Free space to collect the item."
+
+msgid "FORGE_INVENTORY_FULL_FORGE"
+msgstr "Inventory full — cannot collect result!"
+
+msgid "FORGE_CLEAR_CENTRAL"
+msgstr "Clear the center slot first."
+
+msgid "FORGE_NO_GROUP"
+msgstr "No matching items in %s."
+
+msgid "FORGE_NO_GROUP_FILTER"
+msgstr "No %s items in %s."
+
+msgid "FORGE_NO_DISMANTLE"
+msgstr "No items to dismantle in %s."
+
+msgid "FORGE_NO_DISMANTLE_FILTER"
+msgstr "No %s items to dismantle in %s."
+
+msgid "FORGE_DISMANTLE_FILLED"
+msgstr "Item placed — tap Dismantle."
+
+msgid "FORGE_DISMANTLE_PLACE"
+msgstr "Place an item to dismantle."
+
+msgid "FORGE_DISMANTLE_DONE"
+msgstr "Dismantled for %d gold!"
+
+msgid "FORGE_SOURCE_INVENTORY"
+msgstr "inventory"
+
+msgid "FORGE_SOURCE_BOTH"
+msgstr "inventory and warehouse"
+
+msgid "FORGE_JEWELRY_NEED_GEAR"
+msgstr "Select equipment first."
+
+msgid "FORGE_JEWELRY_SELECT_GEM"
+msgstr "Select a gem."
+
+msgid "FORGE_JEWELRY_SELECT_BOTH"
+msgstr "Select equipment and a gem."
+
+msgid "FORGE_JEWELRY_INVALID"
+msgstr "Invalid combination."
+
+msgid "FORGE_JEWELRY_DRAG_GEM"
+msgstr "Drag a gem onto the equipment."
+
+msgid "FORGE_JEWELRY_FAILED"
+msgstr "Imbue failed!"
+
+msgid "FORGE_JEWELRY_SUCCESS"
+msgstr "Gem imbued successfully!"
+
+msgid "FORGE_JEWELRY_IMBUE"
+msgstr "Imbue %s into %s?"
+
+msgid "FORGE_LEVEL_HINT_EMPTY"
+msgstr "Place items to see level chances."
+
+msgid "FORGE_LEVEL_HINT_TITLE"
+msgstr "Level chances:"
+
+msgid "FORGE_LEVEL_HINT_ROW"
+msgstr "  Lv.%d: %.0f%%"
+
+msgid "FORGE_LEVEL_HINT_PARTIAL"
+msgstr "  (%d/3 placed)"
+
+msgid "TREE_TITLE"
+msgstr "Skill Tree"
+
+msgid "TREE_HINT"
+msgstr "Tap a node to upgrade. Gold is spent per level."
+
+msgid "TREE_REGION_ATTACK"
+msgstr "Attack"
+
+msgid "TREE_REGION_DEFENSE"
+msgstr "Defense"
+
+msgid "TREE_REGION_UTILITY"
+msgstr "Utility"
+
+msgid "TREE_POINTS"
+msgstr "%d points"
+
+msgid "TREE_MAX_LEVEL"
+msgstr "Skill tree max level reached!"
+
+msgid "TREE_UNLOCK_FIRST"
+msgstr "Unlock the previous node first."
+
+msgid "TREE_NOT_ENOUGH_GOLD"
+msgstr "Not enough gold (%d required)"
+
+msgid "TREE_LEVEL_UP"
+msgstr "Level %d/%d: %s"
+
+msgid "TREE_WAREHOUSE_UNLOCK"
+msgstr " Warehouse unlocked!"
+
+msgid "TREE_ALL_HEROES"
+msgstr " Bonus applies to all heroes!"
+
+msgid "TREE_CURRENT"
+msgstr "Current: %s"
+
+msgid "TREE_WAREHOUSE_NODE"
+msgstr "Unlocks warehouse tab"
+
+msgid "TREE_ALL_HEROES_NOTE"
+msgstr "Applies to all heroes"
+
+msgid "TREE_PREMIUM_COST"
+msgstr "Premium node — higher cost"
+
+msgid "TREE_NEXT"
+msgstr "Next: %s"
+
+msgid "TREE_COST"
+msgstr "Cost: %d gold"
+
+msgid "TREE_UNLOCK_ABOVE"
+msgstr "Unlock the node above first"
+
+msgid "TREE_MAX_LEVEL_NODE"
+msgstr "Max level reached"
+
+msgid "WORLDS_TITLE"
+msgstr "Worlds"
+
+msgid "WORLD_N"
+msgstr "World %d"
+
+msgid "WORLD_LOCKED"
+msgstr "(locked)"
+
+msgid "ITEM_espada_ferro"
+msgstr "Iron Sword"
+
+msgid "ITEM_espada_treino"
+msgstr "Training Sword"
+
+msgid "ITEM_escudo_madeira"
+msgstr "Wooden Shield"
+
+msgid "ITEM_elmo_guerreiro"
+msgstr "Warrior Helmet"
+
+msgid "ITEM_peitoral_guerreiro"
+msgstr "Warrior Chestplate"
+
+msgid "ITEM_luvas_guerreiro"
+msgstr "Warrior Gloves"
+
+msgid "ITEM_calca_guerreiro"
+msgstr "Warrior Pants"
+
+msgid "ITEM_botas_guerreiro"
+msgstr "Warrior Boots"
+
+msgid "ITEM_mascote_leao"
+msgstr "Lion Pet"
+
+msgid "ITEM_anel_honra"
+msgstr "Ring of Honor"
+
+msgid "ITEM_bracelete_guerreiro"
+msgstr "Warrior Bracelet"
+
+msgid "ITEM_cajado_arcano"
+msgstr "Arcane Staff"
+
+msgid "ITEM_grimorio"
+msgstr "Grimoire"
+
+msgid "ITEM_familiar"
+msgstr "Arcane Familiar"
+
+msgid "ITEM_manto_mistico"
+msgstr "Mystic Cloak"
+
+msgid "ITEM_tiara_arcano"
+msgstr "Arcane Tiara"
+
+msgid "ITEM_luvas_mago"
+msgstr "Mage Gloves"
+
+msgid "ITEM_calca_mago"
+msgstr "Mage Pants"
+
+msgid "ITEM_botas_mago"
+msgstr "Mage Boots"
+
+msgid "ITEM_cinto_arcano"
+msgstr "Arcane Belt"
+
+msgid "ITEM_pingente_mana"
+msgstr "Mana Pendant"
+
+msgid "ITEM_arco_curto"
+msgstr "Short Bow"
+
+msgid "ITEM_aljava"
+msgstr "Quiver"
+
+msgid "ITEM_capuz_couro"
+msgstr "Leather Hood"
+
+msgid "ITEM_peitoral_arqueiro"
+msgstr "Archer Chestplate"
+
+msgid "ITEM_luvas_arqueiro"
+msgstr "Archer Gloves"
+
+msgid "ITEM_calca_arqueiro"
+msgstr "Archer Pants"
+
+msgid "ITEM_botas_arqueiro"
+msgstr "Archer Boots"
+
+msgid "ITEM_falcao_companheiro"
+msgstr "Companion Falcon"
+
+msgid "ITEM_anel_precisao"
+msgstr "Precision Ring"
+
+msgid "ITEM_adaga_sombria"
+msgstr "Shadow Dagger"
+
+msgid "ITEM_adaga_secundaria"
+msgstr "Twin Dagger"
+
+msgid "ITEM_capuz_assassino"
+msgstr "Assassin Hood"
+
+msgid "ITEM_peitoral_sombrio"
+msgstr "Shadow Chestplate"
+
+msgid "ITEM_luvas_assassino"
+msgstr "Assassin Gloves"
+
+msgid "ITEM_calca_assassino"
+msgstr "Assassin Pants"
+
+msgid "ITEM_botas_assassino"
+msgstr "Assassin Boots"
+
+msgid "ITEM_cinto_sombrio"
+msgstr "Shadow Belt"
+
+msgid "ITEM_bracelete_sombrio"
+msgstr "Shadow Bracelet"
+
+msgid "ITEM_maca_pesada"
+msgstr "Heavy Mace"
+
+msgid "ITEM_escudo_torre"
+msgstr "Tower Shield"
+
+msgid "ITEM_peitoral_ferro"
+msgstr "Iron Chestplate"
+
+msgid "ITEM_elmo_torre"
+msgstr "Tower Helmet"
+
+msgid "ITEM_luvas_tanque"
+msgstr "Tank Gloves"
+
+msgid "ITEM_calca_tanque"
+msgstr "Tank Pants"
+
+msgid "ITEM_botas_tanque"
+msgstr "Tank Boots"
+
+msgid "ITEM_mascote_tartaruga"
+msgstr "Turtle Pet"
+
+msgid "ITEM_pingente_guardiao"
+msgstr "Guardian Pendant"
+
+msgid "ITEM_cajado_sagrado"
+msgstr "Holy Staff"
+
+msgid "ITEM_tomo_luz"
+msgstr "Tome of Light"
+
+msgid "ITEM_manto_clerical"
+msgstr "Clerical Cloak"
+
+msgid "ITEM_pingente_fe"
+msgstr "Faith Pendant"
+
+msgid "ITEM_tiara_sagrada"
+msgstr "Sacred Tiara"
+
+msgid "ITEM_luvas_sacerdote"
+msgstr "Priest Gloves"
+
+msgid "ITEM_calca_sacerdote"
+msgstr "Priest Pants"
+
+msgid "ITEM_botas_sacerdote"
+msgstr "Priest Boots"
+
+msgid "ITEM_anel_devocao"
+msgstr "Devotion Ring"
+
+msgid "ITEM_luvas_tecido"
+msgstr "Cloth Gloves"
+
+msgid "ITEM_calca_couro"
+msgstr "Leather Pants"
+
+msgid "ITEM_botas_viagem"
+msgstr "Travel Boots"
+
+msgid "ITEM_cinto_simples"
+msgstr "Simple Belt"
+
+msgid "ITEM_anel_bruto"
+msgstr "Rough Ring"
+
+msgid "ITEM_bracelete_ferro"
+msgstr "Iron Bracelet"
+
+msgid "ITEM_capuz_viagem"
+msgstr "Travel Hood"
+
+msgid "ITEM_peitoral_couro"
+msgstr "Leather Chestplate"
+
+msgid "ITEM_pingente_simples"
+msgstr "Simple Pendant"
+
+msgid "ITEM_mascote_rato"
+msgstr "Rat Pet"
+
+msgid "SKILL_instant_double_shot"
+msgstr "Instant Double Shot"
+
+msgid "SKILL_instant_double_shot_DESC"
+msgstr "Fires two rapid consecutive shots with 200% critical damage."
+
+msgid "SKILL_dark_volley"
+msgstr "Dark Volley"
+
+msgid "SKILL_dark_volley_DESC"
+msgstr "Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at high speed at the strongest target."
+
+msgid "SKILL_precision_shot"
+msgstr "Precision Shot"
+
+msgid "SKILL_precision_shot_DESC"
+msgstr "A 0.4s charged shot that guarantees a critical hit and ignores 30% armor."
+
+msgid "SKILL_hunter_stance"
+msgstr "Hunter Stance"
+
+msgid "SKILL_hunter_stance_DESC"
+msgstr "Plants feet lightly and gains 30% Attack Speed and 10% Physical Damage for 3.5 seconds."
+
+msgid "SKILL_neon_vision"
+msgstr "Neon Vision"
+
+msgid "SKILL_neon_vision_DESC"
+msgstr "Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds."

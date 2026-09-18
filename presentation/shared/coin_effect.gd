@@ -5,8 +5,8 @@ extends Control
 const TAMANHO := Vector2(12, 12)
 
 
-func launch(origem_global: Vector2, destino_global: Vector2, quantidade: int) -> void:
-	var total := clampi(quantidade, 3, 8)
+func launch(origem_global: Vector2, destino_global: Vector2, amount: int) -> void:
+	var total := clampi(amount, 3, 8)
 	for i in total:
 		_create_coin(origem_global, destino_global, i * 0.04)
 

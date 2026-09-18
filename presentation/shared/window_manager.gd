@@ -4,16 +4,16 @@ extends Node
 
 const LARGURA := 960
 const ALTURA := 860
-const PALCO_MARGEM_TOPO := 8
-const PALCO_ALTURA := 124
+const STAGE_TOP_MARGIN := 8
+const STAGE_HEIGHT := 124
 const PALCO_BASE_JANELA := 108
-const PAINEL_ALTURA := 100
-const BOTAO_TAMANHO := 80
-const LARGURA_PAINEL_INVENTARIO := 580
+const PANEL_HEIGHT := 100
+const BUTTON_SIZE := 80
+const INVENTORY_PANEL_WIDTH := 580
 
 var stage_panel: Control
 var battle_panel: PanelContainer
-var area_botao_menu: ColorRect
+var menu_button_area: ColorRect
 var combat_root: Node2D
 var floor: Control
 var open_inventory_button: Button
@@ -76,11 +76,11 @@ func apply_menu_direction() -> bool:
 func anchor_combat_to_top(no_topo: bool) -> void:
 	combat_at_top = no_topo
 	if no_topo:
-		_set_anchors(stage_panel, 0.5, 0.0, 0.5, 0.0, -240, PALCO_MARGEM_TOPO, 240, PALCO_MARGEM_TOPO + PALCO_ALTURA)
-		var painel_topo := PALCO_MARGEM_TOPO + PALCO_ALTURA
-		_set_anchors(battle_panel, 0.5, 0.0, 0.5, 0.0, -160, painel_topo, 160, painel_topo + PAINEL_ALTURA)
+		_set_anchors(stage_panel, 0.5, 0.0, 0.5, 0.0, -240, STAGE_TOP_MARGIN, 240, STAGE_TOP_MARGIN + STAGE_HEIGHT)
+		var painel_topo := STAGE_TOP_MARGIN + STAGE_HEIGHT
+		_set_anchors(battle_panel, 0.5, 0.0, 0.5, 0.0, -160, painel_topo, 160, painel_topo + PANEL_HEIGHT)
 		var botao_topo := painel_topo + 10
-		_position_inventory_button(0.0, 0.0, botao_topo, botao_topo + BOTAO_TAMANHO)
+		_position_inventory_button(0.0, 0.0, botao_topo, botao_topo + BUTTON_SIZE)
 	else:
 		_set_anchors(stage_panel, 0.5, 1.0, 0.5, 1.0, -240, -232, 240, -PALCO_BASE_JANELA)
 		_set_anchors(battle_panel, 0.5, 1.0, 0.5, 1.0, -160, -108, 160, -8)
@@ -89,18 +89,18 @@ func anchor_combat_to_top(no_topo: bool) -> void:
 
 func _horizontal_button_offsets() -> Vector2i:
 	var largura := get_window().size.x
-	var direita_painel := int((largura + LARGURA_PAINEL_INVENTARIO) * 0.5)
+	var direita_painel := int((largura + INVENTORY_PANEL_WIDTH) * 0.5)
 	var centro := int(largura * 0.5)
 	var offset_dir := direita_painel - centro
-	return Vector2i(offset_dir - BOTAO_TAMANHO, offset_dir)
+	return Vector2i(offset_dir - BUTTON_SIZE, offset_dir)
 
 
 func _position_inventory_button(a_topo: float, a_base: float, offset_topo: int, offset_base: int) -> void:
-	if area_botao_menu == null:
+	if menu_button_area == null:
 		return
 	var offsets := _horizontal_button_offsets()
 	_set_anchors(
-		area_botao_menu,
+		menu_button_area,
 		0.5,
 		a_topo,
 		0.5,
@@ -113,13 +113,13 @@ func _position_inventory_button(a_topo: float, a_base: float, offset_topo: int, 
 
 
 func _align_inventory_button() -> void:
-	if area_botao_menu == null:
+	if menu_button_area == null:
 		return
 	_position_inventory_button(
-		area_botao_menu.anchor_top,
-		area_botao_menu.anchor_bottom,
-		int(area_botao_menu.offset_top),
-		int(area_botao_menu.offset_bottom)
+		menu_button_area.anchor_top,
+		menu_button_area.anchor_bottom,
+		int(menu_button_area.offset_top),
+		int(menu_button_area.offset_bottom)
 	)
 
 

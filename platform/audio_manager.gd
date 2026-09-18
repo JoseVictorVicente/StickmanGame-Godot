@@ -4,11 +4,11 @@ extends Node
 
 const PITCH_MIN := 0.9
 const PITCH_MAX := 1.1
-const JOGADORES_INICIAIS := 6
-const CAMINHO_AUDIO := "user://save.cfg"
+const INITIAL_PLAYERS := 6
+const AUDIO_PATH := "user://save.cfg"
 
 var _som_ataque: AudioStream
-var _som_dano: AudioStream
+var _damage_sound: AudioStream
 var _som_morte: AudioStream
 var _som_moeda: AudioStream
 var _pool: Array[AudioStreamPlayer2D] = []
@@ -19,10 +19,10 @@ func _ready() -> void:
 	_load_volume()
 	_apply_volume()
 	_som_ataque = _load_or_generate("res://audio/ataque.wav", 420.0, 0.09)
-	_som_dano = _load_or_generate("res://audio/dano.wav", 180.0, 0.12)
+	_damage_sound = _load_or_generate("res://audio/dano.wav", 180.0, 0.12)
 	_som_morte = _load_or_generate("res://audio/morte.wav", 90.0, 0.22)
 	_som_moeda = _load_or_generate("res://audio/moeda.wav", 880.0, 0.08)
-	for i in JOGADORES_INICIAIS:
+	for i in INITIAL_PLAYERS:
 		_pool.append(_create_player())
 
 
@@ -31,7 +31,7 @@ func play_attack_sound() -> void:
 
 
 func play_hit_sound() -> void:
-	_play(_som_dano, true)
+	_play(_damage_sound, true)
 
 
 func play_death_sound() -> void:
@@ -65,20 +65,20 @@ func _apply_volume() -> void:
 
 
 func _load_volume() -> void:
-	if not FileAccess.file_exists(CAMINHO_AUDIO):
+	if not FileAccess.file_exists(AUDIO_PATH):
 		return
 	var cfg := ConfigFile.new()
-	if cfg.load(CAMINHO_AUDIO) != OK:
+	if cfg.load(AUDIO_PATH) != OK:
 		return
 	volume_linear = clampf(float(cfg.get_value("audio", "volume", 1.0)), 0.0, 1.0)
 
 
 func _save_volume() -> void:
 	var cfg := ConfigFile.new()
-	if FileAccess.file_exists(CAMINHO_AUDIO):
-		cfg.load(CAMINHO_AUDIO)
+	if FileAccess.file_exists(AUDIO_PATH):
+		cfg.load(AUDIO_PATH)
 	cfg.set_value("audio", "volume", volume_linear)
-	cfg.save(CAMINHO_AUDIO)
+	cfg.save(AUDIO_PATH)
 
 
 func _play(stream: AudioStream, variar_pitch: bool) -> void:

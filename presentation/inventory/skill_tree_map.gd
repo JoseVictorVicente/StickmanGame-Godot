@@ -37,13 +37,13 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	_catalogo = SkillTreeDefinition.catalog()
 	_build_nodes()
-	call_deferred("_centralizar")
+	call_deferred("_center_view")
 
 
 func configure(prog: SkillTreeProgress, ouro: int) -> void:
 	hero_progress = prog
 	ouro_atual = ouro
-	_centralizar()
+	_center_view()
 	_update_visual()
 
 
@@ -55,7 +55,7 @@ func _dados_no(id: int) -> Dictionary:
 
 
 func _node_for_slot(secao: int, slot: int) -> Dictionary:
-	return _dados_no(SkillTreeDefinition.id_do_no(secao, slot))
+	return _dados_no(SkillTreeDefinition.node_id(secao, slot))
 
 
 func _draw() -> void:
@@ -71,22 +71,22 @@ func _draw_columns() -> void:
 	var font := ThemeDB.fallback_font
 	var font_titulo := 12
 	var font_pontos := 9
-	var altura_arvore := float(SkillTreeDefinition.NUM_LINHAS) * SkillTreeDefinition.ALTURA_LINHA
-	for secao in SkillTreeDefinition.NUM_SECOES:
+	var altura_arvore := float(SkillTreeDefinition.NUM_ROWS) * SkillTreeDefinition.ROW_HEIGHT
+	for secao in SkillTreeDefinition.NUM_SECTIONS:
 		var x := SkillTreeDefinition.centro_x_coluna(secao) + _offset.x
-		var y_titulo := SkillTreeDefinition.MARGEM_SUPERIOR + _offset.y + 16.0
-		var cor := SkillTreeDefinition.cor_regiao(secao)
-		var nome := SkillTreeDefinition.nome_regiao(secao)
+		var y_titulo := SkillTreeDefinition.TOP_MARGIN + _offset.y + 16.0
+		var cor := SkillTreeDefinition.region_color(secao)
+		var nome := tr(SkillTreeDefinition.region_name(secao))
 		var pontos := 0
 		if hero_progress:
 			pontos = hero_progress.points_in_section(secao)
-		var x_coluna := x - SkillTreeDefinition.LARGURA_COLUNA * 0.5
-		var y_coluna := SkillTreeDefinition.MARGEM_SUPERIOR + _offset.y
+		var x_coluna := x - SkillTreeDefinition.COLUMN_WIDTH * 0.5
+		var y_coluna := SkillTreeDefinition.TOP_MARGIN + _offset.y
 		var faixa := Rect2(
 			x_coluna,
 			y_coluna,
-			SkillTreeDefinition.LARGURA_COLUNA,
-			SkillTreeDefinition.ALTURA_CABECALHO + altura_arvore
+			SkillTreeDefinition.COLUMN_WIDTH,
+			SkillTreeDefinition.HEADER_HEIGHT + altura_arvore
 		)
 		draw_rect(faixa, Color(0.14, 0.12, 0.1, 0.55), true)
 		draw_rect(faixa, cor.darkened(0.35), false, 2.0)
@@ -95,16 +95,16 @@ func _draw_columns() -> void:
 			Vector2(x_coluna, y_titulo),
 			nome,
 			HORIZONTAL_ALIGNMENT_CENTER,
-			SkillTreeDefinition.LARGURA_COLUNA,
+			SkillTreeDefinition.COLUMN_WIDTH,
 			font_titulo,
 			cor.lightened(0.2)
 		)
 		draw_string(
 			font,
 			Vector2(x_coluna, y_titulo + 18.0),
-			"%d pts" % pontos,
+			tr(LocaleKeys.TREE_POINTS) % pontos,
 			HORIZONTAL_ALIGNMENT_CENTER,
-			SkillTreeDefinition.LARGURA_COLUNA,
+			SkillTreeDefinition.COLUMN_WIDTH,
 			font_pontos,
 			Color(0.78, 0.72, 0.58, 0.95)
 		)
@@ -117,7 +117,7 @@ func _build_nodes() -> void:
 	_linhas.clear()
 	for no in _catalogo:
 		var id := int(no["id"])
-		var tam := _tamanho_no(no)
+		var tam := _node_size(no)
 		var pos := SkillTreeDefinition.posicao_do_no(no) - tam * 0.5
 		var botao := TextureButton.new()
 		botao.name = "No_%d" % id
@@ -148,17 +148,17 @@ func _build_nodes() -> void:
 		botao.add_child(rotulo)
 		add_child(botao)
 		_nos[id] = botao
-	for secao in SkillTreeDefinition.NUM_SECOES:
+	for secao in SkillTreeDefinition.NUM_SECTIONS:
 		_build_section_links(secao)
 	_ensure_hover_layer()
 	queue_redraw()
 
 
 func _build_section_links(secao: int) -> void:
-	var cor := SkillTreeDefinition.cor_regiao(secao).darkened(0.25)
-	for row_idx in range(1, SkillTreeDefinition.NUM_LINHAS):
-		var anterior := SkillTreeDefinition.slots_da_linha(row_idx - 1)
-		var atual := SkillTreeDefinition.slots_da_linha(row_idx)
+	var cor := SkillTreeDefinition.region_color(secao).darkened(0.25)
+	for row_idx in range(1, SkillTreeDefinition.NUM_ROWS):
+		var anterior := SkillTreeDefinition.slots_in_row(row_idx - 1)
+		var atual := SkillTreeDefinition.slots_in_row(row_idx)
 		if atual.size() == 1 and anterior.size() == 2:
 			_add_merge_link(secao, anterior[0], anterior[1], atual[0], cor)
 		elif atual.size() == 2 and anterior.size() == 1:
@@ -169,7 +169,7 @@ func _add_merge_link(secao: int, slot_esq: int, slot_dir: int, slot_centro: int,
 	var no_esq := _node_for_slot(secao, slot_esq)
 	var no_dir := _node_for_slot(secao, slot_dir)
 	var no_centro := _node_for_slot(secao, slot_centro)
-	var tam := _tamanho_no(no_esq)
+	var tam := _node_size(no_esq)
 	var pos_esq := SkillTreeDefinition.posicao_do_no(no_esq)
 	var pos_dir := SkillTreeDefinition.posicao_do_no(no_dir)
 	var pos_centro := SkillTreeDefinition.posicao_do_no(no_centro)
@@ -207,7 +207,7 @@ func _add_split_link(secao: int, slot_centro: int, slot_esq: int, slot_dir: int,
 	var no_centro := _node_for_slot(secao, slot_centro)
 	var no_esq := _node_for_slot(secao, slot_esq)
 	var no_dir := _node_for_slot(secao, slot_dir)
-	var tam := _tamanho_no(no_centro)
+	var tam := _node_size(no_centro)
 	var pos_centro := SkillTreeDefinition.posicao_do_no(no_centro)
 	var pos_esq := SkillTreeDefinition.posicao_do_no(no_esq)
 	var pos_dir := SkillTreeDefinition.posicao_do_no(no_dir)
@@ -241,13 +241,13 @@ func _add_split_link(secao: int, slot_centro: int, slot_esq: int, slot_dir: int,
 	})
 
 
-func _tamanho_no(_no: Dictionary) -> Vector2:
+func _node_size(_no: Dictionary) -> Vector2:
 	return TAMANHO_NO
 
 
 func _node_label_text(no: Dictionary, nivel: int) -> String:
 	var max_nivel := SkillTreeDefinition.max_level(no)
-	if int(no.get("tipo", -1)) == SkillTreeDefinition.TipoBonus.ARMAZEM:
+	if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
 		if nivel >= 1:
 			return "P%d" % (int(no.get("valor_base", no.get("valor", 0))) + 1)
 		return ""
@@ -301,7 +301,7 @@ func _update_visual() -> void:
 		var nivel := hero_progress.node_level(int(id))
 		var max_nivel := hero_progress.max_level(int(id))
 		var pode := hero_progress.can_purchase(int(id))
-		var custo := SkillTreeDefinition.custo_proximo_nivel(no, nivel)
+		var custo := SkillTreeDefinition.next_level_cost(no, nivel)
 		var bloqueado := nivel <= 0 and not pode
 		TreeIcons.apply_to_button(botao, int(no.get("tipo", 0)), bloqueado)
 		var modulate := Color.WHITE
@@ -313,29 +313,29 @@ func _update_visual() -> void:
 			rotulo.text = _node_label_text(no, nivel)
 		var dica := SkillTreeDefinition.descricao_bonus(no, maxi(nivel, 1))
 		if nivel > 0:
-			dica = "Atual: %s" % SkillTreeDefinition.descricao_bonus(no, nivel)
-		if int(no.get("tipo", -1)) == SkillTreeDefinition.TipoBonus.ARMAZEM:
-			dica += "\nDesbloqueia uma página do armazém"
+			dica = tr(LocaleKeys.TREE_CURRENT) % SkillTreeDefinition.descricao_bonus(no, nivel)
+		if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
+			dica += "\n" + tr(LocaleKeys.TREE_WAREHOUSE_NODE)
 		else:
-			dica += "\n(Afeta todos os heróis)"
+			dica += "\n" + tr(LocaleKeys.TREE_ALL_HEROES_NOTE)
 		if bool(no.get("premium", false)):
-			dica += "\n[Custo elevado]"
+			dica += "\n" + tr(LocaleKeys.TREE_PREMIUM_COST)
 		if nivel < max_nivel:
-			dica += "\nPróximo: %s" % SkillTreeDefinition.nome_proximo_nivel(no, nivel)
-			dica += "\nCusto: %d ouro" % custo
+			dica += "\n" + tr(LocaleKeys.TREE_NEXT) % SkillTreeDefinition.next_level_name(no, nivel)
+			dica += "\n" + tr(LocaleKeys.TREE_COST) % custo
 			if not hero_progress.can_purchase(int(id)):
-				dica += "\nDesbloqueie todos os nós acima"
+				dica += "\n" + tr(LocaleKeys.TREE_UNLOCK_ABOVE)
 			elif ouro_atual < custo:
-				dica += "\nOuro insuficiente"
+				dica += "\n" + tr(LocaleKeys.TREE_NOT_ENOUGH_GOLD) % custo
 		else:
-			dica += "\nNível máximo"
+			dica += "\n" + tr(LocaleKeys.TREE_MAX_LEVEL_NODE)
 		botao.tooltip_text = dica
 	for linha in _linhas:
 		var id_de := int(linha["id_de"])
 		var id_para := int(linha["id_para"])
 		var no_para := hero_progress.node_by_id(id_para)
 		var secao := int(no_para.get("secao", 0))
-		var cor_secao := SkillTreeDefinition.cor_regiao(secao)
+		var cor_secao := SkillTreeDefinition.region_color(secao)
 		var nivel_de := hero_progress.node_level(id_de)
 		var nivel_para := hero_progress.node_level(id_para)
 		var max_para := hero_progress.max_level(id_para)
@@ -350,7 +350,7 @@ func _update_visual() -> void:
 	queue_redraw()
 
 
-func _centralizar() -> void:
+func _center_view() -> void:
 	var canvas := SkillTreeDefinition.tamanho_canvas()
 	custom_minimum_size = canvas
 	size = canvas
@@ -368,7 +368,7 @@ func _centralizar() -> void:
 func _apply_offset() -> void:
 	for id in _nos.keys():
 		var no := _dados_no(int(id))
-		var tam := _tamanho_no(no)
+		var tam := _node_size(no)
 		var pos := SkillTreeDefinition.posicao_do_no(no) - tam * 0.5 + _offset
 		(_nos[id] as Control).position = pos
 	queue_redraw()
@@ -376,4 +376,4 @@ func _apply_offset() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
-		call_deferred("_centralizar")
+		call_deferred("_center_view")

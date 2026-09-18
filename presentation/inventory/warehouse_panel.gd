@@ -11,14 +11,14 @@ const PAGINAS_ARVORE := 3
 const INDICE_PRIMEIRA_PAGINA_EXTRA := 4
 const COLUNAS := 5
 const LINHAS := 8
-const TAMANHO_SLOT := Vector2(42, 42)
+const SLOT_SIZE := Vector2(42, 42)
 
-@onready var cabecalho: HBoxContainer = %CabecalhoArmazem
-@onready var botao_fechar: Button = %BotaoFecharArmazem
-@onready var linha_abas: GridContainer = %LinhaAbas
-@onready var grade_armazem: GridContainer = %GradeArmazem
-@onready var label_status: Label = %LabelStatusArmazem
-@onready var botao_ordenar: Button = %BotaoOrdenarArmazem
+@onready var cabecalho: HBoxContainer = %WarehouseHeader
+@onready var botao_fechar: Button = %CloseWarehouseButton
+@onready var tab_row: GridContainer = %LinhaAbas
+@onready var warehouse_grid: GridContainer = %WarehouseGrid
+@onready var status_label: Label = %WarehouseStatusLabel
+@onready var sort_button: Button = %SortWarehouseButton
 
 var _menu: InventoryMenu
 var _slots_por_aba: Array = []
@@ -36,6 +36,7 @@ func _ready() -> void:
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
 	_setup_sort_button()
+	LocaleService.locale_changed.connect(_on_locale_changed)
 	show_tab(0)
 
 
@@ -90,34 +91,34 @@ func show_tab(stage_index: int) -> void:
 	if stage_index < 0 or stage_index >= ABAS:
 		return
 	if not _unlocked_tabs[stage_index]:
-		label_status.text = "Aba %d bloqueada." % (stage_index + 1)
-		if botao_ordenar:
-			botao_ordenar.disabled = true
+		status_label.text = tr(LocaleKeys.UI_WAREHOUSE_TAB_LOCKED) % (stage_index + 1)
+		if sort_button:
+			sort_button.disabled = true
 		return
 	_aba_atual = stage_index
 	for i in ABAS:
-		var grade: GridContainer = grade_armazem.get_node("GradeAba_%d" % i)
+		var grade: GridContainer = warehouse_grid.get_node("GradeAba_%d" % i)
 		grade.visible = i == stage_index
-		_paint_tab(_botoes_aba[i], i == stage_index, _unlocked_tabs[i])
-	label_status.text = "Armazém %d" % (stage_index + 1)
-	if botao_ordenar:
-		botao_ordenar.disabled = false
+		_style_tab(_botoes_aba[i], i == stage_index, _unlocked_tabs[i])
+	status_label.text = tr(LocaleKeys.UI_WAREHOUSE_N) % (stage_index + 1)
+	if sort_button:
+		sort_button.disabled = false
 
 
 func _setup_sort_button() -> void:
-	if botao_ordenar == null:
+	if sort_button == null:
 		return
-	InventoryMenu.configurar_botao_icone(botao_ordenar, "res://sprites/ui/sort_inventory.png")
-	botao_ordenar.pressed.connect(_on_sort_button_pressed)
+	InventoryMenu.setup_icon_button(sort_button, "res://sprites/ui/sort_inventory.png")
+	sort_button.pressed.connect(_on_sort_button_pressed)
 
 
 func _on_sort_button_pressed() -> void:
 	if not _unlocked_tabs[_aba_atual]:
 		return
-	InventoryMenu.ordenar_slots(_slots_for_tab(_aba_atual))
+	InventoryMenu.sort_slots(_slots_for_tab(_aba_atual))
 	if _menu:
 		_menu.notify_items_changed()
-	botao_ordenar.release_focus()
+	sort_button.release_focus()
 
 
 func unlock_tab(stage_index: int) -> void:
@@ -144,7 +145,7 @@ func _set_tab_state(stage_index: int, desbloqueada: bool) -> void:
 	var botao := _botoes_aba[stage_index]
 	botao.disabled = not desbloqueada
 	botao.text = str(stage_index + 1) if desbloqueada else "🔒"
-	_paint_tab(botao, stage_index == _aba_atual, desbloqueada)
+	_style_tab(botao, stage_index == _aba_atual, desbloqueada)
 
 
 func _initialize_unlocks() -> void:
@@ -186,7 +187,7 @@ func apply(dados: Variant) -> void:
 
 
 func _create_tabs() -> void:
-	linha_abas.columns = COLUNAS_ABAS
+	tab_row.columns = COLUNAS_ABAS
 	for i in ABAS:
 		var botao := Button.new()
 		botao.name = "Aba_%d" % (i + 1)
@@ -200,13 +201,13 @@ func _create_tabs() -> void:
 			botao.text = "🔒"
 			botao.disabled = true
 		botao.pressed.connect(show_tab.bind(i))
-		linha_abas.add_child(botao)
+		tab_row.add_child(botao)
 		_botoes_aba.append(botao)
-		_paint_tab(botao, i == 0, _unlocked_tabs[i])
+		_style_tab(botao, i == 0, _unlocked_tabs[i])
 
 
 func _create_grids() -> void:
-	grade_armazem.columns = 1
+	warehouse_grid.columns = 1
 	for i in ABAS:
 		var grade := GridContainer.new()
 		grade.name = "GradeAba_%d" % i
@@ -218,13 +219,13 @@ func _create_grids() -> void:
 		for n in COLUNAS * LINHAS:
 			lista.append(_create_slot(grade, i, n))
 		_slots_por_aba.append(lista)
-		grade_armazem.add_child(grade)
+		warehouse_grid.add_child(grade)
 
 
 func _create_slot(grade: GridContainer, aba: int, stage_index: int) -> ItemSlot:
 	var slot := ItemSlot.new()
 	slot.name = "SlotArmazem_%d_%02d" % [aba, stage_index + 1]
-	slot.custom_minimum_size = TAMANHO_SLOT
+	slot.custom_minimum_size = SLOT_SIZE
 	var icone := TextureRect.new()
 	icone.name = "Icone"
 	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -236,7 +237,7 @@ func _create_slot(grade: GridContainer, aba: int, stage_index: int) -> ItemSlot:
 	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slot.add_child(icone)
-	slot.configure(icone, ItemData.Tipo.ARMA, true)
+	slot.configure(icone, ItemData.Type.WEAPON, true)
 	grade.add_child(slot)
 	return slot
 
@@ -258,7 +259,7 @@ func _apply_item_list(slots: Array[ItemSlot], lista: Array) -> void:
 		slots[i].set_item(item)
 
 
-func _paint_tab(botao: Button, ativa: bool, desbloqueada: bool) -> void:
+func _style_tab(botao: Button, ativa: bool, desbloqueada: bool) -> void:
 	var estilo := StyleBoxFlat.new()
 	estilo.content_margin_left = 6
 	estilo.content_margin_top = 6
@@ -281,6 +282,24 @@ func _paint_tab(botao: Button, ativa: bool, desbloqueada: bool) -> void:
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
 	botao.add_theme_stylebox_override("disabled", estilo)
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	show_tab(_aba_atual)
+
+
+func _update_localized_texts() -> void:
+	if botao_fechar:
+		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+	if sort_button:
+		sort_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
+	if is_open():
+		show_tab(_aba_atual)
 
 
 func _on_header_gui_input(event: InputEvent) -> void:

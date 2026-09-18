@@ -102,9 +102,9 @@ static func _preencher(painel: PanelContainer, skill: SkillResource) -> void:
 	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	coluna.add_theme_constant_override("separation", 4)
 	coluna.custom_minimum_size.x = LARGURA_MAXIMA
-	coluna.add_child(_rotulo(skill.skill_name, Color(0.95, 0.9, 0.7, 1), 13, true))
+	coluna.add_child(_rotulo(skill.get_display_name(), Color(0.95, 0.9, 0.7, 1), 13, true))
 	coluna.add_child(_rotulo(skill.type_cooldown_line(), cor_borda, 11, false))
-	coluna.add_child(_rotulo(skill.description, Color(0.82, 0.78, 0.68, 1), 11, false, true))
+	coluna.add_child(_rotulo(skill.get_description(), Color(0.82, 0.78, 0.68, 1), 11, false, true))
 	painel.add_child(coluna)
 
 
@@ -170,7 +170,7 @@ static func _esta_em_coluna_esquerda(controle: Control) -> bool:
 	var no: Node = controle
 	while no:
 		var nome := str(no.name)
-		if nome == "ColunaAtivas" or nome == "ColunaEquipAtivas":
+		if nome == "ActiveColumn" or nome == "ColunaEquipAtivas":
 			return true
 		if nome.begins_with("EquipEsq_"):
 			return true
@@ -182,7 +182,7 @@ static func _is_in_right_column(controle: Control) -> bool:
 	var no: Node = controle
 	while no:
 		var nome := str(no.name)
-		if nome == "ColunaPassivas" or nome == "ColunaEquipPassivas":
+		if nome == "PassiveColumn" or nome == "ColunaEquipPassivas":
 			return true
 		if nome.begins_with("EquipDir_"):
 			return true

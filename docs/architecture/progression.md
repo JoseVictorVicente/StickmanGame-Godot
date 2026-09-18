@@ -85,9 +85,9 @@ Caps in `SkillTreeProgress._aplicar_caps_bonus` (e.g. `bonus_ouro` max 30%).
 
 ```text
 Equipment changed / Tree changed / Level up
-    → main.recalcular_atributos()
-        → party.recalcular_status()
-        → menu refreshes panels
+	→ main.recalcular_atributos()
+		→ party.recalcular_status()
+		→ menu refreshes panels
 ```
 
 Target in `domains/progression/`:

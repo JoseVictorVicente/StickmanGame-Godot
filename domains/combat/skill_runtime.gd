@@ -10,7 +10,7 @@ const STAT_KEY_HP := "vida"
 
 
 func bonuses_for_class(class_id: String) -> Dictionary:
-	var bonus := SkillTreeDefinition.bonus_vazio()
+	var bonus := SkillTreeDefinition.empty_bonus()
 	if class_id == "":
 		return bonus
 	for slot_index in HeroEquipment.MAX_PASSIVE:

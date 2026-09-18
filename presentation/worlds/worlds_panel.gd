@@ -5,9 +5,9 @@ extends PanelContainer
 signal panel_open_changed(is_open: bool)
 signal stage_started(world: int, stage: int, difficulty: int)
 
-const TAMANHO_FASE := 34.0
-const TAMANHO_CHEFE := 48.0
-const POSICOES_TRILHA_FLORESTA: Array[Vector2] = [
+const STAGE_SIZE := 34.0
+const BOSS_SIZE := 48.0
+const FOREST_TRAIL_POSITIONS: Array[Vector2] = [
 	Vector2(0.49, 0.89),
 	Vector2(0.53, 0.79),
 	Vector2(0.54, 0.69),
@@ -26,51 +26,53 @@ const TEXTURAS_MAPA: Dictionary = {
 	5: "res://sprites/environment/volcanic_map.jpg",
 }
 
-@onready var botao_voltar: Button = %BotaoVoltarMundos
-@onready var botao_fechar: Button = %BotaoFecharMundos
-@onready var titulo: Label = %TituloMundos
-@onready var cabecalho: HBoxContainer = %CabecalhoMundos
-@onready var painel_lista: VBoxContainer = %PainelListaMundos
-@onready var lista_mundos: VBoxContainer = %ListaMundos
-@onready var botao_dificuldade: Button = %BotaoDificuldade
-@onready var opcoes_dificuldade: VBoxContainer = %OpcoesDificuldade
-@onready var menu_dificuldade: PanelContainer = %MenuDificuldade
-@onready var fundo_menu_dificuldade: ColorRect = %FundoMenuDificuldade
-@onready var painel_mapa: Control = %PainelStageMap
-@onready var mapa_fases: StageMap = %StageMap
-@onready var fundo_mapa: TextureRect = %FundoMapa
+@onready var back_button: Button = %WorldsBackButton
+@onready var botao_fechar: Button = %CloseWorldsButton
+@onready var titulo: Label = %WorldsTitle
+@onready var cabecalho: HBoxContainer = %WorldsHeader
+@onready var list_panel: VBoxContainer = %WorldListPanel
+@onready var world_list: VBoxContainer = %WorldList
+@onready var difficulty_button: Button = %DifficultyButton
+@onready var difficulty_options: VBoxContainer = %DifficultyOptions
+@onready var difficulty_menu: PanelContainer = %DifficultyMenu
+@onready var difficulty_menu_backdrop: ColorRect = %DifficultyMenuBackdrop
+@onready var map_panel: Control = %PainelStageMap
+@onready var stage_map: StageMap = %StageMap
+@onready var map_background: TextureRect = %MapBackground
 
 var _menu: InventoryMenu
-var _mundo_aberto: int = 1
-var _mundo_atual: int = 1
-var _fase_atual: int = 1
+var _world_menu_open: int = 1
+var _current_world: int = 1
+var _current_stage: int = 1
 var _dificuldade: int = WorldProgress.Difficulty.EASY
-var _liberadas: Array[int] = [1, 1, 1]
-var _botoes_mundo: Array[Button] = []
-var _botoes_fase: Array[BaseButton] = []
-var _rotulos_fase: Array[Label] = []
-var _ancoras_fase: Array[Control] = []
+var _unlocked: Array[int] = [1, 1, 1]
+var _world_buttons: Array[Button] = []
+var _stage_buttons: Array[BaseButton] = []
+var _stage_labels: Array[Label] = []
+var _stage_anchors: Array[Control] = []
 var _botoes_opcao_dificuldade: Array[Button] = []
-var _tex_fase: ImageTexture
-var _tex_chefe: ImageTexture
+var _stage_tex: ImageTexture
+var _boss_tex: ImageTexture
 var _cache_texturas_mapa: Dictionary = {}
 
 
 func _ready() -> void:
 	hide()
 	botao_fechar.pressed.connect(close)
-	botao_voltar.pressed.connect(_show_world_list)
-	botao_dificuldade.pressed.connect(_toggle_difficulty_options)
-	fundo_menu_dificuldade.gui_input.connect(_on_difficulty_backdrop_gui_input)
+	back_button.pressed.connect(_show_world_list)
+	difficulty_button.pressed.connect(_toggle_difficulty_options)
+	difficulty_menu_backdrop.gui_input.connect(_on_difficulty_backdrop_gui_input)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
-	mapa_fases.resized.connect(_position_stages)
-	painel_mapa.visibility_changed.connect(_on_map_visibility_changed)
+	stage_map.resized.connect(_position_stages)
+	map_panel.visibility_changed.connect(_on_map_visibility_changed)
 	_create_world_list()
 	_create_difficulty_options()
 	_create_stage_map()
 	_show_world_list()
 	_update_difficulty_button()
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 
 
 func configure(menu: InventoryMenu) -> void:
@@ -78,31 +80,36 @@ func configure(menu: InventoryMenu) -> void:
 
 
 func set_state(world: int, stage: int, difficulty: int, liberadas: Array) -> void:
-	var mundo_anterior := _mundo_atual
-	_mundo_atual = clampi(world, 1, WorldProgress.TOTAL_MUNDOS)
-	_fase_atual = clampi(stage, 1, WorldProgress.FASES_POR_MUNDO)
+	var mundo_anterior := _current_world
+	_current_world = clampi(world, 1, WorldProgress.TOTAL_WORLDS)
+	_current_stage = clampi(stage, 1, WorldProgress.STAGES_PER_WORLD)
 	_dificuldade = clampi(difficulty, 0, 2)
-	_liberadas.clear()
+	_unlocked.clear()
 	for i in 3:
 		var valor := 1
 		if i < liberadas.size():
-			valor = clampi(int(liberadas[i]), 1, WorldProgress.PROGRESSO_COMPLETO)
-		_liberadas.append(valor)
-	if not WorldProgress.is_difficulty_unlocked(_dificuldade, _liberadas):
+			valor = clampi(int(liberadas[i]), 1, WorldProgress.FULL_PROGRESS)
+		_unlocked.append(valor)
+	if not WorldProgress.is_difficulty_unlocked(_dificuldade, _unlocked):
 		_dificuldade = WorldProgress.Difficulty.EASY
-		while _dificuldade < 2 and WorldProgress.is_difficulty_unlocked(_dificuldade + 1, _liberadas):
+		while _dificuldade < 2 and WorldProgress.is_difficulty_unlocked(_dificuldade + 1, _unlocked):
 			_dificuldade += 1
 	_update_difficulty_button()
 	_update_world_list()
-	if painel_mapa.visible and _mundo_atual != mundo_anterior and _fase_atual == 1:
-		_open_world_map(_mundo_atual)
+	if map_panel.visible and _current_world != mundo_anterior and _current_stage == 1:
+		_open_world_map(_current_world)
 	else:
 		_update_map()
 
 
 func refresh_locale() -> void:
+	_update_localized_texts()
 	_update_difficulty_options()
 	_update_difficulty_button()
+	if list_panel.visible:
+		_update_world_list()
+	elif map_panel.visible:
+		_update_map()
 
 
 func is_open() -> bool:
@@ -131,23 +138,23 @@ func close() -> void:
 
 
 func _create_world_list() -> void:
-	for filho in lista_mundos.get_children():
+	for filho in world_list.get_children():
 		filho.queue_free()
-	_botoes_mundo.clear()
-	for i in WorldProgress.TOTAL_MUNDOS:
+	_world_buttons.clear()
+	for i in WorldProgress.TOTAL_WORLDS:
 		var botao := Button.new()
 		botao.name = "BotaoMundo_%d" % (i + 1)
 		botao.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		botao.custom_minimum_size = Vector2(0, 42)
 		botao.add_theme_font_size_override("font_size", 16)
 		botao.pressed.connect(_open_world_map.bind(i + 1))
-		lista_mundos.add_child(botao)
-		_botoes_mundo.append(botao)
+		world_list.add_child(botao)
+		_world_buttons.append(botao)
 	_update_world_list()
 
 
 func _create_difficulty_options() -> void:
-	for filho in opcoes_dificuldade.get_children():
+	for filho in difficulty_options.get_children():
 		filho.queue_free()
 	_botoes_opcao_dificuldade.clear()
 	for i in WorldProgress.Difficulty.size():
@@ -158,28 +165,28 @@ func _create_difficulty_options() -> void:
 		botao.clip_text = true
 		botao.add_theme_font_size_override("font_size", 12)
 		botao.pressed.connect(_choose_difficulty.bind(i))
-		opcoes_dificuldade.add_child(botao)
+		difficulty_options.add_child(botao)
 		_botoes_opcao_dificuldade.append(botao)
 	_update_difficulty_options()
 
 
 func _create_stage_map() -> void:
-	_tex_fase = _circle_texture(int(TAMANHO_FASE))
-	_tex_chefe = _circle_texture(int(TAMANHO_CHEFE))
-	for i in WorldProgress.FASES_POR_MUNDO:
+	_stage_tex = _circle_texture(int(STAGE_SIZE))
+	_boss_tex = _circle_texture(int(BOSS_SIZE))
+	for i in WorldProgress.STAGES_PER_WORLD:
 		var ancora := Control.new()
 		ancora.name = "AncoraFase_%d" % (i + 1)
 		ancora.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		mapa_fases.add_child(ancora)
+		stage_map.add_child(ancora)
 
-		var chefe := i == WorldProgress.FASES_POR_MUNDO - 1
-		var tamanho := TAMANHO_CHEFE if chefe else TAMANHO_FASE
+		var chefe := i == WorldProgress.STAGES_PER_WORLD - 1
+		var tamanho := BOSS_SIZE if chefe else STAGE_SIZE
 		var botao := TextureButton.new()
 		botao.custom_minimum_size = Vector2(tamanho, tamanho)
 		botao.focus_mode = Control.FOCUS_NONE
 		botao.ignore_texture_size = true
 		botao.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-		botao.texture_normal = _tex_chefe if chefe else _tex_fase
+		botao.texture_normal = _boss_tex if chefe else _stage_tex
 		botao.texture_pressed = botao.texture_normal
 		botao.texture_hover = botao.texture_normal
 		botao.texture_disabled = botao.texture_normal
@@ -195,85 +202,85 @@ func _create_stage_map() -> void:
 		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		botao.add_child(rotulo)
 
-		_ancoras_fase.append(ancora)
-		_rotulos_fase.append(rotulo)
-		_botoes_fase.append(botao)
+		_stage_anchors.append(ancora)
+		_stage_labels.append(rotulo)
+		_stage_buttons.append(botao)
 	call_deferred("_position_stages")
 
 
 func _show_world_list() -> void:
 	_close_difficulty_menu()
-	botao_voltar.hide()
-	titulo.text = "MUNDOS"
-	painel_lista.show()
-	painel_mapa.hide()
+	back_button.hide()
+	titulo.text = tr(LocaleKeys.WORLDS_TITLE).to_upper()
+	list_panel.show()
+	map_panel.hide()
 	_update_world_list()
 
 
 func _open_world_map(world: int) -> void:
-	_mundo_aberto = clampi(world, 1, WorldProgress.TOTAL_MUNDOS)
+	_world_menu_open = clampi(world, 1, WorldProgress.TOTAL_WORLDS)
 	_close_difficulty_menu()
-	botao_voltar.show()
-	titulo.text = "MUNDO %d" % _mundo_aberto
-	painel_lista.hide()
-	painel_mapa.show()
+	back_button.show()
+	titulo.text = tr(LocaleKeys.WORLD_N) % _world_menu_open
+	list_panel.hide()
+	map_panel.show()
 	_update_map()
 	call_deferred("_position_stages")
 
 
 func _on_map_visibility_changed() -> void:
-	if painel_mapa.visible:
+	if map_panel.visible:
 		call_deferred("_position_stages")
 
 
 func _toggle_difficulty_options() -> void:
-	if menu_dificuldade.visible:
+	if difficulty_menu.visible:
 		_close_difficulty_menu()
 		return
 	_update_difficulty_options()
-	fundo_menu_dificuldade.show()
-	menu_dificuldade.show()
+	difficulty_menu_backdrop.show()
+	difficulty_menu.show()
 	call_deferred("_position_difficulty_menu")
 
 
 func _close_difficulty_menu() -> void:
-	if menu_dificuldade:
-		menu_dificuldade.hide()
-	if fundo_menu_dificuldade:
-		fundo_menu_dificuldade.hide()
+	if difficulty_menu:
+		difficulty_menu.hide()
+	if difficulty_menu_backdrop:
+		difficulty_menu_backdrop.hide()
 
 
 func _position_difficulty_menu() -> void:
-	if not menu_dificuldade.visible:
+	if not difficulty_menu.visible:
 		return
-	menu_dificuldade.reset_size()
-	var largura := botao_dificuldade.size.x
-	var altura_item := botao_dificuldade.size.y
+	difficulty_menu.reset_size()
+	var largura := difficulty_button.size.x
+	var altura_item := difficulty_button.size.y
 	for botao in _botoes_opcao_dificuldade:
 		botao.custom_minimum_size = Vector2(largura - 4.0, altura_item)
-	menu_dificuldade.reset_size()
-	var tam := Vector2(largura, menu_dificuldade.get_combined_minimum_size().y)
-	menu_dificuldade.size = tam
-	var camada := menu_dificuldade.get_parent() as Control
-	var botao_rect := botao_dificuldade.get_global_rect()
+	difficulty_menu.reset_size()
+	var tam := Vector2(largura, difficulty_menu.get_combined_minimum_size().y)
+	difficulty_menu.size = tam
+	var camada := difficulty_menu.get_parent() as Control
+	var botao_rect := difficulty_button.get_global_rect()
 	var local_end := botao_rect.end - camada.get_global_rect().position
 	var pos := Vector2(
-		local_end.x - menu_dificuldade.size.x,
-		local_end.y - botao_dificuldade.size.y - 4.0 - menu_dificuldade.size.y
+		local_end.x - difficulty_menu.size.x,
+		local_end.y - difficulty_button.size.y - 4.0 - difficulty_menu.size.y
 	)
-	pos.x = clampf(pos.x, 0.0, maxf(0.0, camada.size.x - menu_dificuldade.size.x))
-	pos.y = clampf(pos.y, 0.0, maxf(0.0, camada.size.y - menu_dificuldade.size.y))
-	menu_dificuldade.position = pos
+	pos.x = clampf(pos.x, 0.0, maxf(0.0, camada.size.x - difficulty_menu.size.x))
+	pos.y = clampf(pos.y, 0.0, maxf(0.0, camada.size.y - difficulty_menu.size.y))
+	difficulty_menu.position = pos
 
 
 func _on_difficulty_backdrop_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		_close_difficulty_menu()
-		fundo_menu_dificuldade.accept_event()
+		difficulty_menu_backdrop.accept_event()
 
 
 func _choose_difficulty(valor: int) -> void:
-	if not WorldProgress.is_difficulty_unlocked(valor, _liberadas):
+	if not WorldProgress.is_difficulty_unlocked(valor, _unlocked):
 		return
 	_dificuldade = clampi(valor, 0, 2)
 	_close_difficulty_menu()
@@ -283,15 +290,15 @@ func _choose_difficulty(valor: int) -> void:
 
 
 func _on_stage_pressed(stage: int) -> void:
-	if not _is_stage_unlocked(_mundo_aberto, stage):
+	if not _is_stage_unlocked(_world_menu_open, stage):
 		return
-	stage_started.emit(_mundo_aberto, stage, _dificuldade)
+	stage_started.emit(_world_menu_open, stage, _dificuldade)
 
 
 func _is_stage_unlocked(world: int, stage: int) -> bool:
-	if not WorldProgress.is_difficulty_unlocked(_dificuldade, _liberadas):
+	if not WorldProgress.is_difficulty_unlocked(_dificuldade, _unlocked):
 		return false
-	return WorldProgress.stage_index(world, stage) <= _liberadas[_dificuldade]
+	return WorldProgress.stage_index(world, stage) <= _unlocked[_dificuldade]
 
 
 func _is_world_unlocked(world: int) -> bool:
@@ -299,89 +306,89 @@ func _is_world_unlocked(world: int) -> bool:
 
 
 func _update_world_list() -> void:
-	for i in _botoes_mundo.size():
+	for i in _world_buttons.size():
 		var world := i + 1
 		var liberado := _is_world_unlocked(world)
-		var atual := world == _mundo_atual
-		var texto := "MUNDO %d" % world
+		var atual := world == _current_world
+		var texto := tr(LocaleKeys.WORLD_N) % world
 		if not liberado:
-			texto += "  🔒"
-		_botoes_mundo[i].text = texto
-		_botoes_mundo[i].disabled = false
-		_paint_button(_botoes_mundo[i], atual, not liberado)
+			texto += "  " + tr(LocaleKeys.WORLD_LOCKED)
+		_world_buttons[i].text = texto
+		_world_buttons[i].disabled = false
+		_style_button(_world_buttons[i], atual, not liberado)
 
 
 func _update_map() -> void:
-	var tex := _map_texture(_mundo_aberto)
-	if fundo_mapa:
-		fundo_mapa.texture = tex
-		fundo_mapa.visible = tex != null
-	for i in _botoes_fase.size():
+	var tex := _map_texture(_world_menu_open)
+	if map_background:
+		map_background.texture = tex
+		map_background.visible = tex != null
+	for i in _stage_buttons.size():
 		var stage := i + 1
-		var rotulo := "%d-%d" % [_mundo_aberto, stage]
-		_rotulos_fase[i].text = rotulo
-		var liberada := _is_stage_unlocked(_mundo_aberto, stage)
-		var atual := _mundo_aberto == _mundo_atual and stage == _fase_atual
-		var concluida := WorldProgress.stage_index(_mundo_aberto, stage) < _liberadas[_dificuldade]
-		_botoes_fase[i].disabled = not liberada
-		_paint_stage(_botoes_fase[i], _rotulos_fase[i], atual, concluida, not liberada, stage == WorldProgress.FASES_POR_MUNDO)
+		var rotulo := "%d-%d" % [_world_menu_open, stage]
+		_stage_labels[i].text = rotulo
+		var liberada := _is_stage_unlocked(_world_menu_open, stage)
+		var atual := _world_menu_open == _current_world and stage == _current_stage
+		var concluida := WorldProgress.stage_index(_world_menu_open, stage) < _unlocked[_dificuldade]
+		_stage_buttons[i].disabled = not liberada
+		_style_stage(_stage_buttons[i], _stage_labels[i], atual, concluida, not liberada, stage == WorldProgress.STAGES_PER_WORLD)
 	_position_stages()
 
 
 func _update_difficulty_button() -> void:
-	botao_dificuldade.text = WorldProgress.difficulty_name(_dificuldade)
-	_paint_button(botao_dificuldade, true)
+	difficulty_button.text = WorldProgress.difficulty_name(_dificuldade)
+	_style_button(difficulty_button, true)
 	_update_difficulty_options()
 
 
 func _update_difficulty_options() -> void:
 	for i in _botoes_opcao_dificuldade.size():
-		var liberada := WorldProgress.is_difficulty_unlocked(i, _liberadas)
+		var liberada := WorldProgress.is_difficulty_unlocked(i, _unlocked)
 		var texto: String = WorldProgress.difficulty_name(i)
 		if not liberada:
 			texto += " 🔒"
 		_botoes_opcao_dificuldade[i].text = texto
 		_botoes_opcao_dificuldade[i].disabled = not liberada
-		_paint_button(_botoes_opcao_dificuldade[i], i == _dificuldade, not liberada, true)
+		_style_button(_botoes_opcao_dificuldade[i], i == _dificuldade, not liberada, true)
 
 
 func _position_stages() -> void:
-	if mapa_fases.size.x < 8.0 or mapa_fases.size.y < 8.0:
+	if stage_map.size.x < 8.0 or stage_map.size.y < 8.0:
 		return
-	var usar_trilha := _map_texture(_mundo_aberto) != null
-	for i in _ancoras_fase.size():
+	var usar_trilha := _map_texture(_world_menu_open) != null
+	for i in _stage_anchors.size():
 		var centro: Vector2
 		if usar_trilha:
-			centro = _position_on_path(POSICOES_TRILHA_FLORESTA[i])
+			centro = _position_on_path(FOREST_TRAIL_POSITIONS[i])
 		else:
-			var area := Rect2(Vector2(18, 10), mapa_fases.size - Vector2(36, 20))
-			var ratio: Vector2 = WorldProgress.POSICOES_FASES[i]
+			var area := Rect2(Vector2(18, 10), stage_map.size - Vector2(36, 20))
+			var ratio: Vector2 = WorldProgress.STAGE_POSITIONS[i]
 			centro = area.position + Vector2(area.size.x * ratio.x, area.size.y * ratio.y)
-		var botao := _botoes_fase[i]
+		var botao := _stage_buttons[i]
 		botao.reset_size()
 		var raio := botao.size.x * 0.5
 		botao.position = Vector2(-raio, -raio)
-		_ancoras_fase[i].position = centro
+		_stage_anchors[i].position = centro
 	var pontos: Array[Vector2] = []
 	if not usar_trilha:
-		for ancora in _ancoras_fase:
+		for ancora in _stage_anchors:
 			pontos.append(ancora.position)
-	mapa_fases.pontos = pontos
-	mapa_fases.queue_redraw()
+	stage_map.pontos = pontos
+	stage_map.queue_redraw()
 
 
 func _position_on_path(uv: Vector2) -> Vector2:
-	var area := mapa_fases.size
+	var area := stage_map.size
 	var tex_size := Vector2(768, 1344)
-	if fundo_mapa and fundo_mapa.texture:
-		tex_size = Vector2(fundo_mapa.texture.get_width(), fundo_mapa.texture.get_height())
+	if map_background and map_background.texture:
+		tex_size = Vector2(map_background.texture.get_width(), map_background.texture.get_height())
 	if tex_size.x < 1.0 or tex_size.y < 1.0 or area.x < 1.0 or area.y < 1.0:
 		return uv * area
-	var escala := maxf(area.x / tex_size.x, area.y / tex_size.y)
-	var desenhado := tex_size * escala
+	var scale_for := maxf(area.x / tex_size.x, area.y / tex_size.y)
+	var desenhado := tex_size * scale_for
 	var origem := (area - desenhado) * 0.5
 	var centro := origem + Vector2(uv.x * desenhado.x, uv.y * desenhado.y)
-	var margem := TAMANHO_CHEFE * 0.5 + 2.0
+	var margem := BOSS_SIZE * 0.5 + 2.0
 	centro.x = clampf(centro.x, margem, area.x - margem)
 	centro.y = clampf(centro.y, margem, area.y - margem)
 	return centro
@@ -399,7 +406,7 @@ func _map_texture(world: int) -> Texture2D:
 	return tex
 
 
-func _paint_button(botao: Button, ativo: bool = false, bloqueado: bool = false, compacto: bool = false) -> void:
+func _style_button(botao: Button, ativo: bool = false, bloqueado: bool = false, compacto: bool = false) -> void:
 	var estilo := StyleBoxFlat.new()
 	var margem := 6 if compacto else 10
 	estilo.content_margin_left = margem
@@ -426,7 +433,7 @@ func _paint_button(botao: Button, ativo: bool = false, bloqueado: bool = false, 
 	botao.add_theme_stylebox_override("disabled", estilo)
 
 
-func _paint_stage(botao: BaseButton, rotulo: Label, atual: bool, concluida: bool, bloqueada: bool, chefe: bool) -> void:
+func _style_stage(botao: BaseButton, rotulo: Label, atual: bool, concluida: bool, bloqueada: bool, chefe: bool) -> void:
 	var cor := Color(0.18, 0.14, 0.11, 0.95)
 	var cor_texto := Color(0.95, 0.88, 0.7, 1)
 	if bloqueada:
@@ -462,6 +469,21 @@ func _circle_texture(diametro: int) -> ImageTexture:
 			elif dist <= raio + 1.0:
 				img.set_pixel(x, y, Color(0.95, 0.82, 0.4, clampf(1.0 - (dist - raio), 0.0, 1.0)))
 	return ImageTexture.create_from_image(img)
+
+
+func _update_localized_texts() -> void:
+	if botao_fechar:
+		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+	if back_button:
+		back_button.tooltip_text = tr(LocaleKeys.BTN_BACK)
+	if list_panel.visible:
+		titulo.text = tr(LocaleKeys.WORLDS_TITLE).to_upper()
+	elif map_panel.visible:
+		titulo.text = tr(LocaleKeys.WORLD_N) % _world_menu_open
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	refresh_locale()
 
 
 func _on_header_gui_input(event: InputEvent) -> void:

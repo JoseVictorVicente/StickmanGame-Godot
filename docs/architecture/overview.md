@@ -20,44 +20,44 @@ Stickman Idle is a 2D idle RPG in Godot 4.7 with a transparent desktop overlay w
 
 ```mermaid
 flowchart TB
-    subgraph presentation [presentation/]
-        HUD[HUD / combat visuals]
-        INV[Inventory menu]
-        WM[WindowManager]
-    end
+	subgraph presentation [presentation/]
+		HUD[HUD / combat visuals]
+		INV[Inventory menu]
+		WM[WindowManager]
+	end
 
-    subgraph core [core/]
-        GS[GameState]
-        SS[SaveService]
-    end
+	subgraph core [core/]
+		GS[GameState]
+		SS[SaveService]
+	end
 
-    subgraph domains [domains/]
-        COM[combat/]
-        PRG[progression/]
-        INV_D[inventory/]
-    end
+	subgraph domains [domains/]
+		COM[combat/]
+		PRG[progression/]
+		INV_D[inventory/]
+	end
 
-    subgraph platform [platform/]
-        IDB[ItemDatabase]
-        AM[AudioManager]
-        HE[HeroEquipment]
-    end
+	subgraph platform [platform/]
+		IDB[ItemDatabase]
+		AM[AudioManager]
+		HE[HeroEquipment]
+	end
 
-    subgraph data [data/]
-        RES[Resources .tres]
-        SCH[schemas / curves]
-    end
+	subgraph data [data/]
+		RES[Resources .tres]
+		SCH[schemas / curves]
+	end
 
-    GS --> COM
-    GS --> PRG
-    GS --> INV_D
-    COM --> PRG
-    INV_D --> IDB
-    presentation --> GS
-    SS --> GS
-    COM --> data
-    INV_D --> data
-    PRG --> data
+	GS --> COM
+	GS --> PRG
+	GS --> INV_D
+	COM --> PRG
+	INV_D --> IDB
+	presentation --> GS
+	SS --> GS
+	COM --> data
+	INV_D --> data
+	PRG --> data
 ```
 
 ## Runtime data flow
@@ -70,11 +70,11 @@ flowchart TB
 
 ```text
 PartyService.heroi_atacou
-    → CombatController.on_heroi_atacou
-        → Enemy.take_damage
-        → (death) DropManager + HeroProgress.apply_xp
-        → main (gold, HUD, inventory)
-        → SaveSystem.save (autosave / events)
+	→ CombatController.on_heroi_atacou
+		→ Enemy.take_damage
+		→ (death) DropManager + HeroProgress.apply_xp
+		→ main (gold, HUD, inventory)
+		→ SaveSystem.save (autosave / events)
 ```
 
 ## Module boundaries

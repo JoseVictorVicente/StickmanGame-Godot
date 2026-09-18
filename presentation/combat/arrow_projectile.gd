@@ -7,41 +7,41 @@ const DURACAO := 0.18
 const ESCALA := Vector2(0.28, 0.28)
 const FRAME_VOO := 9
 const CELL := 256
-const LINHA_VOO := 1
+const FLIGHT_LINE := 1
 
 static var _frames: SpriteFrames
 static var _sheet: Texture2D
 
 
-static func disparar(pai: Node, origem: Vector2, destino: Vector2) -> void:
+static func fire(pai: Node, origem: Vector2, destino: Vector2) -> void:
 	if pai == null:
 		return
 	var flecha := ArrowProjectile.new()
 	pai.add_child(flecha)
 	flecha.global_position = origem
 	flecha.z_index = 12
-	flecha._voar(destino)
+	flecha._fly(destino)
 
 
 func _ready() -> void:
 	centered = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	scale = ESCALA
-	sprite_frames = _obter_frames()
+	sprite_frames = _get_frames()
 	if sprite_frames:
 		play("Voo")
 
 
-func _voar(destino: Vector2) -> void:
+func _fly(destino: Vector2) -> void:
 	var tween := create_tween()
 	tween.tween_property(self, "global_position", destino, DURACAO).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(queue_free)
 
 
-static func _obter_frames() -> SpriteFrames:
+static func _get_frames() -> SpriteFrames:
 	if _frames:
 		return _frames
-	var sheet := _carregar_sheet()
+	var sheet := _load_sheet()
 	if sheet == null:
 		return null
 	var sf := SpriteFrames.new()
@@ -52,13 +52,13 @@ static func _obter_frames() -> SpriteFrames:
 		var atlas := AtlasTexture.new()
 		atlas.atlas = sheet
 		atlas.filter_clip = true
-		atlas.region = Rect2(col * CELL, LINHA_VOO * CELL, CELL, CELL)
+		atlas.region = Rect2(col * CELL, FLIGHT_LINE * CELL, CELL, CELL)
 		sf.add_frame("Voo", atlas)
 	_frames = sf
 	return _frames
 
 
-static func _carregar_sheet() -> Texture2D:
+static func _load_sheet() -> Texture2D:
 	if _sheet:
 		return _sheet
 	if ResourceLoader.exists(PNG):

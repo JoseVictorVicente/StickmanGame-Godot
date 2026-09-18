@@ -29,7 +29,7 @@ presentation/
 │   ├── inventory_menu.tscn
 │   └── forge_panel.tscn
 └── shared/
-    └── window_manager.gd
+	└── window_manager.gd
 
 scenes/
 └── main.tscn             # Single composition root

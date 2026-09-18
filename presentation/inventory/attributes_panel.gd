@@ -1,6 +1,6 @@
 class_name AttributesPanel
 extends PanelContainer
-## Cobre o inventário e mostra os atributos do herói selecionado.
+## Covers the inventory and shows the selected hero's attributes.
 
 signal panel_open_changed(is_open: bool)
 
@@ -13,20 +13,25 @@ const RES_FISICA_PCT := 0.0
 const RES_ARCANA_PCT := 0.0
 const RES_ELEMENTAL_PCT := 0.0
 
-@onready var botao_voltar: Button = %BotaoVoltarAtributos
-@onready var cabecalho: HBoxContainer = %CabecalhoAtributos
-@onready var lista: VBoxContainer = %ListaAtributos
+@onready var back_button: Button = %AttributesBackButton
+@onready var cabecalho: HBoxContainer = %AttributesHeader
+@onready var title_label: Label = $Conteudo/AttributesHeader/BannerTitulo/Titulo
+@onready var lista: VBoxContainer = %AttributesList
 
 var _menu: InventoryMenu
 var _linhas: Dictionary = {}
+var _title_labels: Dictionary = {}
+var _title_keys: Dictionary = {}
 
 
 func _ready() -> void:
 	hide()
-	botao_voltar.pressed.connect(close)
+	back_button.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
 	_build_rows()
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 
 
 func configure(menu: InventoryMenu) -> void:
@@ -43,10 +48,10 @@ func open() -> void:
 	show()
 	update()
 	panel_open_changed.emit(true)
-	call_deferred("_reforcar_layout")
+	call_deferred("_enforce_layout")
 
 
-func _reforcar_layout() -> void:
+func _enforce_layout() -> void:
 	if visible:
 		panel_open_changed.emit(true)
 
@@ -75,32 +80,39 @@ func update() -> void:
 	_set_row("res_elemental", _pct(float(stats.get("res_elemental", RES_ELEMENTAL_PCT))))
 
 
+func refresh_locale() -> void:
+	_update_localized_texts()
+	update()
+
+
 func _build_rows() -> void:
 	if lista == null:
 		return
 	for filho in lista.get_children():
 		filho.queue_free()
 	_linhas.clear()
-	_adicionar_linha("ataque", "Ataque")
-	_adicionar_linha("vida", "Vida")
-	_adicionar_linha("xp", "Experiência para próximo nível")
-	_adicionar_linha("bonus_xp", "Aumento de experiência")
-	_adicionar_linha("bonus_ouro", "Aumento de ouro")
-	_adicionar_linha("vel_ataque", "Velocidade de ataque")
-	_adicionar_linha("crit_chance", "Chance de acerto crítico")
-	_adicionar_linha("crit_dano", "Aumento de dano crítico")
-	_adicionar_linha("evasao", "Evasão")
-	_adicionar_linha("res_fisica", "Resistência física")
-	_adicionar_linha("res_arcana", "Resistência arcana")
-	_adicionar_linha("res_elemental", "Resistência elemental")
+	_title_labels.clear()
+	_title_keys.clear()
+	_add_row("ataque", LocaleKeys.ATTR_ATTACK)
+	_add_row("vida", LocaleKeys.ATTR_HP)
+	_add_row("xp", LocaleKeys.ATTR_XP_NEXT)
+	_add_row("bonus_xp", LocaleKeys.ATTR_BONUS_XP)
+	_add_row("bonus_ouro", LocaleKeys.ATTR_BONUS_GOLD)
+	_add_row("vel_ataque", LocaleKeys.ATTR_ATTACK_SPEED)
+	_add_row("crit_chance", LocaleKeys.ATTR_CRIT_CHANCE)
+	_add_row("crit_dano", LocaleKeys.ATTR_CRIT_DAMAGE)
+	_add_row("evasao", LocaleKeys.ATTR_EVASION)
+	_add_row("res_fisica", LocaleKeys.ATTR_PHYS_RES)
+	_add_row("res_arcana", LocaleKeys.ATTR_ARCANE_RES)
+	_add_row("res_elemental", LocaleKeys.ATTR_ELEMENTAL_RES)
 
 
-func _adicionar_linha(chave: String, titulo: String) -> void:
+func _add_row(chave: String, title_key: String) -> void:
 	var linha := HBoxContainer.new()
 	linha.add_theme_constant_override("separation", 8)
 
 	var nome := Label.new()
-	nome.text = titulo
+	nome.text = tr(title_key)
 	nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nome.add_theme_color_override("font_color", Color(0.92, 0.84, 0.62, 1))
 	nome.add_theme_font_size_override("font_size", 13)
@@ -116,6 +128,8 @@ func _adicionar_linha(chave: String, titulo: String) -> void:
 
 	lista.add_child(linha)
 	_linhas[chave] = valor
+	_title_labels[chave] = nome
+	_title_keys[chave] = title_key
 
 
 func _set_row(chave: String, texto: String) -> void:
@@ -128,6 +142,23 @@ func _pct(valor: float) -> String:
 	if is_equal_approx(valor, roundf(valor)):
 		return "%d%%" % int(round(valor))
 	return "%.1f%%" % valor
+
+
+func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.ATTR_TITLE).to_upper()
+	if back_button:
+		back_button.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
+	for chave in _title_labels.keys():
+		var nome: Label = _title_labels[chave] as Label
+		if nome:
+			nome.text = tr(str(_title_keys.get(chave, "")))
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
+	if is_open():
+		update()
 
 
 func _on_header_gui_input(event: InputEvent) -> void:

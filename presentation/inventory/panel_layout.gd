@@ -3,9 +3,9 @@ extends RefCounted
 ## Posiciona o inventário ao centro e os painéis laterais (armazém / ferraria / mundos).
 
 
-static func alinhar(
+static func align_panel(
 	painel: Control,
-	area_menus: Control,
+	menu_area: Control,
 	armazem: Control,
 	ferraria: Control,
 	mundos: Control,
@@ -15,26 +15,26 @@ static func alinhar(
 	skills: Control = null,
 	arvore: Control = null
 ) -> void:
-	if painel == null or area_menus == null:
+	if painel == null or menu_area == null:
 		return
 	var tam_painel := painel.get_combined_minimum_size() if painel.visible else painel.size
 	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
 	if painel.visible and painel.size != tam_painel:
 		painel.size = tam_painel
 	var y := 0.0
-	var pos_painel := Vector2((area_menus.size.x - painel.size.x) * 0.5, y)
+	var pos_painel := Vector2((menu_area.size.x - painel.size.x) * 0.5, y)
 	if painel.position != pos_painel:
 		painel.position = pos_painel
-	_posicionar_lado(armazem, painel, true, y, painel.size.y, area_menus.size)
-	_posicionar_lado(ferraria, painel, false, y, painel.size.y, area_menus.size)
-	_posicionar_lado(mundos, painel, false, y, painel.size.y, area_menus.size)
-	_sobrepor_painel(formacao, painel)
-	_sobrepor_painel(atributos, painel)
-	_sobrepor_painel(skills, painel)
-	_sobrepor_painel(arvore, painel)
+	_position_side(armazem, painel, true, y, painel.size.y, menu_area.size)
+	_position_side(ferraria, painel, false, y, painel.size.y, menu_area.size)
+	_position_side(mundos, painel, false, y, painel.size.y, menu_area.size)
+	_overlay_panel(formacao, painel)
+	_overlay_panel(atributos, painel)
+	_overlay_panel(skills, painel)
+	_overlay_panel(arvore, painel)
 
 
-static func largura_janela(painel: Control, armazem: Control, ferraria: Control, mundos: Control, formacao: Control = null) -> int:
+static func window_width(painel: Control, armazem: Control, ferraria: Control, mundos: Control, formacao: Control = null) -> int:
 	var extra_esq := 0
 	var extra_dir := 0
 	if armazem and armazem.visible:
@@ -49,7 +49,7 @@ static func largura_janela(painel: Control, armazem: Control, ferraria: Control,
 	return 40 + base + 2 * maxi(extra_esq, extra_dir)
 
 
-static func _sobrepor_painel(lado: Control, painel: Control) -> void:
+static func _overlay_panel(lado: Control, painel: Control) -> void:
 	if lado == null or not lado.visible or painel == null:
 		return
 	var tam := painel.size
@@ -66,7 +66,7 @@ static func _largura_de(lado: Control) -> int:
 	return int(maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x))
 
 
-static func _posicionar_lado(lado: Control, painel: Control, na_esquerda: bool, y: float, altura: float, area: Vector2 = Vector2.ZERO) -> void:
+static func _position_side(lado: Control, painel: Control, na_esquerda: bool, y: float, altura: float, area: Vector2 = Vector2.ZERO) -> void:
 	if lado == null or not lado.visible:
 		return
 	var largura := maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x)

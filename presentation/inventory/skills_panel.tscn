@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c8skills0001"]
 
 [ext_resource type="Script" path="res://presentation/inventory/skills_panel.gd" id="1_skills"]
-[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/fundo_painel.png" id="2_fundo_painel"]
+[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
@@ -124,17 +124,17 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="CabecalhoSkills" type="HBoxContainer" parent="Conteudo"]
+[node name="SkillsHeader" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoSkills"]
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/SkillsHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/CabecalhoSkills/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Conteudo/SkillsHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 1, 0.55, 1)
 theme_override_font_sizes/font_size = 16
@@ -142,7 +142,7 @@ text = "SKILLS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoFecharSkills" type="Button" parent="Conteudo/CabecalhoSkills"]
+[node name="CloseSkillsButton" type="Button" parent="Conteudo/SkillsHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -161,13 +161,13 @@ theme_override_font_sizes/font_size = 12
 text = "Herói selecionado"
 horizontal_alignment = 1
 
-[node name="SlotsHeroiSkills" type="HBoxContainer" parent="Conteudo"]
+[node name="HeroSkillSlots" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="LabelSkillsHeroi" type="Label" parent="Conteudo"]
+[node name="HeroSkillsLabel" type="Label" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.92, 0.7, 1)
@@ -191,54 +191,54 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="SessaoEquipadas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="EquippedSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="LinhaEquipadas" type="HBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas"]
+[node name="LinhaEquipadas" type="HBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection"]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="ColunaEquipAtivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas"]
+[node name="ColunaEquipAtivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="TituloEquipAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipAtivas"]
+[node name="TituloEquipAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
 text = "Ativas"
 horizontal_alignment = 1
 
-[node name="CentralEquipAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipAtivas"]
+[node name="CentralEquipAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeEquipAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas"]
+[node name="GradeEquipAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 2
 
-[node name="ColunaEquipPassivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas"]
+[node name="ColunaEquipPassivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="TituloEquipPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipPassivas"]
+[node name="TituloEquipPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
 text = "Passivas"
 horizontal_alignment = 1
 
-[node name="CentralEquipPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipPassivas"]
+[node name="CentralEquipPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeEquipPassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoEquipadas/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas"]
+[node name="GradeEquipPassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 10
@@ -256,23 +256,23 @@ theme_override_font_sizes/font_size = 12
 text = "Habilidades Disponíveis"
 horizontal_alignment = 1
 
-[node name="SessaoAtivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="ActiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TituloAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoAtivas"]
+[node name="TituloAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
 text = "Ativas"
 horizontal_alignment = 1
 
-[node name="CentralAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoAtivas"]
+[node name="CentralAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoAtivas/CentralAtivas"]
+[node name="GradeAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection/CentralAtivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
@@ -283,23 +283,23 @@ columns = 5
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_separador")
 
-[node name="SessaoPassivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="PassiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TituloPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoPassivas"]
+[node name="TituloPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
 text = "Passivas"
 horizontal_alignment = 1
 
-[node name="CentralPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoPassivas"]
+[node name="CentralPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradePassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/SessaoPassivas/CentralPassivas"]
+[node name="GradePassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection/CentralPassivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8

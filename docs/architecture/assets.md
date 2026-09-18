@@ -10,17 +10,17 @@ sprites/
 ├── heroes/               # portraits, body sprites, spritesheets
 ├── projectiles/          # combat VFX (arrows, etc.)
 └── ui/
-    ├── skill_tree/       # skill-tree node icons (attack, health, gold, …)
-    └── skills/           # per-class skill icons (<class_id>/)
-        ├── warrior/
-        ├── mage/
-        ├── archer/
-        ├── assassin/
-        ├── tank/
-        └── priest/
+	├── skill_tree/       # skill-tree node icons (attack, health, gold, …)
+	└── skills/           # per-class skill icons (<class_id>/)
+		├── warrior/
+		├── mage/
+		├── archer/
+		├── assassin/
+		├── tank/
+		└── priest/
 ```
 
-Folder and file names use **English**. Individual PNG filenames may still use legacy Portuguese slugs until art is renamed; paths in code always point to the English folder structure.
+Folder and file names use **English**. UI equipment icons use English slugs (`helmet.png`, `nav_inventory.png`, `panel_bg.png`). Hero portraits use `px_<class>2.jpg`. Archer active skill icons and `.tres` files use English slugs (`instant_double_shot`). Remaining class skill filenames may still use Portuguese slugs until renamed in a follow-up pass.
 
 ## Module boundaries
 

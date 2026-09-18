@@ -2,8 +2,8 @@ class_name EnemyVisual
 extends Sprite2D
 ## Enemy sprite: hit flash, death fade, and respawn on next wave.
 
-const AVANCO_ATAQUE := 28.0
-const DURACAO_AVANCO := 0.09
+const ATTACK_LUNGE := 28.0
+const LUNGE_DURATION := 0.09
 const DURACAO_RETORNO := 0.12
 
 var _pos_base: Vector2 = Vector2.ZERO
@@ -28,7 +28,7 @@ func play_attack() -> void:
 	position = _pos_base
 	_tween_ataque = create_tween()
 	_tween_ataque.set_trans(Tween.TRANS_QUAD)
-	_tween_ataque.tween_property(self, "position:x", _pos_base.x - AVANCO_ATAQUE, DURACAO_AVANCO).set_ease(Tween.EASE_OUT)
+	_tween_ataque.tween_property(self, "position:x", _pos_base.x - ATTACK_LUNGE, LUNGE_DURATION).set_ease(Tween.EASE_OUT)
 	_tween_ataque.tween_property(self, "position:x", _pos_base.x, DURACAO_RETORNO).set_ease(Tween.EASE_IN)
 
 
@@ -49,7 +49,7 @@ func flash_hit() -> void:
 	_tween.parallel().tween_property(self, "position", _pos_base, 0.12)
 
 
-func esmaecer() -> void:
+func fade_out() -> void:
 	if _tween:
 		_tween.kill()
 	if _tween_ataque:

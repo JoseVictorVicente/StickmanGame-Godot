@@ -10,7 +10,7 @@ func can_improve(item: ItemData) -> bool:
 		return false
 	if item.is_gem():
 		return true
-	return not ItemData.eh_raridade_maxima(item.raridade)
+	return not ItemData.is_max_rarity(item.rarity)
 
 
 func get_cost(item: ItemData, operation: String = "synthesis") -> int:
@@ -30,21 +30,21 @@ func get_cost(item: ItemData, operation: String = "synthesis") -> int:
 func synthesis_success_chance(item: ItemData) -> float:
 	if item == null:
 		return 0.0
-	return ItemData.chance_forja_sucesso(item.raridade)
+	return ItemData.forge_success_chance(item.rarity)
 
 
 func can_synthesize_ingredients(ingredients: Array) -> bool:
 	if ingredients.size() != SYNTHESIS_INGREDIENT_COUNT:
 		return false
 	var first: ItemData = ingredients[0]
-	if first == null or ItemData.eh_raridade_maxima(first.raridade):
+	if first == null or ItemData.is_max_rarity(first.rarity):
 		return false
 	for item in ingredients:
 		if item == null:
 			return false
 		if item.category() != first.category():
 			return false
-		if item.raridade != first.raridade:
+		if item.rarity != first.rarity:
 			return false
 	return true
 
@@ -57,10 +57,10 @@ func can_imbue_gem(equipment: ItemData, gem: ItemData) -> bool:
 	return equipment.has_gem_slot() and not equipment.has_embedded_gem()
 
 
-func next_rarity(item: ItemData) -> ItemData.Raridade:
+func next_rarity(item: ItemData) -> ItemData.Rarity:
 	if item == null:
-		return ItemData.Raridade.COMUM
-	return ItemData.proxima_raridade(item.raridade)
+		return ItemData.Rarity.COMMON
+	return ItemData.next_rarity(item.rarity)
 
 
 func _synthesis_gold_cost(item: ItemData) -> int:

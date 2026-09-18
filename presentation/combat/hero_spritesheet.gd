@@ -8,13 +8,13 @@ const JSON_ARQUEIRO := "res://sprites/heroes/A_2D_pixel-art_stickman-Idle.json"
 const ESCALA_STICK := Vector2(1.25, 1.25)
 const ESCALA_ARQUEIRO := Vector2(0.34, 0.34)
 const BARRA_STICK := Vector2(-14, -38)
-const BARRA_ARQUEIRO := Vector2(-14, -118)
+const ARCHER_BAR := Vector2(-14, -118)
 
 static var _frames: Dictionary = {}
 static var _sheets: Dictionary = {}
 
 
-static func tem(id_classe: String) -> bool:
+static func has_class_art(id_classe: String) -> bool:
 	return frames(id_classe) != null
 
 
@@ -23,30 +23,30 @@ static func frames(id_classe: String) -> SpriteFrames:
 		return _frames[id_classe] as SpriteFrames
 	if id_classe != ID_ARQUEIRO:
 		return null
-	var montado: SpriteFrames = _montar_arqueiro()
+	var montado: SpriteFrames = _build_archer()
 	if montado:
 		_frames[id_classe] = montado
 	return montado
 
 
-static func escala(id_classe: String) -> Vector2:
+static func scale_for(id_classe: String) -> Vector2:
 	if id_classe == ID_ARQUEIRO:
 		return ESCALA_ARQUEIRO
 	return ESCALA_STICK
 
 
-static func barra_offset(id_classe: String) -> Vector2:
+static func health_bar_offset(id_classe: String) -> Vector2:
 	if id_classe == ID_ARQUEIRO:
-		return BARRA_ARQUEIRO
+		return ARCHER_BAR
 	return BARRA_STICK
 
 
-static func _montar_arqueiro() -> SpriteFrames:
-	var sheet := _carregar_textura(PNG_ARQUEIRO)
+static func _build_archer() -> SpriteFrames:
+	var sheet := _load_texture(PNG_ARQUEIRO)
 	if sheet == null:
 		return null
 	var cell: int = 256
-	var dados: Variant = _ler_json(JSON_ARQUEIRO)
+	var dados: Variant = _read_json(JSON_ARQUEIRO)
 	if dados is Dictionary:
 		var info: Variant = (dados as Dictionary).get("spritesheet", {})
 		if info is Dictionary:
@@ -72,9 +72,9 @@ static func _add_anim(sf: SpriteFrames, nome: String, texturas: Array[Texture2D]
 		sf.add_frame(nome, tex)
 
 
-static func _draw_line(sheet: Texture2D, row: int, quantidade: int, cell: int) -> Array[Texture2D]:
+static func _draw_line(sheet: Texture2D, row: int, amount: int, cell: int) -> Array[Texture2D]:
 	var lista: Array[Texture2D] = []
-	for col in quantidade:
+	for col in amount:
 		lista.append(_celula(sheet, col, row, cell))
 	return lista
 
@@ -87,7 +87,7 @@ static func _celula(sheet: Texture2D, col: int, row: int, cell: int) -> AtlasTex
 	return atlas
 
 
-static func _carregar_textura(caminho: String) -> Texture2D:
+static func _load_texture(caminho: String) -> Texture2D:
 	if _sheets.has(caminho):
 		return _sheets[caminho] as Texture2D
 	var tex: Texture2D = null
@@ -105,7 +105,7 @@ static func _carregar_textura(caminho: String) -> Texture2D:
 	return tex
 
 
-static func _ler_json(caminho: String) -> Variant:
+static func _read_json(caminho: String) -> Variant:
 	if not FileAccess.file_exists(caminho):
 		return {}
 	var txt: String = FileAccess.get_file_as_string(caminho)

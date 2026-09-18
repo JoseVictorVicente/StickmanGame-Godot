@@ -69,31 +69,31 @@ static func _create_disabled(normal: Texture2D) -> Texture2D:
 
 static func _folder_for_type(tipo: int) -> String:
 	match tipo:
-		SkillTreeDefinition.TipoBonus.ATAQUE:
+		SkillTreeDefinition.BonusType.ATTACK:
 			return "attack"
-		SkillTreeDefinition.TipoBonus.ATAQUE_PCT:
+		SkillTreeDefinition.BonusType.ATTACK_PCT:
 			return "attack_pct"
-		SkillTreeDefinition.TipoBonus.VIDA:
+		SkillTreeDefinition.BonusType.HP:
 			return "health"
-		SkillTreeDefinition.TipoBonus.BONUS_XP:
+		SkillTreeDefinition.BonusType.BONUS_XP:
 			return "xp"
-		SkillTreeDefinition.TipoBonus.BONUS_OURO:
+		SkillTreeDefinition.BonusType.GOLD_BONUS:
 			return "gold"
-		SkillTreeDefinition.TipoBonus.VEL_ATAQUE:
+		SkillTreeDefinition.BonusType.ATTACK_SPEED:
 			return "attack_speed"
-		SkillTreeDefinition.TipoBonus.CRIT_CHANCE:
+		SkillTreeDefinition.BonusType.CRIT_CHANCE:
 			return "crit_chance"
-		SkillTreeDefinition.TipoBonus.CRIT_DANO:
+		SkillTreeDefinition.BonusType.CRIT_DAMAGE:
 			return "crit_damage"
-		SkillTreeDefinition.TipoBonus.EVASAO:
+		SkillTreeDefinition.BonusType.EVASION:
 			return "evasion"
-		SkillTreeDefinition.TipoBonus.RES_FISICA:
+		SkillTreeDefinition.BonusType.PHYS_RES:
 			return "physical_res"
-		SkillTreeDefinition.TipoBonus.RES_ARCANA:
+		SkillTreeDefinition.BonusType.ARCANE_RES:
 			return "arcane_res"
-		SkillTreeDefinition.TipoBonus.RES_ELEMENTAL:
+		SkillTreeDefinition.BonusType.ELEMENTAL_RES:
 			return "elemental_res"
-		SkillTreeDefinition.TipoBonus.ARMAZEM:
+		SkillTreeDefinition.BonusType.WAREHOUSE:
 			return "warehouse"
 	return ""
 

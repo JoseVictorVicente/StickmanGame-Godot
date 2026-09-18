@@ -23,10 +23,10 @@ In `SaveService.load_game()`, if `version < 3`: `payload["skill_tree"] = []` (tr
 1. **Hero equipment** — persist `HeroEquipment.serialize()` per class ID:
    ```json
    "hero_equipment": {
-     "warrior": {
-       "actives": ["01_sequencia_frenetica", ""],
-       "passives": ["p01_mestre_das_laminas", ""]
-     }
+	 "warrior": {
+	   "actives": ["01_sequencia_frenetica", ""],
+	   "passives": ["p01_mestre_das_laminas", ""]
+	 }
    }
    ```
 2. **English keys** — runtime dictionary uses English names (`gold`, `inventory`, `party`, …). `SaveService.normalize_keys()` maps legacy Portuguese keys on read; `_to_legacy_payload()` maps back for `aplicar_save()` callers.
@@ -60,21 +60,21 @@ Dictionary returned by `scenes/main.gd`:
 
 ```gdscript
 {
-    "gold": int,
-    "wave": int,                    # current enemy level index
-    "world": int,                   # 1..5
-    "stage": int,                   # 1..9
-    "difficulty": int,              # 0=Easy, 1=Hard, 2=Hell
-    "unlocked_stages": Array[int],  # [easy, hard, hell] — max unlocked index
-    "repeat_stage": bool,
-    "active_character_index": int,  # 0..2 in character menu
-    "progress": Dictionary,         # see below
-    "inventory": Array,             # 50 × ItemData dict or {}
-    "warehouse": Dictionary,        # see below
-    "equipment": Dictionary,        # per class_id
-    "party": Dictionary,            # party
-    "skill_tree": Dictionary,       # node_id → level
-    "hero_equipment": Dictionary,   # per class_id, v4+
+	"gold": int,
+	"wave": int,                    # current enemy level index
+	"world": int,                   # 1..5
+	"stage": int,                   # 1..9
+	"difficulty": int,              # 0=Easy, 1=Hard, 2=Hell
+	"unlocked_stages": Array[int],  # [easy, hard, hell] — max unlocked index
+	"repeat_stage": bool,
+	"active_character_index": int,  # 0..2 in character menu
+	"progress": Dictionary,         # see below
+	"inventory": Array,             # 50 × ItemData dict or {}
+	"warehouse": Dictionary,        # see below
+	"equipment": Dictionary,        # per class_id
+	"party": Dictionary,            # party
+	"skill_tree": Dictionary,       # node_id → level
+	"hero_equipment": Dictionary,   # per class_id, v4+
 }
 ```
 
@@ -158,8 +158,8 @@ Array of 50 elements. Empty item = `{}`. Filled item = `ItemData.para_dicionario
 ```json
 {
   "warrior": [
-    {"tipo": 2, "item": {}},
-    {"tipo": 3, "item": {"id": "...", ...}}
+	{"tipo": 2, "item": {}},
+	{"tipo": 3, "item": {"id": "...", ...}}
   ]
 }
 ```
@@ -194,8 +194,8 @@ Keys = node `id` from `SkillTreeDefinition.catalogo()`.
 ```json
 {
   "warrior": {
-    "actives": ["01_sequencia_frenetica", "02_corte_rapido"],
-    "passives": ["p01_mestre_das_laminas", ""]
+	"actives": ["01_sequencia_frenetica", "02_corte_rapido"],
+	"passives": ["p01_mestre_das_laminas", ""]
   }
 }
 ```

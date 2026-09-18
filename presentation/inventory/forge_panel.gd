@@ -4,53 +4,51 @@ extends Control
 ## Fica acoplado à direita do inventário e só existe enquanto o menu está aberto.
 
 signal panel_open_changed(is_open: bool)
-signal gold_gained(quantidade: int)
+signal gold_gained(amount: int)
 
 enum Aba { SINTESE, DESMONTAR, JOIAS }
 
-const SLOTS_SINTSE := 9
+const SYNTHESIS_SLOTS := 9
 const SLOT_CENTRAL := 4
 const COLUNAS := 3
-const TAMANHO_SLOT := Vector2(44, 44)
+const SLOT_SIZE := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
-const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
+const WAREHOUSE_TOGGLE_SIZE := Vector2(48, 26)
 const GRADE_MARGEM := 0.08
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
 const Z_INDEX_LEGENDA_INFO := 100
 const OFFSET_LEGENDA_INFO := Vector2(10, 0)
-const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e família"
-const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
-const TEXTO_JOIAS := "Imbua uma gema em equipamento lendário ou superior"
-const JOIAS_LARGURA_SETA := 32.0
+const GEMS_ARROW_WIDTH := 32.0
 
-@onready var grade_sintese: GridContainer = %GradeSintese
-@onready var grade_desmontar: GridContainer = %GradeDesmontar
+@onready var synthesis_grid: GridContainer = %GradeSintese
+@onready var dismantle_grid: GridContainer = %GradeDesmontar
 @onready var botao_fechar: Button = %BotaoFecharForgePanel
-@onready var botao_preenchimento: Button = %BotaoPreenchimento
-@onready var botao_info_nivel: PanelContainer = %BotaoInfoNivel
-@onready var toggle_armazem: Control = %ToggleArmazem
-@onready var toggle_trilho: Panel = %ToggleTrilho
+@onready var autofill_button: Button = %BotaoPreenchimento
+@onready var level_info_button: PanelContainer = %BotaoInfoNivel
+@onready var warehouse_toggle: Control = %ToggleArmazem
+@onready var toggle_track: Panel = %ToggleTrilho
 @onready var toggle_knob: Panel = %ToggleKnob
-@onready var botao_sintetizar: Button = %BotaoSintetizar
-@onready var botao_desmontar: Button = %BotaoDesmontar
-@onready var botao_aba_sintese: Button = %BotaoAbaSintese
-@onready var botao_aba_desmontar: Button = %BotaoAbaDesmontar
-@onready var botao_aba_joias: Button = %BotaoAbaJoias
-@onready var botao_filtro_forja: Button = %BotaoFiltroForja
-@onready var botao_preenchimento_desmonte: Button = %BotaoPreenchimentoDesmonte
-@onready var botao_filtro_desmonte: Button = %BotaoFiltroDesmonte
-@onready var painel_sintese: VBoxContainer = %PainelSintese
-@onready var painel_desmontar: VBoxContainer = %PainelDesmontar
-@onready var painel_joias: VBoxContainer = %PainelJoias
-@onready var area_joias: HBoxContainer = %AreaJoias
-@onready var botao_imbuir: Button = %BotaoImbuir
-@onready var label_explicacao: Label = %LabelExplicacaoForgePanel
-@onready var label_explicacao_desmontar: Label = %LabelExplicacaoDesmontar
-@onready var label_explicacao_joias: Label = %LabelExplicacaoJoias
-@onready var label_valor_desmonte: Label = %LabelValorDesmonte
+@onready var synthesize_button: Button = %BotaoSintetizar
+@onready var dismantle_button: Button = %BotaoDesmontar
+@onready var synthesis_tab_button: Button = %BotaoAbaSintese
+@onready var dismantle_tab_button: Button = %BotaoAbaDesmontar
+@onready var gems_tab_button: Button = %BotaoAbaJoias
+@onready var forge_filter_button: Button = %BotaoFiltroForja
+@onready var dismantle_autofill_button: Button = %BotaoPreenchimentoDesmonte
+@onready var dismantle_filter_button: Button = %BotaoFiltroDesmonte
+@onready var synthesis_panel: VBoxContainer = %PainelSintese
+@onready var dismantle_panel: VBoxContainer = %PainelDesmontar
+@onready var gems_panel: VBoxContainer = %PainelJoias
+@onready var gems_area: HBoxContainer = %AreaJoias
+@onready var imbue_button: Button = %BotaoImbuir
+@onready var explanation_label: Label = %LabelExplicacaoForgePanel
+@onready var dismantle_explanation_label: Label = %LabelExplicacaoDesmontar
+@onready var gems_explanation_label: Label = %LabelExplicacaoJoias
+@onready var dismantle_value_label: Label = %LabelValorDesmonte
 @onready var cabecalho: HBoxContainer = %CabecalhoForgePanel
-@onready var corpo_ferraria: Control = %CorpoForgePanel
+@onready var forge_body: Control = %CorpoForgePanel
+@onready var title_label: Label = $Conteudo/CabecalhoForgePanel/BannerTitulo/Titulo
 var _menu: InventoryMenu
 var _slots: Array[ItemSlot] = []
 var _slots_desmontar: Array[ItemSlot] = []
@@ -67,26 +65,25 @@ var slot_joia_gema: ItemSlot
 
 func _ready() -> void:
 	hide()
-	_create_slots(grade_sintese, _slots, true)
-	_create_slots(grade_desmontar, _slots_desmontar, false)
+	_create_slots(synthesis_grid, _slots, true)
+	_create_slots(dismantle_grid, _slots_desmontar, false)
 	_create_filter_popup()
 	botao_fechar.pressed.connect(close)
-	botao_preenchimento.pressed.connect(auto_fill)
-	botao_preenchimento_desmonte.pressed.connect(auto_fill_dismantle)
-	botao_sintetizar.pressed.connect(synthesize)
-	botao_desmontar.pressed.connect(dismantle)
-	botao_aba_sintese.pressed.connect(show_tab.bind(Aba.SINTESE))
-	botao_aba_desmontar.pressed.connect(show_tab.bind(Aba.DESMONTAR))
-	botao_aba_joias.pressed.connect(show_tab.bind(Aba.JOIAS))
-	botao_imbuir.pressed.connect(_on_imbue_pressed)
-	botao_filtro_forja.pressed.connect(_open_filter.bind(botao_filtro_forja))
-	botao_filtro_desmonte.pressed.connect(_open_filter.bind(botao_filtro_desmonte))
+	autofill_button.pressed.connect(auto_fill)
+	dismantle_autofill_button.pressed.connect(auto_fill_dismantle)
+	synthesize_button.pressed.connect(synthesize)
+	dismantle_button.pressed.connect(dismantle)
+	synthesis_tab_button.pressed.connect(show_tab.bind(Aba.SINTESE))
+	dismantle_tab_button.pressed.connect(show_tab.bind(Aba.DESMONTAR))
+	gems_tab_button.pressed.connect(show_tab.bind(Aba.JOIAS))
+	imbue_button.pressed.connect(_on_imbue_pressed)
+	forge_filter_button.pressed.connect(_open_filter.bind(forge_filter_button))
+	dismantle_filter_button.pressed.connect(_open_filter.bind(dismantle_filter_button))
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
 	visibility_changed.connect(_on_info_tooltip_visibility)
-	label_explicacao.text = TEXTO_RODAPE
-	label_explicacao_desmontar.text = TEXTO_DESMONTE
-	label_explicacao_joias.text = TEXTO_JOIAS
+	LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
 	_build_jewelry_area()
 	_setup_warehouse_toggle()
 	_setup_level_info_button()
@@ -96,14 +93,14 @@ func _ready() -> void:
 	_update_dismantle()
 	visibility_changed.connect(_on_visibility_changed)
 	resized.connect(_align_forge_background)
-	if corpo_ferraria:
-		corpo_ferraria.resized.connect(_align_forge_background)
-	if painel_sintese:
-		painel_sintese.resized.connect(_align_forge_background)
-	if painel_desmontar:
-		painel_desmontar.resized.connect(_align_forge_background)
-	if painel_joias:
-		painel_joias.resized.connect(_align_forge_background)
+	if forge_body:
+		forge_body.resized.connect(_align_forge_background)
+	if synthesis_panel:
+		synthesis_panel.resized.connect(_align_forge_background)
+	if dismantle_panel:
+		dismantle_panel.resized.connect(_align_forge_background)
+	if gems_panel:
+		gems_panel.resized.connect(_align_forge_background)
 
 
 func configure(menu: InventoryMenu) -> void:
@@ -167,10 +164,10 @@ func reserve_item(origem: ItemSlot, slot_ferraria: ItemSlot) -> bool:
 	if origem.reservado_ferraria or is_origin_reserved(origem):
 		return false
 	if is_jewelry_target_slot(slot_ferraria) and not can_accept_target_jewelry(origem.item):
-		_set_jewelry_status("Equipamento lendário+ sem gema imbuída necessário.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_NEED_GEAR), Color(1, 0.55, 0.4, 1))
 		return false
 	if is_jewelry_gem_slot(slot_ferraria) and not can_accept_gem_jewelry(origem.item):
-		_set_jewelry_status("Selecione uma gema.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_SELECT_GEM), Color(1, 0.55, 0.4, 1))
 		return false
 	if is_synthesis_slot(slot_ferraria) and not can_accept_in_synthesis(origem.item):
 		notify_blocked_category(origem.item)
@@ -256,7 +253,7 @@ func collect_result_to(destino: ItemSlot = null) -> bool:
 func interact_slot(slot: ItemSlot) -> void:
 	if is_pending_result(slot):
 		if not collect_result_to():
-			_set_status("Inventário cheio. Libere espaço para retirar o item.", Color(1, 0.55, 0.4, 1))
+			_set_status(tr(LocaleKeys.FORGE_INVENTORY_FULL), Color(1, 0.55, 0.4, 1))
 		return
 	release_forge_slot(slot)
 
@@ -285,13 +282,10 @@ func notify_blocked_category(item: ItemData) -> void:
 	var travada: Variant = locked_synthesis_category()
 	if travada == null or item == null:
 		return
-	_set_status(
-		"Grade travada em %s. Não é possível misturar %s." % [
-			ItemData.nome_categoria(travada as ItemData.Categoria),
-			ItemData.nome_categoria(item.category()),
-		],
-		Color(1, 0.55, 0.4, 1)
-	)
+		_set_status(tr(LocaleKeys.FORGE_MIXED_CATEGORY) % [
+			ItemData.display_name_categoria(travada as ItemData.Category),
+			ItemData.display_name_categoria(item.category()),
+		], Color(1, 0.55, 0.4, 1))
 
 
 func first_empty_slot() -> ItemSlot:
@@ -334,12 +328,12 @@ func show_tab(aba: Aba) -> void:
 	if aba != _aba:
 		_clear_tab(_aba)
 	_aba = aba
-	painel_sintese.visible = aba == Aba.SINTESE
-	painel_desmontar.visible = aba == Aba.DESMONTAR
-	painel_joias.visible = aba == Aba.JOIAS
-	_paint_tab(botao_aba_sintese, aba == Aba.SINTESE)
-	_paint_tab(botao_aba_desmontar, aba == Aba.DESMONTAR)
-	_paint_tab(botao_aba_joias, aba == Aba.JOIAS)
+	synthesis_panel.visible = aba == Aba.SINTESE
+	dismantle_panel.visible = aba == Aba.DESMONTAR
+	gems_panel.visible = aba == Aba.JOIAS
+	_style_tab(synthesis_tab_button, aba == Aba.SINTESE)
+	_style_tab(dismantle_tab_button, aba == Aba.DESMONTAR)
+	_style_tab(gems_tab_button, aba == Aba.JOIAS)
 	_on_items_changed()
 	_update_forge_background()
 
@@ -373,7 +367,7 @@ func auto_fill() -> void:
 	if _menu == null:
 		return
 	if _has_pending_result():
-		_set_status("Retire o item do slot central antes de preencher.", Color(1, 0.55, 0.4, 1))
+		_set_status(tr(LocaleKeys.FORGE_CLEAR_CENTRAL), Color(1, 0.55, 0.4, 1))
 		return
 	_return_item_list(_slots)
 	var grupo := _find_eligible_group()
@@ -381,7 +375,7 @@ func auto_fill() -> void:
 		_update_state()
 		_set_status(_no_group_message(), Color(1, 0.55, 0.4, 1))
 		return
-	for i in SLOTS_SINTSE:
+	for i in SYNTHESIS_SLOTS:
 		reserve_item(grupo[i], _slots[i])
 	_update_state()
 
@@ -393,64 +387,58 @@ func auto_fill_dismantle() -> void:
 	var candidatos := _filtered_source_items(false)
 	if candidatos.is_empty():
 		_update_dismantle()
-		label_explicacao_desmontar.text = _no_dismantle_items_message()
-		label_explicacao_desmontar.add_theme_color_override("font_color", Color(1, 0.55, 0.4, 1))
+		dismantle_explanation_label.text = _no_dismantle_items_message()
+		dismantle_explanation_label.add_theme_color_override("font_color", Color(1, 0.55, 0.4, 1))
 		return
-	var limite := mini(SLOTS_SINTSE, candidatos.size())
+	var limite := mini(SYNTHESIS_SLOTS, candidatos.size())
 	for i in limite:
 		reserve_item(candidatos[i], _slots_desmontar[i])
 	_update_dismantle()
-	label_explicacao_desmontar.text = "Grade preenchida. Clique em DESMONTAR."
-	label_explicacao_desmontar.add_theme_color_override("font_color", Color(0.72, 0.9, 0.7, 1))
+	dismantle_explanation_label.text = tr(LocaleKeys.FORGE_DISMANTLE_FILLED)
+	dismantle_explanation_label.add_theme_color_override("font_color", Color(0.72, 0.9, 0.7, 1))
 
 
 func synthesize() -> void:
 	if not _receita_valida():
 		_update_state()
-		_set_status("Coloque 9 itens da mesma raridade e família (equipamento, acessório ou gema).", Color(1, 0.55, 0.4, 1))
+		_set_status(tr(LocaleKeys.FORGE_RECIPE_INVALID), Color(1, 0.55, 0.4, 1))
 		return
 	var ingredientes: Array[ItemData] = []
 	for slot in _slots:
 		ingredientes.append(slot.item)
-	var raridade_base := ingredientes[0].raridade
-	var chance := ItemData.chance_forja_sucesso(raridade_base)
+	var raridade_base := ingredientes[0].rarity
+	var chance := ItemData.forge_success_chance(raridade_base)
 	var sucesso := randf() <= chance
-	var raridade_resultado := ItemData.proxima_raridade(raridade_base) if sucesso else raridade_base
+	var raridade_resultado := ItemData.next_rarity(raridade_base) if sucesso else raridade_base
 	var resultado := _create_synthesized_item(ingredientes, raridade_resultado)
 	consume_reservations(_slots)
 	_slots[SLOT_CENTRAL].set_item(resultado)
 	_menu.notify_items_changed()
 	_update_state()
 	if sucesso:
-		_set_status(
-			"Sucesso! %s (%s, Nv.%d)." % [resultado.nome, resultado.rarity_name(), resultado.nivel_item],
-			Color(0.85, 0.78, 0.32, 1)
-		)
+		_set_status(tr(LocaleKeys.FORGE_SUCCESS) % [resultado.get_display_name(), resultado.rarity_name(), resultado.item_level], Color(0.85, 0.78, 0.32, 1))
 	else:
-		_set_status(
-			"Forja falhou (%d%%). Recebeu: %s (%s, Nv.%d). Retire do slot central." % [
-				ItemData.chance_forja_sucesso_pct(raridade_base),
-				resultado.nome,
+		_set_status(tr(LocaleKeys.FORGE_FAILED) % [
+				ItemData.forge_success_chance_pct(raridade_base),
+				resultado.get_display_name(),
 				resultado.rarity_name(),
-				resultado.nivel_item,
-			],
-			Color(1, 0.55, 0.4, 1)
-		)
+				resultado.item_level,
+			], Color(1, 0.55, 0.4, 1))
 
 
 func dismantle() -> void:
 	var valor := _current_dismantle_value()
 	if valor <= 0:
 		_update_dismantle()
-		label_explicacao_desmontar.text = "Coloque itens na grade para dismantle."
-		label_explicacao_desmontar.add_theme_color_override("font_color", Color(1, 0.55, 0.4, 1))
+		dismantle_explanation_label.text = tr(LocaleKeys.FORGE_DISMANTLE_PLACE)
+		dismantle_explanation_label.add_theme_color_override("font_color", Color(1, 0.55, 0.4, 1))
 		return
 	consume_reservations(_slots_desmontar)
 	gold_gained.emit(valor)
 	_menu.notify_items_changed()
 	_update_dismantle()
-	label_explicacao_desmontar.text = "Desmonte concluído: +%d ouro." % valor
-	label_explicacao_desmontar.add_theme_color_override("font_color", Color(0.85, 0.78, 0.32, 1))
+	dismantle_explanation_label.text = tr(LocaleKeys.FORGE_DISMANTLE_DONE) % valor
+	dismantle_explanation_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.32, 1))
 
 
 func _on_visibility_changed() -> void:
@@ -459,17 +447,17 @@ func _on_visibility_changed() -> void:
 
 
 func _update_forge_background() -> void:
-	grade_sintese.visible = _aba == Aba.SINTESE
-	grade_desmontar.visible = _aba == Aba.DESMONTAR
-	if area_joias:
-		area_joias.visible = _aba == Aba.JOIAS
+	synthesis_grid.visible = _aba == Aba.SINTESE
+	dismantle_grid.visible = _aba == Aba.DESMONTAR
+	if gems_area:
+		gems_area.visible = _aba == Aba.JOIAS
 	call_deferred("_align_forge_background")
 
 
 func _current_tab_grid() -> GridContainer:
 	if _aba == Aba.SINTESE:
-		return grade_sintese
-	return grade_desmontar
+		return synthesis_grid
+	return dismantle_grid
 
 
 func _current_tab_slots() -> Array[ItemSlot]:
@@ -479,16 +467,16 @@ func _current_tab_slots() -> Array[ItemSlot]:
 func _current_tab_panel() -> VBoxContainer:
 	match _aba:
 		Aba.SINTESE:
-			return painel_sintese
+			return synthesis_panel
 		Aba.DESMONTAR:
-			return painel_desmontar
+			return dismantle_panel
 		Aba.JOIAS:
-			return painel_joias
-	return painel_sintese
+			return gems_panel
+	return synthesis_panel
 
 
 func _align_forge_background() -> void:
-	if corpo_ferraria == null:
+	if forge_body == null:
 		return
 	var painel := _current_tab_panel()
 	if painel and painel.visible:
@@ -522,7 +510,7 @@ func _align_forge_background() -> void:
 
 
 func _grid_area_rect() -> Rect2:
-	var tam := corpo_ferraria.size
+	var tam := forge_body.size
 	if tam.x < 1.0 or tam.y < 1.0:
 		return Rect2()
 	var painel := _current_tab_panel()
@@ -537,41 +525,41 @@ func _grid_area_rect() -> Rect2:
 
 
 func _align_jewelry_area(alvo: Rect2) -> void:
-	if area_joias == null or slot_joia_alvo == null or slot_joia_gema == null:
+	if gems_area == null or slot_joia_alvo == null or slot_joia_gema == null:
 		return
-	var separacao := float(area_joias.get_theme_constant("separation"))
-	var largura_seta := JOIAS_LARGURA_SETA
+	var separacao := float(gems_area.get_theme_constant("separation"))
+	var largura_seta := GEMS_ARROW_WIDTH
 	var lado := minf((alvo.size.x - largura_seta - separacao * 2.0) * 0.5, alvo.size.y)
 	lado = maxf(1.0, lado)
 	var tamanho_slot := Vector2.ONE * lado
 	slot_joia_alvo.custom_minimum_size = tamanho_slot
 	slot_joia_gema.custom_minimum_size = tamanho_slot
-	area_joias.reset_size()
-	var tam_area := area_joias.get_combined_minimum_size()
+	gems_area.reset_size()
+	var tam_area := gems_area.get_combined_minimum_size()
 	if tam_area.x < 1.0 or tam_area.y < 1.0:
 		return
-	area_joias.position = alvo.position + (alvo.size - tam_area) * 0.5
-	area_joias.size = tam_area
-	var seta := area_joias.get_node_or_null("SetaImbuir")
+	gems_area.position = alvo.position + (alvo.size - tam_area) * 0.5
+	gems_area.size = tam_area
+	var seta := gems_area.get_node_or_null("SetaImbuir")
 	if seta:
-		seta.custom_minimum_size = Vector2(JOIAS_LARGURA_SETA, lado)
+		seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, lado)
 		seta.queue_redraw()
 
 
 func _build_jewelry_area() -> void:
-	if area_joias == null:
+	if gems_area == null:
 		return
-	for filho in area_joias.get_children():
+	for filho in gems_area.get_children():
 		filho.queue_free()
 	slot_joia_alvo = _create_jewelry_visual_slot("SlotJoiaAlvo", _validate_jewelry_target_drop)
-	area_joias.add_child(slot_joia_alvo)
+	gems_area.add_child(slot_joia_alvo)
 	var seta := Control.new()
 	seta.set_script(load("res://presentation/inventory/imbue_arrow.gd"))
 	seta.name = "SetaImbuir"
-	seta.custom_minimum_size = Vector2(JOIAS_LARGURA_SETA, 44)
-	area_joias.add_child(seta)
+	seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, 44)
+	gems_area.add_child(seta)
 	slot_joia_gema = _create_jewelry_visual_slot("SlotJoiaGema", _validate_jewelry_gem_drop)
-	area_joias.add_child(slot_joia_gema)
+	gems_area.add_child(slot_joia_gema)
 
 
 func _validate_jewelry_target_drop(item: ItemData, origem: ItemSlot = null) -> bool:
@@ -589,7 +577,7 @@ func _validate_jewelry_gem_drop(item: ItemData, origem: ItemSlot = null) -> bool
 func _create_jewelry_visual_slot(nome: String, validar: Callable) -> ItemSlot:
 	var slot := ItemSlot.new()
 	slot.name = nome
-	slot.custom_minimum_size = TAMANHO_SLOT
+	slot.custom_minimum_size = SLOT_SIZE
 	slot.mouse_filter = Control.MOUSE_FILTER_STOP
 	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var icone := TextureRect.new()
@@ -603,7 +591,7 @@ func _create_jewelry_visual_slot(nome: String, validar: Callable) -> ItemSlot:
 	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slot.add_child(icone)
-	slot.configure(icone, ItemData.Tipo.ARMA, true)
+	slot.configure(icone, ItemData.Type.WEAPON, true)
 	slot.validar_drop_extra = validar
 	slot.item_double_clicked.connect(_on_slot_double_clicked)
 	if _menu:
@@ -617,17 +605,17 @@ func _on_imbue_pressed() -> void:
 	var equipamento := slot_joia_alvo.item
 	var gema := slot_joia_gema.item
 	if equipamento == null or gema == null:
-		_set_jewelry_status("Selecione um equipamento e uma gema.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_SELECT_BOTH), Color(1, 0.55, 0.4, 1))
 		return
 	if not can_accept_target_jewelry(equipamento) or not can_accept_gem_jewelry(gema):
-		_set_jewelry_status("Equipamento ou gema inválidos para imbuir.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_INVALID), Color(1, 0.55, 0.4, 1))
 		return
 	var origem_gema: ItemSlot = _vinculos.get(slot_joia_gema)
 	if origem_gema == null:
-		_set_jewelry_status("Arraste a gema do inventário para o slot.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_DRAG_GEM), Color(1, 0.55, 0.4, 1))
 		return
 	if not equipamento.imbue_gem(gema):
-		_set_jewelry_status("Não foi possível imbuir a gema.", Color(1, 0.55, 0.4, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_FAILED), Color(1, 0.55, 0.4, 1))
 		return
 	var origem_equip: ItemSlot = _vinculos.get(slot_joia_alvo)
 	origem_gema.set_item(null)
@@ -640,38 +628,38 @@ func _on_imbue_pressed() -> void:
 	slot_joia_alvo.set_item(equipamento)
 	_menu.notify_items_changed()
 	_update_jewelry_state()
-	_set_jewelry_status("Gema imbuída com sucesso!", Color(0.85, 0.78, 0.32, 1))
+	_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_SUCCESS), Color(0.85, 0.78, 0.32, 1))
 
 
 func _set_jewelry_status(texto: String, cor: Color) -> void:
-	if label_explicacao_joias:
-		label_explicacao_joias.text = texto
-		label_explicacao_joias.add_theme_color_override("font_color", cor)
+	if gems_explanation_label:
+		gems_explanation_label.text = texto
+		gems_explanation_label.add_theme_color_override("font_color", cor)
 
 
 func _update_jewelry_state() -> void:
-	if botao_imbuir == null:
+	if imbue_button == null:
 		return
 	var valido := slot_joia_alvo != null and slot_joia_gema != null
 	valido = valido and slot_joia_alvo.item != null and slot_joia_gema.item != null
 	if valido:
 		valido = can_accept_target_jewelry(slot_joia_alvo.item) and can_accept_gem_jewelry(slot_joia_gema.item)
-	botao_imbuir.disabled = not valido
+	imbue_button.disabled = not valido
 	if slot_joia_alvo != null and slot_joia_alvo.item != null and slot_joia_alvo.item.has_embedded_gem():
 		var imbuido: ItemData = slot_joia_alvo.item
 		_set_jewelry_status(
-			"%s — %s" % [imbuido.nome, imbuido.gem_slot_line()],
+			"%s — %s" % [imbuido.get_display_name(), imbuido.gem_slot_line()],
 			Color(0.85, 0.78, 0.32, 1)
 		)
 	elif valido:
 		var equipamento: ItemData = slot_joia_alvo.item
 		var gema: ItemData = slot_joia_gema.item
 		_set_jewelry_status(
-			"Imbuir %s em %s" % [gema.nome, equipamento.nome],
+			tr(LocaleKeys.FORGE_JEWELRY_IMBUE) % [gema.get_display_name(), equipamento.get_display_name()],
 			Color(0.85, 0.78, 0.32, 1)
 		)
 	elif slot_joia_alvo == null or slot_joia_gema == null or (slot_joia_alvo.item == null and slot_joia_gema.item == null):
-		_set_jewelry_status(TEXTO_JOIAS, Color(0.72, 0.66, 0.52, 1))
+		_set_jewelry_status(tr(LocaleKeys.FORGE_GEMS_HINT), Color(0.72, 0.66, 0.52, 1))
 
 
 func _forge_slot_style() -> StyleBoxFlat:
@@ -686,10 +674,10 @@ func _forge_slot_style() -> StyleBoxFlat:
 func _create_slots(grade: GridContainer, destino: Array[ItemSlot], sintese: bool) -> void:
 	grade.columns = COLUNAS
 	var estilo_slot := _forge_slot_style()
-	for stage_index in SLOTS_SINTSE:
+	for stage_index in SYNTHESIS_SLOTS:
 		var slot := ItemSlot.new()
 		slot.name = "%s_%d" % [grade.name, stage_index + 1]
-		slot.custom_minimum_size = TAMANHO_SLOT
+		slot.custom_minimum_size = SLOT_SIZE
 		if estilo_slot:
 			slot.add_theme_stylebox_override("panel", estilo_slot)
 		var icone := TextureRect.new()
@@ -703,7 +691,7 @@ func _create_slots(grade: GridContainer, destino: Array[ItemSlot], sintese: bool
 		icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.add_child(icone)
-		slot.configure(icone, ItemData.Tipo.ARMA, true)
+		slot.configure(icone, ItemData.Type.WEAPON, true)
 		if sintese:
 			slot.validar_drop_extra = _validate_synthesis_drop
 		else:
@@ -732,7 +720,7 @@ func _on_slot_double_clicked(slot: ItemSlot) -> void:
 		if collect_result_to():
 			_on_items_changed()
 		else:
-			_set_status("Inventário cheio. Libere espaço para retirar o item.", Color(1, 0.55, 0.4, 1))
+			_set_status(tr(LocaleKeys.FORGE_INVENTORY_FULL), Color(1, 0.55, 0.4, 1))
 		return
 	release_forge_slot(slot)
 	_on_items_changed()
@@ -747,7 +735,7 @@ func _store_central_result() -> void:
 	if _menu == null or not _has_pending_result():
 		return
 	if not collect_result_to():
-		_set_status("Inventário cheio. O item forjado permanece na grade.", Color(1, 0.55, 0.4, 1))
+		_set_status(tr(LocaleKeys.FORGE_INVENTORY_FULL_FORGE), Color(1, 0.55, 0.4, 1))
 
 
 func _return_item_list(lista: Array[ItemSlot]) -> void:
@@ -771,11 +759,11 @@ func _find_eligible_group() -> Array[ItemSlot]:
 	for slot in _source_slots():
 		if slot.item == null or slot.reservado_ferraria:
 			continue
-		if ItemData.eh_raridade_maxima(slot.item.raridade):
+		if ItemData.is_max_rarity(slot.item.rarity):
 			continue
 		if not _passes_filter(slot.item):
 			continue
-		var chave := "%d_%d" % [int(slot.item.category()), int(slot.item.raridade)]
+		var chave := "%d_%d" % [int(slot.item.category()), int(slot.item.rarity)]
 		if not grupos.has(chave):
 			var nova: Array = []
 			grupos[chave] = nova
@@ -785,10 +773,10 @@ func _find_eligible_group() -> Array[ItemSlot]:
 	var melhor: Array = []
 	for chave in grupos.keys():
 		var grupo: Array = grupos[chave] as Array
-		if grupo.size() >= SLOTS_SINTSE and grupo.size() > melhor.size():
+		if grupo.size() >= SYNTHESIS_SLOTS and grupo.size() > melhor.size():
 			melhor = grupo
 	var escolhido: Array[ItemSlot] = []
-	for i in mini(SLOTS_SINTSE, melhor.size()):
+	for i in mini(SYNTHESIS_SLOTS, melhor.size()):
 		escolhido.append(melhor[i] as ItemSlot)
 	return escolhido
 
@@ -796,24 +784,24 @@ func _find_eligible_group() -> Array[ItemSlot]:
 func _receita_valida() -> bool:
 	if _has_pending_result():
 		return false
-	if _slots.size() != SLOTS_SINTSE:
+	if _slots.size() != SYNTHESIS_SLOTS:
 		return false
 	var primeiro: ItemData = _slots[0].item
-	if primeiro == null or ItemData.eh_raridade_maxima(primeiro.raridade):
+	if primeiro == null or ItemData.is_max_rarity(primeiro.rarity):
 		return false
 	for slot in _slots:
 		if slot.item == null:
 			return false
 		if slot.item.category() != primeiro.category():
 			return false
-		if slot.item.raridade != primeiro.raridade:
+		if slot.item.rarity != primeiro.rarity:
 			return false
 	return true
 
 
-func _create_synthesized_item(ingredientes: Array[ItemData], raridade_alvo: ItemData.Raridade) -> ItemData:
+func _create_synthesized_item(ingredientes: Array[ItemData], raridade_alvo: ItemData.Rarity) -> ItemData:
 	var base := ingredientes[0]
-	if base.category() == ItemData.Categoria.GEMA:
+	if base.category() == ItemData.Category.GEM:
 		return _create_synthesized_gem(ingredientes, raridade_alvo)
 	var category := base.category()
 	var tipo_resultado := _synthesis_result_type(ingredientes, category)
@@ -822,60 +810,60 @@ func _create_synthesized_item(ingredientes: Array[ItemData], raridade_alvo: Item
 	var soma_nivel := 0
 	var classe := base.required_class
 	for item in ingredientes:
-		soma_dano += item.dano_bonus
-		soma_vida += item.vida_bonus
-		soma_nivel += item.nivel_item
+		soma_dano += item.damage_bonus
+		soma_vida += item.hp_bonus
+		soma_nivel += item.item_level
 		if item.required_class != classe:
 			classe = ItemData.RequiredClass.ALL
 	var nivel_resultado := _roll_forge_level(ingredientes)
-	var nivel_medio := float(soma_nivel) / float(SLOTS_SINTSE)
-	var ajuste_nivel := ItemData.multiplicador_nivel_item(nivel_resultado)
-	ajuste_nivel /= maxf(0.01, ItemData.multiplicador_nivel_item(int(round(nivel_medio))))
+	var nivel_medio := float(soma_nivel) / float(SYNTHESIS_SLOTS)
+	var ajuste_nivel := ItemData.item_level_multiplier(nivel_resultado)
+	ajuste_nivel /= maxf(0.01, ItemData.item_level_multiplier(int(round(nivel_medio))))
 	var resultado := ItemData.new()
 	resultado.id = "%s_sint_%d" % [base.id, Time.get_ticks_msec()]
-	resultado.nome = _synthesis_result_name(ingredientes, tipo_resultado)
-	resultado.tipo = tipo_resultado
-	resultado.raridade = raridade_alvo
-	resultado.nivel_item = nivel_resultado
+	resultado.display_name = _synthesis_result_name(ingredientes, tipo_resultado)
+	resultado.item_type = tipo_resultado
+	resultado.rarity = raridade_alvo
+	resultado.item_level = nivel_resultado
 	resultado.required_class = classe
-	resultado.dano_bonus = maxi(1, int(round(float(soma_dano) / float(SLOTS_SINTSE) * 1.25 * ajuste_nivel)))
-	resultado.vida_bonus = maxi(0, int(round(float(soma_vida) / float(SLOTS_SINTSE) * 1.25 * ajuste_nivel)))
+	resultado.damage_bonus = maxi(1, int(round(float(soma_dano) / float(SYNTHESIS_SLOTS) * 1.25 * ajuste_nivel)))
+	resultado.hp_bonus = maxi(0, int(round(float(soma_vida) / float(SYNTHESIS_SLOTS) * 1.25 * ajuste_nivel)))
 	resultado.icone = resultado.generate_icon()
 	return resultado
 
 
-func _create_synthesized_gem(ingredientes: Array[ItemData], raridade_alvo: ItemData.Raridade) -> ItemData:
+func _create_synthesized_gem(ingredientes: Array[ItemData], raridade_alvo: ItemData.Rarity) -> ItemData:
 	var atributo := _synthesis_gem_result_attribute(ingredientes)
 	var soma_valor := 0.0
 	for item in ingredientes:
-		soma_valor += item.valor_gema
-	var resultado := ItemData.criar_gema(atributo, raridade_alvo)
+		soma_valor += item.gem_value
+	var resultado := ItemData.create_gem(atributo, raridade_alvo)
 	resultado.id = "%s_sint_%d" % [resultado.id, Time.get_ticks_msec()]
-	resultado.valor_gema = maxf(0.1, soma_valor / float(SLOTS_SINTSE) * 1.25)
+	resultado.gem_value = maxf(0.1, soma_valor / float(SYNTHESIS_SLOTS) * 1.25)
 	resultado.icone = resultado.generate_icon()
 	return resultado
 
 
-func _synthesis_gem_result_attribute(ingredientes: Array[ItemData]) -> ItemData.AtributoGema:
+func _synthesis_gem_result_attribute(ingredientes: Array[ItemData]) -> ItemData.GemAttribute:
 	var contagem: Dictionary = {}
 	for item in ingredientes:
-		var chave := int(item.atributo_gema)
+		var chave := int(item.gem_attribute)
 		contagem[chave] = int(contagem.get(chave, 0)) + 1
-	var melhor := ingredientes[0].atributo_gema
+	var melhor := ingredientes[0].gem_attribute
 	var melhor_total := 0
 	for chave in contagem.keys():
 		var total := int(contagem[chave])
 		if total > melhor_total:
 			melhor_total = total
-			melhor = chave as ItemData.AtributoGema
+			melhor = chave as ItemData.GemAttribute
 	return melhor
 
 
 func _roll_forge_level(ingredientes: Array[ItemData]) -> int:
 	if ingredientes.is_empty():
-		return ItemData.NIVEIS_ITEM[0]
+		return ItemData.ITEM_LEVELS[0]
 	var stage_index := randi() % ingredientes.size()
-	return ItemData.normalizar_nivel_item(ingredientes[stage_index].nivel_item)
+	return ItemData.normalize_item_level(ingredientes[stage_index].item_level)
 
 
 func _level_chances_in_grid() -> Dictionary:
@@ -884,7 +872,7 @@ func _level_chances_in_grid() -> Dictionary:
 	for slot in _slots:
 		if slot.item == null:
 			continue
-		var nivel := slot.item.nivel_item
+		var nivel := slot.item.item_level
 		contagem[nivel] = int(contagem.get(nivel, 0)) + 1
 		total += 1
 	if total == 0:
@@ -898,24 +886,24 @@ func _level_chances_in_grid() -> Dictionary:
 func _level_chance_tooltip_text() -> String:
 	var chances := _level_chances_in_grid()
 	if chances.is_empty():
-		return "Coloque itens na grade para ver as chances por nível."
+		return tr(LocaleKeys.FORGE_LEVEL_HINT_EMPTY)
+	var linhas: PackedStringArray = [tr(LocaleKeys.FORGE_LEVEL_HINT_TITLE)]
 	var niveis: Array = chances.keys()
 	niveis.sort()
-	var linhas: PackedStringArray = ["Chances de nível no resultado:"]
 	for nivel in niveis:
-		linhas.append("Nv.%d: %.1f%%" % [int(nivel), float(chances[nivel])])
-	if _count_occupied(_slots) < SLOTS_SINTSE:
+		linhas.append(tr(LocaleKeys.FORGE_LEVEL_HINT_ROW) % [int(nivel), float(chances[nivel])])
+	if _count_occupied(_slots) < SYNTHESIS_SLOTS:
 		linhas.append("")
-		linhas.append("Valores com base nos %d itens atuais." % _count_occupied(_slots))
+		linhas.append(tr(LocaleKeys.FORGE_LEVEL_HINT_PARTIAL) % _count_occupied(_slots))
 	return "\n".join(linhas)
 
 
 func _setup_warehouse_toggle() -> void:
-	if toggle_armazem == null:
+	if warehouse_toggle == null:
 		return
-	toggle_armazem.tooltip_text = "Incluir armazém no preenchimento automático"
-	if not toggle_armazem.gui_input.is_connected(_on_warehouse_toggle_clicked):
-		toggle_armazem.gui_input.connect(_on_warehouse_toggle_clicked)
+	warehouse_toggle.tooltip_text = tr(LocaleKeys.FORGE_WAREHOUSE_TOGGLE)
+	if not warehouse_toggle.gui_input.is_connected(_on_warehouse_toggle_clicked):
+		warehouse_toggle.gui_input.connect(_on_warehouse_toggle_clicked)
 	_style_warehouse_toggle(_usar_armazem)
 
 
@@ -932,9 +920,9 @@ func _apply_warehouse_toggle(ligado: bool) -> void:
 
 
 func _style_warehouse_toggle(ligado: bool) -> void:
-	if toggle_trilho == null or toggle_knob == null:
+	if toggle_track == null or toggle_knob == null:
 		return
-	var raio := int(TAMANHO_TOGGLE_ARMAZEM.y * 0.5)
+	var raio := int(WAREHOUSE_TOGGLE_SIZE.y * 0.5)
 	var trilho := StyleBoxFlat.new()
 	trilho.set_corner_radius_all(raio)
 	trilho.set_border_width_all(1)
@@ -944,7 +932,7 @@ func _style_warehouse_toggle(ligado: bool) -> void:
 	else:
 		trilho.bg_color = Color(0.14, 0.12, 0.1, 1)
 		trilho.border_color = Color(0.52, 0.42, 0.24, 1)
-	toggle_trilho.add_theme_stylebox_override("panel", trilho)
+	toggle_track.add_theme_stylebox_override("panel", trilho)
 	var knob := StyleBoxFlat.new()
 	knob.set_corner_radius_all(10)
 	knob.bg_color = Color(0.92, 0.86, 0.72, 1)
@@ -955,19 +943,19 @@ func _style_warehouse_toggle(ligado: bool) -> void:
 
 
 func _setup_level_info_button() -> void:
-	if botao_info_nivel == null:
+	if level_info_button == null:
 		return
-	botao_info_nivel.custom_minimum_size = Vector2(TAMANHO_ICONE_INFO, TAMANHO_ICONE_INFO)
-	botao_info_nivel.mouse_filter = Control.MOUSE_FILTER_STOP
-	botao_info_nivel.tooltip_text = ""
+	level_info_button.custom_minimum_size = Vector2(TAMANHO_ICONE_INFO, TAMANHO_ICONE_INFO)
+	level_info_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	level_info_button.tooltip_text = ""
 	for margem in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
-		botao_info_nivel.add_theme_constant_override(margem, 0)
-	for filho in botao_info_nivel.get_children():
+		level_info_button.add_theme_constant_override(margem, 0)
+	for filho in level_info_button.get_children():
 		filho.queue_free()
 	var centro := CenterContainer.new()
 	centro.name = "CentroInfo"
 	centro.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	botao_info_nivel.add_child(centro)
+	level_info_button.add_child(centro)
 	var rotulo := Label.new()
 	rotulo.name = "RotuloInfo"
 	rotulo.text = "i"
@@ -985,10 +973,10 @@ func _setup_level_info_button() -> void:
 	ajuste.add_child(rotulo)
 	centro.add_child(ajuste)
 	_apply_info_icon_style(false)
-	if not botao_info_nivel.mouse_entered.is_connected(_on_icone_info_mouse_entered):
-		botao_info_nivel.mouse_entered.connect(_on_icone_info_mouse_entered)
-	if not botao_info_nivel.mouse_exited.is_connected(_on_icone_info_mouse_exited):
-		botao_info_nivel.mouse_exited.connect(_on_icone_info_mouse_exited)
+	if not level_info_button.mouse_entered.is_connected(_on_icone_info_mouse_entered):
+		level_info_button.mouse_entered.connect(_on_icone_info_mouse_entered)
+	if not level_info_button.mouse_exited.is_connected(_on_icone_info_mouse_exited):
+		level_info_button.mouse_exited.connect(_on_icone_info_mouse_exited)
 
 
 func _on_icone_info_mouse_entered() -> void:
@@ -1002,7 +990,7 @@ func _on_icone_info_mouse_exited() -> void:
 
 
 func _apply_info_icon_style(hover: bool) -> void:
-	if botao_info_nivel == null:
+	if level_info_button == null:
 		return
 	var raio := TAMANHO_ICONE_INFO / 2
 	var estilo := StyleBoxFlat.new()
@@ -1011,7 +999,7 @@ func _apply_info_icon_style(hover: bool) -> void:
 	estilo.set_border_width_all(2)
 	estilo.set_corner_radius_all(raio)
 	estilo.set_content_margin_all(0)
-	botao_info_nivel.add_theme_stylebox_override("panel", estilo)
+	level_info_button.add_theme_stylebox_override("panel", estilo)
 
 
 func _on_info_tooltip_visibility() -> void:
@@ -1067,14 +1055,14 @@ func _fill_info_tooltip(caixa: PanelContainer) -> void:
 
 
 func _position_info_tooltip() -> void:
-	if _caixa_legenda_info == null or botao_info_nivel == null:
+	if _caixa_legenda_info == null or level_info_button == null:
 		return
 	_caixa_legenda_info.reset_size()
 	var tam := _caixa_legenda_info.get_combined_minimum_size()
 	if _caixa_legenda_info.size.x > tam.x or _caixa_legenda_info.size.y > tam.y:
 		tam = _caixa_legenda_info.size
 	_caixa_legenda_info.size = tam
-	var icone := botao_info_nivel.get_global_rect()
+	var icone := level_info_button.get_global_rect()
 	var pos := Vector2(
 		icone.position.x - tam.x - OFFSET_LEGENDA_INFO.x,
 		icone.position.y + (icone.size.y - tam.y) * 0.5
@@ -1086,7 +1074,7 @@ func _position_info_tooltip() -> void:
 
 
 func _show_info_tooltip() -> void:
-	if botao_info_nivel == null or not is_visible_in_tree():
+	if level_info_button == null or not is_visible_in_tree():
 		return
 	var caixa := _ensure_info_tooltip_box()
 	_fill_info_tooltip(caixa)
@@ -1107,33 +1095,33 @@ func _update_level_info_tooltip() -> void:
 	_position_info_tooltip()
 
 
-func _synthesis_result_type(ingredientes: Array[ItemData], category: ItemData.Categoria) -> ItemData.Tipo:
+func _synthesis_result_type(ingredientes: Array[ItemData], category: ItemData.Category) -> ItemData.Type:
 	var contagem: Dictionary = {}
 	for item in ingredientes:
 		if item.category() != category:
 			continue
-		var chave := int(item.tipo)
+		var chave := int(item.item_type)
 		contagem[chave] = int(contagem.get(chave, 0)) + 1
-	var melhor_tipo := ingredientes[0].tipo
+	var melhor_tipo := ingredientes[0].item_type
 	var melhor_total := 0
 	for chave in contagem.keys():
 		var total := int(contagem[chave])
 		if total > melhor_total:
 			melhor_total = total
-			melhor_tipo = chave as ItemData.Tipo
+			melhor_tipo = chave as ItemData.Type
 	return melhor_tipo
 
 
-func _synthesis_result_name(ingredientes: Array[ItemData], tipo: ItemData.Tipo) -> String:
+func _synthesis_result_name(ingredientes: Array[ItemData], tipo: ItemData.Type) -> String:
 	for item in ingredientes:
-		if item.tipo == tipo and item.nome != "":
-			return item.nome
+		if item.item_type == tipo and item.display_name != "":
+			return item.display_name
 	return _default_name_for_type(tipo)
 
 
-func _default_name_for_type(tipo: ItemData.Tipo) -> String:
+func _default_name_for_type(tipo: ItemData.Type) -> String:
 	var amostra := ItemData.new()
-	amostra.tipo = tipo
+	amostra.item_type = tipo
 	return amostra.type_name()
 
 
@@ -1144,46 +1132,43 @@ func _on_items_changed() -> void:
 
 
 func _update_state() -> void:
-	if botao_sintetizar == null:
+	if synthesize_button == null:
 		return
 	_update_level_info_tooltip()
 	if _has_pending_result():
-		botao_sintetizar.disabled = true
+		synthesize_button.disabled = true
 		var item := _slots[SLOT_CENTRAL].item
 		_set_status(
-			"Item pronto: %s (%s, Nv.%d). Retire do slot central." % [item.nome, item.rarity_name(), item.nivel_item],
+			tr(LocaleKeys.FORGE_ITEM_READY) % [item.get_display_name(), item.rarity_name(), item.item_level],
 			Color(0.72, 0.9, 0.7, 1)
 		)
 		return
 	var valida := _receita_valida()
-	botao_sintetizar.disabled = not valida
+	synthesize_button.disabled = not valida
 	if valida:
 		var amostra: ItemData = _slots[0].item
-		var pct := ItemData.chance_forja_sucesso_pct(amostra.raridade)
-		_set_status("Chance de sucesso: %d%%" % pct, Color(0.85, 0.78, 0.32, 1))
+		var pct := ItemData.forge_success_chance_pct(amostra.rarity)
+		_set_status(tr(LocaleKeys.FORGE_SUCCESS_CHANCE) % pct, Color(0.85, 0.78, 0.32, 1))
 	elif _count_occupied(_slots) == 0:
-		_set_status(TEXTO_RODAPE, Color(0.72, 0.66, 0.52, 1))
+		_set_status(tr(LocaleKeys.FORGE_SYNTHESIS_HINT), Color(0.72, 0.66, 0.52, 1))
 	else:
 		var travada: Variant = locked_synthesis_category()
 		var extra := ""
 		if travada != null:
-			extra = " Família: %s." % ItemData.nome_categoria(travada as ItemData.Categoria)
-		_set_status(
-			"%d/9 — mesma raridade e família. Níveis podem ser misturados.%s" % [_count_occupied(_slots), extra],
-			Color(0.82, 0.74, 0.55, 1)
-		)
+			extra = " " + tr(LocaleKeys.FORGE_FAMILY_LOCKED) % ItemData.display_name_categoria(travada as ItemData.Category)
+		_set_status(tr(LocaleKeys.FORGE_PROGRESS) % [_count_occupied(_slots), extra], Color(0.82, 0.74, 0.55, 1))
 
 
 func _update_dismantle() -> void:
-	if botao_desmontar == null:
+	if dismantle_button == null:
 		return
 	var valor := _current_dismantle_value()
 	var ocupados := _count_occupied(_slots_desmontar)
-	botao_desmontar.disabled = valor <= 0
-	label_valor_desmonte.text = "Valor: %d ouro" % valor
+	dismantle_button.disabled = valor <= 0
+	dismantle_value_label.text = tr(LocaleKeys.FORGE_DISMANTLE_VALUE) % valor
 	if ocupados == 0:
-		label_explicacao_desmontar.text = TEXTO_DESMONTE
-		label_explicacao_desmontar.add_theme_color_override("font_color", Color(0.72, 0.66, 0.52, 1))
+		dismantle_explanation_label.text = tr(LocaleKeys.FORGE_DISMANTLE_HINT)
+		dismantle_explanation_label.add_theme_color_override("font_color", Color(0.72, 0.66, 0.52, 1))
 
 
 func _current_dismantle_value() -> int:
@@ -1217,7 +1202,7 @@ func _todos_slots() -> Array[ItemSlot]:
 	return todos
 
 
-func _paint_tab(botao: Button, ativa: bool) -> void:
+func _style_tab(botao: Button, ativa: bool) -> void:
 	var estilo := StyleBoxFlat.new()
 	estilo.content_margin_left = 8
 	estilo.content_margin_top = 7
@@ -1236,10 +1221,10 @@ func _paint_tab(botao: Button, ativa: bool) -> void:
 
 
 func _set_status(texto: String, cor: Color) -> void:
-	if label_explicacao == null:
+	if explanation_label == null:
 		return
-	label_explicacao.text = texto
-	label_explicacao.add_theme_color_override("font_color", cor)
+	explanation_label.text = texto
+	explanation_label.add_theme_color_override("font_color", cor)
 
 
 func _source_slots() -> Array[ItemSlot]:
@@ -1258,7 +1243,7 @@ func _passes_filter(item: ItemData) -> bool:
 		return false
 	if _filtro_raridade == FILTRO_TODOS:
 		return true
-	return int(item.raridade) == _filtro_raridade
+	return int(item.rarity) == _filtro_raridade
 
 
 func _filtered_source_items(ignorar_lendario: bool) -> Array[ItemSlot]:
@@ -1266,7 +1251,7 @@ func _filtered_source_items(ignorar_lendario: bool) -> Array[ItemSlot]:
 	for slot in _source_slots():
 		if slot.item == null or slot.reservado_ferraria:
 			continue
-		if ignorar_lendario and ItemData.eh_raridade_maxima(slot.item.raridade):
+		if ignorar_lendario and ItemData.is_max_rarity(slot.item.rarity):
 			continue
 		if _passes_filter(slot.item):
 			lista.append(slot)
@@ -1277,7 +1262,7 @@ func _create_filter_popup() -> void:
 	_popup_filtro = PopupMenu.new()
 	_popup_filtro.name = "MenuFiltroRaridade"
 	add_child(_popup_filtro)
-	var nomes := ItemData.nomes_filtro_ferraria()
+	var nomes := ItemData.forge_filter_names()
 	for i in nomes.size():
 		_popup_filtro.add_item(nomes[i], i)
 	_popup_filtro.id_pressed.connect(_on_filter_selected)
@@ -1300,37 +1285,89 @@ func _on_filter_selected(id: int) -> void:
 
 
 func _update_filter_buttons() -> void:
-	var texto := "Filtro: %s" % _current_filter_name()
-	if botao_filtro_forja:
-		botao_filtro_forja.text = texto
-	if botao_filtro_desmonte:
-		botao_filtro_desmonte.text = texto
+	var texto := tr(LocaleKeys.FORGE_FILTER) % _current_filter_name()
+	if forge_filter_button:
+		forge_filter_button.text = texto
+	if dismantle_filter_button:
+		dismantle_filter_button.text = texto
 
 
 func _source_items_name() -> String:
 	if _usar_armazem:
-		return "do inventário e armazém"
-	return "do inventário"
+		return tr(LocaleKeys.FORGE_SOURCE_BOTH)
+	return tr(LocaleKeys.FORGE_SOURCE_INVENTORY)
 
 
 func _current_filter_name() -> String:
 	if _filtro_raridade == FILTRO_TODOS:
-		return "Todos"
-	return ItemData.nome_de_raridade(_filtro_raridade as ItemData.Raridade)
+		return tr(LocaleKeys.RARITY_ALL)
+	return ItemData.rarity_display_name(_filtro_raridade as ItemData.Rarity)
 
 
 func _no_group_message() -> String:
 	var origem := _source_items_name()
 	if _filtro_raridade == FILTRO_TODOS:
-		return "Não há 9 itens da mesma família %s." % origem
-	return "Não há 9 itens %s %s." % [_current_filter_name().to_lower(), origem]
+		return tr(LocaleKeys.FORGE_NO_GROUP) % origem
+	return tr(LocaleKeys.FORGE_NO_GROUP_FILTER) % [_current_filter_name().to_lower(), origem]
 
 
 func _no_dismantle_items_message() -> String:
 	var origem := _source_items_name()
 	if _filtro_raridade == FILTRO_TODOS:
-		return "Não há itens %s." % origem
-	return "Não há itens %s %s." % [_current_filter_name().to_lower(), origem]
+		return tr(LocaleKeys.FORGE_NO_DISMANTLE) % origem
+	return tr(LocaleKeys.FORGE_NO_DISMANTLE_FILTER) % [_current_filter_name().to_lower(), origem]
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	_rebuild_filter_popup()
+	_update_filter_buttons()
+	_update_state()
+	_update_dismantle()
+	_update_jewelry_state()
+
+
+func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.FORGE_TITLE).to_upper()
+	if botao_fechar:
+		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+	if synthesis_tab_button:
+		synthesis_tab_button.text = tr(LocaleKeys.FORGE_TAB_SYNTHESIS)
+	if dismantle_tab_button:
+		dismantle_tab_button.text = tr(LocaleKeys.FORGE_TAB_DISMANTLE)
+	if gems_tab_button:
+		gems_tab_button.text = tr(LocaleKeys.FORGE_TAB_GEMS)
+	if autofill_button:
+		autofill_button.text = tr(LocaleKeys.FORGE_AUTOFILL)
+	if dismantle_autofill_button:
+		dismantle_autofill_button.text = tr(LocaleKeys.FORGE_AUTOFILL)
+	if synthesize_button:
+		synthesize_button.text = tr(LocaleKeys.FORGE_SYNTHESIZE)
+	if dismantle_button:
+		dismantle_button.text = tr(LocaleKeys.FORGE_DISMANTLE)
+	if imbue_button:
+		imbue_button.text = tr(LocaleKeys.FORGE_IMBUE)
+	if explanation_label and _count_occupied(_slots) == 0 and not _has_pending_result():
+		explanation_label.text = tr(LocaleKeys.FORGE_SYNTHESIS_HINT)
+	if dismantle_explanation_label and _count_occupied(_slots_desmontar) == 0:
+		dismantle_explanation_label.text = tr(LocaleKeys.FORGE_DISMANTLE_HINT)
+	if gems_explanation_label and (slot_joia_alvo == null or slot_joia_gema == null or (slot_joia_alvo.item == null and slot_joia_gema.item == null)):
+		gems_explanation_label.text = tr(LocaleKeys.FORGE_GEMS_HINT)
+
+
+func _rebuild_filter_popup() -> void:
+	if _popup_filtro == null:
+		return
+	_popup_filtro.clear()
+	var nomes := ItemData.forge_filter_names()
+	for i in nomes.size():
+		_popup_filtro.add_item(nomes[i], i)
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	if is_open():
+		refresh_locale()
 
 
 func _on_header_gui_input(event: InputEvent) -> void:

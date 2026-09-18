@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c8formacao01"]
 
 [ext_resource type="Script" path="res://presentation/inventory/formation_panel.gd" id="1_formacao"]
-[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/fundo_painel.png" id="2_fundo_painel"]
+[ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
@@ -124,17 +124,17 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="CabecalhoFormacao" type="HBoxContainer" parent="Conteudo"]
+[node name="FormationHeader" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoFormacao"]
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/FormationHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/CabecalhoFormacao/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Conteudo/FormationHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
@@ -142,7 +142,7 @@ text = "FORMAÇÃO"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoFecharFormacao" type="Button" parent="Conteudo/CabecalhoFormacao"]
+[node name="CloseFormationButton" type="Button" parent="Conteudo/FormationHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -159,14 +159,14 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="TituloEquipe" type="Label" parent="Conteudo/CorpoFormacao"]
+[node name="PartyTitle" type="Label" parent="Conteudo/CorpoFormacao"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
 theme_override_font_sizes/font_size = 12
 text = "Em campo"
 horizontal_alignment = 1
 
-[node name="SlotsFormacao" type="HBoxContainer" parent="Conteudo/CorpoFormacao"]
+[node name="FormationSlots" type="HBoxContainer" parent="Conteudo/CorpoFormacao"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -179,7 +179,7 @@ theme_override_font_sizes/font_size = 12
 text = "Heróis"
 horizontal_alignment = 1
 
-[node name="RolagemHerois" type="ScrollContainer" parent="Conteudo/CorpoFormacao"]
+[node name="HeroScroll" type="ScrollContainer" parent="Conteudo/CorpoFormacao"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
@@ -187,7 +187,7 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="GradeHeroisFormacao" type="GridContainer" parent="Conteudo/CorpoFormacao/RolagemHerois"]
+[node name="FormationHeroGrid" type="GridContainer" parent="Conteudo/CorpoFormacao/HeroScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -195,7 +195,7 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
 
-[node name="LabelDicaFormacao" type="Label" parent="Conteudo"]
+[node name="FormationHintLabel" type="Label" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.7, 0.5, 1)

@@ -1,11 +1,11 @@
 extends AnimatedSprite2D
 ## Stickman de combat_root: Idle enquanto espera, Ataque no timer de dano.
 
-const AVANCO_ATAQUE := 28.0
-const DURACAO_AVANCO := 0.09
+const ATTACK_LUNGE := 28.0
+const LUNGE_DURATION := 0.09
 const DURACAO_RETORNO := 0.12
 
-const FRAME_SOLTA_FLECHA := 4
+const ARROW_RELEASE_FRAME := 4
 
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween_ataque: Tween
@@ -23,7 +23,7 @@ var _habilidades: ArcherSkills
 func _ready() -> void:
 	centered = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite_frames = _frames_padrao()
+	sprite_frames = _default_frames()
 	animation_finished.connect(_on_animation_finished)
 	frame_changed.connect(_on_frame_changed)
 	play("Idle")
@@ -55,14 +55,14 @@ func apply_class(classe: ClassData) -> void:
 		_cor_classe = Color.WHITE
 		self_modulate = Color.WHITE
 		scale = HeroSpritesheet.ESCALA_STICK
-		sprite_frames = _frames_padrao()
+		sprite_frames = _default_frames()
 		_setup_skills(null)
 		_adjust_bar()
 		return
 	_id_classe = classe.id
 	var arte := HeroSpritesheet.frames(classe.id)
 	_usar_arte = arte != null
-	scale = HeroSpritesheet.escala(classe.id)
+	scale = HeroSpritesheet.scale_for(classe.id)
 	if _usar_arte:
 		_cor_classe = Color.WHITE
 		self_modulate = Color.WHITE
@@ -71,7 +71,7 @@ func apply_class(classe: ClassData) -> void:
 		_cor_classe = classe.color
 		if not _caido:
 			self_modulate = _cor_classe
-		sprite_frames = _frames_padrao()
+		sprite_frames = _default_frames()
 	_setup_skills(classe)
 	_adjust_bar()
 	if not _caido:
@@ -99,12 +99,12 @@ func update_hp(atual: int, maximo: int) -> void:
 		_barra.update(atual, maximo)
 
 
-func set_fallen(caido: bool) -> void:
-	_caido = caido
+func set_fallen(fallen: bool) -> void:
+	_caido = fallen
 	if _tween_ataque:
 		_tween_ataque.kill()
 	position = _pos_base
-	if caido:
+	if fallen:
 		if _tween_flash:
 			_tween_flash.kill()
 		if _usar_arte and sprite_frames and sprite_frames.has_animation("Morte"):
@@ -138,7 +138,7 @@ func _slide_attack() -> void:
 	position = _pos_base
 	_tween_ataque = create_tween()
 	_tween_ataque.set_trans(Tween.TRANS_QUAD)
-	_tween_ataque.tween_property(self, "position:x", _pos_base.x + AVANCO_ATAQUE, DURACAO_AVANCO).set_ease(Tween.EASE_OUT)
+	_tween_ataque.tween_property(self, "position:x", _pos_base.x + ATTACK_LUNGE, LUNGE_DURATION).set_ease(Tween.EASE_OUT)
 	_tween_ataque.tween_property(self, "position:x", _pos_base.x, DURACAO_RETORNO).set_ease(Tween.EASE_IN)
 
 
@@ -154,7 +154,7 @@ func _on_frame_changed() -> void:
 		return
 	if animation != "Ataque":
 		return
-	if frame >= FRAME_SOLTA_FLECHA:
+	if frame >= ARROW_RELEASE_FRAME:
 		_flecha_solta = true
 		_fire_arrow()
 
@@ -165,20 +165,20 @@ func _fire_arrow() -> void:
 		combat_root = combat_root.get_parent()
 	if combat_root == null:
 		return
-	var inimigo: Node2D = combat_root.get_node_or_null("InimigoVisual") as Node2D
+	var inimigo: Node2D = combat_root.get_node_or_null("EnemyVisual") as Node2D
 	var destino := global_position + Vector2(90, 0)
 	if inimigo:
 		destino = inimigo.global_position
-	ArrowProjectile.disparar(combat_root, global_position + Vector2(18, -8), destino)
+	ArrowProjectile.fire(combat_root, global_position + Vector2(18, -8), destino)
 
 
 func _adjust_bar() -> void:
 	if _barra == null:
 		return
-	_barra.adjust_in_parent(HeroSpritesheet.barra_offset(_id_classe))
+	_barra.adjust_in_parent(HeroSpritesheet.health_bar_offset(_id_classe))
 
 
-func _frames_padrao() -> SpriteFrames:
+func _default_frames() -> SpriteFrames:
 	if _frames_stick == null:
 		_frames_stick = _create_frames()
 	return _frames_stick

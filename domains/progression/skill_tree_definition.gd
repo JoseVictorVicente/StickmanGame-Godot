@@ -2,52 +2,52 @@ class_name SkillTreeDefinition
 extends RefCounted
 ## Três colunas com padrão diamante 2-1-2… em 15 fileiras verticais.
 
-enum TipoBonus {
-	ATAQUE,
-	ATAQUE_PCT,
-	VIDA,
+enum BonusType {
+	ATTACK,
+	ATTACK_PCT,
+	HP,
 	BONUS_XP,
-	BONUS_OURO,
-	VEL_ATAQUE,
+	GOLD_BONUS,
+	ATTACK_SPEED,
 	CRIT_CHANCE,
-	CRIT_DANO,
-	EVASAO,
-	RES_FISICA,
-	RES_ARCANA,
-	RES_ELEMENTAL,
-	ARMAZEM,
+	CRIT_DAMAGE,
+	EVASION,
+	PHYS_RES,
+	ARCANE_RES,
+	ELEMENTAL_RES,
+	WAREHOUSE,
 }
 
-enum Secao {
-	ATAQUE = 0,
-	DEFESA = 1,
-	UTILIDADE = 2,
+enum Section {
+	ATTACK = 0,
+	DEFENSE = 1,
+	UTILITY = 2,
 }
 
-const NUM_SECOES := 3
-const NUM_RAMOS := NUM_SECOES
-const NUM_LINHAS := 15
-const NOS_POR_SECAO := 23
-const NOS_POR_RAMO := NOS_POR_SECAO
-const TOTAL_NOS := NUM_SECOES * NOS_POR_SECAO
+const NUM_SECTIONS := 3
+const NUM_BRANCHES := NUM_SECTIONS
+const NUM_ROWS := 15
+const NODES_PER_SECTION := 23
+const NODES_PER_BRANCH := NODES_PER_SECTION
+const TOTAL_NODES := NUM_SECTIONS * NODES_PER_SECTION
 
-const LARGURA_COLUNA := 180.0
-const ESPACO_COLUNAS := 14.0
-const ALTURA_LINHA := 66.0
-const ALTURA_CABECALHO := 44.0
-const OFFSET_LATERAL := 52.0
-const MARGEM_LATERAL := 16.0
-const MARGEM_SUPERIOR := 12.0
-const MARGEM_INFERIOR := 20.0
+const COLUMN_WIDTH := 180.0
+const COLUMN_GAP := 14.0
+const ROW_HEIGHT := 66.0
+const HEADER_HEIGHT := 44.0
+const SIDE_OFFSET := 52.0
+const SIDE_MARGIN := 16.0
+const TOP_MARGIN := 12.0
+const BOTTOM_MARGIN := 20.0
 
-const CUSTO_BASE := 60
-const CUSTO_CRESCIMENTO := 20
-const CUSTO_POR_NIVEL := 28
-const MULT_CUSTO_PREMIUM := 2.5
-const NIVEL_MAX := 5
-const NIVEL_MAX_ARMAZEM := 1
+const BASE_COST := 60
+const COST_GROWTH := 20
+const COST_PER_LEVEL := 28
+const PREMIUM_COST_MULT := 2.5
+const MAX_LEVEL := 5
+const MAX_WAREHOUSE_LEVEL := 1
 
-const _PADRAO_LINHAS: Array = [
+const _ROW_PATTERN: Array = [
 	[0, 1],
 	[2],
 	[3, 4],
@@ -67,7 +67,7 @@ const _PADRAO_LINHAS: Array = [
 
 
 static func _padrao_linhas() -> Array:
-	return _PADRAO_LINHAS
+	return _ROW_PATTERN
 
 
 static func _idiv(a: int, b: int) -> int:
@@ -76,13 +76,13 @@ static func _idiv(a: int, b: int) -> int:
 
 static func catalog() -> Array[Dictionary]:
 	var nos: Array[Dictionary] = []
-	for secao in NUM_SECOES:
-		for slot in NOS_POR_SECAO:
-			var linha := linha_do_slot(slot)
-			var def := _criar_def_no(secao, slot, linha)
+	for secao in NUM_SECTIONS:
+		for slot in NODES_PER_SECTION:
+			var linha := slot_row(slot)
+			var def := _create_node_def(secao, slot, linha)
 			nos.append({
-				"id": id_do_no(secao, slot),
-				"pais": pais_do_slot(secao, slot),
+				"id": node_id(secao, slot),
+				"pais": parent_slots(secao, slot),
 				"secao": secao,
 				"regiao": secao,
 				"slot": slot,
@@ -99,26 +99,26 @@ static func catalog() -> Array[Dictionary]:
 	return nos
 
 
-static func id_do_no(secao: int, slot: int) -> int:
-	return secao * NOS_POR_SECAO + slot + 1
+static func node_id(secao: int, slot: int) -> int:
+	return secao * NODES_PER_SECTION + slot + 1
 
 
 static func quantidade_nos_regiao(_secao: int) -> int:
-	return NOS_POR_SECAO
+	return NODES_PER_SECTION
 
 
-static func pais_do_slot(secao: int, slot: int) -> Array[int]:
-	var linha_atual := linha_do_slot(slot)
+static func parent_slots(secao: int, slot: int) -> Array[int]:
+	var linha_atual := slot_row(slot)
 	if linha_atual == 0:
 		return []
 	var pais: Array[int] = []
-	for s in NOS_POR_SECAO:
-		if linha_do_slot(s) < linha_atual:
-			pais.append(id_do_no(secao, s))
+	for s in NODES_PER_SECTION:
+		if slot_row(s) < linha_atual:
+			pais.append(node_id(secao, s))
 	return pais
 
 
-static func slots_da_linha(linha: int) -> Array[int]:
+static func slots_in_row(linha: int) -> Array[int]:
 	var arr: Array = _padrao_linhas()[linha]
 	var saida: Array[int] = []
 	for s in arr:
@@ -141,7 +141,7 @@ static func ligacoes_visuais() -> Array[Dictionary]:
 	return ligacoes
 
 
-static func linha_do_slot(slot: int) -> int:
+static func slot_row(slot: int) -> int:
 	var acum := 0
 	for i in _padrao_linhas().size():
 		var linha: Array = _padrao_linhas()[i]
@@ -151,7 +151,7 @@ static func linha_do_slot(slot: int) -> int:
 	return 0
 
 
-static func coluna_do_slot(slot: int) -> int:
+static func slot_column(slot: int) -> int:
 	var acum := 0
 	for linha in _padrao_linhas():
 		if slot < acum + linha.size():
@@ -162,47 +162,51 @@ static func coluna_do_slot(slot: int) -> int:
 	return -1
 
 
-static func nome_regiao(secao: int) -> String:
+static func region_name_key(secao: int) -> String:
 	match secao:
-		Secao.ATAQUE:
-			return "Ataque"
-		Secao.DEFESA:
-			return "Defesa"
-		Secao.UTILIDADE:
-			return "Utilidade"
+		Section.ATTACK:
+			return LocaleKeys.TREE_REGION_ATTACK
+		Section.DEFENSE:
+			return LocaleKeys.TREE_REGION_DEFENSE
+		Section.UTILITY:
+			return LocaleKeys.TREE_REGION_UTILITY
 	return ""
 
 
+static func region_name(secao: int) -> String:
+	return region_name_key(secao)
+
+
 static func centro_x_coluna(secao: int) -> float:
-	return MARGEM_LATERAL + float(secao) * (LARGURA_COLUNA + ESPACO_COLUNAS) + LARGURA_COLUNA * 0.5
+	return SIDE_MARGIN + float(secao) * (COLUMN_WIDTH + COLUMN_GAP) + COLUMN_WIDTH * 0.5
 
 
 static func tamanho_canvas() -> Vector2:
-	var altura := MARGEM_SUPERIOR + ALTURA_CABECALHO + float(NUM_LINHAS) * ALTURA_LINHA + MARGEM_INFERIOR
-	var largura := MARGEM_LATERAL * 2.0 + float(NUM_SECOES) * LARGURA_COLUNA + float(NUM_SECOES - 1) * ESPACO_COLUNAS
+	var altura := TOP_MARGIN + HEADER_HEIGHT + float(NUM_ROWS) * ROW_HEIGHT + BOTTOM_MARGIN
+	var largura := SIDE_MARGIN * 2.0 + float(NUM_SECTIONS) * COLUMN_WIDTH + float(NUM_SECTIONS - 1) * COLUMN_GAP
 	return Vector2(largura, altura)
 
 
 static func custo_do_no(no: Dictionary, nivel_atual: int = 0) -> int:
-	return custo_proximo_nivel(no, nivel_atual)
+	return next_level_cost(no, nivel_atual)
 
 
-static func custo_proximo_nivel(no: Dictionary, nivel_atual: int) -> int:
+static func next_level_cost(no: Dictionary, nivel_atual: int) -> int:
 	var next_stage := nivel_atual + 1
 	var linha := int(no.get("linha", 0))
-	var base := CUSTO_BASE + linha * linha * CUSTO_CRESCIMENTO
+	var base := BASE_COST + linha * linha * COST_GROWTH
 	if bool(no.get("premium", false)):
-		base = int(round(float(base) * MULT_CUSTO_PREMIUM))
-	return base + next_stage * next_stage * CUSTO_POR_NIVEL
+		base = int(round(float(base) * PREMIUM_COST_MULT))
+	return base + next_stage * next_stage * COST_PER_LEVEL
 
 
 static func max_level(no: Dictionary) -> int:
-	if int(no.get("tipo", -1)) == TipoBonus.ARMAZEM:
-		return NIVEL_MAX_ARMAZEM
-	return NIVEL_MAX
+	if int(no.get("tipo", -1)) == BonusType.WAREHOUSE:
+		return MAX_WAREHOUSE_LEVEL
+	return MAX_LEVEL
 
 
-static func valor_bonus(no: Dictionary, nivel: int) -> float:
+static func bonus_value(no: Dictionary, nivel: int) -> float:
 	if nivel <= 0:
 		return 0.0
 	return float(int(no.get("valor_base", no.get("valor", 1))) * nivel)
@@ -211,66 +215,66 @@ static func valor_bonus(no: Dictionary, nivel: int) -> float:
 static func descricao_bonus(no: Dictionary, nivel: int) -> String:
 	if nivel <= 0:
 		return str(no.get("nome", ""))
-	if int(no.get("tipo", -1)) == TipoBonus.ARMAZEM:
+	if int(no.get("tipo", -1)) == BonusType.WAREHOUSE:
 		return str(no.get("nome", ""))
 	var rotulo := str(no.get("rotulo", no.get("sigla", "")))
-	var total := int(valor_bonus(no, nivel))
-	if bool(no.get("eh_pct", false)) or int(no.get("tipo", -1)) == TipoBonus.ATAQUE_PCT:
+	var total := int(bonus_value(no, nivel))
+	if bool(no.get("eh_pct", false)) or int(no.get("tipo", -1)) == BonusType.ATTACK_PCT:
 		return "%s +%d%%" % [rotulo, total]
 	return "%s +%d" % [rotulo, total]
 
 
-static func nome_proximo_nivel(no: Dictionary, nivel_atual: int) -> String:
+static func next_level_name(no: Dictionary, nivel_atual: int) -> String:
 	return descricao_bonus(no, nivel_atual + 1)
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:
 	var secao := int(no.get("secao", no.get("regiao", 0)))
 	var slot := int(no.get("slot", 0))
-	var linha := int(no.get("linha", linha_do_slot(slot)))
-	var col := coluna_do_slot(slot)
+	var linha := int(no.get("linha", slot_row(slot)))
+	var col := slot_column(slot)
 	var cx := centro_x_coluna(secao)
 	var x := cx
 	if col == 0:
-		x = cx - OFFSET_LATERAL
+		x = cx - SIDE_OFFSET
 	elif col == 1:
-		x = cx + OFFSET_LATERAL
-	var y := MARGEM_SUPERIOR + ALTURA_CABECALHO + float(linha) * ALTURA_LINHA + ALTURA_LINHA * 0.5
+		x = cx + SIDE_OFFSET
+	var y := TOP_MARGIN + HEADER_HEIGHT + float(linha) * ROW_HEIGHT + ROW_HEIGHT * 0.5
 	return Vector2(x, y)
 
 
-static func chave_bonus(tipo: TipoBonus) -> String:
+static func bonus_key(tipo: BonusType) -> String:
 	match tipo:
-		TipoBonus.ATAQUE:
+		BonusType.ATTACK:
 			return "ataque"
-		TipoBonus.ATAQUE_PCT:
+		BonusType.ATTACK_PCT:
 			return "ataque_pct"
-		TipoBonus.VIDA:
+		BonusType.HP:
 			return "vida"
-		TipoBonus.BONUS_XP:
+		BonusType.BONUS_XP:
 			return "bonus_xp"
-		TipoBonus.BONUS_OURO:
+		BonusType.GOLD_BONUS:
 			return "bonus_ouro"
-		TipoBonus.VEL_ATAQUE:
+		BonusType.ATTACK_SPEED:
 			return "vel_ataque"
-		TipoBonus.CRIT_CHANCE:
+		BonusType.CRIT_CHANCE:
 			return "crit_chance"
-		TipoBonus.CRIT_DANO:
+		BonusType.CRIT_DAMAGE:
 			return "crit_dano"
-		TipoBonus.EVASAO:
+		BonusType.EVASION:
 			return "evasao"
-		TipoBonus.RES_FISICA:
+		BonusType.PHYS_RES:
 			return "res_fisica"
-		TipoBonus.RES_ARCANA:
+		BonusType.ARCANE_RES:
 			return "res_arcana"
-		TipoBonus.RES_ELEMENTAL:
+		BonusType.ELEMENTAL_RES:
 			return "res_elemental"
-		TipoBonus.ARMAZEM:
+		BonusType.WAREHOUSE:
 			return ""
 	return ""
 
 
-static func bonus_vazio() -> Dictionary:
+static func empty_bonus() -> Dictionary:
 	return {
 		"ataque": 0,
 		"ataque_pct": 0.0,
@@ -288,34 +292,34 @@ static func bonus_vazio() -> Dictionary:
 	}
 
 
-static func cor_regiao(secao: int) -> Color:
+static func region_color(secao: int) -> Color:
 	match secao:
-		Secao.ATAQUE:
+		Section.ATTACK:
 			return Color(0.85, 0.32, 0.28, 1)
-		Secao.DEFESA:
+		Section.DEFENSE:
 			return Color(0.28, 0.65, 0.38, 1)
-		Secao.UTILIDADE:
+		Section.UTILITY:
 			return Color(0.35, 0.52, 0.88, 1)
 	return Color(0.6, 0.6, 0.6, 1)
 
 
-static func _criar_def_no(secao: int, slot: int, linha: int) -> Dictionary:
+static func _create_node_def(secao: int, slot: int, linha: int) -> Dictionary:
 	match secao:
-		Secao.ATAQUE:
-			return _criar_no_ataque(slot, linha)
-		Secao.DEFESA:
-			return _criar_no_defesa(slot, linha)
-		Secao.UTILIDADE:
-			return _criar_no_utilidade(slot, linha)
-	return _criar_no_ataque(slot, linha)
+		Section.ATTACK:
+			return _create_attack_node(slot, linha)
+		Section.DEFENSE:
+			return _create_defense_node(slot, linha)
+		Section.UTILITY:
+			return _create_utility_node(slot, linha)
+	return _create_attack_node(slot, linha)
 
 
-static func _criar_no_ataque(slot: int, linha: int) -> Dictionary:
+static func _create_attack_node(slot: int, linha: int) -> Dictionary:
 	var merge := linha % 2 == 1
 	if merge and linha in [5, 9, 13]:
 		var pct := 2 + _idiv(linha, 5)
 		return {
-			"tipo": TipoBonus.ATAQUE_PCT,
+			"tipo": BonusType.ATTACK_PCT,
 			"valor_base": pct,
 			"sigla": "%",
 			"rotulo": "Ataque",
@@ -324,24 +328,24 @@ static func _criar_no_ataque(slot: int, linha: int) -> Dictionary:
 			"premium": true,
 		}
 	var tipos: Array = [
-		TipoBonus.ATAQUE,
-		TipoBonus.VEL_ATAQUE,
-		TipoBonus.CRIT_CHANCE,
-		TipoBonus.CRIT_DANO,
+		BonusType.ATTACK,
+		BonusType.ATTACK_SPEED,
+		BonusType.CRIT_CHANCE,
+		BonusType.CRIT_DAMAGE,
 	]
 	var siglas: Array = ["ATK", "VEL", "CRIT", "DCR"]
 	var rotulos: Array = ["Ataque", "Vel.", "Crít.", "D.Crít"]
 	var pct_flags: Array = [false, true, true, true]
 	var idx := 0 if merge else (slot + linha) % tipos.size()
-	return _montar_def_stat(tipos[idx] as TipoBonus, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
+	return _build_stat_def(tipos[idx] as BonusType, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
 
 
-static func _criar_no_defesa(slot: int, linha: int) -> Dictionary:
+static func _create_defense_node(slot: int, linha: int) -> Dictionary:
 	var merge := linha % 2 == 1
 	if merge and linha in [5, 9, 13]:
 		var valor := 8 + linha
 		return {
-			"tipo": TipoBonus.VIDA,
+			"tipo": BonusType.HP,
 			"valor_base": valor,
 			"sigla": "VID",
 			"rotulo": "Vida",
@@ -350,26 +354,26 @@ static func _criar_no_defesa(slot: int, linha: int) -> Dictionary:
 			"premium": true,
 		}
 	var tipos: Array = [
-		TipoBonus.VIDA,
-		TipoBonus.EVASAO,
-		TipoBonus.RES_FISICA,
-		TipoBonus.RES_ARCANA,
-		TipoBonus.RES_ELEMENTAL,
+		BonusType.HP,
+		BonusType.EVASION,
+		BonusType.PHYS_RES,
+		BonusType.ARCANE_RES,
+		BonusType.ELEMENTAL_RES,
 	]
 	var siglas: Array = ["VID", "EVA", "FIS", "ARC", "ELE"]
 	var rotulos: Array = ["Vida", "Evasão", "Res. Fís.", "Res. Arc.", "Res. Elem."]
 	var pct_flags: Array = [false, true, true, true, true]
 	var idx := 0 if merge else (slot + linha) % tipos.size()
-	return _montar_def_stat(tipos[idx] as TipoBonus, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
+	return _build_stat_def(tipos[idx] as BonusType, str(siglas[idx]), str(rotulos[idx]), bool(pct_flags[idx]), linha, false)
 
 
-static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
+static func _create_utility_node(slot: int, linha: int) -> Dictionary:
 	var merge := linha % 2 == 1
 	if merge and linha in [7, 11, 13]:
 		var indice_arm := [7, 11, 13].find(linha)
 		var valor := indice_arm + 1
 		return {
-			"tipo": TipoBonus.ARMAZEM,
+			"tipo": BonusType.WAREHOUSE,
 			"valor_base": valor,
 			"sigla": "ARM",
 			"rotulo": "Armazém",
@@ -380,7 +384,7 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 	if merge and linha in [5, 9, 13]:
 		var pct := 2 + _idiv(linha, 4)
 		return {
-			"tipo": TipoBonus.BONUS_XP,
+			"tipo": BonusType.BONUS_XP,
 			"valor_base": pct,
 			"sigla": "XP",
 			"rotulo": "XP",
@@ -392,7 +396,7 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 	if usa_xp:
 		var valor_xp := 1 + _idiv(linha, 3)
 		return {
-			"tipo": TipoBonus.BONUS_XP,
+			"tipo": BonusType.BONUS_XP,
 			"valor_base": valor_xp,
 			"sigla": "XP",
 			"rotulo": "XP",
@@ -402,7 +406,7 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 		}
 	var valor_ouro := 1 + _idiv(linha, 3)
 	return {
-		"tipo": TipoBonus.BONUS_OURO,
+		"tipo": BonusType.GOLD_BONUS,
 		"valor_base": valor_ouro,
 		"sigla": "OURO",
 		"rotulo": "Ouro",
@@ -412,15 +416,15 @@ static func _criar_no_utilidade(slot: int, linha: int) -> Dictionary:
 	}
 
 
-static func _montar_def_stat(
-	tipo: TipoBonus,
+static func _build_stat_def(
+	tipo: BonusType,
 	sigla: String,
 	rotulo: String,
 	eh_pct: bool,
 	linha: int,
 	premium: bool
 ) -> Dictionary:
-	var valor := _valor_por_tipo(tipo, linha)
+	var valor := _value_for_type(tipo, linha)
 	var nome := "%s +%d%%" % [rotulo, valor] if eh_pct else "%s +%d" % [rotulo, valor]
 	return {
 		"tipo": tipo,
@@ -433,18 +437,18 @@ static func _montar_def_stat(
 	}
 
 
-static func _valor_por_tipo(tipo: TipoBonus, linha: int) -> int:
+static func _value_for_type(tipo: BonusType, linha: int) -> int:
 	match tipo:
-		TipoBonus.ATAQUE:
+		BonusType.ATTACK:
 			return 2 + _idiv(linha, 3)
-		TipoBonus.VIDA:
+		BonusType.HP:
 			return 4 + _idiv(linha, 2)
-		TipoBonus.VEL_ATAQUE, TipoBonus.CRIT_CHANCE, TipoBonus.EVASAO:
+		BonusType.ATTACK_SPEED, BonusType.CRIT_CHANCE, BonusType.EVASION:
 			return 1 + _idiv(linha, 4)
-		TipoBonus.CRIT_DANO:
+		BonusType.CRIT_DAMAGE:
 			return 3 + _idiv(linha, 3)
-		TipoBonus.RES_FISICA, TipoBonus.RES_ARCANA, TipoBonus.RES_ELEMENTAL:
+		BonusType.PHYS_RES, BonusType.ARCANE_RES, BonusType.ELEMENTAL_RES:
 			return 1 + _idiv(linha, 4)
-		TipoBonus.BONUS_XP, TipoBonus.BONUS_OURO:
+		BonusType.BONUS_XP, BonusType.GOLD_BONUS:
 			return 1 + _idiv(linha, 3)
 	return 1

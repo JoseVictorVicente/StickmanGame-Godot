@@ -24,15 +24,15 @@ var _private: Dictionary = {}
 
 
 func _ready() -> void:
-    pass
+	pass
 
 
 func public_method() -> void:
-    pass
+	pass
 
 
 func _internal_method() -> void:
-    pass
+	pass
 ```
 
 Suggested order: `class_name` → `extends` → `##` doc → signals → enums → const → `@export` → public vars → `_` private vars → `@onready` → lifecycle → public API → internals.
@@ -42,11 +42,11 @@ Suggested order: `class_name` → `extends` → `##` doc → signals → enums �
 ```gdscript
 # Good
 func apply_damage(amount: int) -> bool:
-    ...
+	...
 
 # Avoid implicit Variant in domain APIs
 func get_bonus() -> Dictionary:
-    return SkillTreeDefinition.bonus_vazio()
+	return SkillTreeDefinition.bonus_vazio()
 ```
 
 Use `Variant` only at save/JSON boundaries. Validate with `is Dictionary`, `is Array` before use.

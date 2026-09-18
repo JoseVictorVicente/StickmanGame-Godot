@@ -2,46 +2,46 @@ class_name ItemData
 extends Resource
 ## Resource de item (equipamento) usado pelo inventário e pelo banco de dados.
 
-enum Tipo {
-	CAPACETE,
-	PEITORAL,
-	ARMA,
-	SECUNDARIA,
-	LUVA,
-	CALCA,
-	BOTA,
-	CINTO,
-	PINGENTE,
-	ANEL,
-	BRACELETE,
+enum Type {
+	HELMET,
+	CHEST,
+	WEAPON,
+	OFFHAND,
+	GLOVES,
+	PANTS,
+	BOOTS,
+	BELT,
+	PENDANT,
+	RING,
+	BRACELET,
 	PET,
-	GEMA,
+	GEM,
 }
 
-enum AtributoGema {
-	ATAQUE,
-	ATAQUE_PCT,
-	VIDA,
-	VIDA_PCT,
-	VEL_ATAQUE,
+enum GemAttribute {
+	ATTACK,
+	ATTACK_PCT,
+	HP,
+	HP_PCT,
+	ATTACK_SPEED,
 	CRIT_CHANCE,
-	CRIT_DANO,
-	EVASAO,
-	RES_FISICA,
-	RES_ARCANA,
-	RES_ELEMENTAL,
+	CRIT_DAMAGE,
+	EVASION,
+	PHYS_RES,
+	ARCANE_RES,
+	ELEMENTAL_RES,
 }
 
-enum Raridade {
-	COMUM,
-	INCOMUM,
-	RARO,
-	EPICO,
-	LENDARIO,
-	MITICO,
+enum Rarity {
+	COMMON,
+	UNCOMMON,
+	RARE,
+	EPIC,
+	LEGENDARY,
+	MYTHIC,
 	PRIMORDIAL,
 	ASTRAL,
-	DIVINO,
+	DIVINE,
 	TRANSCENDENTAL,
 }
 
@@ -55,26 +55,35 @@ enum RequiredClass {
 	PRIEST,
 }
 
-enum Categoria {
-	EQUIPAMENTO,
-	ACESSORIO,
-	GEMA,
+enum Category {
+	EQUIPMENT,
+	ACCESSORY,
+	GEM,
 }
 
-const NIVEIS_ITEM: Array[int] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80]
+const ITEM_LEVELS: Array[int] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80]
 
 @export var id: String = ""
-@export var nome: String = ""
+@export var display_name: String = ""
+@export var name_key: String = ""
 @export var icone: Texture2D
-@export var tipo: Tipo = Tipo.ARMA
-@export var raridade: Raridade = Raridade.COMUM
-@export var nivel_item: int = 5
-@export var dano_bonus: int = 0
-@export var vida_bonus: int = 0
+@export var item_type: Type = Type.WEAPON
+@export var rarity: Rarity = Rarity.COMMON
+@export var item_level: int = 5
+@export var damage_bonus: int = 0
+@export var hp_bonus: int = 0
 @export var required_class: RequiredClass = RequiredClass.ALL
-@export var atributo_gema: AtributoGema = AtributoGema.ATAQUE
-@export var valor_gema: float = 0.0
-var gema_imbuida: Dictionary = {}
+@export var gem_attribute: GemAttribute = GemAttribute.ATTACK
+@export var gem_value: float = 0.0
+var embedded_gem: Dictionary = {}
+
+
+func get_display_name() -> String:
+	if name_key != "":
+		var translated := tr(name_key)
+		if translated != name_key:
+			return translated
+	return display_name
 
 
 func description() -> String:
@@ -82,14 +91,14 @@ func description() -> String:
 
 
 func tooltip_text() -> String:
-	var linhas: PackedStringArray = [nome, rarity_name()]
+	var linhas: PackedStringArray = [get_display_name(), rarity_name()]
 	if is_gem():
-		linhas.append("%s: +%s" % [nome_atributo_gema(atributo_gema), gem_value_text()])
-		linhas.append("Valor: %d ouro" % dismantle_value())
+		linhas.append(TranslationServer.translate(LocaleKeys.ITEM_GEM_ATTR_VALUE) % [gem_attribute_name(gem_attribute), gem_value_text()])
+		linhas.append(TranslationServer.translate(LocaleKeys.ITEM_VALUE) % dismantle_value())
 		return "\n".join(linhas)
-	linhas.append("Dano Bônus: +%d" % dano_bonus)
-	if vida_bonus != 0:
-		linhas.append("Vida Bônus: +%d" % vida_bonus)
+	linhas.append(TranslationServer.translate(LocaleKeys.ITEM_BONUS_DAMAGE) % damage_bonus)
+	if hp_bonus != 0:
+		linhas.append(TranslationServer.translate(LocaleKeys.ITEM_BONUS_HP) % hp_bonus)
 	if has_embedded_gem():
 		var linha_gema := gem_slot_line()
 		if linha_gema != "":
@@ -97,54 +106,84 @@ func tooltip_text() -> String:
 	elif has_gem_slot():
 		linhas.append(gem_slot_line())
 	if required_class != RequiredClass.ALL:
-		linhas.append("Classe: %s" % required_class_name())
-	linhas.append("Nível: %d" % nivel_item)
-	linhas.append("Valor: %d ouro" % dismantle_value())
+		linhas.append(TranslationServer.translate(LocaleKeys.ITEM_CLASS_REQUIRED) % required_class_display_name())
+	linhas.append(TranslationServer.translate(LocaleKeys.ITEM_LEVEL) % item_level)
+	linhas.append(TranslationServer.translate(LocaleKeys.ITEM_VALUE) % dismantle_value())
 	return "\n".join(linhas)
 
 
-func type_name() -> String:
-	match tipo:
-		Tipo.CAPACETE:
-			return "Capacete"
-		Tipo.PEITORAL:
-			return "Peitoral"
-		Tipo.ARMA:
-			return "Arma"
-		Tipo.SECUNDARIA:
-			return "Secundaria"
-		Tipo.LUVA:
-			return "Luva"
-		Tipo.CALCA:
-			return "Calca"
-		Tipo.BOTA:
-			return "Bota"
-		Tipo.CINTO:
-			return "Cinto"
-		Tipo.PINGENTE:
-			return "Pingente"
-		Tipo.ANEL:
-			return "Anel"
-		Tipo.BRACELETE:
-			return "Bracelete"
-		Tipo.PET:
-			return "Pet"
-		Tipo.GEMA:
-			return "Gema"
+static func type_display_name(p_tipo: Type) -> String:
+	match p_tipo:
+		Type.HELMET:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_HELMET)
+		Type.CHEST:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_CHEST)
+		Type.WEAPON:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_WEAPON)
+		Type.OFFHAND:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_OFFHAND)
+		Type.GLOVES:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_GLOVES)
+		Type.PANTS:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_PANTS)
+		Type.BOOTS:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_BOOTS)
+		Type.BELT:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_BELT)
+		Type.PENDANT:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_PENDANT)
+		Type.RING:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_RING)
+		Type.BRACELET:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_BRACELET)
+		Type.PET:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_PET)
+		Type.GEM:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_GEM)
 		_:
-			return "Item"
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_GENERIC)
+
+
+static func equip_slot_label_key(p_tipo: Type) -> String:
+	match p_tipo:
+		Type.WEAPON:
+			return LocaleKeys.INV_SLOT_PRIMARY
+		Type.OFFHAND:
+			return LocaleKeys.INV_SLOT_OFFHAND
+		Type.HELMET:
+			return LocaleKeys.INV_SLOT_HELMET
+		Type.CHEST:
+			return LocaleKeys.INV_SLOT_CHEST
+		Type.GLOVES:
+			return LocaleKeys.INV_SLOT_GLOVES
+		Type.PANTS:
+			return LocaleKeys.INV_SLOT_PANTS
+		Type.BOOTS:
+			return LocaleKeys.INV_SLOT_BOOTS
+		Type.BELT:
+			return LocaleKeys.INV_SLOT_BELT
+		Type.PENDANT:
+			return LocaleKeys.INV_SLOT_PENDANT
+		Type.RING:
+			return LocaleKeys.INV_SLOT_RING
+		Type.BRACELET:
+			return LocaleKeys.INV_SLOT_BRACELET
+		Type.PET:
+			return LocaleKeys.INV_SLOT_PET
+		_:
+			return LocaleKeys.ITEM_TYPE_GENERIC
 
 
 func is_gem() -> bool:
-	return tipo == Tipo.GEMA
+	return item_type == Type.GEM
 
 
 func has_gem_slot() -> bool:
-	return not is_gem() and int(raridade) >= int(Raridade.LENDARIO)
+	return not is_gem() and int(rarity) >= int(Rarity.LEGENDARY)
 
 
 func has_embedded_gem() -> bool:
-	return not gema_imbuida.is_empty()
+	return not embedded_gem.is_empty()
 
 
 func gem_slot_line() -> String:
@@ -154,8 +193,8 @@ func gem_slot_line() -> String:
 		var gema := get_embedded_gem()
 		if gema == null:
 			return ""
-		return "Gema: %s +%s" % [nome_atributo_gema(gema.atributo_gema), gema.gem_value_text()]
-	return "Slot de gema: disponível"
+		return TranslationServer.translate(LocaleKeys.ITEM_GEM_EMBEDDED) % [gem_attribute_name(gema.gem_attribute), gema.gem_value_text()]
+	return TranslationServer.translate(LocaleKeys.ITEM_GEM_SLOT)
 
 
 func gem_slot_label_color() -> Color:
@@ -165,20 +204,20 @@ func gem_slot_label_color() -> Color:
 
 
 func get_embedded_gem() -> ItemData:
-	if gema_imbuida.is_empty():
+	if embedded_gem.is_empty():
 		return null
-	return de_dicionario(gema_imbuida)
+	return de_dicionario(embedded_gem)
 
 
 func imbue_gem(gema: ItemData) -> bool:
 	if gema == null or not gema.is_gem() or not has_gem_slot() or has_embedded_gem():
 		return false
-	gema_imbuida = gema.to_dictionary()
+	embedded_gem = gema.to_dictionary()
 	return true
 
 
 func embedded_gem_bonus() -> Dictionary:
-	var bonus := SkillTreeDefinition.bonus_vazio()
+	var bonus := SkillTreeDefinition.empty_bonus()
 	if not has_embedded_gem():
 		return bonus
 	var gema := get_embedded_gem()
@@ -190,96 +229,97 @@ func embedded_gem_bonus() -> Dictionary:
 func apply_bonus_to(destino: Dictionary) -> void:
 	if not is_gem():
 		return
-	match atributo_gema:
-		AtributoGema.ATAQUE:
-			destino["ataque"] = int(destino.get("ataque", 0)) + int(round(valor_gema))
-		AtributoGema.ATAQUE_PCT:
-			destino["ataque_pct"] = float(destino.get("ataque_pct", 0.0)) + valor_gema
-		AtributoGema.VIDA:
-			destino["vida"] = int(destino.get("vida", 0)) + int(round(valor_gema))
-		AtributoGema.VIDA_PCT:
-			destino["vida_pct"] = float(destino.get("vida_pct", 0.0)) + valor_gema
-		AtributoGema.VEL_ATAQUE:
-			destino["vel_ataque"] = float(destino.get("vel_ataque", 0.0)) + valor_gema
-		AtributoGema.CRIT_CHANCE:
-			destino["crit_chance"] = float(destino.get("crit_chance", 0.0)) + valor_gema
-		AtributoGema.CRIT_DANO:
-			destino["crit_dano"] = float(destino.get("crit_dano", 0.0)) + valor_gema
-		AtributoGema.EVASAO:
-			destino["evasao"] = float(destino.get("evasao", 0.0)) + valor_gema
-		AtributoGema.RES_FISICA:
-			destino["res_fisica"] = float(destino.get("res_fisica", 0.0)) + valor_gema
-		AtributoGema.RES_ARCANA:
-			destino["res_arcana"] = float(destino.get("res_arcana", 0.0)) + valor_gema
-		AtributoGema.RES_ELEMENTAL:
-			destino["res_elemental"] = float(destino.get("res_elemental", 0.0)) + valor_gema
+	match gem_attribute:
+		GemAttribute.ATTACK:
+			destino["ataque"] = int(destino.get("ataque", 0)) + int(round(gem_value))
+		GemAttribute.ATTACK_PCT:
+			destino["ataque_pct"] = float(destino.get("ataque_pct", 0.0)) + gem_value
+		GemAttribute.HP:
+			destino["vida"] = int(destino.get("vida", 0)) + int(round(gem_value))
+		GemAttribute.HP_PCT:
+			destino["vida_pct"] = float(destino.get("vida_pct", 0.0)) + gem_value
+		GemAttribute.ATTACK_SPEED:
+			destino["vel_ataque"] = float(destino.get("vel_ataque", 0.0)) + gem_value
+		GemAttribute.CRIT_CHANCE:
+			destino["crit_chance"] = float(destino.get("crit_chance", 0.0)) + gem_value
+		GemAttribute.CRIT_DAMAGE:
+			destino["crit_dano"] = float(destino.get("crit_dano", 0.0)) + gem_value
+		GemAttribute.EVASION:
+			destino["evasao"] = float(destino.get("evasao", 0.0)) + gem_value
+		GemAttribute.PHYS_RES:
+			destino["res_fisica"] = float(destino.get("res_fisica", 0.0)) + gem_value
+		GemAttribute.ARCANE_RES:
+			destino["res_arcana"] = float(destino.get("res_arcana", 0.0)) + gem_value
+		GemAttribute.ELEMENTAL_RES:
+			destino["res_elemental"] = float(destino.get("res_elemental", 0.0)) + gem_value
 
 
-static func nome_atributo_gema(atributo: AtributoGema) -> String:
+static func gem_attribute_name(atributo: GemAttribute) -> String:
 	match atributo:
-		AtributoGema.ATAQUE:
-			return "Ataque"
-		AtributoGema.ATAQUE_PCT:
-			return "Ataque %"
-		AtributoGema.VIDA:
-			return "Vida"
-		AtributoGema.VIDA_PCT:
-			return "Vida %"
-		AtributoGema.VEL_ATAQUE:
-			return "Vel. Ataque %"
-		AtributoGema.CRIT_CHANCE:
-			return "Crítico %"
-		AtributoGema.CRIT_DANO:
-			return "Dano Crítico %"
-		AtributoGema.EVASAO:
-			return "Evasão %"
-		AtributoGema.RES_FISICA:
-			return "Res. Física %"
-		AtributoGema.RES_ARCANA:
-			return "Res. Arcana %"
-		AtributoGema.RES_ELEMENTAL:
-			return "Res. Elemental %"
+		GemAttribute.ATTACK:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_ATTACK)
+		GemAttribute.ATTACK_PCT:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_ATTACK_PCT)
+		GemAttribute.HP:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_HP)
+		GemAttribute.HP_PCT:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_HP_PCT)
+		GemAttribute.ATTACK_SPEED:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_ATTACK_SPEED)
+		GemAttribute.CRIT_CHANCE:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_CRIT_CHANCE)
+		GemAttribute.CRIT_DAMAGE:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_CRIT_DAMAGE)
+		GemAttribute.EVASION:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_EVASION)
+		GemAttribute.PHYS_RES:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_PHYS_RES)
+		GemAttribute.ARCANE_RES:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_ARCANE_RES)
+		GemAttribute.ELEMENTAL_RES:
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_ELEMENTAL_RES)
 		_:
-			return "Atributo"
+			return TranslationServer.translate(LocaleKeys.GEM_ATTR_GENERIC)
 
 
-static func valor_base_gema(atributo: AtributoGema) -> float:
+static func base_gem_value(atributo: GemAttribute) -> float:
 	match atributo:
-		AtributoGema.ATAQUE:
+		GemAttribute.ATTACK:
 			return 5.0
-		AtributoGema.ATAQUE_PCT:
+		GemAttribute.ATTACK_PCT:
 			return 2.0
-		AtributoGema.VIDA:
+		GemAttribute.HP:
 			return 10.0
-		AtributoGema.VIDA_PCT:
+		GemAttribute.HP_PCT:
 			return 2.0
-		AtributoGema.VEL_ATAQUE:
+		GemAttribute.ATTACK_SPEED:
 			return 1.5
-		AtributoGema.CRIT_CHANCE:
+		GemAttribute.CRIT_CHANCE:
 			return 1.0
-		AtributoGema.CRIT_DANO:
+		GemAttribute.CRIT_DAMAGE:
 			return 3.0
-		AtributoGema.EVASAO:
+		GemAttribute.EVASION:
 			return 1.0
-		AtributoGema.RES_FISICA, AtributoGema.RES_ARCANA, AtributoGema.RES_ELEMENTAL:
+		GemAttribute.PHYS_RES, GemAttribute.ARCANE_RES, GemAttribute.ELEMENTAL_RES:
 			return 2.0
 		_:
 			return 1.0
 
 
-static func calcular_valor_gema(atributo: AtributoGema, raridade_item: Raridade) -> float:
-	var base := valor_base_gema(atributo)
-	return base * multiplicador_stats(raridade_item)
+static func calculate_gem_value(atributo: GemAttribute, item_rarity: Rarity) -> float:
+	var base := base_gem_value(atributo)
+	return base * multiplicador_stats(item_rarity)
 
 
-static func criar_gema(atributo: AtributoGema, raridade_item: Raridade) -> ItemData:
+static func create_gem(atributo: GemAttribute, item_rarity: Rarity) -> ItemData:
 	var item := ItemData.new()
-	item.tipo = Tipo.GEMA
-	item.atributo_gema = atributo
-	item.raridade = raridade_item
-	item.nivel_item = NIVEIS_ITEM[0]
-	item.valor_gema = calcular_valor_gema(atributo, raridade_item)
-	item.nome = "Gema de %s" % nome_atributo_gema(atributo)
+	item.item_type = Type.GEM
+	item.gem_attribute = atributo
+	item.rarity = item_rarity
+	item.item_level = ITEM_LEVELS[0]
+	item.gem_value = calculate_gem_value(atributo, item_rarity)
+	item.display_name = TranslationServer.translate(LocaleKeys.ITEM_GEM_OF) % gem_attribute_name(atributo)
+	item.name_key = "ITEM_gema_%s" % int(atributo)
 	item.id = "gema_%s" % int(atributo)
 	item.required_class = RequiredClass.ALL
 	item.icone = item.generate_icon()
@@ -287,140 +327,148 @@ static func criar_gema(atributo: AtributoGema, raridade_item: Raridade) -> ItemD
 
 
 func gem_value_text() -> String:
-	if atributo_gema in [AtributoGema.ATAQUE, AtributoGema.VIDA]:
-		return str(int(round(valor_gema)))
-	return "%.1f%%" % valor_gema
+	if gem_attribute in [GemAttribute.ATTACK, GemAttribute.HP]:
+		return str(int(round(gem_value)))
+	return "%.1f%%" % gem_value
 
 
-func category() -> Categoria:
-	return categoria_do_tipo(tipo)
+func category() -> Category:
+	return categoria_do_tipo(item_type)
 
 
-static func categoria_do_tipo(p_tipo: Tipo) -> Categoria:
-	if p_tipo == Tipo.GEMA:
-		return Categoria.GEMA
+static func categoria_do_tipo(p_tipo: Type) -> Category:
+	if p_tipo == Type.GEM:
+		return Category.GEM
 	match p_tipo:
-		Tipo.CINTO, Tipo.PINGENTE, Tipo.ANEL, Tipo.BRACELETE:
-			return Categoria.ACESSORIO
+		Type.BELT, Type.PENDANT, Type.RING, Type.BRACELET:
+			return Category.ACCESSORY
 		_:
-			return Categoria.EQUIPAMENTO
+			return Category.EQUIPMENT
 
 
-static func nome_categoria(p_categoria: Categoria) -> String:
+static func category_display_name(p_categoria: Category) -> String:
 	match p_categoria:
-		Categoria.ACESSORIO:
-			return "Acessório"
-		Categoria.GEMA:
-			return "Gema"
+		Category.ACCESSORY:
+			return TranslationServer.translate(LocaleKeys.ITEM_CATEGORY_ACCESSORY)
+		Category.GEM:
+			return TranslationServer.translate(LocaleKeys.ITEM_CATEGORY_GEM)
 		_:
-			return "Equipamento"
+			return TranslationServer.translate(LocaleKeys.ITEM_CATEGORY_EQUIPMENT)
 
 
-static func tipos_da_categoria(p_categoria: Categoria) -> Array[Tipo]:
-	var lista: Array[Tipo] = []
-	for tipo_valor in Tipo.values():
-		if categoria_do_tipo(tipo_valor as Tipo) == p_categoria:
-			lista.append(tipo_valor as Tipo)
+static func nome_categoria(p_categoria: Category) -> String:
+	return category_display_name(p_categoria)
+
+
+static func display_name_categoria(p_categoria: Category) -> String:
+	return category_display_name(p_categoria)
+
+
+static func tipos_da_categoria(p_categoria: Category) -> Array[Type]:
+	var lista: Array[Type] = []
+	for tipo_valor in Type.values():
+		if categoria_do_tipo(tipo_valor as Type) == p_categoria:
+			lista.append(tipo_valor as Type)
 	return lista
 
 
 func rarity_name() -> String:
-	return nome_de_raridade(raridade)
+	return rarity_display_name(rarity)
 
 
-static func nome_de_raridade(p_raridade: Raridade) -> String:
-	match p_raridade:
-		Raridade.INCOMUM:
-			return "Incomum"
-		Raridade.RARO:
-			return "Raro"
-		Raridade.EPICO:
-			return "Épico"
-		Raridade.LENDARIO:
-			return "Lendário"
-		Raridade.MITICO:
-			return "Mítico"
-		Raridade.PRIMORDIAL:
-			return "Primordial"
-		Raridade.ASTRAL:
-			return "Astral"
-		Raridade.DIVINO:
-			return "Divino"
-		Raridade.TRANSCENDENTAL:
-			return "Transcendental"
+static func rarity_display_name(p_rarity: Rarity) -> String:
+	match p_rarity:
+		Rarity.UNCOMMON:
+			return TranslationServer.translate(LocaleKeys.RARITY_UNCOMMON)
+		Rarity.RARE:
+			return TranslationServer.translate(LocaleKeys.RARITY_RARE)
+		Rarity.EPIC:
+			return TranslationServer.translate(LocaleKeys.RARITY_EPIC)
+		Rarity.LEGENDARY:
+			return TranslationServer.translate(LocaleKeys.RARITY_LEGENDARY)
+		Rarity.MYTHIC:
+			return TranslationServer.translate(LocaleKeys.RARITY_MYTHIC)
+		Rarity.PRIMORDIAL:
+			return TranslationServer.translate(LocaleKeys.RARITY_PRIMORDIAL)
+		Rarity.ASTRAL:
+			return TranslationServer.translate(LocaleKeys.RARITY_ASTRAL)
+		Rarity.DIVINE:
+			return TranslationServer.translate(LocaleKeys.RARITY_DIVINE)
+		Rarity.TRANSCENDENTAL:
+			return TranslationServer.translate(LocaleKeys.RARITY_TRANSCENDENTAL)
 		_:
-			return "Comum"
+			return TranslationServer.translate(LocaleKeys.RARITY_COMMON)
 
 
-static func nomes_filtro_ferraria() -> PackedStringArray:
-	var nomes := PackedStringArray(["Todos"])
-	for i in Raridade.size():
-		nomes.append(nome_de_raridade(i as Raridade))
+static func forge_filter_names() -> PackedStringArray:
+	var nomes := PackedStringArray([TranslationServer.translate(LocaleKeys.RARITY_ALL)])
+	for i in Rarity.size():
+		nomes.append(rarity_display_name(i as Rarity))
 	return nomes
 
 
-static func raridade_maxima() -> Raridade:
-	return Raridade.TRANSCENDENTAL
+static func max_rarity() -> Rarity:
+	return Rarity.TRANSCENDENTAL
 
 
-static func eh_raridade_maxima(p_raridade: Raridade) -> bool:
-	return p_raridade >= Raridade.TRANSCENDENTAL
+static func is_max_rarity(p_rarity: Rarity) -> bool:
+	return p_rarity >= Rarity.TRANSCENDENTAL
 
 
-static func proxima_raridade(p_raridade: Raridade) -> Raridade:
-	if eh_raridade_maxima(p_raridade):
-		return p_raridade
-	return (int(p_raridade) + 1) as Raridade
+static func next_rarity(p_rarity: Rarity) -> Rarity:
+	if is_max_rarity(p_rarity):
+		return p_rarity
+	return (int(p_rarity) + 1) as Rarity
 
 
-static func chance_forja_sucesso(p_raridade: Raridade) -> float:
-	match p_raridade:
-		Raridade.COMUM, Raridade.INCOMUM, Raridade.RARO:
+static func forge_success_chance(p_rarity: Rarity) -> float:
+	match p_rarity:
+		Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE:
 			return 1.0
-		Raridade.EPICO:
+		Rarity.EPIC:
 			return 0.9
-		Raridade.LENDARIO:
+		Rarity.LEGENDARY:
 			return 0.5
-		Raridade.MITICO:
+		Rarity.MYTHIC:
 			return 0.45
-		Raridade.PRIMORDIAL:
+		Rarity.PRIMORDIAL:
 			return 0.4
-		Raridade.ASTRAL:
+		Rarity.ASTRAL:
 			return 0.35
-		Raridade.DIVINO:
+		Rarity.DIVINE:
 			return 0.3
-		Raridade.TRANSCENDENTAL:
+		Rarity.TRANSCENDENTAL:
 			return 0.25
 		_:
 			return 1.0
 
 
-static func chance_forja_sucesso_pct(p_raridade: Raridade) -> int:
-	return int(round(chance_forja_sucesso(p_raridade) * 100.0))
+static func forge_success_chance_pct(p_rarity: Rarity) -> int:
+	return int(round(forge_success_chance(p_rarity) * 100.0))
 
 
-static func migrar_raridade_salva(valor: int) -> Raridade:
+static func migrate_saved_rarity(valor: int) -> Rarity:
 	if valor >= 0 and valor <= 3:
-		var legado: Array[Raridade] = [
-			Raridade.COMUM,
-			Raridade.RARO,
-			Raridade.EPICO,
-			Raridade.LENDARIO,
+		var legado: Array[Rarity] = [
+			Rarity.COMMON,
+			Rarity.RARE,
+			Rarity.EPIC,
+			Rarity.LEGENDARY,
 		]
 		return legado[valor]
-	return clampi(valor, 0, int(Raridade.TRANSCENDENTAL)) as Raridade
+	return clampi(valor, 0, int(Rarity.TRANSCENDENTAL)) as Rarity
 
 
-static func multiplicador_stats(p_raridade: Raridade) -> float:
-	return pow(1.22, float(int(p_raridade)))
+static func multiplicador_stats(p_rarity: Rarity) -> float:
+	return pow(1.22, float(int(p_rarity)))
 
 
-static func normalizar_nivel_item(valor: int) -> int:
-	if NIVEIS_ITEM.has(valor):
+static func normalize_item_level(valor: int) -> int:
+	if ITEM_LEVELS.has(valor):
 		return valor
-	var melhor := NIVEIS_ITEM[0]
+	var melhor := ITEM_LEVELS[0]
 	var menor_dist := absi(valor - melhor)
-	for nivel in NIVEIS_ITEM:
+	for nivel in ITEM_LEVELS:
 		var dist := absi(valor - nivel)
 		if dist < menor_dist:
 			menor_dist = dist
@@ -428,9 +476,9 @@ static func normalizar_nivel_item(valor: int) -> int:
 	return melhor
 
 
-static func indice_nivel_item(nivel: int) -> int:
-	var normalizado := normalizar_nivel_item(nivel)
-	var stage_index := NIVEIS_ITEM.find(normalizado)
+static func item_level_index(nivel: int) -> int:
+	var normalizado := normalize_item_level(nivel)
+	var stage_index := ITEM_LEVELS.find(normalizado)
 	return stage_index if stage_index >= 0 else 0
 
 
@@ -441,35 +489,35 @@ static func comparar_ordenacao(a: ItemData, b: ItemData) -> bool:
 		return false
 	if b == null:
 		return true
-	if int(a.raridade) != int(b.raridade):
-		return int(a.raridade) > int(b.raridade)
-	var indice_a := indice_nivel_item(a.nivel_item)
-	var indice_b := indice_nivel_item(b.nivel_item)
+	if int(a.rarity) != int(b.rarity):
+		return int(a.rarity) > int(b.rarity)
+	var indice_a := item_level_index(a.item_level)
+	var indice_b := item_level_index(b.item_level)
 	if indice_a != indice_b:
 		return indice_a > indice_b
-	return a.nome.nocasecmp_to(b.nome) < 0
+	return a.display_name.nocasecmp_to(b.display_name) < 0
 
 
-static func multiplicador_nivel_item(nivel: int) -> float:
-	return pow(1.088, float(indice_nivel_item(nivel)))
+static func item_level_multiplier(nivel: int) -> float:
+	return pow(1.088, float(item_level_index(nivel)))
 
 
-static func nivel_item_maximo(hero_progress: int) -> int:
-	var maximo := NIVEIS_ITEM[0]
-	for nivel in NIVEIS_ITEM:
+static func max_item_level(hero_progress: int) -> int:
+	var maximo := ITEM_LEVELS[0]
+	for nivel in ITEM_LEVELS:
 		if nivel <= hero_progress + 4:
 			maximo = nivel
 	return maximo
 
 
-static func sortear_nivel_item(hero_progress: int) -> int:
-	var maximo := nivel_item_maximo(maxi(1, hero_progress))
+static func roll_item_level(hero_progress: int) -> int:
+	var maximo := max_item_level(maxi(1, hero_progress))
 	var opcoes: Array[int] = []
-	for nivel in NIVEIS_ITEM:
+	for nivel in ITEM_LEVELS:
 		if nivel <= maximo:
 			opcoes.append(nivel)
 	if opcoes.is_empty():
-		return NIVEIS_ITEM[0]
+		return ITEM_LEVELS[0]
 	var pesos: Array[float] = []
 	var total := 0.0
 	for i in opcoes.size():
@@ -485,51 +533,63 @@ static func sortear_nivel_item(hero_progress: int) -> int:
 	return opcoes[0]
 
 
-func can_equip(nivel_heroi: int) -> bool:
-	return nivel_heroi >= normalizar_nivel_item(nivel_item)
+func can_equip(hero_level: int) -> bool:
+	return hero_level >= normalize_item_level(item_level)
 
 
 func required_class_name() -> String:
+	return required_class_display_name()
+
+
+func required_class_display_name() -> String:
 	match required_class:
 		RequiredClass.WARRIOR:
-			return "warrior"
+			return TranslationServer.translate(LocaleKeys.CLASS_WARRIOR)
 		RequiredClass.MAGE:
-			return "mage"
+			return TranslationServer.translate(LocaleKeys.CLASS_MAGE)
 		RequiredClass.ARCHER:
-			return "archer"
+			return TranslationServer.translate(LocaleKeys.CLASS_ARCHER)
 		RequiredClass.ASSASSIN:
-			return "assassin"
+			return TranslationServer.translate(LocaleKeys.CLASS_ASSASSIN)
 		RequiredClass.TANK:
-			return "tank"
+			return TranslationServer.translate(LocaleKeys.CLASS_TANK)
 		RequiredClass.PRIEST:
-			return "priest"
+			return TranslationServer.translate(LocaleKeys.CLASS_PRIEST)
 		_:
-			return "Todas"
+			return TranslationServer.translate(LocaleKeys.CLASS_ALL)
 
 
-func rarity_color() -> Color:
-	return cor_de_raridade(raridade)
+func display_name_requerida() -> String:
+	return required_class_display_name()
 
 
-static func cor_de_raridade(p_raridade: Raridade) -> Color:
-	match p_raridade:
-		Raridade.INCOMUM:
+func color_raridade() -> Color:
+	return get_rarity_color()
+
+
+func get_rarity_color() -> Color:
+	return color_for_rarity(rarity)
+
+
+static func color_for_rarity(p_rarity: Rarity) -> Color:
+	match p_rarity:
+		Rarity.UNCOMMON:
 			return Color(0.35, 0.85, 0.42, 1)
-		Raridade.RARO:
+		Rarity.RARE:
 			return Color(0.28, 0.52, 0.98, 1)
-		Raridade.EPICO:
+		Rarity.EPIC:
 			return Color(0.68, 0.28, 0.92, 1)
-		Raridade.LENDARIO:
+		Rarity.LEGENDARY:
 			return Color(0.95, 0.78, 0.22, 1)
-		Raridade.MITICO:
+		Rarity.MYTHIC:
 			return Color(0.95, 0.52, 0.18, 1)
-		Raridade.PRIMORDIAL:
+		Rarity.PRIMORDIAL:
 			return Color(0.92, 0.22, 0.22, 1)
-		Raridade.ASTRAL:
+		Rarity.ASTRAL:
 			return Color(0.28, 0.88, 0.92, 1)
-		Raridade.DIVINO:
+		Rarity.DIVINE:
 			return Color(0.92, 0.22, 0.78, 1)
-		Raridade.TRANSCENDENTAL:
+		Rarity.TRANSCENDENTAL:
 			return Color(1.0, 0.45, 0.82, 1)
 		_:
 			return Color(0.92, 0.92, 0.95, 1)
@@ -537,44 +597,44 @@ static func cor_de_raridade(p_raridade: Raridade) -> Color:
 
 func dismantle_value() -> int:
 	var bases: Array[int] = [8, 14, 28, 90, 240, 600, 1500, 3800, 9500, 24000]
-	var stage_index := clampi(int(raridade), 0, bases.size() - 1)
-	var extra := dano_bonus + vida_bonus
+	var stage_index := clampi(int(rarity), 0, bases.size() - 1)
+	var extra := damage_bonus + hp_bonus
 	if is_gem():
-		extra = int(round(valor_gema * 2.0))
+		extra = int(round(gem_value * 2.0))
 	return maxi(1, bases[stage_index] + extra)
 
 
 func type_abbreviation() -> String:
-	return sigla_do_tipo(tipo)
+	return sigla_do_tipo(item_type)
 
 
-static func sigla_do_tipo(p_tipo: Tipo) -> String:
+static func sigla_do_tipo(p_tipo: Type) -> String:
 	match p_tipo:
-		Tipo.ARMA:
+		Type.WEAPON:
 			return "ESP"
-		Tipo.SECUNDARIA:
+		Type.OFFHAND:
 			return "ADG"
-		Tipo.CAPACETE:
+		Type.HELMET:
 			return "CAP"
-		Tipo.PEITORAL:
+		Type.CHEST:
 			return "PEI"
-		Tipo.LUVA:
+		Type.GLOVES:
 			return "LUV"
-		Tipo.CALCA:
+		Type.PANTS:
 			return "CAL"
-		Tipo.BOTA:
+		Type.BOOTS:
 			return "BOT"
-		Tipo.CINTO:
+		Type.BELT:
 			return "CIN"
-		Tipo.PINGENTE:
+		Type.PENDANT:
 			return "PIN"
-		Tipo.ANEL:
+		Type.RING:
 			return "ANL"
-		Tipo.BRACELETE:
+		Type.BRACELET:
 			return "BRA"
-		Tipo.PET:
+		Type.PET:
 			return "PET"
-		Tipo.GEMA:
+		Type.GEM:
 			return "GEM"
 		_:
 			return "ITM"
@@ -583,19 +643,19 @@ static func sigla_do_tipo(p_tipo: Tipo) -> String:
 func to_dictionary() -> Dictionary:
 	var dados := {
 		"id": id,
-		"nome": nome,
-		"tipo": int(tipo),
-		"raridade": int(raridade),
-		"nivel_item": nivel_item,
-		"dano_bonus": dano_bonus,
-		"vida_bonus": vida_bonus,
+		"display_name": display_name,
+		"item_type": int(item_type),
+		"rarity": int(rarity),
+		"item_level": item_level,
+		"damage_bonus": damage_bonus,
+		"hp_bonus": hp_bonus,
 		"classe_requerida": int(required_class),
 		"required_class": int(required_class),
-		"atributo_gema": int(atributo_gema),
-		"valor_gema": valor_gema,
+		"gem_attribute": int(gem_attribute),
+		"gem_value": gem_value,
 	}
-	if not gema_imbuida.is_empty():
-		dados["gema_imbuida"] = gema_imbuida.duplicate(true)
+	if not embedded_gem.is_empty():
+		dados["embedded_gem"] = embedded_gem.duplicate(true)
 	return dados
 
 
@@ -604,18 +664,18 @@ static func de_dicionario(dados: Dictionary) -> ItemData:
 		return null
 	var item := ItemData.new()
 	item.id = str(dados.get("id", ""))
-	item.nome = str(dados.get("nome", ""))
-	item.tipo = int(dados.get("tipo", Tipo.ARMA)) as Tipo
-	item.raridade = migrar_raridade_salva(int(dados.get("raridade", Raridade.COMUM)))
-	item.nivel_item = normalizar_nivel_item(int(dados.get("nivel_item", NIVEIS_ITEM[0])))
-	item.dano_bonus = int(dados.get("dano_bonus", 0))
-	item.vida_bonus = int(dados.get("vida_bonus", 0))
+	item.display_name = str(dados.get("display_name", ""))
+	item.item_type = int(dados.get("item_type", Type.WEAPON)) as Type
+	item.rarity = migrate_saved_rarity(int(dados.get("rarity", Rarity.COMMON)))
+	item.item_level = normalize_item_level(int(dados.get("item_level", ITEM_LEVELS[0])))
+	item.damage_bonus = int(dados.get("damage_bonus", 0))
+	item.hp_bonus = int(dados.get("hp_bonus", 0))
 	var raw_class: Variant = dados.get("required_class", dados.get("classe_requerida", RequiredClass.ALL))
 	item.required_class = int(raw_class) as RequiredClass
-	item.atributo_gema = int(dados.get("atributo_gema", AtributoGema.ATAQUE)) as AtributoGema
-	item.valor_gema = float(dados.get("valor_gema", 0.0))
-	var gema_salva: Variant = dados.get("gema_imbuida", {})
-	item.gema_imbuida = gema_salva.duplicate(true) if gema_salva is Dictionary else {}
+	item.gem_attribute = int(dados.get("gem_attribute", GemAttribute.ATTACK)) as GemAttribute
+	item.gem_value = float(dados.get("gem_value", 0.0))
+	var gema_salva: Variant = dados.get("embedded_gem", {})
+	item.embedded_gem = gema_salva.duplicate(true) if gema_salva is Dictionary else {}
 	item.icone = item.generate_icon()
 	return item
 
@@ -633,28 +693,28 @@ func generate_icon() -> Texture2D:
 
 
 func _generate_gem_icon() -> Texture2D:
-	return InterfaceIcons.gem_icon(raridade)
+	return InterfaceIcons.gem_icon(rarity)
 
 
 func _icon_pixel_color(x: int, y: int) -> Color:
-	if raridade == Raridade.TRANSCENDENTAL:
+	if rarity == Rarity.TRANSCENDENTAL:
 		var matiz := fmod(float(x + y) * 0.08 + float(x - y) * 0.05, 1.0)
 		return Color.from_hsv(matiz, 0.85, 1.0, 1.0).lerp(_type_color(), 0.25)
-	var cor := rarity_color().lerp(_type_color(), 0.4)
+	var cor := get_rarity_color().lerp(_type_color(), 0.4)
 	return cor
 
 
 func _type_color() -> Color:
-	match tipo:
-		Tipo.ARMA:
+	match item_type:
+		Type.WEAPON:
 			return Color(0.55, 0.58, 0.65)
-		Tipo.SECUNDARIA:
+		Type.OFFHAND:
 			return Color(0.45, 0.38, 0.28)
-		Tipo.CAPACETE:
+		Type.HELMET:
 			return Color(0.5, 0.32, 0.18)
-		Tipo.PEITORAL:
+		Type.CHEST:
 			return Color(0.35, 0.4, 0.5)
-		Tipo.ANEL:
+		Type.RING:
 			return Color(0.75, 0.62, 0.2)
 		_:
 			return Color(0.6, 0.55, 0.45)

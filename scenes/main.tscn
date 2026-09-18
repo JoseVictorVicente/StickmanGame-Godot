@@ -99,10 +99,10 @@ offset_bottom = -32.0
 text = "Meu jogo Stickman
 "
 
-[node name="HudBatalha" type="CanvasLayer" parent="."]
+[node name="BattleHud" type="CanvasLayer" parent="."]
 layer = 12
 
-[node name="Palco" type="Control" parent="HudBatalha"]
+[node name="StageArea" type="Control" parent="BattleHud"]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -116,7 +116,7 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 0
 
-[node name="Chao" type="TextureRect" parent="HudBatalha/Palco"]
+[node name="Floor" type="TextureRect" parent="BattleHud/StageArea"]
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 1
@@ -132,26 +132,26 @@ texture = ExtResource("7_chao")
 expand_mode = 1
 stretch_mode = 0
 
-[node name="Combate" type="Node2D" parent="HudBatalha"]
+[node name="Combate" type="Node2D" parent="BattleHud"]
 
-[node name="PartyService" type="Node2D" parent="HudBatalha/Combate"]
+[node name="PartyService" type="Node2D" parent="BattleHud/Combate"]
 script = ExtResource("4_party")
 
-[node name="Posicao1" type="Marker2D" parent="HudBatalha/Combate/PartyService"]
+[node name="Posicao1" type="Marker2D" parent="BattleHud/Combate/PartyService"]
 position = Vector2(-118, -46)
 
-[node name="Posicao2" type="Marker2D" parent="HudBatalha/Combate/PartyService"]
+[node name="Posicao2" type="Marker2D" parent="BattleHud/Combate/PartyService"]
 position = Vector2(-72, -46)
 
-[node name="Posicao3" type="Marker2D" parent="HudBatalha/Combate/PartyService"]
+[node name="Posicao3" type="Marker2D" parent="BattleHud/Combate/PartyService"]
 position = Vector2(-26, -46)
 
-[node name="InimigoVisual" type="Sprite2D" parent="HudBatalha/Combate"]
+[node name="EnemyVisual" type="Sprite2D" parent="BattleHud/Combate"]
 position = Vector2(102, -46)
 scale = Vector2(1.45, 1.45)
 script = ExtResource("5_inimigo")
 
-[node name="PainelBatalha" type="PanelContainer" parent="HudBatalha"]
+[node name="BattlePanel" type="PanelContainer" parent="BattleHud"]
 custom_minimum_size = Vector2(320, 0)
 anchors_preset = 7
 anchor_left = 0.5
@@ -166,11 +166,11 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_batalha")
 
-[node name="InfoBatalha" type="VBoxContainer" parent="HudBatalha/PainelBatalha"]
+[node name="InfoBatalha" type="VBoxContainer" parent="BattleHud/BattlePanel"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="LabelInimigo" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+[node name="EnemyLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
@@ -178,7 +178,7 @@ theme_override_font_sizes/font_size = 13
 text = "Inimigo"
 horizontal_alignment = 1
 
-[node name="BarraVidaInimigo" type="ProgressBar" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+[node name="EnemyHealthBar" type="ProgressBar" parent="BattleHud/BattlePanel/InfoBatalha"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
@@ -186,7 +186,7 @@ mouse_filter = 2
 show_percentage = false
 script = ExtResource("3_barra")
 
-[node name="LabelHP" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/BarraVidaInimigo"]
+[node name="LabelHP" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/EnemyHealthBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -200,26 +200,26 @@ text = "20 / 20"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LinhaStatus" type="HBoxContainer" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+[node name="LinhaStatus" type="HBoxContainer" parent="BattleHud/BattlePanel/InfoBatalha"]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="LabelNivel" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/LinhaStatus"]
+[node name="LevelLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.9, 0.75, 1)
 theme_override_font_sizes/font_size = 11
 text = "Nv. 1   XP 0/20"
 
-[node name="LabelDano" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha/LinhaStatus"]
+[node name="DamageLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
 text = "Dano  5"
 
-[node name="BotaoRepetirFase" type="Button" parent="HudBatalha/PainelBatalha/InfoBatalha/LinhaStatus"]
+[node name="RepeatStageButton" type="Button" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
@@ -229,7 +229,7 @@ tooltip_text = "Repetir fase"
 icon_alignment = 1
 expand_icon = true
 
-[node name="LabelAviso" type="Label" parent="HudBatalha/PainelBatalha/InfoBatalha"]
+[node name="NoticeLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.4, 1)
@@ -238,7 +238,7 @@ horizontal_alignment = 1
 visible = false
 text = ""
 
-[node name="CamadaEfeitos" type="Control" parent="HudBatalha"]
+[node name="EffectsLayer" type="Control" parent="BattleHud"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -247,16 +247,16 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_moedas")
 
-[node name="HudInventario" type="CanvasLayer" parent="." unique_id=2100456780]
+[node name="InventoryHud" type="CanvasLayer" parent="." unique_id=2100456780]
 layer = 10
 
-[node name="InventoryMenu" parent="HudInventario" unique_id=2100456790 instance=ExtResource("2_menu")]
+[node name="InventoryMenu" parent="InventoryHud" unique_id=2100456790 instance=ExtResource("2_menu")]
 visible = false
 
-[node name="HudBotao" type="CanvasLayer" parent="." unique_id=2100456781]
+[node name="ButtonHud" type="CanvasLayer" parent="." unique_id=2100456781]
 layer = 20
 
-[node name="AreaBotaoMenu" type="ColorRect" parent="HudBotao" unique_id=2100456782]
+[node name="MenuButtonArea" type="ColorRect" parent="ButtonHud" unique_id=2100456782]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -271,7 +271,7 @@ grow_vertical = 0
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
 
-[node name="BotaoAbrirInventario" type="Button" parent="HudBotao/AreaBotaoMenu" unique_id=2100456783]
+[node name="OpenInventoryButton" type="Button" parent="ButtonHud/MenuButtonArea" unique_id=2100456783]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -288,7 +288,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 
-[node name="CentralizarIcone" type="CenterContainer" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario" unique_id=2100456784]
+[node name="CentralizarIcone" type="CenterContainer" parent="ButtonHud/MenuButtonArea/OpenInventoryButton" unique_id=2100456784]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -297,32 +297,32 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="IconeGrade" type="GridContainer" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone" unique_id=2100456785]
+[node name="IconeGrade" type="GridContainer" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone" unique_id=2100456785]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/h_separation = 5
 theme_override_constants/v_separation = 5
 columns = 2
 
-[node name="Quadrado1" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456786]
+[node name="Quadrado1" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456786]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
-[node name="Quadrado2" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456787]
+[node name="Quadrado2" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456787]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
-[node name="Quadrado3" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456788]
+[node name="Quadrado3" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456788]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
-[node name="Quadrado4" type="Panel" parent="HudBotao/AreaBotaoMenu/BotaoAbrirInventario/CentralizarIcone/IconeGrade" unique_id=2100456789]
+[node name="Quadrado4" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456789]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 mouse_filter = 2

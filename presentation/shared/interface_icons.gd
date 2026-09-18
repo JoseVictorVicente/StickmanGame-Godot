@@ -7,35 +7,35 @@ const PASTA := "res://sprites/ui/"
 static var _cache: Dictionary = {}
 
 
-static func equipment_slot(tipo: ItemData.Tipo) -> Texture2D:
+static func equipment_slot(tipo: ItemData.Type) -> Texture2D:
 	var arquivo := ""
 	match tipo:
-		ItemData.Tipo.ARMA:
-			arquivo = "arma.png"
-		ItemData.Tipo.SECUNDARIA:
-			arquivo = "secundaria.png"
-		ItemData.Tipo.CAPACETE:
-			arquivo = "capacete.png"
-		ItemData.Tipo.PEITORAL:
-			arquivo = "peitoral.png"
-		ItemData.Tipo.LUVA:
-			arquivo = "luva.png"
-		ItemData.Tipo.CALCA:
-			arquivo = "calca.png"
-		ItemData.Tipo.BOTA:
-			arquivo = "bota.png"
-		ItemData.Tipo.CINTO:
-			arquivo = "cinto.png"
-		ItemData.Tipo.PINGENTE:
-			arquivo = "pingente.png"
-		ItemData.Tipo.ANEL:
-			arquivo = "anel.png"
-		ItemData.Tipo.BRACELETE:
-			arquivo = "bracelete.png"
-		ItemData.Tipo.PET:
+		ItemData.Type.WEAPON:
+			arquivo = "weapon.png"
+		ItemData.Type.OFFHAND:
+			arquivo = "offhand.png"
+		ItemData.Type.HELMET:
+			arquivo = "helmet.png"
+		ItemData.Type.CHEST:
+			arquivo = "chest.png"
+		ItemData.Type.GLOVES:
+			arquivo = "gloves.png"
+		ItemData.Type.PANTS:
+			arquivo = "pants.png"
+		ItemData.Type.BOOTS:
+			arquivo = "boots.png"
+		ItemData.Type.BELT:
+			arquivo = "belt.png"
+		ItemData.Type.PENDANT:
+			arquivo = "pendant.png"
+		ItemData.Type.RING:
+			arquivo = "ring.png"
+		ItemData.Type.BRACELET:
+			arquivo = "bracelet.png"
+		ItemData.Type.PET:
 			arquivo = "pet.png"
 		_:
-			arquivo = "arma.png"
+			arquivo = "weapon.png"
 	return _load_texture(arquivo)
 
 
@@ -44,10 +44,10 @@ static func bar_icon(nome: String) -> Texture2D:
 
 
 static func base_gem() -> Texture2D:
-	return _load_texture("gema.png")
+	return _load_texture("gem.png")
 
 
-static func gem_icon(raridade: ItemData.Raridade) -> Texture2D:
+static func gem_icon(raridade: ItemData.Rarity) -> Texture2D:
 	var chave := "gema_raridade:%d" % int(raridade)
 	if _cache.has(chave):
 		return _cache[chave]
@@ -56,7 +56,7 @@ static func gem_icon(raridade: ItemData.Raridade) -> Texture2D:
 	return textura
 
 
-static func _create_gem_icon_with_outline(raridade: ItemData.Raridade) -> Texture2D:
+static func _create_gem_icon_with_outline(raridade: ItemData.Rarity) -> Texture2D:
 	const TAMANHO := 32
 	const MARGEM := 2
 	var base := base_gem()
@@ -73,7 +73,7 @@ static func _create_gem_icon_with_outline(raridade: ItemData.Raridade) -> Textur
 	for y in area:
 		for x in area:
 			img.set_pixel(MARGEM + x, MARGEM + y, origem.get_pixel(x, y))
-	_draw_rarity_outline(img, ItemData.cor_de_raridade(raridade), 2)
+	_draw_rarity_outline(img, ItemData.color_for_rarity(raridade), 2)
 	return ImageTexture.create_from_image(img)
 
 
@@ -103,13 +103,13 @@ static func _draw_rarity_outline(img: Image, cor: Color, espessura: int) -> void
 				img.set_pixel(x, y, cor)
 
 
-static func _procedural_gem_icon(raridade: ItemData.Raridade) -> Texture2D:
+static func _procedural_gem_icon(raridade: ItemData.Rarity) -> Texture2D:
 	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	for y in range(8, 24):
 		for x in range(8, 24):
 			img.set_pixel(x, y, Color(0.2, 0.45, 0.95, 1))
-	_draw_rarity_outline(img, ItemData.cor_de_raridade(raridade), 2)
+	_draw_rarity_outline(img, ItemData.color_for_rarity(raridade), 2)
 	return ImageTexture.create_from_image(img)
 
 

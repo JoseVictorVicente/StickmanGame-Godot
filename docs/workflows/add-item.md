@@ -24,14 +24,14 @@ Edit `ItemDatabase._popular_catalogo()`:
 
 ```gdscript
 func _popular_catalogo() -> void:
-    itens.append(_criar(
-        "long_sword",              # base model id
-        "Long Sword",              # name (migrate to name_key)
-        ItemData.Tipo.ARMA,
-        ItemData.RequiredClass.WARRIOR,
-        base_damage := 8,
-        base_hp := 0,
-    ))
+	itens.append(_criar(
+		"long_sword",              # base model id
+		"Long Sword",              # name (migrate to name_key)
+		ItemData.Tipo.ARMA,
+		ItemData.RequiredClass.WARRIOR,
+		base_damage := 8,
+		base_hp := 0,
+	))
 ```
 
 Or append to the existing array following the same pattern.

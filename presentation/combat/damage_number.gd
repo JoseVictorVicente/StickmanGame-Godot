@@ -15,7 +15,7 @@ static func spawn(pai: Node, posicao_global: Vector2, dano: int, cor: Color = Co
 	var numero: DamageNumber = CENA.instantiate()
 	pai.add_child(numero)
 	numero.global_position = posicao_global + Vector2(_rng.randf_range(-10.0, 10.0), -20.0)
-	numero.exibir(dano, cor)
+	numero.show_damage(dano, cor)
 
 
 func _ready() -> void:
@@ -25,7 +25,7 @@ func _ready() -> void:
 	vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 
-func exibir(dano: int, cor: Color) -> void:
+func show_damage(dano: int, cor: Color) -> void:
 	text = str(dano)
 	modulate = Color(1, 1, 1, 1)
 	add_theme_color_override("font_color", cor)
