@@ -466,7 +466,8 @@ static func configurar_botao_icone(botao: Button, caminho_icone: String, lado: i
 	botao.add_theme_stylebox_override("pressed", sem_fundo)
 	botao.add_theme_stylebox_override("focus", sem_fundo)
 	botao.text = ""
-	botao.icon = load(caminho_icone)
+	if ResourceLoader.exists(caminho_icone):
+		botao.icon = load(caminho_icone)
 	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	botao.expand_icon = true
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER

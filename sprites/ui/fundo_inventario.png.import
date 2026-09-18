@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbsnfw08ahcd8"
-path="res://.godot/imported/postura_do_cacador.png-ca7ebca8ecbbfaa857f7716afbfbf811.ctex"
+uid="uid://cyyp1jo2qkwsn"
+path="res://.godot/imported/fundo_inventario.png-93c530c05380c08a41d45a58398990a4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/ui/skills/arqueiro/postura_do_cacador.png"
-dest_files=["res://.godot/imported/postura_do_cacador.png-ca7ebca8ecbbfaa857f7716afbfbf811.ctex"]
+source_file="res://sprites/ui/fundo_inventario.png"
+dest_files=["res://.godot/imported/fundo_inventario.png-93c530c05380c08a41d45a58398990a4.ctex"]
 
 [params]
 

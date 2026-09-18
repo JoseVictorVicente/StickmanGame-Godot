@@ -116,6 +116,10 @@ static func _icone_gema_procedural(raridade: ItemData.Raridade) -> Texture2D:
 static func _carregar(arquivo: String) -> Texture2D:
 	if _cache.has(arquivo):
 		return _cache[arquivo]
-	var tex := load(PASTA + arquivo) as Texture2D
+	var caminho := PASTA + arquivo
+	if not ResourceLoader.exists(caminho):
+		_cache[arquivo] = null
+		return null
+	var tex := load(caminho) as Texture2D
 	_cache[arquivo] = tex
 	return tex

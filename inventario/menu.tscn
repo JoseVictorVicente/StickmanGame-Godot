@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://c8atrib0001" path="res://inventario/painel_atributos.tscn" id="7_atributos"]
 [ext_resource type="PackedScene" uid="uid://c8skills0001" path="res://inventario/painel_skills.tscn" id="8_skills"]
 [ext_resource type="PackedScene" uid="uid://c8arvore001" path="res://inventario/painel_arvore.tscn" id="9_arvore"]
+[ext_resource type="Texture2D" path="res://sprites/ui/fundo_inventario.png" id="10_fundo_inventario"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
 content_margin_left = 8.0
@@ -44,6 +45,17 @@ corner_radius_bottom_left = 6
 shadow_color = Color(0, 0, 0, 0.55)
 shadow_size = 8
 shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_inventario"]
+content_margin_left = 21.0
+content_margin_top = 19.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+texture = ExtResource("10_fundo_inventario")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 18.0
+texture_margin_bottom = 18.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 content_margin_left = 16.0
@@ -204,7 +216,7 @@ custom_minimum_size = Vector2(580, 0)
 layout_mode = 0
 mouse_filter = 0
 clip_contents = false
-theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_inventario")
 
 [node name="Conteudo" type="VBoxContainer" parent="Centralizar/AreaMenus/Painel"]
 layout_mode = 2
