@@ -6,7 +6,7 @@ extends Control
 signal visibilidade_alterada(aberta: bool)
 signal ouro_obtido(quantidade: int)
 
-enum Aba { SINTESE, DESMONTAR }
+enum Aba { SINTESE, DESMONTAR, JOIAS }
 
 const SLOTS_SINTSE := 9
 const SLOT_CENTRAL := 4
@@ -14,7 +14,7 @@ const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
 const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
-const FORJA_GRID_RECT := Rect2(0.1635, 0.3027, 0.6713, 0.1934)
+const FORJA_GRID_RECT := Rect2(0.211, 0.200, 0.581, 0.356)
 const FORJA_GRID_INSET := 0.04
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
@@ -22,6 +22,8 @@ const Z_INDEX_LEGENDA_INFO := 100
 const OFFSET_LEGENDA_INFO := Vector2(10, 0)
 const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e tipo"
 const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
+const TEXTO_JOIAS := "Imbua joias em equipamentos"
+const JOIAS_LARGURA_SETA := 32.0
 
 @onready var grade_sintese: GridContainer = %GradeSintese
 @onready var grade_desmontar: GridContainer = %GradeDesmontar
@@ -35,13 +37,18 @@ const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
 @onready var botao_desmontar: Button = %BotaoDesmontar
 @onready var botao_aba_sintese: Button = %BotaoAbaSintese
 @onready var botao_aba_desmontar: Button = %BotaoAbaDesmontar
+@onready var botao_aba_joias: Button = %BotaoAbaJoias
 @onready var botao_filtro_forja: Button = %BotaoFiltroForja
 @onready var botao_preenchimento_desmonte: Button = %BotaoPreenchimentoDesmonte
 @onready var botao_filtro_desmonte: Button = %BotaoFiltroDesmonte
 @onready var painel_sintese: VBoxContainer = %PainelSintese
 @onready var painel_desmontar: VBoxContainer = %PainelDesmontar
+@onready var painel_joias: VBoxContainer = %PainelJoias
+@onready var area_joias: HBoxContainer = %AreaJoias
+@onready var botao_imbuir: Button = %BotaoImbuir
 @onready var label_explicacao: Label = %LabelExplicacaoFerraria
 @onready var label_explicacao_desmontar: Label = %LabelExplicacaoDesmontar
+@onready var label_explicacao_joias: Label = %LabelExplicacaoJoias
 @onready var label_valor_desmonte: Label = %LabelValorDesmonte
 @onready var cabecalho: HBoxContainer = %CabecalhoFerraria
 @onready var forge_background: TextureRect = %ForgeBackground
@@ -56,6 +63,8 @@ var _usar_armazem: bool = false
 var _popup_filtro: PopupMenu
 var _camada_legenda_info: CanvasLayer
 var _caixa_legenda_info: PanelContainer
+var slot_joia_alvo: SlotItem
+var slot_joia_gema: SlotItem
 
 
 func _ready() -> void:
@@ -70,6 +79,8 @@ func _ready() -> void:
 	botao_desmontar.pressed.connect(desmontar)
 	botao_aba_sintese.pressed.connect(mostrar_aba.bind(Aba.SINTESE))
 	botao_aba_desmontar.pressed.connect(mostrar_aba.bind(Aba.DESMONTAR))
+	botao_aba_joias.pressed.connect(mostrar_aba.bind(Aba.JOIAS))
+	botao_imbuir.pressed.connect(_on_imbuir_pressionado)
 	botao_filtro_forja.pressed.connect(_abrir_filtro.bind(botao_filtro_forja))
 	botao_filtro_desmonte.pressed.connect(_abrir_filtro.bind(botao_filtro_desmonte))
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
@@ -77,6 +88,8 @@ func _ready() -> void:
 	visibility_changed.connect(_on_visibilidade_legenda_info)
 	label_explicacao.text = TEXTO_RODAPE
 	label_explicacao_desmontar.text = TEXTO_DESMONTE
+	label_explicacao_joias.text = TEXTO_JOIAS
+	_montar_area_joias()
 	_configurar_toggle_armazem()
 	_configurar_botao_info_nivel()
 	mostrar_aba(Aba.SINTESE)
@@ -89,6 +102,10 @@ func _ready() -> void:
 		corpo_ferraria.resized.connect(_alinhar_fundo_na_forja)
 	if painel_sintese:
 		painel_sintese.resized.connect(_alinhar_fundo_na_forja)
+	if painel_desmontar:
+		painel_desmontar.resized.connect(_alinhar_fundo_na_forja)
+	if painel_joias:
+		painel_joias.resized.connect(_alinhar_fundo_na_forja)
 	_carregar_fundo_forja()
 
 
@@ -267,8 +284,10 @@ func mostrar_aba(aba: Aba) -> void:
 	_aba = aba
 	painel_sintese.visible = aba == Aba.SINTESE
 	painel_desmontar.visible = aba == Aba.DESMONTAR
+	painel_joias.visible = aba == Aba.JOIAS
 	_pintar_aba(botao_aba_sintese, aba == Aba.SINTESE)
 	_pintar_aba(botao_aba_desmontar, aba == Aba.DESMONTAR)
+	_pintar_aba(botao_aba_joias, aba == Aba.JOIAS)
 	_on_itens_alterados()
 	_atualizar_fundo_forja()
 
@@ -389,46 +408,141 @@ func _on_visibilidade_alterada() -> void:
 
 
 func _atualizar_fundo_forja() -> void:
-	if forge_background == null or grade_sintese == null:
+	if forge_background == null:
 		return
-	var mostrar := painel_sintese.visible
-	forge_background.visible = mostrar
-	grade_sintese.visible = mostrar
-	if mostrar:
-		call_deferred("_alinhar_fundo_na_forja")
+	forge_background.visible = true
+	grade_sintese.visible = _aba == Aba.SINTESE
+	grade_desmontar.visible = _aba == Aba.DESMONTAR
+	if area_joias:
+		area_joias.visible = _aba == Aba.JOIAS
+	call_deferred("_alinhar_fundo_na_forja")
+
+
+func _grade_aba_atual() -> GridContainer:
+	if _aba == Aba.SINTESE:
+		return grade_sintese
+	return grade_desmontar
+
+
+func _slots_aba_atual() -> Array[SlotItem]:
+	return _slots if _aba == Aba.SINTESE else _slots_desmontar
+
+
+func _painel_aba_atual() -> VBoxContainer:
+	match _aba:
+		Aba.SINTESE:
+			return painel_sintese
+		Aba.DESMONTAR:
+			return painel_desmontar
+		Aba.JOIAS:
+			return painel_joias
+	return painel_sintese
 
 
 func _alinhar_fundo_na_forja() -> void:
-	if forge_background == null or grade_sintese == null:
-		return
-	if not painel_sintese.visible:
+	if forge_background == null or corpo_ferraria == null:
 		return
 	if forge_background.texture == null:
 		return
+	var painel := _painel_aba_atual()
+	if painel and painel.visible:
+		var altura_controles := painel.get_combined_minimum_size().y
+		if altura_controles > 0.0:
+			painel.offset_top = -altura_controles
 	var fundo_rect := _rect_textura_visivel(forge_background)
 	if fundo_rect.size.x < 1.0 or fundo_rect.size.y < 1.0:
 		return
 	var alvo := Rect2(
-		fundo_rect.position + fundo_rect.size * FORJA_GRID_RECT.position,
+		fundo_rect.position - corpo_ferraria.global_position + fundo_rect.size * FORJA_GRID_RECT.position,
 		fundo_rect.size * FORJA_GRID_RECT.size
 	)
 	var margem := alvo.size * FORJA_GRID_INSET
 	alvo.position += margem
 	alvo.size -= margem * 2.0
-	var sep_h := float(grade_sintese.get_theme_constant("h_separation"))
-	var sep_v := float(grade_sintese.get_theme_constant("v_separation"))
+	if _aba == Aba.JOIAS:
+		_alinhar_area_joias(alvo)
+		return
+	var grade := _grade_aba_atual()
+	if grade == null:
+		return
+	var sep_h := float(grade.get_theme_constant("h_separation"))
+	var sep_v := float(grade.get_theme_constant("v_separation"))
 	var lado_slot := minf(
 		(alvo.size.x - sep_h * 2.0) / 3.0,
 		(alvo.size.y - sep_v * 2.0) / 3.0
 	)
 	var slot_size := Vector2.ONE * maxf(1.0, lado_slot)
-	for slot in _slots:
+	for slot in _slots_aba_atual():
 		slot.custom_minimum_size = slot_size
-	grade_sintese.reset_size()
-	var tam_grade := grade_sintese.get_combined_minimum_size()
+	grade.reset_size()
+	var tam_grade := grade.get_combined_minimum_size()
 	if tam_grade.x < 1.0 or tam_grade.y < 1.0:
 		return
-	grade_sintese.global_position = alvo.position + (alvo.size - tam_grade) * 0.5
+	grade.position = alvo.position + (alvo.size - tam_grade) * 0.5
+	grade.size = tam_grade
+
+
+func _alinhar_area_joias(alvo: Rect2) -> void:
+	if area_joias == null or slot_joia_alvo == null or slot_joia_gema == null:
+		return
+	var separacao := float(area_joias.get_theme_constant("separation"))
+	var largura_seta := JOIAS_LARGURA_SETA
+	var lado := minf((alvo.size.x - largura_seta - separacao * 2.0) * 0.5, alvo.size.y)
+	lado = maxf(1.0, lado)
+	var tamanho_slot := Vector2.ONE * lado
+	slot_joia_alvo.custom_minimum_size = tamanho_slot
+	slot_joia_gema.custom_minimum_size = tamanho_slot
+	area_joias.reset_size()
+	var tam_area := area_joias.get_combined_minimum_size()
+	if tam_area.x < 1.0 or tam_area.y < 1.0:
+		return
+	area_joias.position = alvo.position + (alvo.size - tam_area) * 0.5
+	area_joias.size = tam_area
+	var seta := area_joias.get_node_or_null("SetaImbuir")
+	if seta:
+		seta.custom_minimum_size = Vector2(JOIAS_LARGURA_SETA, lado)
+		seta.queue_redraw()
+
+
+func _montar_area_joias() -> void:
+	if area_joias == null:
+		return
+	for filho in area_joias.get_children():
+		filho.queue_free()
+	slot_joia_alvo = _criar_slot_joia_visual("SlotJoiaAlvo")
+	area_joias.add_child(slot_joia_alvo)
+	var seta := Control.new()
+	seta.set_script(load("res://inventario/seta_imbuir.gd"))
+	seta.name = "SetaImbuir"
+	seta.custom_minimum_size = Vector2(JOIAS_LARGURA_SETA, 44)
+	area_joias.add_child(seta)
+	slot_joia_gema = _criar_slot_joia_visual("SlotJoiaGema")
+	area_joias.add_child(slot_joia_gema)
+
+
+func _criar_slot_joia_visual(nome: String) -> SlotItem:
+	var slot := SlotItem.new()
+	slot.name = nome
+	slot.custom_minimum_size = TAMANHO_SLOT
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	var icone := TextureRect.new()
+	icone.name = "Icone"
+	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icone.offset_left = 4.0
+	icone.offset_top = 4.0
+	icone.offset_right = -4.0
+	icone.offset_bottom = -4.0
+	icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(icone)
+	slot.configurar(icone, ItemData.Tipo.ARMA, true)
+	return slot
+
+
+func _on_imbuir_pressionado() -> void:
+	pass
 
 
 func _rect_textura_visivel(tex: TextureRect) -> Rect2:
@@ -444,7 +558,10 @@ func _rect_textura_visivel(tex: TextureRect) -> Rect2:
 	var usar_cover := tex.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	var escala := maxf(escala_x, escala_y) if usar_cover else minf(escala_x, escala_y)
 	var desenhado := tex_size * escala
-	var offset := (global_rect.size - desenhado) * 0.5
+	var offset := Vector2(
+		(global_rect.size.x - desenhado.x) * 0.5,
+		global_rect.size.y - desenhado.y
+	)
 	return Rect2(global_rect.position + offset, desenhado)
 
 
@@ -473,8 +590,8 @@ func _carregar_fundo_forja() -> void:
 
 func _estilo_slot_forja() -> StyleBoxFlat:
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.2)
-	estilo.border_color = Color(0.72, 0.58, 0.28, 0.4)
+	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.12)
+	estilo.border_color = Color(0.72, 0.58, 0.28, 0.35)
 	estilo.set_border_width_all(1)
 	estilo.set_corner_radius_all(2)
 	return estilo
@@ -482,7 +599,7 @@ func _estilo_slot_forja() -> StyleBoxFlat:
 
 func _criar_slots(grade: GridContainer, destino: Array[SlotItem], sintese: bool) -> void:
 	grade.columns = COLUNAS
-	var estilo_slot := _estilo_slot_forja() if sintese else null
+	var estilo_slot := _estilo_slot_forja()
 	for indice in SLOTS_SINTSE:
 		var slot := SlotItem.new()
 		slot.name = "%s_%d" % [grade.name, indice + 1]

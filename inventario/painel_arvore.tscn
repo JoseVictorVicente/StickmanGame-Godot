@@ -158,6 +158,6 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.7, 0.5, 1)
 theme_override_font_sizes/font_size = 10
-text = "Role para baixo — cada coluna tem 15 fileiras. Desbloqueie todos os nós acima."
+text = "Cada habilidade tem até 5 níveis (armazém: 1). Role para baixo."
 horizontal_alignment = 1
 autowrap_mode = 3

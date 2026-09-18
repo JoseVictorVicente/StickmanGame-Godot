@@ -113,11 +113,12 @@ func _montar_nos() -> void:
 		botao.pressed.connect(_on_no_pressionado.bind(id))
 		botao.mouse_filter = Control.MOUSE_FILTER_STOP
 		var rotulo := Label.new()
-		rotulo.text = _texto_rotulo(no)
+		rotulo.name = "Rotulo"
+		rotulo.text = _texto_rotulo(no, 0)
 		rotulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		rotulo.add_theme_font_size_override("font_size", 9)
+		rotulo.add_theme_font_size_override("font_size", 8)
 		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
 		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		botao.add_child(rotulo)
@@ -219,10 +220,15 @@ func _tamanho_no(_no: Dictionary) -> Vector2:
 	return TAMANHO_NO
 
 
-func _texto_rotulo(no: Dictionary) -> String:
+func _texto_rotulo(no: Dictionary, nivel: int) -> String:
+	var max_nivel := ArvoreHabilidades.nivel_maximo(no)
 	if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
-		return "P%d" % (int(no.get("valor", 0)) + 1)
-	return str(no.get("sigla", ""))
+		if nivel >= 1:
+			return "P%d" % (int(no.get("valor_base", no.get("valor", 0))) + 1)
+		return "ARM"
+	if nivel <= 0:
+		return str(no.get("sigla", ""))
+	return "%d/%d" % [nivel, max_nivel]
 
 
 func _on_no_pressionado(id: int) -> void:
@@ -235,36 +241,47 @@ func _atualizar_visual() -> void:
 	for id in _nos.keys():
 		var botao: TextureButton = _nos[id]
 		var no := progresso.no_por_id(int(id))
-		var desbloqueado := progresso.esta_desbloqueado(int(id))
+		var nivel := progresso.nivel_do_no(int(id))
+		var max_nivel := progresso.nivel_maximo(int(id))
 		var pode := progresso.pode_comprar(int(id))
-		var custo := ArvoreHabilidades.custo_do_no(no)
+		var custo := ArvoreHabilidades.custo_proximo_nivel(no, nivel)
 		var secao := int(no.get("secao", -1))
 		var cor_base := ArvoreHabilidades.cor_regiao(secao).darkened(0.55)
 		var cor := cor_base
-		if desbloqueado:
-			cor = cor_base.lightened(0.35)
+		if nivel >= max_nivel:
+			cor = cor_base.lightened(0.42)
+		elif nivel > 0:
+			cor = cor_base.lightened(0.22 + float(nivel) / float(max_nivel) * 0.18)
 		elif pode and ouro_atual >= custo:
 			cor = cor_base.lightened(0.18)
 		elif pode:
 			cor = cor_base.lightened(0.08)
 		else:
 			cor = cor_base.darkened(0.35)
-		if bool(no.get("premium", false)) and not desbloqueado:
+		if bool(no.get("premium", false)) and nivel < max_nivel:
 			cor = cor.lerp(Color(0.95, 0.78, 0.22, 1), 0.25)
 		botao.self_modulate = cor
-		var dica := str(no.get("nome", ""))
+		var rotulo: Label = botao.get_node("Rotulo")
+		if rotulo:
+			rotulo.text = _texto_rotulo(no, nivel)
+		var dica := ArvoreHabilidades.descricao_bonus(no, maxi(nivel, 1))
+		if nivel > 0:
+			dica = "Atual: %s" % ArvoreHabilidades.descricao_bonus(no, nivel)
 		if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
 			dica += "\nDesbloqueia uma página do armazém"
 		else:
 			dica += "\n(Afeta todos os heróis)"
 		if bool(no.get("premium", false)):
 			dica += "\n[Custo elevado]"
-		if not desbloqueado:
+		if nivel < max_nivel:
+			dica += "\nPróximo: %s" % ArvoreHabilidades.nome_proximo_nivel(no, nivel)
 			dica += "\nCusto: %d ouro" % custo
 			if not progresso.pode_comprar(int(id)):
 				dica += "\nDesbloqueie todos os nós acima"
 			elif ouro_atual < custo:
 				dica += "\nOuro insuficiente"
+		else:
+			dica += "\nNível máximo"
 		botao.tooltip_text = dica
 	for linha in _linhas:
 		var id_de := int(linha["id_de"])
@@ -272,11 +289,14 @@ func _atualizar_visual() -> void:
 		var no_para := progresso.no_por_id(id_para)
 		var secao := int(no_para.get("secao", 0))
 		var cor_secao := ArvoreHabilidades.cor_regiao(secao)
-		var desbloqueada := progresso.esta_desbloqueado(id_de) and progresso.esta_desbloqueado(id_para)
-		var disponivel := progresso.esta_desbloqueado(id_de) and progresso.pode_comprar(id_para)
+		var nivel_de := progresso.nivel_do_no(id_de)
+		var nivel_para := progresso.nivel_do_no(id_para)
+		var max_para := progresso.nivel_maximo(id_para)
+		var desbloqueada := nivel_de >= 1 and nivel_para >= max_para
+		var disponivel := nivel_de >= 1 and progresso.pode_comprar(id_para) and nivel_para < max_para
 		if desbloqueada:
 			linha["cor"] = cor_secao.lightened(0.1)
-		elif disponivel:
+		elif disponivel or (nivel_de >= 1 and nivel_para > 0):
 			linha["cor"] = Color(0.95, 0.78, 0.32, 0.9)
 		else:
 			linha["cor"] = cor_secao.darkened(0.45)
