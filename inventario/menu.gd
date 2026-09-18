@@ -32,6 +32,7 @@ var PERSONAGENS: Array[Dictionary] = [
 ]
 
 @onready var grade_inventario: GridContainer = %GradeInventario
+@onready var botao_ordenar_inventario: Button = %BotaoOrdenarInventario
 @onready var botao_sair: Button = %BotaoSair
 @onready var botao_sair_jogo: Button = %BotaoSairJogo
 @onready var botao_configuracoes: Button = %BotaoConfiguracoes
@@ -118,6 +119,7 @@ func _ready() -> void:
 	CLASSES = ClasseData.catalogo()
 	_criar_equipamentos_dos_personagens()
 	_criar_slots_inventario()
+	_configurar_botao_ordenar_inventario()
 	_criar_seletor_personagens()
 	botao_sair.pressed.connect(_on_botao_sair_pressed)
 	botao_sair_jogo.pressed.connect(_on_botao_sair_jogo_pressed)
@@ -445,6 +447,49 @@ func slots_inventario() -> Array[SlotItem]:
 	return _slots_inventario
 
 
+static func ordenar_slots(slots: Array[SlotItem]) -> void:
+	var itens: Array[ItemData] = []
+	for slot in slots:
+		if slot.item != null:
+			itens.append(slot.item)
+	itens.sort_custom(ItemData.comparar_ordenacao)
+	for i in slots.size():
+		slots[i].definir_item(itens[i] if i < itens.size() else null)
+
+
+static func configurar_botao_icone(botao: Button, caminho_icone: String, lado: int = 42) -> void:
+	if botao == null:
+		return
+	var sem_fundo := StyleBoxEmpty.new()
+	botao.add_theme_stylebox_override("normal", sem_fundo)
+	botao.add_theme_stylebox_override("hover", sem_fundo)
+	botao.add_theme_stylebox_override("pressed", sem_fundo)
+	botao.add_theme_stylebox_override("focus", sem_fundo)
+	botao.text = ""
+	botao.icon = load(caminho_icone)
+	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	botao.expand_icon = true
+	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	botao.add_theme_constant_override("icon_max_width", lado)
+	botao.custom_minimum_size = Vector2(lado, lado)
+
+
+func _configurar_botao_ordenar_inventario() -> void:
+	if botao_ordenar_inventario == null:
+		return
+	configurar_botao_icone(botao_ordenar_inventario, "res://sprites/ui/sort_inventory.png")
+	if not botao_ordenar_inventario.pressed.is_connected(_on_botao_ordenar_inventario_pressed):
+		botao_ordenar_inventario.pressed.connect(_on_botao_ordenar_inventario_pressed)
+
+
+func _on_botao_ordenar_inventario_pressed() -> void:
+	ordenar_slots(_slots_inventario)
+	_definir_selecao(null)
+	equipamentos_alterados.emit()
+	botao_ordenar_inventario.release_focus()
+
+
 func slots_armazem() -> Array[SlotItem]:
 	if painel_armazem:
 		return painel_armazem.slots_todos()
@@ -482,8 +527,26 @@ func bonus_arvore_global() -> Dictionary:
 	return _progresso_arvore.bonus_global()
 
 
-func bonus_arvore_do_slot(_indice: int = -1) -> Dictionary:
-	return bonus_arvore_global()
+func bonus_arvore_do_slot(indice: int = -1) -> Dictionary:
+	var bonus := bonus_arvore_global().duplicate(true)
+	if indice < 0:
+		indice = _indice_personagem
+	_somar_bonus(bonus, _bonus_gemas_equipadas(indice))
+	return bonus
+
+
+func _bonus_gemas_equipadas(indice: int) -> Dictionary:
+	var total := ArvoreHabilidades.bonus_vazio()
+	for item in obter_itens_equipados(indice):
+		var parcial := item.bonus_da_gema_imbuida()
+		for chave in parcial.keys():
+			total[chave] = float(total.get(chave, 0)) + float(parcial.get(chave, 0))
+	return total
+
+
+static func _somar_bonus(destino: Dictionary, origem: Dictionary) -> void:
+	for chave in origem.keys():
+		destino[chave] = float(destino.get(chave, 0)) + float(origem.get(chave, 0))
 
 
 func notificar_arvore_alterada() -> void:
@@ -589,6 +652,8 @@ func _on_slot_duplo_clique(slot: SlotItem) -> void:
 	if _eh_slot_ferraria(slot):
 		return
 	if slot.aceita_qualquer:
+		if slot.item.eh_gema():
+			return
 		var destino := _slot_equipamento_atual(slot.item.tipo)
 		if destino and _pode_usar_item(slot.item):
 			_mover_item(slot, destino)
@@ -699,6 +764,10 @@ func _pode_mover_para_slot(origem: SlotItem, destino: SlotItem) -> bool:
 			return false
 		if painel_ferraria.origem_ja_reservada(origem):
 			return false
+		if painel_ferraria.eh_slot_joia_alvo(destino):
+			return painel_ferraria.pode_receber_joia_alvo(origem.item)
+		if painel_ferraria.eh_slot_joia_gema(destino):
+			return painel_ferraria.pode_receber_joia_gema(origem.item)
 		if painel_ferraria.eh_slot_sintese(destino):
 			if not painel_ferraria.pode_receber_na_sintese(origem.item):
 				painel_ferraria.aviso_categoria_bloqueada(origem.item)

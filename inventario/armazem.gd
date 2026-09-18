@@ -18,6 +18,7 @@ const TAMANHO_SLOT := Vector2(42, 42)
 @onready var linha_abas: GridContainer = %LinhaAbas
 @onready var grade_armazem: GridContainer = %GradeArmazem
 @onready var label_status: Label = %LabelStatusArmazem
+@onready var botao_ordenar: Button = %BotaoOrdenarArmazem
 
 var _menu: MenuInventario
 var _slots_por_aba: Array = []
@@ -34,6 +35,7 @@ func _ready() -> void:
 	botao_fechar.pressed.connect(fechar)
 	cabecalho.gui_input.connect(_on_cabecalho_gui_input)
 	gui_input.connect(_on_cabecalho_gui_input)
+	_configurar_botao_ordenar()
 	mostrar_aba(0)
 
 
@@ -89,6 +91,8 @@ func mostrar_aba(indice: int) -> void:
 		return
 	if not _desbloqueadas[indice]:
 		label_status.text = "Aba %d bloqueada." % (indice + 1)
+		if botao_ordenar:
+			botao_ordenar.disabled = true
 		return
 	_aba_atual = indice
 	for i in ABAS:
@@ -96,6 +100,24 @@ func mostrar_aba(indice: int) -> void:
 		grade.visible = i == indice
 		_pintar_aba(_botoes_aba[i], i == indice, _desbloqueadas[i])
 	label_status.text = "Armazém %d" % (indice + 1)
+	if botao_ordenar:
+		botao_ordenar.disabled = false
+
+
+func _configurar_botao_ordenar() -> void:
+	if botao_ordenar == null:
+		return
+	MenuInventario.configurar_botao_icone(botao_ordenar, "res://sprites/ui/sort_inventory.png")
+	botao_ordenar.pressed.connect(_on_botao_ordenar_pressed)
+
+
+func _on_botao_ordenar_pressed() -> void:
+	if not _desbloqueadas[_aba_atual]:
+		return
+	MenuInventario.ordenar_slots(_slots_da_aba(_aba_atual))
+	if _menu:
+		_menu.notificar_itens_alterados()
+	botao_ordenar.release_focus()
 
 
 func desbloquear_aba(indice: int) -> void:

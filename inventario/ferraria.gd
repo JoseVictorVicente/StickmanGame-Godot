@@ -20,9 +20,9 @@ const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
 const Z_INDEX_LEGENDA_INFO := 100
 const OFFSET_LEGENDA_INFO := Vector2(10, 0)
-const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e tipo"
+const TEXTO_RODAPE := "Forje 9 itens da mesma raridade e família"
 const TEXTO_DESMONTE := "Desmonte itens para receber ouro"
-const TEXTO_JOIAS := "Imbua joias em equipamentos"
+const TEXTO_JOIAS := "Imbua uma gema em equipamento lendário ou superior"
 const JOIAS_LARGURA_SETA := 32.0
 
 @onready var grade_sintese: GridContainer = %GradeSintese
@@ -113,6 +113,8 @@ func configurar(menu: MenuInventario) -> void:
 	_menu = menu
 	for slot in _todos_slots():
 		_menu.conectar_slot_ferraria(slot)
+	for slot in _slots_joias():
+		_menu.conectar_slot_ferraria(slot)
 	if not _menu.equipamentos_alterados.is_connected(_on_itens_alterados):
 		_menu.equipamentos_alterados.connect(_on_itens_alterados)
 
@@ -129,7 +131,29 @@ func slots_apenas_sintese() -> Array[SlotItem]:
 
 
 func eh_slot_ferraria(slot: SlotItem) -> bool:
-	return slot in _slots or slot in _slots_desmontar
+	return slot in _slots or slot in _slots_desmontar or eh_slot_joia(slot)
+
+
+func eh_slot_joia(slot: SlotItem) -> bool:
+	return slot == slot_joia_alvo or slot == slot_joia_gema
+
+
+func eh_slot_joia_alvo(slot: SlotItem) -> bool:
+	return slot == slot_joia_alvo
+
+
+func eh_slot_joia_gema(slot: SlotItem) -> bool:
+	return slot == slot_joia_gema
+
+
+func pode_receber_joia_alvo(item: ItemData) -> bool:
+	if item == null or item.eh_gema():
+		return false
+	return item.tem_slot_gema() and not item.possui_gema_imbuida()
+
+
+func pode_receber_joia_gema(item: ItemData) -> bool:
+	return item != null and item.eh_gema()
 
 
 func origem_ja_reservada(origem: SlotItem) -> bool:
@@ -144,6 +168,12 @@ func reservar_item(origem: SlotItem, slot_ferraria: SlotItem) -> bool:
 	if origem.item == null or slot_ferraria.item != null:
 		return false
 	if origem.reservado_ferraria or origem_ja_reservada(origem):
+		return false
+	if eh_slot_joia_alvo(slot_ferraria) and not pode_receber_joia_alvo(origem.item):
+		_definir_status_joias("Equipamento lendário+ sem gema imbuída necessário.", Color(1, 0.55, 0.4, 1))
+		return false
+	if eh_slot_joia_gema(slot_ferraria) and not pode_receber_joia_gema(origem.item):
+		_definir_status_joias("Selecione uma gema.", Color(1, 0.55, 0.4, 1))
 		return false
 	if eh_slot_sintese(slot_ferraria) and not pode_receber_na_sintese(origem.item):
 		aviso_categoria_bloqueada(origem.item)
@@ -268,10 +298,35 @@ func aviso_categoria_bloqueada(item: ItemData) -> void:
 
 
 func primeiro_slot_vazio() -> SlotItem:
+	if _aba == Aba.JOIAS:
+		return _primeiro_slot_joia_vazio(null)
 	for slot in _slots_da_aba_atual():
 		if slot.item == null:
 			return slot
 	return null
+
+
+func _primeiro_slot_joia_vazio(item: ItemData) -> SlotItem:
+	if item != null and item.eh_gema():
+		if slot_joia_gema != null and slot_joia_gema.item == null:
+			return slot_joia_gema
+	elif item != null and pode_receber_joia_alvo(item):
+		if slot_joia_alvo != null and slot_joia_alvo.item == null:
+			return slot_joia_alvo
+	if slot_joia_alvo != null and slot_joia_alvo.item == null:
+		return slot_joia_alvo
+	if slot_joia_gema != null and slot_joia_gema.item == null:
+		return slot_joia_gema
+	return null
+
+
+func _slots_joias() -> Array[SlotItem]:
+	var lista: Array[SlotItem] = []
+	if slot_joia_alvo:
+		lista.append(slot_joia_alvo)
+	if slot_joia_gema:
+		lista.append(slot_joia_gema)
+	return lista
 
 
 func esta_aberta() -> bool:
@@ -356,7 +411,7 @@ func preencher_desmonte() -> void:
 func sintetizar() -> void:
 	if not _receita_valida():
 		_atualizar_estado()
-		_definir_status("Coloque 9 itens da mesma raridade e família (equipamento ou acessório).", Color(1, 0.55, 0.4, 1))
+		_definir_status("Coloque 9 itens da mesma raridade e família (equipamento, acessório ou gema).", Color(1, 0.55, 0.4, 1))
 		return
 	var ingredientes: Array[ItemData] = []
 	for slot in _slots:
@@ -509,23 +564,35 @@ func _montar_area_joias() -> void:
 		return
 	for filho in area_joias.get_children():
 		filho.queue_free()
-	slot_joia_alvo = _criar_slot_joia_visual("SlotJoiaAlvo")
+	slot_joia_alvo = _criar_slot_joia_visual("SlotJoiaAlvo", _validar_drop_joia_alvo)
 	area_joias.add_child(slot_joia_alvo)
 	var seta := Control.new()
 	seta.set_script(load("res://inventario/seta_imbuir.gd"))
 	seta.name = "SetaImbuir"
 	seta.custom_minimum_size = Vector2(JOIAS_LARGURA_SETA, 44)
 	area_joias.add_child(seta)
-	slot_joia_gema = _criar_slot_joia_visual("SlotJoiaGema")
+	slot_joia_gema = _criar_slot_joia_visual("SlotJoiaGema", _validar_drop_joia_gema)
 	area_joias.add_child(slot_joia_gema)
 
 
-func _criar_slot_joia_visual(nome: String) -> SlotItem:
+func _validar_drop_joia_alvo(item: ItemData, origem: SlotItem = null) -> bool:
+	if origem and (origem.reservado_ferraria or origem_ja_reservada(origem)):
+		return false
+	return pode_receber_joia_alvo(item)
+
+
+func _validar_drop_joia_gema(item: ItemData, origem: SlotItem = null) -> bool:
+	if origem and (origem.reservado_ferraria or origem_ja_reservada(origem)):
+		return false
+	return pode_receber_joia_gema(item)
+
+
+func _criar_slot_joia_visual(nome: String, validar: Callable) -> SlotItem:
 	var slot := SlotItem.new()
 	slot.name = nome
 	slot.custom_minimum_size = TAMANHO_SLOT
-	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	slot.mouse_filter = Control.MOUSE_FILTER_STOP
+	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var icone := TextureRect.new()
 	icone.name = "Icone"
 	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -538,11 +605,74 @@ func _criar_slot_joia_visual(nome: String) -> SlotItem:
 	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slot.add_child(icone)
 	slot.configurar(icone, ItemData.Tipo.ARMA, true)
+	slot.validar_drop_extra = validar
+	slot.item_duplo_clique.connect(_on_slot_duplo_clique)
+	if _menu:
+		_menu.conectar_slot_ferraria(slot)
 	return slot
 
 
 func _on_imbuir_pressionado() -> void:
-	pass
+	if _menu == null or slot_joia_alvo == null or slot_joia_gema == null:
+		return
+	var equipamento := slot_joia_alvo.item
+	var gema := slot_joia_gema.item
+	if equipamento == null or gema == null:
+		_definir_status_joias("Selecione um equipamento e uma gema.", Color(1, 0.55, 0.4, 1))
+		return
+	if not pode_receber_joia_alvo(equipamento) or not pode_receber_joia_gema(gema):
+		_definir_status_joias("Equipamento ou gema inválidos para imbuir.", Color(1, 0.55, 0.4, 1))
+		return
+	var origem_gema: SlotItem = _vinculos.get(slot_joia_gema)
+	if origem_gema == null:
+		_definir_status_joias("Arraste a gema do inventário para o slot.", Color(1, 0.55, 0.4, 1))
+		return
+	if not equipamento.imbuir_gema(gema):
+		_definir_status_joias("Não foi possível imbuir a gema.", Color(1, 0.55, 0.4, 1))
+		return
+	var origem_equip: SlotItem = _vinculos.get(slot_joia_alvo)
+	origem_gema.definir_item(null)
+	origem_gema.definir_reserva_ferraria(false)
+	_vinculos.erase(slot_joia_gema)
+	slot_joia_gema.definir_item(null)
+	if origem_equip:
+		origem_equip.definir_reserva_ferraria(false)
+	_vinculos.erase(slot_joia_alvo)
+	slot_joia_alvo.definir_item(equipamento)
+	_menu.notificar_itens_alterados()
+	_atualizar_estado_joias()
+	_definir_status_joias("Gema imbuída com sucesso!", Color(0.85, 0.78, 0.32, 1))
+
+
+func _definir_status_joias(texto: String, cor: Color) -> void:
+	if label_explicacao_joias:
+		label_explicacao_joias.text = texto
+		label_explicacao_joias.add_theme_color_override("font_color", cor)
+
+
+func _atualizar_estado_joias() -> void:
+	if botao_imbuir == null:
+		return
+	var valido := slot_joia_alvo != null and slot_joia_gema != null
+	valido = valido and slot_joia_alvo.item != null and slot_joia_gema.item != null
+	if valido:
+		valido = pode_receber_joia_alvo(slot_joia_alvo.item) and pode_receber_joia_gema(slot_joia_gema.item)
+	botao_imbuir.disabled = not valido
+	if slot_joia_alvo != null and slot_joia_alvo.item != null and slot_joia_alvo.item.possui_gema_imbuida():
+		var imbuido: ItemData = slot_joia_alvo.item
+		_definir_status_joias(
+			"%s — %s" % [imbuido.nome, imbuido.linha_slot_gema()],
+			Color(0.85, 0.78, 0.32, 1)
+		)
+	elif valido:
+		var equipamento: ItemData = slot_joia_alvo.item
+		var gema: ItemData = slot_joia_gema.item
+		_definir_status_joias(
+			"Imbuir %s em %s" % [gema.nome, equipamento.nome],
+			Color(0.85, 0.78, 0.32, 1)
+		)
+	elif slot_joia_alvo == null or slot_joia_gema == null or (slot_joia_alvo.item == null and slot_joia_gema.item == null):
+		_definir_status_joias(TEXTO_JOIAS, Color(0.72, 0.66, 0.52, 1))
 
 
 func _rect_textura_visivel(tex: TextureRect) -> Rect2:
@@ -676,6 +806,8 @@ func _limpar_aba(aba: Aba) -> void:
 			_devolver_lista(_slots)
 		Aba.DESMONTAR:
 			_devolver_lista(_slots_desmontar)
+		Aba.JOIAS:
+			_devolver_lista(_slots_joias())
 
 
 func _encontrar_grupo_elegivel() -> Array[SlotItem]:
@@ -725,6 +857,8 @@ func _receita_valida() -> bool:
 
 func _criar_item_sintetizado(ingredientes: Array[ItemData], raridade_alvo: ItemData.Raridade) -> ItemData:
 	var base := ingredientes[0]
+	if base.categoria() == ItemData.Categoria.GEMA:
+		return _criar_gema_sintetizada(ingredientes, raridade_alvo)
 	var categoria := base.categoria()
 	var tipo_resultado := _tipo_resultado_sintese(ingredientes, categoria)
 	var soma_dano := 0
@@ -752,6 +886,33 @@ func _criar_item_sintetizado(ingredientes: Array[ItemData], raridade_alvo: ItemD
 	resultado.vida_bonus = maxi(0, int(round(float(soma_vida) / float(SLOTS_SINTSE) * 1.25 * ajuste_nivel)))
 	resultado.icone = resultado.gerar_icone()
 	return resultado
+
+
+func _criar_gema_sintetizada(ingredientes: Array[ItemData], raridade_alvo: ItemData.Raridade) -> ItemData:
+	var atributo := _atributo_resultado_sintese_gema(ingredientes)
+	var soma_valor := 0.0
+	for item in ingredientes:
+		soma_valor += item.valor_gema
+	var resultado := ItemData.criar_gema(atributo, raridade_alvo)
+	resultado.id = "%s_sint_%d" % [resultado.id, Time.get_ticks_msec()]
+	resultado.valor_gema = maxf(0.1, soma_valor / float(SLOTS_SINTSE) * 1.25)
+	resultado.icone = resultado.gerar_icone()
+	return resultado
+
+
+func _atributo_resultado_sintese_gema(ingredientes: Array[ItemData]) -> ItemData.AtributoGema:
+	var contagem: Dictionary = {}
+	for item in ingredientes:
+		var chave := int(item.atributo_gema)
+		contagem[chave] = int(contagem.get(chave, 0)) + 1
+	var melhor := ingredientes[0].atributo_gema
+	var melhor_total := 0
+	for chave in contagem.keys():
+		var total := int(contagem[chave])
+		if total > melhor_total:
+			melhor_total = total
+			melhor = chave as ItemData.AtributoGema
+	return melhor
 
 
 func _sortear_nivel_forja(ingredientes: Array[ItemData]) -> int:
@@ -1023,6 +1184,7 @@ func _nome_padrao_tipo(tipo: ItemData.Tipo) -> String:
 func _on_itens_alterados() -> void:
 	_atualizar_estado()
 	_atualizar_desmonte()
+	_atualizar_estado_joias()
 
 
 func _atualizar_estado() -> void:
@@ -1087,6 +1249,8 @@ func _contar_ocupados(lista: Array[SlotItem]) -> int:
 func _slots_da_aba_atual() -> Array[SlotItem]:
 	if _aba == Aba.DESMONTAR:
 		return _slots_desmontar
+	if _aba == Aba.JOIAS:
+		return _slots_joias()
 	return _slots
 
 

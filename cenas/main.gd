@@ -123,8 +123,8 @@ func _progresso_do_slot(slot_index: int) -> Dictionary:
 	return _progresso.do_indice(slot_index, party.equipe_ativa)
 
 
-func obter_bonus_arvore_slot(_slot_index: int) -> Dictionary:
-	return menu_inventario.bonus_arvore_global()
+func obter_bonus_arvore_slot(slot_index: int) -> Dictionary:
+	return menu_inventario.bonus_arvore_do_slot(slot_index)
 
 
 func recalcular_atributos() -> void:

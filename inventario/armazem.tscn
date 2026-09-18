@@ -143,10 +143,21 @@ unique_name_in_owner = true
 layout_mode = 2
 columns = 1
 
-[node name="LabelStatusArmazem" type="Label" parent="Conteudo"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+[node name="RodapeArmazem" type="HBoxContainer" parent="Conteudo"]
 layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BotaoOrdenarArmazem" type="Button" parent="Conteudo/RodapeArmazem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+tooltip_text = "Organizar página"
+
+[node name="LabelStatusArmazem" type="Label" parent="Conteudo/RodapeArmazem"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
 theme_override_font_sizes/font_size = 11
 text = "Armazém 1"

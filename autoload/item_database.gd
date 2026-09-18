@@ -9,6 +9,12 @@ func _ready() -> void:
 
 
 func gerar_item_aleatorio(nivel_inimigo: int) -> ItemData:
+	if randf() < 0.22:
+		return gerar_gema_aleatoria(nivel_inimigo)
+	return gerar_equipamento_aleatorio(nivel_inimigo)
+
+
+func gerar_equipamento_aleatorio(nivel_inimigo: int) -> ItemData:
 	if itens.is_empty():
 		_popular_catalogo()
 	var modelo: ItemData = itens[randi() % itens.size()]
@@ -21,6 +27,29 @@ func gerar_item_aleatorio(nivel_inimigo: int) -> ItemData:
 	item.dano_bonus = maxi(1, int(round(float(modelo.dano_bonus) * variacao * bonus_raridade * bonus_nivel)))
 	item.vida_bonus = maxi(0, int(round(float(modelo.vida_bonus) * variacao * bonus_raridade * bonus_nivel)))
 	item.id = "%s_%d" % [modelo.id, Time.get_ticks_msec()]
+	item.icone = item.gerar_icone()
+	return item
+
+
+func gerar_gema_aleatoria(nivel_inimigo: int) -> ItemData:
+	var atributos: Array[ItemData.AtributoGema] = [
+		ItemData.AtributoGema.ATAQUE,
+		ItemData.AtributoGema.ATAQUE_PCT,
+		ItemData.AtributoGema.VIDA,
+		ItemData.AtributoGema.VIDA_PCT,
+		ItemData.AtributoGema.VEL_ATAQUE,
+		ItemData.AtributoGema.CRIT_CHANCE,
+		ItemData.AtributoGema.CRIT_DANO,
+		ItemData.AtributoGema.EVASAO,
+		ItemData.AtributoGema.RES_FISICA,
+		ItemData.AtributoGema.RES_ARCANA,
+		ItemData.AtributoGema.RES_ELEMENTAL,
+	]
+	var atributo := atributos[randi() % atributos.size()]
+	var raridade := _sortear_raridade(nivel_inimigo)
+	var item := ItemData.criar_gema(atributo, raridade)
+	item.id = "%s_%d" % [item.id, Time.get_ticks_msec()]
+	item.valor_gema *= randf_range(0.9, 1.1)
 	item.icone = item.gerar_icone()
 	return item
 

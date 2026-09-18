@@ -43,6 +43,76 @@ static func barra(nome: String) -> Texture2D:
 	return _carregar("nav_%s.png" % nome)
 
 
+static func gema_base() -> Texture2D:
+	return _carregar("gema.png")
+
+
+static func icone_gema(raridade: ItemData.Raridade) -> Texture2D:
+	var chave := "gema_raridade:%d" % int(raridade)
+	if _cache.has(chave):
+		return _cache[chave]
+	var textura := _criar_icone_gema_com_contorno(raridade)
+	_cache[chave] = textura
+	return textura
+
+
+static func _criar_icone_gema_com_contorno(raridade: ItemData.Raridade) -> Texture2D:
+	const TAMANHO := 32
+	const MARGEM := 2
+	var base := gema_base()
+	if base == null:
+		return _icone_gema_procedural(raridade)
+	var origem := base.get_image()
+	if origem.is_empty():
+		return _icone_gema_procedural(raridade)
+	origem = origem.duplicate()
+	var area := TAMANHO - MARGEM * 2
+	origem.resize(area, area, Image.INTERPOLATE_NEAREST)
+	var img := Image.create(TAMANHO, TAMANHO, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	for y in area:
+		for x in area:
+			img.set_pixel(MARGEM + x, MARGEM + y, origem.get_pixel(x, y))
+	_desenhar_contorno_raridade(img, ItemData.cor_de_raridade(raridade), 2)
+	return ImageTexture.create_from_image(img)
+
+
+static func _desenhar_contorno_raridade(img: Image, cor: Color, espessura: int) -> void:
+	var original := img.duplicate()
+	var largura := img.get_width()
+	var altura := img.get_height()
+	for y in altura:
+		for x in largura:
+			if original.get_pixel(x, y).a > 0.05:
+				continue
+			var pintar := false
+			for dy in range(-espessura, espessura + 1):
+				for dx in range(-espessura, espessura + 1):
+					if dx == 0 and dy == 0:
+						continue
+					var nx := x + dx
+					var ny := y + dy
+					if nx < 0 or ny < 0 or nx >= largura or ny >= altura:
+						continue
+					if original.get_pixel(nx, ny).a > 0.05:
+						pintar = true
+						break
+				if pintar:
+					break
+			if pintar:
+				img.set_pixel(x, y, cor)
+
+
+static func _icone_gema_procedural(raridade: ItemData.Raridade) -> Texture2D:
+	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	for y in range(8, 24):
+		for x in range(8, 24):
+			img.set_pixel(x, y, Color(0.2, 0.45, 0.95, 1))
+	_desenhar_contorno_raridade(img, ItemData.cor_de_raridade(raridade), 2)
+	return ImageTexture.create_from_image(img)
+
+
 static func _carregar(arquivo: String) -> Texture2D:
 	if _cache.has(arquivo):
 		return _cache[arquivo]

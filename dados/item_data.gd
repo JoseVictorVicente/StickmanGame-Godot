@@ -15,6 +15,21 @@ enum Tipo {
 	ANEL,
 	BRACELETE,
 	PET,
+	GEMA,
+}
+
+enum AtributoGema {
+	ATAQUE,
+	ATAQUE_PCT,
+	VIDA,
+	VIDA_PCT,
+	VEL_ATAQUE,
+	CRIT_CHANCE,
+	CRIT_DANO,
+	EVASAO,
+	RES_FISICA,
+	RES_ARCANA,
+	RES_ELEMENTAL,
 }
 
 enum Raridade {
@@ -43,6 +58,7 @@ enum ClasseRequerida {
 enum Categoria {
 	EQUIPAMENTO,
 	ACESSORIO,
+	GEMA,
 }
 
 const NIVEIS_ITEM: Array[int] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80]
@@ -56,6 +72,9 @@ const NIVEIS_ITEM: Array[int] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 
 @export var dano_bonus: int = 0
 @export var vida_bonus: int = 0
 @export var classe_requerida: ClasseRequerida = ClasseRequerida.TODAS
+@export var atributo_gema: AtributoGema = AtributoGema.ATAQUE
+@export var valor_gema: float = 0.0
+var gema_imbuida: Dictionary = {}
 
 
 func descricao() -> String:
@@ -63,13 +82,20 @@ func descricao() -> String:
 
 
 func texto_tooltip() -> String:
-	var linhas: PackedStringArray = [
-		nome,
-		nome_raridade(),
-		"Dano Bônus: +%d" % dano_bonus,
-	]
+	var linhas: PackedStringArray = [nome, nome_raridade()]
+	if eh_gema():
+		linhas.append("%s: +%s" % [nome_atributo_gema(atributo_gema), texto_valor_gema()])
+		linhas.append("Valor: %d ouro" % valor_desmonte())
+		return "\n".join(linhas)
+	linhas.append("Dano Bônus: +%d" % dano_bonus)
 	if vida_bonus != 0:
 		linhas.append("Vida Bônus: +%d" % vida_bonus)
+	if possui_gema_imbuida():
+		var linha_gema := linha_slot_gema()
+		if linha_gema != "":
+			linhas.append(linha_gema)
+	elif tem_slot_gema():
+		linhas.append(linha_slot_gema())
 	if classe_requerida != ClasseRequerida.TODAS:
 		linhas.append("Classe: %s" % nome_classe_requerida())
 	linhas.append("Nível: %d" % nivel_item)
@@ -103,8 +129,167 @@ func nome_tipo() -> String:
 			return "Bracelete"
 		Tipo.PET:
 			return "Pet"
+		Tipo.GEMA:
+			return "Gema"
 		_:
 			return "Item"
+
+
+func eh_gema() -> bool:
+	return tipo == Tipo.GEMA
+
+
+func tem_slot_gema() -> bool:
+	return not eh_gema() and int(raridade) >= int(Raridade.LENDARIO)
+
+
+func possui_gema_imbuida() -> bool:
+	return not gema_imbuida.is_empty()
+
+
+func linha_slot_gema() -> String:
+	if eh_gema() or not tem_slot_gema():
+		return ""
+	if possui_gema_imbuida():
+		var gema := obter_gema_imbuida()
+		if gema == null:
+			return ""
+		return "Gema: %s +%s" % [nome_atributo_gema(gema.atributo_gema), gema.texto_valor_gema()]
+	return "Slot de gema: disponível"
+
+
+func cor_legenda_slot_gema() -> Color:
+	if possui_gema_imbuida():
+		return Color(0.95, 0.78, 0.32, 1)
+	return Color(0.55, 0.82, 0.95, 1)
+
+
+func obter_gema_imbuida() -> ItemData:
+	if gema_imbuida.is_empty():
+		return null
+	return de_dicionario(gema_imbuida)
+
+
+func imbuir_gema(gema: ItemData) -> bool:
+	if gema == null or not gema.eh_gema() or not tem_slot_gema() or possui_gema_imbuida():
+		return false
+	gema_imbuida = gema.para_dicionario()
+	return true
+
+
+func bonus_da_gema_imbuida() -> Dictionary:
+	var bonus := ArvoreHabilidades.bonus_vazio()
+	if not possui_gema_imbuida():
+		return bonus
+	var gema := obter_gema_imbuida()
+	if gema:
+		gema.aplicar_bonus_em(bonus)
+	return bonus
+
+
+func aplicar_bonus_em(destino: Dictionary) -> void:
+	if not eh_gema():
+		return
+	match atributo_gema:
+		AtributoGema.ATAQUE:
+			destino["ataque"] = int(destino.get("ataque", 0)) + int(round(valor_gema))
+		AtributoGema.ATAQUE_PCT:
+			destino["ataque_pct"] = float(destino.get("ataque_pct", 0.0)) + valor_gema
+		AtributoGema.VIDA:
+			destino["vida"] = int(destino.get("vida", 0)) + int(round(valor_gema))
+		AtributoGema.VIDA_PCT:
+			destino["vida_pct"] = float(destino.get("vida_pct", 0.0)) + valor_gema
+		AtributoGema.VEL_ATAQUE:
+			destino["vel_ataque"] = float(destino.get("vel_ataque", 0.0)) + valor_gema
+		AtributoGema.CRIT_CHANCE:
+			destino["crit_chance"] = float(destino.get("crit_chance", 0.0)) + valor_gema
+		AtributoGema.CRIT_DANO:
+			destino["crit_dano"] = float(destino.get("crit_dano", 0.0)) + valor_gema
+		AtributoGema.EVASAO:
+			destino["evasao"] = float(destino.get("evasao", 0.0)) + valor_gema
+		AtributoGema.RES_FISICA:
+			destino["res_fisica"] = float(destino.get("res_fisica", 0.0)) + valor_gema
+		AtributoGema.RES_ARCANA:
+			destino["res_arcana"] = float(destino.get("res_arcana", 0.0)) + valor_gema
+		AtributoGema.RES_ELEMENTAL:
+			destino["res_elemental"] = float(destino.get("res_elemental", 0.0)) + valor_gema
+
+
+static func nome_atributo_gema(atributo: AtributoGema) -> String:
+	match atributo:
+		AtributoGema.ATAQUE:
+			return "Ataque"
+		AtributoGema.ATAQUE_PCT:
+			return "Ataque %"
+		AtributoGema.VIDA:
+			return "Vida"
+		AtributoGema.VIDA_PCT:
+			return "Vida %"
+		AtributoGema.VEL_ATAQUE:
+			return "Vel. Ataque %"
+		AtributoGema.CRIT_CHANCE:
+			return "Crítico %"
+		AtributoGema.CRIT_DANO:
+			return "Dano Crítico %"
+		AtributoGema.EVASAO:
+			return "Evasão %"
+		AtributoGema.RES_FISICA:
+			return "Res. Física %"
+		AtributoGema.RES_ARCANA:
+			return "Res. Arcana %"
+		AtributoGema.RES_ELEMENTAL:
+			return "Res. Elemental %"
+		_:
+			return "Atributo"
+
+
+static func valor_base_gema(atributo: AtributoGema) -> float:
+	match atributo:
+		AtributoGema.ATAQUE:
+			return 5.0
+		AtributoGema.ATAQUE_PCT:
+			return 2.0
+		AtributoGema.VIDA:
+			return 10.0
+		AtributoGema.VIDA_PCT:
+			return 2.0
+		AtributoGema.VEL_ATAQUE:
+			return 1.5
+		AtributoGema.CRIT_CHANCE:
+			return 1.0
+		AtributoGema.CRIT_DANO:
+			return 3.0
+		AtributoGema.EVASAO:
+			return 1.0
+		AtributoGema.RES_FISICA, AtributoGema.RES_ARCANA, AtributoGema.RES_ELEMENTAL:
+			return 2.0
+		_:
+			return 1.0
+
+
+static func calcular_valor_gema(atributo: AtributoGema, raridade_item: Raridade) -> float:
+	var base := valor_base_gema(atributo)
+	return base * multiplicador_stats(raridade_item)
+
+
+static func criar_gema(atributo: AtributoGema, raridade_item: Raridade) -> ItemData:
+	var item := ItemData.new()
+	item.tipo = Tipo.GEMA
+	item.atributo_gema = atributo
+	item.raridade = raridade_item
+	item.nivel_item = NIVEIS_ITEM[0]
+	item.valor_gema = calcular_valor_gema(atributo, raridade_item)
+	item.nome = "Gema de %s" % nome_atributo_gema(atributo)
+	item.id = "gema_%s" % int(atributo)
+	item.classe_requerida = ClasseRequerida.TODAS
+	item.icone = item.gerar_icone()
+	return item
+
+
+func texto_valor_gema() -> String:
+	if atributo_gema in [AtributoGema.ATAQUE, AtributoGema.VIDA]:
+		return str(int(round(valor_gema)))
+	return "%.1f%%" % valor_gema
 
 
 func categoria() -> Categoria:
@@ -112,6 +297,8 @@ func categoria() -> Categoria:
 
 
 static func categoria_do_tipo(p_tipo: Tipo) -> Categoria:
+	if p_tipo == Tipo.GEMA:
+		return Categoria.GEMA
 	match p_tipo:
 		Tipo.CINTO, Tipo.PINGENTE, Tipo.ANEL, Tipo.BRACELETE:
 			return Categoria.ACESSORIO
@@ -123,6 +310,8 @@ static func nome_categoria(p_categoria: Categoria) -> String:
 	match p_categoria:
 		Categoria.ACESSORIO:
 			return "Acessório"
+		Categoria.GEMA:
+			return "Gema"
 		_:
 			return "Equipamento"
 
@@ -245,6 +434,22 @@ static func indice_nivel_item(nivel: int) -> int:
 	return indice if indice >= 0 else 0
 
 
+static func comparar_ordenacao(a: ItemData, b: ItemData) -> bool:
+	if a == null and b == null:
+		return false
+	if a == null:
+		return false
+	if b == null:
+		return true
+	if int(a.raridade) != int(b.raridade):
+		return int(a.raridade) > int(b.raridade)
+	var indice_a := indice_nivel_item(a.nivel_item)
+	var indice_b := indice_nivel_item(b.nivel_item)
+	if indice_a != indice_b:
+		return indice_a > indice_b
+	return a.nome.nocasecmp_to(b.nome) < 0
+
+
 static func multiplicador_nivel_item(nivel: int) -> float:
 	return pow(1.088, float(indice_nivel_item(nivel)))
 
@@ -333,7 +538,10 @@ static func cor_de_raridade(p_raridade: Raridade) -> Color:
 func valor_desmonte() -> int:
 	var bases: Array[int] = [8, 14, 28, 90, 240, 600, 1500, 3800, 9500, 24000]
 	var indice := clampi(int(raridade), 0, bases.size() - 1)
-	return maxi(1, bases[indice] + dano_bonus + vida_bonus)
+	var extra := dano_bonus + vida_bonus
+	if eh_gema():
+		extra = int(round(valor_gema * 2.0))
+	return maxi(1, bases[indice] + extra)
 
 
 func sigla_tipo() -> String:
@@ -366,12 +574,14 @@ static func sigla_do_tipo(p_tipo: Tipo) -> String:
 			return "BRA"
 		Tipo.PET:
 			return "PET"
+		Tipo.GEMA:
+			return "GEM"
 		_:
 			return "ITM"
 
 
 func para_dicionario() -> Dictionary:
-	return {
+	var dados := {
 		"id": id,
 		"nome": nome,
 		"tipo": int(tipo),
@@ -380,7 +590,12 @@ func para_dicionario() -> Dictionary:
 		"dano_bonus": dano_bonus,
 		"vida_bonus": vida_bonus,
 		"classe_requerida": int(classe_requerida),
+		"atributo_gema": int(atributo_gema),
+		"valor_gema": valor_gema,
 	}
+	if not gema_imbuida.is_empty():
+		dados["gema_imbuida"] = gema_imbuida.duplicate(true)
+	return dados
 
 
 static func de_dicionario(dados: Dictionary) -> ItemData:
@@ -395,11 +610,17 @@ static func de_dicionario(dados: Dictionary) -> ItemData:
 	item.dano_bonus = int(dados.get("dano_bonus", 0))
 	item.vida_bonus = int(dados.get("vida_bonus", 0))
 	item.classe_requerida = int(dados.get("classe_requerida", ClasseRequerida.TODAS)) as ClasseRequerida
+	item.atributo_gema = int(dados.get("atributo_gema", AtributoGema.ATAQUE)) as AtributoGema
+	item.valor_gema = float(dados.get("valor_gema", 0.0))
+	var gema_salva: Variant = dados.get("gema_imbuida", {})
+	item.gema_imbuida = gema_salva.duplicate(true) if gema_salva is Dictionary else {}
 	item.icone = item.gerar_icone()
 	return item
 
 
 func gerar_icone() -> Texture2D:
+	if eh_gema():
+		return _gerar_icone_gema()
 	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	for y in range(6, 26):
@@ -407,6 +628,10 @@ func gerar_icone() -> Texture2D:
 			var cor := _cor_icone_pixel(x, y)
 			img.set_pixel(x, y, cor)
 	return ImageTexture.create_from_image(img)
+
+
+func _gerar_icone_gema() -> Texture2D:
+	return IconesInterface.icone_gema(raridade)
 
 
 func _cor_icone_pixel(x: int, y: int) -> Color:

@@ -230,12 +230,24 @@ func _preencher_legenda(caixa: PanelContainer, dados: ItemData) -> void:
 	coluna.add_theme_constant_override("separation", 3)
 	coluna.add_child(_rotulo_tooltip(dados.nome, dados.cor_raridade(), 13, true))
 	coluna.add_child(_rotulo_tooltip(dados.nome_raridade(), dados.cor_raridade(), 11, false))
-	coluna.add_child(_rotulo_tooltip("Dano Bônus: +%d" % dados.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
-	if dados.vida_bonus != 0:
-		coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
+	if dados.eh_gema():
+		coluna.add_child(_rotulo_tooltip(
+			"%s: +%s" % [ItemData.nome_atributo_gema(dados.atributo_gema), dados.texto_valor_gema()],
+			Color(0.92, 0.86, 0.7, 1),
+			11,
+			false
+		))
+	else:
+		coluna.add_child(_rotulo_tooltip("Dano Bônus: +%d" % dados.dano_bonus, Color(0.92, 0.86, 0.7, 1), 11, false))
+		if dados.vida_bonus != 0:
+			coluna.add_child(_rotulo_tooltip("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
+		var linha_gema := dados.linha_slot_gema()
+		if linha_gema != "":
+			coluna.add_child(_rotulo_tooltip(linha_gema, dados.cor_legenda_slot_gema(), 11, false))
 	if dados.classe_requerida != ItemData.ClasseRequerida.TODAS:
 		coluna.add_child(_rotulo_tooltip("Classe: %s" % dados.nome_classe_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
-	coluna.add_child(_rotulo_tooltip("Nível: %d" % dados.nivel_item, Color(0.78, 0.82, 0.95, 1), 11, false))
+	if not dados.eh_gema():
+		coluna.add_child(_rotulo_tooltip("Nível: %d" % dados.nivel_item, Color(0.78, 0.82, 0.95, 1), 11, false))
 	coluna.add_child(_rotulo_tooltip("Valor: %d ouro" % dados.valor_desmonte(), Color(1, 0.86, 0.38, 1), 11, false))
 	caixa.add_child(coluna)
 

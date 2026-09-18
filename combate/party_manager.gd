@@ -191,7 +191,9 @@ func vida_maxima_do_heroi(slot_index: int) -> int:
 		extra = int(obter_vida_equip.call(slot_index))
 	var dados := classe as ClasseData
 	var bonus := _bonus_arvore(slot_index)
-	return maxi(1, dados.vida_base + extra + (_nivel_do_slot(slot_index) - 1) * dados.hp_por_nivel + int(bonus.get("vida", 0)))
+	var base := maxi(1, dados.vida_base + extra + (_nivel_do_slot(slot_index) - 1) * dados.hp_por_nivel + int(bonus.get("vida", 0)))
+	var pct := float(bonus.get("vida_pct", 0.0))
+	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 
 func _bonus_arvore(slot_index: int) -> Dictionary:

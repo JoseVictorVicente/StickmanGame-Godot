@@ -275,6 +275,7 @@ static func bonus_vazio() -> Dictionary:
 		"ataque": 0,
 		"ataque_pct": 0.0,
 		"vida": 0,
+		"vida_pct": 0.0,
 		"bonus_xp": 0.0,
 		"bonus_ouro": 0.0,
 		"vel_ataque": 0.0,
