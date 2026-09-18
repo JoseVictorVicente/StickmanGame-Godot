@@ -14,7 +14,7 @@ const COLUNAS := 3
 const TAMANHO_SLOT := Vector2(44, 44)
 const TAMANHO_ICONE_INFO := 28
 const TAMANHO_TOGGLE_ARMAZEM := Vector2(48, 26)
-const FORJA_GRID_RECT := Rect2(0.1635, 0.3027, 0.6713, 0.1934)
+const FORJA_GRID_RECT := Rect2(0.211, 0.200, 0.581, 0.356)
 const FORJA_GRID_INSET := 0.04
 const FILTRO_TODOS := -1
 const CAMADA_LEGENDA_INFO := 127
@@ -89,6 +89,8 @@ func _ready() -> void:
 		corpo_ferraria.resized.connect(_alinhar_fundo_na_forja)
 	if painel_sintese:
 		painel_sintese.resized.connect(_alinhar_fundo_na_forja)
+	if painel_desmontar:
+		painel_desmontar.resized.connect(_alinhar_fundo_na_forja)
 	_carregar_fundo_forja()
 
 
@@ -389,46 +391,64 @@ func _on_visibilidade_alterada() -> void:
 
 
 func _atualizar_fundo_forja() -> void:
-	if forge_background == null or grade_sintese == null:
+	if forge_background == null:
 		return
-	var mostrar := painel_sintese.visible
-	forge_background.visible = mostrar
-	grade_sintese.visible = mostrar
-	if mostrar:
-		call_deferred("_alinhar_fundo_na_forja")
+	forge_background.visible = true
+	grade_sintese.visible = _aba == Aba.SINTESE
+	grade_desmontar.visible = _aba == Aba.DESMONTAR
+	call_deferred("_alinhar_fundo_na_forja")
+
+
+func _grade_aba_atual() -> GridContainer:
+	return grade_sintese if _aba == Aba.SINTESE else grade_desmontar
+
+
+func _slots_aba_atual() -> Array[SlotItem]:
+	return _slots if _aba == Aba.SINTESE else _slots_desmontar
+
+
+func _painel_aba_atual() -> VBoxContainer:
+	return painel_sintese if _aba == Aba.SINTESE else painel_desmontar
 
 
 func _alinhar_fundo_na_forja() -> void:
-	if forge_background == null or grade_sintese == null:
+	if forge_background == null or corpo_ferraria == null:
 		return
-	if not painel_sintese.visible:
+	var grade := _grade_aba_atual()
+	if grade == null:
 		return
 	if forge_background.texture == null:
 		return
+	var painel := _painel_aba_atual()
+	if painel and painel.visible:
+		var altura_controles := painel.get_combined_minimum_size().y
+		if altura_controles > 0.0:
+			painel.offset_top = -altura_controles
 	var fundo_rect := _rect_textura_visivel(forge_background)
 	if fundo_rect.size.x < 1.0 or fundo_rect.size.y < 1.0:
 		return
 	var alvo := Rect2(
-		fundo_rect.position + fundo_rect.size * FORJA_GRID_RECT.position,
+		fundo_rect.position - corpo_ferraria.global_position + fundo_rect.size * FORJA_GRID_RECT.position,
 		fundo_rect.size * FORJA_GRID_RECT.size
 	)
 	var margem := alvo.size * FORJA_GRID_INSET
 	alvo.position += margem
 	alvo.size -= margem * 2.0
-	var sep_h := float(grade_sintese.get_theme_constant("h_separation"))
-	var sep_v := float(grade_sintese.get_theme_constant("v_separation"))
+	var sep_h := float(grade.get_theme_constant("h_separation"))
+	var sep_v := float(grade.get_theme_constant("v_separation"))
 	var lado_slot := minf(
 		(alvo.size.x - sep_h * 2.0) / 3.0,
 		(alvo.size.y - sep_v * 2.0) / 3.0
 	)
 	var slot_size := Vector2.ONE * maxf(1.0, lado_slot)
-	for slot in _slots:
+	for slot in _slots_aba_atual():
 		slot.custom_minimum_size = slot_size
-	grade_sintese.reset_size()
-	var tam_grade := grade_sintese.get_combined_minimum_size()
+	grade.reset_size()
+	var tam_grade := grade.get_combined_minimum_size()
 	if tam_grade.x < 1.0 or tam_grade.y < 1.0:
 		return
-	grade_sintese.global_position = alvo.position + (alvo.size - tam_grade) * 0.5
+	grade.position = alvo.position + (alvo.size - tam_grade) * 0.5
+	grade.size = tam_grade
 
 
 func _rect_textura_visivel(tex: TextureRect) -> Rect2:
@@ -444,7 +464,10 @@ func _rect_textura_visivel(tex: TextureRect) -> Rect2:
 	var usar_cover := tex.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	var escala := maxf(escala_x, escala_y) if usar_cover else minf(escala_x, escala_y)
 	var desenhado := tex_size * escala
-	var offset := (global_rect.size - desenhado) * 0.5
+	var offset := Vector2(
+		(global_rect.size.x - desenhado.x) * 0.5,
+		global_rect.size.y - desenhado.y
+	)
 	return Rect2(global_rect.position + offset, desenhado)
 
 
@@ -473,8 +496,8 @@ func _carregar_fundo_forja() -> void:
 
 func _estilo_slot_forja() -> StyleBoxFlat:
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.2)
-	estilo.border_color = Color(0.72, 0.58, 0.28, 0.4)
+	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.12)
+	estilo.border_color = Color(0.72, 0.58, 0.28, 0.35)
 	estilo.set_border_width_all(1)
 	estilo.set_corner_radius_all(2)
 	return estilo
@@ -482,7 +505,7 @@ func _estilo_slot_forja() -> StyleBoxFlat:
 
 func _criar_slots(grade: GridContainer, destino: Array[SlotItem], sintese: bool) -> void:
 	grade.columns = COLUNAS
-	var estilo_slot := _estilo_slot_forja() if sintese else null
+	var estilo_slot := _estilo_slot_forja()
 	for indice in SLOTS_SINTSE:
 		var slot := SlotItem.new()
 		slot.name = "%s_%d" % [grade.name, indice + 1]
