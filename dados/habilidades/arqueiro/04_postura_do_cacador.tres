@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "postura_do_cacador"
-skill_name = "Postura do Cacador"
+skill_name = "Postura do Caçador"
 description = "A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos."
 type = 0
 cooldown = 10

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "visao_neon"
-skill_name = "Visao Neon"
+skill_name = "Visão Neon"
 description = "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."
 type = 0
 cooldown = 12
