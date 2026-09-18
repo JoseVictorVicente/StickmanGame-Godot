@@ -4,7 +4,22 @@ extends Control
 
 signal no_selecionado(id: int)
 
-const TAMANHO_NO := Vector2(44, 44)
+const TAMANHO_NO := Vector2(56, 56)
+
+class CamadaHover:
+	extends Control
+
+	var mapa: MapaArvore
+
+	func _draw() -> void:
+		if mapa == null:
+			return
+		var rect := mapa._rect_hover()
+		if rect.size.x <= 0.0:
+			return
+		draw_rect(rect, Color(0.95, 0.78, 0.32, 0.18), true)
+		draw_rect(rect, Color(0.95, 0.78, 0.32, 1), false, 2.0, true)
+
 
 var progresso: ProgressoArvore
 var ouro_atual: int = 0
@@ -13,6 +28,8 @@ var _catalogo: Array[Dictionary] = []
 var _nos: Dictionary = {}
 var _offset := Vector2.ZERO
 var _linhas: Array[Dictionary] = []
+var _hover_id: int = -1
+var _camada_hover: CamadaHover
 
 
 func _ready() -> void:
@@ -109,23 +126,31 @@ func _montar_nos() -> void:
 		botao.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		botao.focus_mode = Control.FOCUS_NONE
 		botao.position = pos
-		botao.texture_normal = _textura_no()
+		var tipo := int(no.get("tipo", 0))
+		IconesArvore.aplicar_no_botao(botao, tipo, true)
 		botao.pressed.connect(_on_no_pressionado.bind(id))
+		botao.mouse_entered.connect(_on_no_hover_entrou.bind(id))
+		botao.mouse_exited.connect(_on_no_hover_saiu.bind(id))
 		botao.mouse_filter = Control.MOUSE_FILTER_STOP
 		var rotulo := Label.new()
 		rotulo.name = "Rotulo"
 		rotulo.text = _texto_rotulo(no, 0)
 		rotulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		rotulo.add_theme_font_size_override("font_size", 8)
-		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
+		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		rotulo.add_theme_font_size_override("font_size", 9)
+		rotulo.add_theme_color_override("font_color", Color(0.98, 0.92, 0.72, 1))
+		rotulo.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+		rotulo.add_theme_constant_override("outline_size", 2)
+		rotulo.offset_bottom = -2.0
+		rotulo.offset_top = -14.0
 		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		botao.add_child(rotulo)
 		add_child(botao)
 		_nos[id] = botao
 	for secao in ArvoreHabilidades.NUM_SECOES:
 		_montar_ligacoes_secao(secao)
+	_garantir_camada_hover()
 	queue_redraw()
 
 
@@ -225,14 +250,46 @@ func _texto_rotulo(no: Dictionary, nivel: int) -> String:
 	if int(no.get("tipo", -1)) == ArvoreHabilidades.TipoBonus.ARMAZEM:
 		if nivel >= 1:
 			return "P%d" % (int(no.get("valor_base", no.get("valor", 0))) + 1)
-		return "ARM"
+		return ""
 	if nivel <= 0:
-		return str(no.get("sigla", ""))
+		return ""
 	return "%d/%d" % [nivel, max_nivel]
 
 
 func _on_no_pressionado(id: int) -> void:
 	no_selecionado.emit(id)
+
+
+func _on_no_hover_entrou(id: int) -> void:
+	_hover_id = id
+	if _camada_hover:
+		_camada_hover.queue_redraw()
+
+
+func _on_no_hover_saiu(id: int) -> void:
+	if _hover_id == id:
+		_hover_id = -1
+		if _camada_hover:
+			_camada_hover.queue_redraw()
+
+
+func _rect_hover() -> Rect2:
+	if _hover_id < 0 or not _nos.has(_hover_id):
+		return Rect2()
+	var botao: Control = _nos[_hover_id]
+	return Rect2(botao.position, botao.size).grow(2.0)
+
+
+func _garantir_camada_hover() -> void:
+	if _camada_hover != null and is_instance_valid(_camada_hover):
+		return
+	_camada_hover = CamadaHover.new()
+	_camada_hover.name = "CamadaHover"
+	_camada_hover.mapa = self
+	_camada_hover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_camada_hover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_camada_hover.z_index = 50
+	add_child(_camada_hover)
 
 
 func _atualizar_visual() -> void:
@@ -245,22 +302,12 @@ func _atualizar_visual() -> void:
 		var max_nivel := progresso.nivel_maximo(int(id))
 		var pode := progresso.pode_comprar(int(id))
 		var custo := ArvoreHabilidades.custo_proximo_nivel(no, nivel)
-		var secao := int(no.get("secao", -1))
-		var cor_base := ArvoreHabilidades.cor_regiao(secao).darkened(0.55)
-		var cor := cor_base
-		if nivel >= max_nivel:
-			cor = cor_base.lightened(0.42)
-		elif nivel > 0:
-			cor = cor_base.lightened(0.22 + float(nivel) / float(max_nivel) * 0.18)
-		elif pode and ouro_atual >= custo:
-			cor = cor_base.lightened(0.18)
-		elif pode:
-			cor = cor_base.lightened(0.08)
-		else:
-			cor = cor_base.darkened(0.35)
-		if bool(no.get("premium", false)) and nivel < max_nivel:
-			cor = cor.lerp(Color(0.95, 0.78, 0.22, 1), 0.25)
-		botao.self_modulate = cor
+		var bloqueado := nivel <= 0 and not pode
+		IconesArvore.aplicar_no_botao(botao, int(no.get("tipo", 0)), bloqueado)
+		var modulate := Color.WHITE
+		if bool(no.get("premium", false)) and not bloqueado:
+			modulate = Color(1.08, 1.02, 0.82, 1)
+		botao.self_modulate = modulate
 		var rotulo: Label = botao.get_node("Rotulo")
 		if rotulo:
 			rotulo.text = _texto_rotulo(no, nivel)
@@ -330,19 +377,3 @@ func _aplicar_offset() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		call_deferred("_centralizar")
-
-
-func _textura_no() -> Texture2D:
-	var tam := int(TAMANHO_NO.x)
-	var img := Image.create(tam, tam, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var borda := Color(0.95, 0.82, 0.4, 1)
-	var preenchimento := Color(0.92, 0.88, 0.82, 1)
-	for y in tam:
-		for x in tam:
-			var na_borda := x == 0 or y == 0 or x == tam - 1 or y == tam - 1
-			if na_borda:
-				img.set_pixel(x, y, borda)
-			else:
-				img.set_pixel(x, y, preenchimento)
-	return ImageTexture.create_from_image(img)
