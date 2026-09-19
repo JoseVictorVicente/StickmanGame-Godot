@@ -10,5 +10,6 @@ description = "A Arqueira finca levemente os pes no chao e ganha um surto de 30%
 type = 0
 cooldown = 10
 icon_path = "res://sprites/ui/skills/archer/postura_do_cacador.png"
+icon_inner_only = true
 sort_order = 4
 stat_value = 0.0

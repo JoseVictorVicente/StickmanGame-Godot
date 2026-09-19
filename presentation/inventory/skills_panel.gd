@@ -10,7 +10,7 @@ const SKILLS_ATIVAS_DISPONIVEIS := 5
 const SKILLS_PASSIVAS_DISPONIVEIS := 10
 const COLUNAS_GRADE := 5
 const TAMANHO_SLOT_EQUIPADO := Vector2(120, 64)
-const TAMANHO_SLOT_HABILIDADE := Vector2(56, 56)
+const TAMANHO_SLOT_HABILIDADE := Vector2(64, 64)
 
 @onready var botao_fechar: Button = %BotaoFecharSkills
 @onready var cabecalho: HBoxContainer = %CabecalhoSkills
@@ -31,11 +31,13 @@ var _hero_buttons: Array[Button] = []
 var _hero_indices: Array[int] = []
 var _slots_equipados_ativos: Array[Button] = []
 var _slots_equipados_passivos: Array[Button] = []
-var _slots_ativos: Array[Button] = []
+var _slots_ativos: Array[TextureButton] = []
 var _slots_passivos: Array[Button] = []
 var _slot_ativo_selecionado: int = 0
 var _slot_passivo_selecionado: int = 0
 var _grades_montadas: bool = false
+const _GRID_BUILD_VERSION := 2
+var _grid_build_version: int = 0
 
 
 func _ready() -> void:
@@ -107,14 +109,23 @@ func update() -> void:
 
 
 func _build_skill_grids() -> void:
-	if _grades_montadas:
+	if _grades_montadas and _grid_build_version == _GRID_BUILD_VERSION:
 		return
-	_create_equipped_slots()
+	if not _grades_montadas:
+		_create_equipped_slots()
+	else:
+		for filho in grade_ativas.get_children():
+			filho.queue_free()
+		for filho in grade_passivas.get_children():
+			filho.queue_free()
+		_slots_ativos.clear()
+		_slots_passivos.clear()
 	grade_ativas.columns = COLUNAS_GRADE
 	grade_passivas.columns = COLUNAS_GRADE
-	_create_skill_slots(grade_ativas, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
+	_create_framed_active_slots(grade_ativas, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
 	_create_skill_slots(grade_passivas, _slots_passivos, SKILLS_PASSIVAS_DISPONIVEIS)
 	_grades_montadas = true
+	_grid_build_version = _GRID_BUILD_VERSION
 
 
 func _create_equipped_slots() -> void:
@@ -149,6 +160,25 @@ func _create_equipped_slot_button(nome: String, stage_index: int, ativo: bool) -
 		return HeroEquipment.get_equipped(classe_id, tipo, stage_index)
 	)
 	return botao
+
+
+func _create_framed_active_slots(grade: GridContainer, destino: Array[TextureButton], quantidade: int) -> void:
+	destino.clear()
+	for stage_index in quantidade:
+		var slot := TextureButton.new()
+		slot.name = "SlotHabilidade%d" % (stage_index + 1)
+		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
+		slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		slot.focus_mode = Control.FOCUS_NONE
+		slot.disabled = true
+		slot.pressed.connect(_on_available_active_pressed.bind(slot))
+		SkillTooltip.vincular(slot, func() -> SkillResource:
+			var skill: Variant = slot.get_meta("skill", null)
+			return skill if skill is SkillResource else null
+		)
+		grade.add_child(slot)
+		destino.append(slot)
 
 
 func _create_skill_slots(grade: GridContainer, destino: Array[Button], quantidade: int) -> void:
@@ -247,7 +277,7 @@ func _update_equipped_slots() -> void:
 func _update_available_skills() -> void:
 	var classe_id := _get_class_id()
 	for slot in _slots_ativos:
-		_setup_available_slot(slot, null, classe_id)
+		_setup_framed_active_slot(slot, null, classe_id)
 	for slot in _slots_passivos:
 		_setup_available_slot(slot, null, classe_id)
 	var indice_ativa := 0
@@ -256,11 +286,22 @@ func _update_available_skills() -> void:
 		if skill == null:
 			continue
 		if skill.type == SkillResource.Type.ACTIVE and indice_ativa < _slots_ativos.size():
-			_setup_available_slot(_slots_ativos[indice_ativa], skill, classe_id)
+			_setup_framed_active_slot(_slots_ativos[indice_ativa], skill, classe_id)
 			indice_ativa += 1
 		elif skill.type == SkillResource.Type.PASSIVE and indice_passiva < _slots_passivos.size():
 			_setup_available_slot(_slots_passivos[indice_passiva], skill, classe_id)
 			indice_passiva += 1
+
+
+func _setup_framed_active_slot(slot: TextureButton, skill: SkillResource, classe_id: String) -> void:
+	slot.set_meta("skill", skill)
+	SkillIcons.apply_to_texture_button(slot, skill, TAMANHO_SLOT_HABILIDADE)
+	if skill == null:
+		_clear_framed_equipped_highlight(slot)
+	elif HeroEquipment.is_equipped(classe_id, skill):
+		_paint_framed_equipped_highlight(slot)
+	else:
+		_clear_framed_equipped_highlight(slot)
 
 
 func _setup_available_slot(slot: Button, skill: SkillResource, classe_id: String) -> void:
@@ -302,7 +343,11 @@ func _on_passive_slot_pressed(stage_index: int) -> void:
 	_update_skills_ui()
 
 
-func _on_available_skill_pressed(slot: Button) -> void:
+func _on_available_active_pressed(slot: TextureButton) -> void:
+	_on_available_skill_pressed(slot)
+
+
+func _on_available_skill_pressed(slot: Control) -> void:
 	var classe_id := _get_class_id()
 	if classe_id == "":
 		return
@@ -342,6 +387,30 @@ func _paint_available_slot(botao: Button, equipada: bool) -> void:
 	botao.add_theme_stylebox_override("hover", estilo)
 	botao.add_theme_stylebox_override("pressed", estilo)
 	botao.add_theme_stylebox_override("disabled", estilo)
+
+
+func _paint_framed_equipped_highlight(botao: Control) -> void:
+	var overlay := botao.get_node_or_null("EquippedHighlight") as Panel
+	if overlay == null:
+		overlay = Panel.new()
+		overlay.name = "EquippedHighlight"
+		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		botao.add_child(overlay)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0, 0, 0, 0)
+	estilo.set_border_width_all(2)
+	estilo.border_color = Color(0.95, 0.78, 0.32, 0.95)
+	estilo.set_corner_radius_all(4)
+	overlay.add_theme_stylebox_override("panel", estilo)
+	overlay.show()
+
+
+func _clear_framed_equipped_highlight(botao: Control) -> void:
+	var overlay := botao.get_node_or_null("EquippedHighlight") as Panel
+	if overlay != null:
+		overlay.hide()
 
 
 func _paint_equipped_slot(botao: Button, selecionado: bool) -> void:

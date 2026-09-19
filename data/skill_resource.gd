@@ -10,6 +10,8 @@ enum Type { ACTIVE, PASSIVE }
 @export var type: Type = Type.ACTIVE
 @export var cooldown: float = 0.0
 @export var icon_path: String = ""
+## Quando true, icon_path é só a arte interna e a moldura ativa é composta em runtime.
+@export var icon_inner_only: bool = false
 @export var sort_order: int = 0
 @export var stat_value: float = 0.0
 

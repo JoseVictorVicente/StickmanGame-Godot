@@ -96,7 +96,7 @@ func _ready() -> void:
 	party.dps_changed.connect(_on_dps_changed)
 	inventory_menu.setup_party(party)
 
-	SaveSystem.registrar(self)
+	SaveSystem.register(self)
 	if not SaveSystem.load_game():
 		inventory_menu.fill_initial_item_if_empty()
 

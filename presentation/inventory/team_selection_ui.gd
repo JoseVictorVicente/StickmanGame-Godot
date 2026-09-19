@@ -104,4 +104,4 @@ func _paint_slots() -> void:
 		botao.add_theme_stylebox_override("hover", estilo)
 		var classe: Variant = _party.active_party[slot] if _party else null
 		if classe is ClassData:
-			botao.add_theme_color_override("font_color", (classe as ClassData).cor.lightened(0.35))
+			botao.add_theme_color_override("font_color", (classe as ClassData).color.lightened(0.35))

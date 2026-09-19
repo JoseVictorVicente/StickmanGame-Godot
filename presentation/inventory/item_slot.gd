@@ -216,7 +216,7 @@ func _fill_tooltip(caixa: PanelContainer, dados: ItemData) -> void:
 		caixa.get_child(0).free()
 	var fundo := StyleBoxFlat.new()
 	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
-	fundo.border_color = dados.color_raridade()
+	fundo.border_color = dados.rarity_color()
 	fundo.set_border_width_all(2)
 	fundo.set_corner_radius_all(4)
 	fundo.content_margin_left = 10
@@ -228,8 +228,8 @@ func _fill_tooltip(caixa: PanelContainer, dados: ItemData) -> void:
 	var coluna := VBoxContainer.new()
 	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	coluna.add_theme_constant_override("separation", 3)
-	coluna.add_child(_tooltip_label(dados.nome, dados.color_raridade(), 13, true))
-	coluna.add_child(_tooltip_label(dados.rarity_name(), dados.color_raridade(), 11, false))
+	coluna.add_child(_tooltip_label(dados.nome, dados.rarity_color(), 13, true))
+	coluna.add_child(_tooltip_label(dados.rarity_name(), dados.rarity_color(), 11, false))
 	if dados.is_gem():
 		coluna.add_child(_tooltip_label(
 			"%s: +%s" % [ItemData.nome_atributo_gema(dados.atributo_gema), dados.gem_value_text()],
@@ -243,9 +243,9 @@ func _fill_tooltip(caixa: PanelContainer, dados: ItemData) -> void:
 			coluna.add_child(_tooltip_label("Vida Bônus: +%d" % dados.vida_bonus, Color(0.72, 0.9, 0.7, 1), 11, false))
 		var linha_gema := dados.gem_slot_line()
 		if linha_gema != "":
-			coluna.add_child(_tooltip_label(linha_gema, dados.color_legenda_slot_gema(), 11, false))
+			coluna.add_child(_tooltip_label(linha_gema, dados.gem_slot_label_color(), 11, false))
 	if dados.required_class != ItemData.RequiredClass.ALL:
-		coluna.add_child(_tooltip_label("Classe: %s" % dados.display_name_requerida(), Color(0.85, 0.78, 0.55, 1), 11, false))
+		coluna.add_child(_tooltip_label("Classe: %s" % dados.required_class_name(), Color(0.85, 0.78, 0.55, 1), 11, false))
 	if not dados.is_gem():
 		coluna.add_child(_tooltip_label("Nível: %d" % dados.nivel_item, Color(0.78, 0.82, 0.95, 1), 11, false))
 	coluna.add_child(_tooltip_label("Valor: %d ouro" % dados.dismantle_value(), Color(1, 0.86, 0.38, 1), 11, false))

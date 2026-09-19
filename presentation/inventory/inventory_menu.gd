@@ -183,11 +183,11 @@ func _ready() -> void:
 		botao_atributos_personagem.pressed.connect(_on_attributes_button_pressed)
 	if painel_atributos:
 		painel_atributos.configure(self)
-		if not painel_atributos.visibility_changed.is_connected(_on_attributes_visibility_changed):
+		if not painel_atributos.panel_open_changed.is_connected(_on_attributes_visibility_changed):
 			painel_atributos.panel_open_changed.connect(_on_attributes_visibility_changed)
 	if painel_arvore:
 		painel_arvore.configure(self)
-		if not painel_arvore.visibility_changed.is_connected(_on_skill_tree_visibility_changed):
+		if not painel_arvore.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
 			painel_arvore.panel_open_changed.connect(_on_skill_tree_visibility_changed)
 	botao_inventario.pressed.connect(_on_skill_tree_button_pressed)
 	if painel_ouro:
@@ -938,21 +938,21 @@ func setup_party(party: PartyService) -> void:
 		painel_formacao.configure(self, party)
 		if not painel_formacao.slot_selected.is_connected(select_character):
 			painel_formacao.slot_selected.connect(select_character)
-		if not painel_formacao.visibility_changed.is_connected(_on_formation_visibility_changed):
+		if not painel_formacao.panel_open_changed.is_connected(_on_formation_visibility_changed):
 			painel_formacao.panel_open_changed.connect(_on_formation_visibility_changed)
 	if painel_skills:
 		painel_skills.configure(self, party)
 		if not painel_skills.slot_selected.is_connected(select_character):
 			painel_skills.slot_selected.connect(select_character)
-		if not painel_skills.visibility_changed.is_connected(_on_skills_visibility_changed):
+		if not painel_skills.panel_open_changed.is_connected(_on_skills_visibility_changed):
 			painel_skills.panel_open_changed.connect(_on_skills_visibility_changed)
 	if painel_atributos:
 		painel_atributos.configure(self)
-		if not painel_atributos.visibility_changed.is_connected(_on_attributes_visibility_changed):
+		if not painel_atributos.panel_open_changed.is_connected(_on_attributes_visibility_changed):
 			painel_atributos.panel_open_changed.connect(_on_attributes_visibility_changed)
 	if painel_arvore:
 		painel_arvore.configure(self)
-		if not painel_arvore.visibility_changed.is_connected(_on_skill_tree_visibility_changed):
+		if not painel_arvore.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
 			painel_arvore.panel_open_changed.connect(_on_skill_tree_visibility_changed)
 	if not party.party_changed.is_connected(_on_party_changed):
 		party.party_changed.connect(_on_party_changed)
@@ -1117,7 +1117,7 @@ func serialize_warehouse() -> Dictionary:
 
 func apply_warehouse(dados: Variant) -> void:
 	if painel_armazem:
-		painel_armazem.aplicar(dados)
+		painel_armazem.apply(dados)
 	_sync_warehouse_skill_tree()
 
 
@@ -1126,7 +1126,7 @@ func serialize_skill_tree() -> Dictionary:
 
 
 func apply_skill_tree(dados: Variant) -> void:
-	_skill_tree_progress.aplicar(dados)
+	_skill_tree_progress.apply(dados)
 	_sync_warehouse_skill_tree()
 
 
@@ -1237,7 +1237,7 @@ func _apply_bottom_bar_icons() -> void:
 		_setup_bar_button(botao_skills, "skills")
 	_setup_bar_button(botao_inventario, "inventario")
 	_setup_bar_button(botao_ferraria, "ferraria")
-	_setup_bar_button(botao_mundo, "world")
+	_setup_bar_button(botao_mundo, "mundo")
 
 
 func _setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> void:

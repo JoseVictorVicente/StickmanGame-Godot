@@ -10,5 +10,6 @@ description = "Um disparo carregado de 0.4s que garante acerto critico e ignora 
 type = 0
 cooldown = 6
 icon_path = "res://sprites/ui/skills/archer/tiro_de_precisao.png"
+icon_inner_only = true
 sort_order = 3
 stat_value = 0.0

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8u3whug6keyv"
-path="res://.godot/imported/tiro_de_precisao.png-0cd8c271c8cfcc8e888fa169d781c587.ctex"
+uid="uid://ccshtcbysugeu"
+path="res://.godot/imported/active_skill_frame.png-02c93778a04ee1061ef5381afa5e6d8c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/ui/skills/archer/tiro_de_precisao.png"
-dest_files=["res://.godot/imported/tiro_de_precisao.png-0cd8c271c8cfcc8e888fa169d781c587.ctex"]
+source_file="res://sprites/ui/skills/active_skill_frame.png"
+dest_files=["res://.godot/imported/active_skill_frame.png-02c93778a04ee1061ef5381afa5e6d8c.ctex"]
 
 [params]
 
