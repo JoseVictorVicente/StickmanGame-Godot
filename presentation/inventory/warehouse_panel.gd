@@ -1,5 +1,5 @@
 class_name WarehousePanel
-extends PanelContainer
+extends Control
 ## Painel lateral de armazém, à esquerda do inventário.
 ## Várias abas; só a primeira começa desbloqueada.
 

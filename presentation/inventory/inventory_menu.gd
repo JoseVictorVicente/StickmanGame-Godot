@@ -39,6 +39,11 @@ const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
 const MARGEM_TOPO_UI := 8.0
 const WINDOW_HEIGHT := 860.0
 const COMBAT_RESERVED_SPACE := 320.0
+const NAV_BUTTON_BG_PATH := "res://sprites/ui/nav_button_bg.png"
+const NAV_BUTTON_TEXTURE_MARGIN := Vector4(10.0, 8.0, 10.0, 8.0)
+const NAV_BUTTON_CONTENT_MARGIN := Vector4(14.0, 8.0, 10.0, 8.0)
+const NAV_BUTTON_MIN_HEIGHT := 46.0
+const NAV_BUTTON_ICON_MAX_WIDTH := 20
 var HERO_SLOTS: Array[Dictionary] = [
 	{"name": "Warrior", "hero_class": ItemData.RequiredClass.WARRIOR},
 	{"name": "Mage", "hero_class": ItemData.RequiredClass.MAGE},
@@ -144,6 +149,8 @@ func _ready() -> void:
 	worlds_panel_node.configure(self)
 	menu_area.resized.connect(_align_side_panels)
 	painel.resized.connect(_align_side_panels)
+	if warehouse_panel_node and not warehouse_panel_node.resized.is_connected(_align_side_panels):
+		warehouse_panel_node.resized.connect(_align_side_panels)
 	forge_button.pressed.connect(_on_forge_button_pressed)
 	forge_panel_node.panel_open_changed.connect(_on_forge_visibility_changed)
 	warehouse_panel_node.panel_open_changed.connect(_on_warehouse_visibility_changed)
@@ -153,6 +160,7 @@ func _ready() -> void:
 	visibility_changed.connect(_on_menu_visibility_changed)
 	if character_row:
 		character_row.visible = false
+	_apply_nav_button_backgrounds()
 	_store_forge_button_styles()
 	_warehouse_button_styles["normal"] = warehouse_button.get_theme_stylebox("normal").duplicate()
 	_warehouse_button_styles["hover"] = warehouse_button.get_theme_stylebox("hover").duplicate()
@@ -162,7 +170,7 @@ func _ready() -> void:
 	_world_button_styles["pressed"] = world_button.get_theme_stylebox("pressed").duplicate()
 	warehouse_button.pressed.connect(_on_warehouse_button_pressed)
 	world_button.pressed.connect(_on_world_button_pressed)
-	warehouse_button.icon = load("res://sprites/ui/chest.png")
+	warehouse_button.icon = load("res://sprites/ui/bau.png")
 	warehouse_button.text = ""
 	warehouse_button.expand_icon = true
 	warehouse_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -423,10 +431,10 @@ func width_for_window() -> int:
 
 func _align_side_panels() -> void:
 	_restore_base_panel()
+	_apply_hero_layout()
 	PanelLayout.align_panel(painel, menu_area, warehouse_panel_node, forge_panel_node, worlds_panel_node, _menus_abaixo, formation_panel_node, attributes_panel_node, skills_panel_node, skill_tree_panel_node)
 	_align_settings()
 	menu_width_changed.emit()
-	call_deferred("_apply_hero_layout")
 
 
 func _apply_hero_layout() -> void:
@@ -1210,6 +1218,48 @@ func _create_slot_style() -> StyleBoxFlat:
 	return estilo
 
 
+func _apply_nav_button_backgrounds() -> void:
+	var botoes: Array[Button] = [
+		botao_skills,
+		botao_inventario,
+		forge_button,
+		world_button,
+		character_attributes_button,
+	]
+	for botao in botoes:
+		if botao:
+			_apply_nav_button_style(botao)
+
+
+func _create_nav_button_stylebox(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	var estilo := StyleBoxTexture.new()
+	estilo.texture = load(NAV_BUTTON_BG_PATH)
+	estilo.texture_margin_left = NAV_BUTTON_TEXTURE_MARGIN.x
+	estilo.texture_margin_top = NAV_BUTTON_TEXTURE_MARGIN.y
+	estilo.texture_margin_right = NAV_BUTTON_TEXTURE_MARGIN.z
+	estilo.texture_margin_bottom = NAV_BUTTON_TEXTURE_MARGIN.w
+	estilo.content_margin_left = NAV_BUTTON_CONTENT_MARGIN.x
+	estilo.content_margin_top = NAV_BUTTON_CONTENT_MARGIN.y
+	estilo.content_margin_right = NAV_BUTTON_CONTENT_MARGIN.z
+	estilo.content_margin_bottom = NAV_BUTTON_CONTENT_MARGIN.w
+	estilo.modulate_color = modulate
+	return estilo
+
+
+func _apply_nav_button_style(botao: Button) -> void:
+	var min_size := botao.custom_minimum_size
+	min_size.y = NAV_BUTTON_MIN_HEIGHT
+	botao.custom_minimum_size = min_size
+	botao.add_theme_font_size_override("font_size", 12)
+	botao.add_theme_stylebox_override("normal", _create_nav_button_stylebox())
+	botao.add_theme_stylebox_override("hover", _create_nav_button_stylebox(Color(1.12, 1.08, 1.0, 1.0)))
+	botao.add_theme_stylebox_override("pressed", _create_nav_button_stylebox(Color(0.88, 0.86, 0.82, 1.0)))
+
+
+func _create_active_nav_button_style() -> StyleBoxTexture:
+	return _create_nav_button_stylebox(Color(1.18, 1.02, 0.82, 1.0))
+
+
 func _apply_bottom_bar_icons() -> void:
 	if botao_skills:
 		_setup_bar_button(botao_skills, "skills")
@@ -1223,11 +1273,14 @@ func _setup_bar_button(botao: Button, chave: String, destacado: bool = false) ->
 		return
 	botao.icon = InterfaceIcons.bar_icon(chave)
 	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	botao.expand_icon = true
+	botao.expand_icon = false
+	botao.clip_contents = false
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
-	botao.add_theme_constant_override("icon_max_width", 18)
+	botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	botao.add_theme_constant_override("icon_max_width", NAV_BUTTON_ICON_MAX_WIDTH)
 	botao.add_theme_constant_override("h_separation", 4)
+	botao.add_theme_font_size_override("font_size", 12)
 	if not destacado:
 		return
 	var estilo := StyleBoxFlat.new()
@@ -1390,7 +1443,7 @@ func _on_forge_visibility_changed(aberta: bool) -> void:
 		_restore_forge_button_style()
 		_align_side_panels()
 		return
-	var estilo := _create_active_forge_button_style()
+	var estilo := _create_active_nav_button_style()
 	forge_button.add_theme_stylebox_override("normal", estilo)
 	forge_button.add_theme_stylebox_override("hover", estilo)
 	forge_button.add_theme_stylebox_override("pressed", estilo)
@@ -1404,6 +1457,7 @@ func _on_warehouse_visibility_changed(aberta: bool) -> void:
 		warehouse_button.add_theme_stylebox_override("hover", estilo)
 		warehouse_button.add_theme_stylebox_override("pressed", estilo)
 		_align_side_panels()
+		call_deferred("_align_side_panels")
 		return
 	for nome in _warehouse_button_styles.keys():
 		warehouse_button.add_theme_stylebox_override(str(nome), _warehouse_button_styles[nome])
@@ -1434,7 +1488,7 @@ func _create_active_forge_button_style() -> StyleBoxFlat:
 
 func _on_worlds_visibility_changed(aberta: bool) -> void:
 	if aberta:
-		var estilo := _create_active_forge_button_style()
+		var estilo := _create_active_nav_button_style()
 		world_button.add_theme_stylebox_override("normal", estilo)
 		world_button.add_theme_stylebox_override("hover", estilo)
 		world_button.add_theme_stylebox_override("pressed", estilo)

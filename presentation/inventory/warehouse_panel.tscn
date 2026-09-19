@@ -4,10 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
-content_margin_left = 21.0
-content_margin_top = 19.0
-content_margin_right = 19.0
-content_margin_bottom = 20.0
 texture = ExtResource("2_fundo_mundos")
 texture_margin_left = 21.0
 texture_margin_top = 19.0
@@ -78,17 +74,38 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="WarehousePanel" type="PanelContainer"]
+[node name="WarehousePanel" type="Control"]
 visible = false
 custom_minimum_size = Vector2(252, 0)
+layout_mode = 3
+anchors_preset = 0
 size_flags_vertical = 3
 mouse_filter = 0
 clip_contents = true
-theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
 script = ExtResource("1_armazem")
 
+[node name="FundoPainel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
+
 [node name="Conteudo" type="VBoxContainer" parent="."]
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 21.0
+offset_top = 19.0
+offset_right = -19.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+clip_contents = true
 theme_override_constants/separation = 8
 
 [node name="WarehouseHeader" type="HBoxContainer" parent="Conteudo"]
@@ -128,13 +145,13 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 4
 
-[node name="CentralizarGrade" type="CenterContainer" parent="Conteudo"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="WarehouseGrid" type="GridContainer" parent="Conteudo/CentralizarGrade"]
+[node name="WarehouseGrid" type="GridContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
 columns = 1
 
 [node name="RodapeArmazem" type="HBoxContainer" parent="Conteudo"]

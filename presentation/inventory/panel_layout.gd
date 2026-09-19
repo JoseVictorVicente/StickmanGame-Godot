@@ -9,7 +9,7 @@ static func align_panel(
 	armazem: Control,
 	ferraria: Control,
 	mundos: Control,
-	menus_abaixo: bool,
+	_menus_abaixo: bool,
 	formacao: Control = null,
 	atributos: Control = null,
 	skills: Control = null,
@@ -17,17 +17,17 @@ static func align_panel(
 ) -> void:
 	if painel == null or menu_area == null:
 		return
+	var area_size := menu_area.size
 	var tam_painel := painel.get_combined_minimum_size() if painel.visible else painel.size
 	tam_painel.x = maxf(tam_painel.x, painel.custom_minimum_size.x)
 	if painel.visible and painel.size != tam_painel:
 		painel.size = tam_painel
-	var y := 0.0
-	var pos_painel := Vector2((menu_area.size.x - painel.size.x) * 0.5, y)
+	var pos_painel := Vector2((area_size.x - painel.size.x) * 0.5, 0.0)
 	if painel.position != pos_painel:
 		painel.position = pos_painel
-	_position_side(armazem, painel, true, y, painel.size.y, menu_area.size)
-	_position_side(ferraria, painel, false, y, painel.size.y, menu_area.size)
-	_position_side(mundos, painel, false, y, painel.size.y, menu_area.size)
+	_position_side(armazem, painel, true)
+	_position_side(ferraria, painel, false)
+	_position_side(mundos, painel, false)
 	_overlay_panel(formacao, painel)
 	_overlay_panel(atributos, painel)
 	_overlay_panel(skills, painel)
@@ -66,23 +66,19 @@ static func _largura_de(lado: Control) -> int:
 	return int(maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x))
 
 
-static func _position_side(lado: Control, painel: Control, na_esquerda: bool, y: float, altura: float, area: Vector2 = Vector2.ZERO) -> void:
+static func _position_side(lado: Control, painel: Control, na_esquerda: bool) -> void:
 	if lado == null or not lado.visible:
 		return
 	var largura := maxf(lado.custom_minimum_size.x, lado.get_combined_minimum_size().x)
-	# Mesma altura do inventário: o conteúdo extra rola por dentro do painel.
-	var altura_lado := maxf(altura, 1.0)
-	if area.y > 0.0:
-		altura_lado = minf(altura_lado, area.y)
-	var tam := Vector2(largura, altura_lado)
+	var altura := maxf(painel.size.y, 1.0)
+	var tam := Vector2(largura, altura)
+	var pos := Vector2(
+		painel.position.x - 8.0 - tam.x if na_esquerda else painel.position.x + painel.size.x + 8.0,
+		painel.position.y
+	)
+	# Control lateral segue o retângulo do inventário; não use o mínimo do conteúdo.
+	lado.custom_minimum_size = Vector2(largura, 0.0)
 	if lado.size != tam:
 		lado.size = tam
-	var pos: Vector2
-	if na_esquerda:
-		pos = Vector2(painel.position.x - 8.0 - lado.size.x, y)
-	else:
-		pos = Vector2(painel.position.x + painel.size.x + 8.0, y)
-	if area.y > 0.0:
-		pos.y = clampf(pos.y, 0.0, maxf(0.0, area.y - lado.size.y))
 	if lado.position != pos:
 		lado.position = pos
