@@ -90,10 +90,11 @@ Legacy `Array` format (3 fixed entries) still supported in `aplicar_equipamentos
 | `inventory_row.tscn` | Sort button, `inventory_slots_grid.tscn`, warehouse chest |
 | `bottom_nav.tscn` | Skills / inventory / forge / world buttons |
 
-Warrior equipment uses baked `equipment_grid_left.tscn` and `equipment_grid_right.tscn` inside `hero_section`; other classes still spawn `equipment_grid.tscn` at runtime. No editor mock/preview layer — WYSIWYG in the Godot 2D view.
+All six classes use baked `equipment_grid_left.tscn` / `equipment_grid_right.tscn` pairs inside `hero_section.tscn` (`EquipLeft_*` / `EquipRight_*`); runtime only toggles visibility and calls `build_slots()`. No editor mock/preview layer — WYSIWYG in the Godot 2D view.
 
 ## Warehouse (`WarehousePanel`)
 
+- **Baked UI:** 8 tab buttons + 8 `warehouse_slots_grid.tscn` instances (40 slots each) in `warehouse_panel.tscn`; `warehouse_panel.gd` wires tabs and refreshes slot state only.
 - Multiple tabs; first always unlocked.
 - Extra tabs via `ARMAZEM` nodes in the skill tree.
 - Serialization:
@@ -116,6 +117,16 @@ Three tabs:
 | **Synthesis** | 9 items same rarity/family → 1 higher rarity |
 | **Dismantle** | Item → gold (emits `ouro_obtido`) |
 | **Gems** | Imbue gem into legendary+ gear (`ItemData.imbuir_gema`) |
+
+**Baked UI:** synthesis/dismantle use `forge_slots_grid.tscn`; gems tab has three `item_slot.tscn` children in `GemsArea` (`SlotJoiaAlvo`, `SlotJoiaGema`, arrow host). Runtime updates icons/state only.
+
+## AttributesPanel
+
+- **Baked UI:** 12 `attribute_row.tscn` instances in `attributes_panel.tscn`; `attributes_panel.gd` calls `AttributeRow.set_values()` on refresh.
+
+## WorldsPanel
+
+- **Baked UI:** 5 world buttons, 3 difficulty buttons, 9 stage anchors in `worlds_panel.tscn`; `worlds_panel.gd` wires clicks and updates labels/highlights only.
 
 Optional toggle to consume warehouse items in synthesis.
 

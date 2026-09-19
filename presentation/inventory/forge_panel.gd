@@ -1,4 +1,3 @@
-@tool
 class_name ForgePanel
 extends Control
 ## Painel lateral de forja e desmonte.
@@ -42,6 +41,8 @@ const GEMS_ARROW_WIDTH := 32.0
 @onready var dismantle_panel: VBoxContainer = %DismantlePanel
 @onready var gems_panel: VBoxContainer = %GemsPanel
 @onready var gems_area: HBoxContainer = %GemsArea
+@onready var _slot_joia_alvo_node: ItemSlot = %SlotJoiaAlvo
+@onready var _slot_joia_gema_node: ItemSlot = %SlotJoiaGema
 @onready var imbue_button: Button = %ImbueButton
 @onready var explanation_label: Label = %ForgeExplanationLabel
 @onready var dismantle_explanation_label: Label = %DismantleExplanationLabel
@@ -86,7 +87,7 @@ func _ready() -> void:
 	visibility_changed.connect(_on_info_tooltip_visibility)
 	LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
-	_build_jewelry_area()
+	_wire_jewelry_area()
 	_setup_warehouse_toggle()
 	_setup_level_info_button()
 	show_tab(Aba.SINTESE)
@@ -109,6 +110,7 @@ func configure(menu: InventoryMenu) -> void:
 	_menu = menu
 	for slot in _todos_slots():
 		_menu.connect_forge_slot(slot)
+	_wire_jewelry_area()
 	for slot in _jewelry_slots():
 		_menu.connect_forge_slot(slot)
 	if not _menu.equipment_changed.is_connected(_on_items_changed):
@@ -552,20 +554,32 @@ func _align_jewelry_area(alvo: Rect2) -> void:
 		seta.queue_redraw()
 
 
-func _build_jewelry_area() -> void:
+func _wire_jewelry_area() -> void:
 	if gems_area == null:
 		return
-	for filho in gems_area.get_children():
-		filho.queue_free()
-	slot_joia_alvo = _create_jewelry_visual_slot("SlotJoiaAlvo", _validate_jewelry_target_drop)
-	gems_area.add_child(slot_joia_alvo)
-	var seta := Control.new()
-	seta.set_script(load("res://presentation/inventory/imbue_arrow.gd"))
-	seta.name = "SetaImbuir"
-	seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, 44)
-	gems_area.add_child(seta)
-	slot_joia_gema = _create_jewelry_visual_slot("SlotJoiaGema", _validate_jewelry_gem_drop)
-	gems_area.add_child(slot_joia_gema)
+	slot_joia_alvo = _slot_joia_alvo_node
+	slot_joia_gema = _slot_joia_gema_node
+	if slot_joia_alvo:
+		_configure_jewelry_slot(slot_joia_alvo, _validate_jewelry_target_drop)
+	if slot_joia_gema:
+		_configure_jewelry_slot(slot_joia_gema, _validate_jewelry_gem_drop)
+	var seta := gems_area.get_node_or_null("SetaImbuir")
+	if seta:
+		seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, 44)
+
+
+func _configure_jewelry_slot(slot: ItemSlot, validar: Callable) -> void:
+	if slot == null:
+		return
+	slot.custom_minimum_size = SLOT_SIZE
+	slot.mouse_filter = Control.MOUSE_FILTER_STOP
+	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	slot.configure()
+	slot.validar_drop_extra = validar
+	if not slot.item_double_clicked.is_connected(_on_slot_double_clicked):
+		slot.item_double_clicked.connect(_on_slot_double_clicked)
+	if _menu:
+		_menu.connect_forge_slot(slot)
 
 
 func _validate_jewelry_target_drop(item: ItemData, origem: ItemSlot = null) -> bool:
@@ -578,31 +592,6 @@ func _validate_jewelry_gem_drop(item: ItemData, origem: ItemSlot = null) -> bool
 	if origem and (origem.forge_reserved or is_origin_reserved(origem)):
 		return false
 	return can_accept_gem_jewelry(item)
-
-
-func _create_jewelry_visual_slot(nome: String, validar: Callable) -> ItemSlot:
-	var slot := ItemSlot.new()
-	slot.name = nome
-	slot.custom_minimum_size = SLOT_SIZE
-	slot.mouse_filter = Control.MOUSE_FILTER_STOP
-	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	var icone := TextureRect.new()
-	icone.name = "Icone"
-	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icone.offset_left = 4.0
-	icone.offset_top = 4.0
-	icone.offset_right = -4.0
-	icone.offset_bottom = -4.0
-	icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.add_child(icone)
-	slot.configure(icone, ItemData.Type.WEAPON, true)
-	slot.validar_drop_extra = validar
-	slot.item_double_clicked.connect(_on_slot_double_clicked)
-	if _menu:
-		_menu.connect_forge_slot(slot)
-	return slot
 
 
 func _on_imbue_pressed() -> void:

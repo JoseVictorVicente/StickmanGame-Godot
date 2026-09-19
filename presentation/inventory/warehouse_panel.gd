@@ -32,8 +32,8 @@ var _unlocked_tabs: Array[bool] = []
 func _ready() -> void:
 	hide()
 	_initialize_unlocks()
-	_create_tabs()
-	_create_grids()
+	_wire_tabs()
+	_wire_grids()
 	botao_fechar.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
@@ -188,47 +188,22 @@ func apply(dados: Variant) -> void:
 	show_tab(_aba_atual)
 
 
-func _create_tabs() -> void:
-	if tab_row.get_child_count() >= ABAS:
-		_collect_tab_buttons()
-		if not tab_row.has_meta("_tabs_wired"):
-			for i in _botoes_aba.size():
-				_botoes_aba[i].pressed.connect(show_tab.bind(i))
-			tab_row.set_meta("_tabs_wired", true)
-		for i in _botoes_aba.size():
-			_style_tab(_botoes_aba[i], i == _aba_atual, _unlocked_tabs[i])
-		return
+func _wire_tabs() -> void:
 	tab_row.columns = COLUNAS_ABAS
-	for i in ABAS:
-		var botao := Button.new()
-		botao.name = "Aba_%d" % (i + 1)
-		botao.custom_minimum_size = Vector2(0, 28)
-		botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		botao.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		botao.add_theme_font_size_override("font_size", 12)
-		if _unlocked_tabs[i]:
-			botao.text = str(i + 1)
-		else:
-			botao.text = "🔒"
-			botao.disabled = true
-		botao.pressed.connect(show_tab.bind(i))
-		tab_row.add_child(botao)
-		_botoes_aba.append(botao)
-		_style_tab(botao, i == 0, _unlocked_tabs[i])
+	_collect_tab_buttons()
+	assert(_botoes_aba.size() == ABAS, "warehouse TabRow should bake %d tab buttons" % ABAS)
+	if not tab_row.has_meta("_tabs_wired"):
+		for i in _botoes_aba.size():
+			_botoes_aba[i].pressed.connect(show_tab.bind(i))
+		tab_row.set_meta("_tabs_wired", true)
+	for i in _botoes_aba.size():
+		_style_tab(_botoes_aba[i], i == _aba_atual, _unlocked_tabs[i])
 
 
-func _create_grids() -> void:
-	if warehouse_grid.get_child_count() >= ABAS:
-		_collect_grid_slots()
-		return
+func _wire_grids() -> void:
 	warehouse_grid.columns = 1
-	for i in ABAS:
-		var grade := WAREHOUSE_GRID_SCENE.instantiate() as WarehouseSlotsGrid
-		grade.name = "GradeAba_%d" % i
-		grade.visible = i == 0
-		warehouse_grid.add_child(grade)
-		var lista := grade.build_slots(SLOT_SIZE)
-		_slots_por_aba.append(lista)
+	_collect_grid_slots()
+	assert(_slots_por_aba.size() == ABAS, "warehouse grid should bake %d tab grids" % ABAS)
 
 
 func _collect_tab_buttons() -> void:

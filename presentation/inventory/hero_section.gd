@@ -22,3 +22,16 @@ extends HBoxContainer
 @onready var character_name_label: Label = %CharacterNameLabel
 @onready var character_level_label: Label = %CharacterLevelLabel
 @onready var team_ui: TeamSelectionUI = %TeamArea
+@onready var hero_visual_section: SectionVisualOffset = %HeroVisualSection
+@onready var formation_button_host: SectionVisualOffset = %FormationButtonHost
+
+
+func apply_layout_offsets(layout: InventoryLayout) -> void:
+	if layout == null:
+		return
+	if hero_visual_section:
+		hero_visual_section.set_visual_offset(layout.portrait_region_offset)
+	if formation_button_host:
+		formation_button_host.set_visual_offset(layout.formation_button_offset)
+	if hero_card_row:
+		hero_card_row.add_theme_constant_override("separation", int(layout.portrait_controls_spacing))

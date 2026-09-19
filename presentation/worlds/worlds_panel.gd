@@ -66,9 +66,9 @@ func _ready() -> void:
 	gui_input.connect(_on_header_gui_input)
 	stage_map.resized.connect(_position_stages)
 	map_panel.visibility_changed.connect(_on_map_visibility_changed)
-	_create_world_list()
-	_create_difficulty_options()
-	_create_stage_map()
+	_wire_world_list()
+	_wire_difficulty_options()
+	_wire_stage_map()
 	_show_world_list()
 	_update_difficulty_button()
 	LocaleService.locale_changed.connect(_on_locale_changed)
@@ -137,51 +137,44 @@ func close() -> void:
 	panel_open_changed.emit(false)
 
 
-func _create_world_list() -> void:
-	for filho in world_list.get_children():
-		filho.queue_free()
+func _wire_world_list() -> void:
 	_world_buttons.clear()
 	for i in WorldProgress.TOTAL_WORLDS:
-		var botao := Button.new()
-		botao.name = "WorldButton_%d" % (i + 1)
-		botao.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		botao.custom_minimum_size = Vector2(0, 42)
-		botao.add_theme_font_size_override("font_size", 16)
-		botao.pressed.connect(_open_world_map.bind(i + 1))
-		world_list.add_child(botao)
+		var botao := world_list.get_node_or_null("WorldButton_%d" % (i + 1)) as Button
+		assert(botao != null, "world list should bake WorldButton_%d" % (i + 1))
+		if not botao.get_meta(&"world_wired", false):
+			botao.pressed.connect(_open_world_map.bind(i + 1))
+			botao.set_meta(&"world_wired", true)
 		_world_buttons.append(botao)
 	_update_world_list()
 
 
-func _create_difficulty_options() -> void:
-	for filho in difficulty_options.get_children():
-		filho.queue_free()
+func _wire_difficulty_options() -> void:
 	_botoes_opcao_dificuldade.clear()
 	for i in WorldProgress.Difficulty.size():
-		var botao := Button.new()
-		botao.text = WorldProgress.difficulty_name(i)
-		botao.custom_minimum_size = Vector2(0, 32)
-		botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		botao.clip_text = true
-		botao.add_theme_font_size_override("font_size", 12)
-		botao.pressed.connect(_choose_difficulty.bind(i))
-		difficulty_options.add_child(botao)
+		var botao := difficulty_options.get_node_or_null("DifficultyOption_%d" % i) as Button
+		assert(botao != null, "difficulty menu should bake option %d" % i)
+		if not botao.get_meta(&"difficulty_wired", false):
+			botao.pressed.connect(_choose_difficulty.bind(i))
+			botao.set_meta(&"difficulty_wired", true)
 		_botoes_opcao_dificuldade.append(botao)
 	_update_difficulty_options()
 
 
-func _create_stage_map() -> void:
+func _wire_stage_map() -> void:
 	_stage_tex = _circle_texture(int(STAGE_SIZE))
 	_boss_tex = _circle_texture(int(BOSS_SIZE))
+	_stage_anchors.clear()
+	_stage_labels.clear()
+	_stage_buttons.clear()
 	for i in WorldProgress.STAGES_PER_WORLD:
-		var ancora := Control.new()
-		ancora.name = "AncoraFase_%d" % (i + 1)
-		ancora.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stage_map.add_child(ancora)
-
+		var indice := i + 1
+		var ancora := stage_map.get_node_or_null("StageAnchor_%d" % indice) as Control
+		var botao := ancora.get_node_or_null("StageButton") as TextureButton if ancora else null
+		var rotulo := botao.get_node_or_null("StageLabel") as Label if botao else null
+		assert(ancora != null and botao != null and rotulo != null, "stage map should bake anchor %d" % indice)
 		var chefe := i == WorldProgress.STAGES_PER_WORLD - 1
 		var tamanho := BOSS_SIZE if chefe else STAGE_SIZE
-		var botao := TextureButton.new()
 		botao.custom_minimum_size = Vector2(tamanho, tamanho)
 		botao.focus_mode = Control.FOCUS_NONE
 		botao.ignore_texture_size = true
@@ -190,18 +183,11 @@ func _create_stage_map() -> void:
 		botao.texture_pressed = botao.texture_normal
 		botao.texture_hover = botao.texture_normal
 		botao.texture_disabled = botao.texture_normal
-		botao.pressed.connect(_on_stage_pressed.bind(i + 1))
-		ancora.add_child(botao)
-
-		var rotulo := Label.new()
-		rotulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		if not botao.get_meta(&"stage_wired", false):
+			botao.pressed.connect(_on_stage_pressed.bind(indice))
+			botao.set_meta(&"stage_wired", true)
 		rotulo.add_theme_font_size_override("font_size", 10 if chefe else 9)
 		rotulo.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
-		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		botao.add_child(rotulo)
-
 		_stage_anchors.append(ancora)
 		_stage_labels.append(rotulo)
 		_stage_buttons.append(botao)

@@ -12,6 +12,10 @@ const FORMATION_PARTY_SLOT_SCENE := preload("res://presentation/inventory/format
 const SKILLS_ACTIVE_GRID_SCENE := preload("res://presentation/inventory/skills_active_grid.tscn")
 const SKILLS_PASSIVE_GRID_SCENE := preload("res://presentation/inventory/skills_passive_grid.tscn")
 const FORMATION_PANEL_SCENE := preload("res://presentation/inventory/formation_panel.tscn")
+const WAREHOUSE_PANEL_SCENE := preload("res://presentation/inventory/warehouse_panel.tscn")
+const ATTRIBUTES_PANEL_SCENE := preload("res://presentation/inventory/attributes_panel.tscn")
+const FORGE_PANEL_SCENE := preload("res://presentation/inventory/forge_panel.tscn")
+const HERO_SECTION_SCENE := preload("res://presentation/inventory/hero_section.tscn")
 
 
 func _initialize() -> void:
@@ -70,6 +74,44 @@ func _initialize() -> void:
 	assert(hero_grid != null, "formation panel should expose hero grid")
 	assert(hero_grid.get_child_count() == 6, "formation hero grid should bake 6 heroes")
 	formation_panel.queue_free()
+
+	var warehouse_panel := WAREHOUSE_PANEL_SCENE.instantiate()
+	assert(warehouse_panel != null, "warehouse_panel scene should instantiate")
+	root.add_child(warehouse_panel)
+	var tab_row := warehouse_panel.get_node("%TabRow") as GridContainer
+	var wh_parent_grid := warehouse_panel.get_node("%WarehouseGrid") as GridContainer
+	assert(tab_row.get_child_count() == 8, "warehouse panel should bake 8 tabs")
+	assert(wh_parent_grid.get_child_count() == 8, "warehouse panel should bake 8 tab grids")
+	for i in 8:
+		var grade := wh_parent_grid.get_node("GradeAba_%d" % i) as WarehouseSlotsGrid
+		assert(grade != null, "warehouse should bake GradeAba_%d" % i)
+		assert(grade.get_child_count() == 40, "warehouse tab grid should bake 40 slots")
+	warehouse_panel.queue_free()
+
+	var attributes_panel := ATTRIBUTES_PANEL_SCENE.instantiate()
+	assert(attributes_panel != null, "attributes_panel scene should instantiate")
+	root.add_child(attributes_panel)
+	var attr_list := attributes_panel.get_node("%AttributesList") as VBoxContainer
+	assert(attr_list.get_child_count() == 12, "attributes panel should bake 12 rows")
+	attributes_panel.queue_free()
+
+	var forge_panel := FORGE_PANEL_SCENE.instantiate()
+	assert(forge_panel != null, "forge_panel scene should instantiate")
+	root.add_child(forge_panel)
+	var gems_area := forge_panel.get_node("%GemsArea") as HBoxContainer
+	assert(gems_area.get_child_count() == 3, "forge gems area should bake 3 children")
+	forge_panel.queue_free()
+
+	var hero_section := HERO_SECTION_SCENE.instantiate() as HeroSection
+	assert(hero_section != null, "hero_section scene should instantiate")
+	root.add_child(hero_section)
+	var equip_left := hero_section.get_node("%EquipLeft") as VBoxContainer
+	var equip_count := 0
+	for filho in equip_left.get_children():
+		if str(filho.name).begins_with("EquipLeft_"):
+			equip_count += 1
+	assert(equip_count == 6, "hero section should bake 6 left equip grids")
+	hero_section.queue_free()
 
 	print("[TEST PASS] Inventory UI prefabs")
 	quit()

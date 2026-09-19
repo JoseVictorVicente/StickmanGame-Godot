@@ -13,15 +13,33 @@ const RES_FISICA_PCT := 0.0
 const RES_ARCANA_PCT := 0.0
 const RES_ELEMENTAL_PCT := 0.0
 
+const ROW_KEYS: Array[String] = [
+	"attack", "hp", "xp", "xp_bonus", "gold_bonus", "attack_speed",
+	"crit_chance", "crit_damage", "evasion", "phys_res", "arcane_res", "elemental_res",
+]
+
+const TITLE_KEYS: Dictionary = {
+	"attack": LocaleKeys.ATTR_ATTACK,
+	"hp": LocaleKeys.ATTR_HP,
+	"xp": LocaleKeys.ATTR_XP_NEXT,
+	"xp_bonus": LocaleKeys.ATTR_BONUS_XP,
+	"gold_bonus": LocaleKeys.ATTR_BONUS_GOLD,
+	"attack_speed": LocaleKeys.ATTR_ATTACK_SPEED,
+	"crit_chance": LocaleKeys.ATTR_CRIT_CHANCE,
+	"crit_damage": LocaleKeys.ATTR_CRIT_DAMAGE,
+	"evasion": LocaleKeys.ATTR_EVASION,
+	"phys_res": LocaleKeys.ATTR_PHYS_RES,
+	"arcane_res": LocaleKeys.ATTR_ARCANE_RES,
+	"elemental_res": LocaleKeys.ATTR_ELEMENTAL_RES,
+}
+
 @onready var back_button: Button = %AttributesBackButton
 @onready var cabecalho: HBoxContainer = %AttributesHeader
 @onready var title_label: Label = $Conteudo/AttributesHeader/BannerTitulo/Titulo
 @onready var lista: VBoxContainer = %AttributesList
 
 var _menu: InventoryMenu
-var _linhas: Dictionary = {}
-var _title_labels: Dictionary = {}
-var _title_keys: Dictionary = {}
+var _rows: Dictionary = {}
 
 
 func _ready() -> void:
@@ -29,7 +47,7 @@ func _ready() -> void:
 	back_button.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
-	_build_rows()
+	_wire_rows()
 	LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
 
@@ -63,7 +81,7 @@ func close() -> void:
 
 
 func update() -> void:
-	if _menu == null or _linhas.is_empty():
+	if _menu == null or _rows.is_empty():
 		return
 	var stats: Dictionary = _menu.current_hero_stats()
 	_set_row("attack", str(int(stats.get("attack", 0))))
@@ -85,57 +103,22 @@ func refresh_locale() -> void:
 	update()
 
 
-func _build_rows() -> void:
-	if lista == null:
-		return
+func _wire_rows() -> void:
+	_rows.clear()
 	for filho in lista.get_children():
-		filho.queue_free()
-	_linhas.clear()
-	_title_labels.clear()
-	_title_keys.clear()
-	_add_row("attack", LocaleKeys.ATTR_ATTACK)
-	_add_row("hp", LocaleKeys.ATTR_HP)
-	_add_row("xp", LocaleKeys.ATTR_XP_NEXT)
-	_add_row("xp_bonus", LocaleKeys.ATTR_BONUS_XP)
-	_add_row("gold_bonus", LocaleKeys.ATTR_BONUS_GOLD)
-	_add_row("attack_speed", LocaleKeys.ATTR_ATTACK_SPEED)
-	_add_row("crit_chance", LocaleKeys.ATTR_CRIT_CHANCE)
-	_add_row("crit_damage", LocaleKeys.ATTR_CRIT_DAMAGE)
-	_add_row("evasion", LocaleKeys.ATTR_EVASION)
-	_add_row("phys_res", LocaleKeys.ATTR_PHYS_RES)
-	_add_row("arcane_res", LocaleKeys.ATTR_ARCANE_RES)
-	_add_row("elemental_res", LocaleKeys.ATTR_ELEMENTAL_RES)
-
-
-func _add_row(chave: String, title_key: String) -> void:
-	var linha := HBoxContainer.new()
-	linha.add_theme_constant_override("separation", 8)
-
-	var nome := Label.new()
-	nome.text = tr(title_key)
-	nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	nome.add_theme_color_override("font_color", Color(0.92, 0.84, 0.62, 1))
-	nome.add_theme_font_size_override("font_size", 13)
-	linha.add_child(nome)
-
-	var valor := Label.new()
-	valor.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	valor.custom_minimum_size.x = 88
-	valor.add_theme_color_override("font_color", Color(1, 0.94, 0.78, 1))
-	valor.add_theme_font_size_override("font_size", 13)
-	valor.text = "—"
-	linha.add_child(valor)
-
-	lista.add_child(linha)
-	_linhas[chave] = valor
-	_title_labels[chave] = nome
-	_title_keys[chave] = title_key
+		if filho is AttributeRow:
+			var linha := filho as AttributeRow
+			var chave := linha.row_key
+			if chave.is_empty():
+				chave = linha.name.replace("AttrRow_", "")
+			_rows[chave] = linha
+	assert(_rows.size() == ROW_KEYS.size(), "attributes list should bake %d rows" % ROW_KEYS.size())
 
 
 func _set_row(chave: String, texto: String) -> void:
-	var label: Label = _linhas.get(chave) as Label
-	if label:
-		label.text = texto
+	var linha: AttributeRow = _rows.get(chave) as AttributeRow
+	if linha:
+		linha.set_value(texto)
 
 
 func _pct(valor: float) -> String:
@@ -149,10 +132,10 @@ func _update_localized_texts() -> void:
 		title_label.text = tr(LocaleKeys.ATTR_TITLE).to_upper()
 	if back_button:
 		back_button.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
-	for chave in _title_labels.keys():
-		var nome: Label = _title_labels[chave] as Label
-		if nome:
-			nome.text = tr(str(_title_keys.get(chave, "")))
+	for chave in ROW_KEYS:
+		var linha: AttributeRow = _rows.get(chave) as AttributeRow
+		if linha:
+			linha.set_title(tr(str(TITLE_KEYS.get(chave, ""))))
 
 
 func _on_locale_changed(_locale_code: String) -> void:

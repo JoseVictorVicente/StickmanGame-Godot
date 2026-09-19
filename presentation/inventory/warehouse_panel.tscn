@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://c8arma0em01"]
+[gd_scene load_steps=8 format=3 uid="uid://c8arma0em01"]
 
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://presentation/inventory/warehouse_panel.gd" id="1_armazem"]
 [ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
+
+[ext_resource type="PackedScene" path="res://presentation/inventory/warehouse_slots_grid.tscn" id="10_whgrid"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
 texture = ExtResource("2_fundo_mundos")
@@ -145,6 +147,79 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 4
 
+[node name="Tab_1" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "1"
+disabled = false
+
+[node name="Tab_2" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_3" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_4" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_5" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_6" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_7" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+[node name="Tab_8" type="Button" parent="Conteudo/TabRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "🔒"
+disabled = true
+
+
 [node name="WarehouseGrid" type="GridContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -153,6 +228,39 @@ size_flags_vertical = 3
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 1
+
+[node name="GradeAba_0" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = true
+layout_mode = 2
+
+[node name="GradeAba_1" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_2" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_3" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_4" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_5" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_6" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
+[node name="GradeAba_7" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+visible = false
+layout_mode = 2
+
 
 [node name="RodapeArmazem" type="HBoxContainer" parent="Conteudo"]
 layout_mode = 2

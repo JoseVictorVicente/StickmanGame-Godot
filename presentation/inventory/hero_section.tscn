@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c8herosect01"]
+[gd_scene load_steps=16 format=3 uid="uid://c8herosect01"]
 
 [ext_resource type="Script" path="res://presentation/inventory/hero_section.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://c74n55kpxkj17" path="res://sprites/heroes/px_warrior2.jpg" id="2_ext"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://presentation/inventory/equipment_grid_right.tscn" id="4_ext"]
 [ext_resource type="PackedScene" uid="uid://c8partybtn01" path="res://presentation/inventory/party_hero_slot_button.tscn" id="5_ext"]
 [ext_resource type="Script" uid="uid://u7nsljsgk78f" path="res://presentation/inventory/team_selection_ui.gd" id="6_ext"]
+
+[ext_resource type="Script" path="res://presentation/inventory/section_visual_offset.gd" id="7_offset"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
 content_margin_left = 8.0
@@ -156,31 +158,57 @@ horizontal_alignment = 1
 [node name="EquipLeft_warrior" parent="EquipLeft" unique_id=426234985 instance=ExtResource("3_ext")]
 layout_mode = 2
 
+[node name="EquipLeft_priest" parent="EquipLeft" instance=ExtResource("3_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipLeft_tank" parent="EquipLeft" instance=ExtResource("3_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipLeft_assassin" parent="EquipLeft" instance=ExtResource("3_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipLeft_archer" parent="EquipLeft" instance=ExtResource("3_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipLeft_mage" parent="EquipLeft" instance=ExtResource("3_ext")]
+visible = false
+layout_mode = 2
+
 [node name="ColunaPersonagem" type="VBoxContainer" parent="." unique_id=1276900961]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="HeroVisualSection" type="VBoxContainer" parent="ColunaPersonagem" unique_id=1520038868]
+[node name="HeroVisualSection" type="Control" parent="ColunaPersonagem" unique_id=1520038868]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
+script = ExtResource("7_offset")
+
+[node name="Conteudo" type="VBoxContainer" parent="ColunaPersonagem/HeroVisualSection"]
+unique_name_in_owner = true
+layout_mode = 0
 theme_override_constants/separation = 0
 
-[node name="HeroCardRow" type="HBoxContainer" parent="ColunaPersonagem/HeroVisualSection" unique_id=1108557676]
+[node name="HeroCardRow" type="HBoxContainer" parent="ColunaPersonagem/HeroVisualSection/Conteudo" unique_id=1108557676]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="ActiveColumn" type="VBoxContainer" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow" unique_id=1420844334]
+[node name="ActiveColumn" type="VBoxContainer" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow" unique_id=1420844334]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SlotSkillMenuAtiva0" type="Button" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/ActiveColumn" unique_id=752370093]
+[node name="SlotSkillMenuAtiva0" type="Button" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn" unique_id=752370093]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
@@ -191,7 +219,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuAtiva1" type="Button" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/ActiveColumn" unique_id=181548716]
+[node name="SlotSkillMenuAtiva1" type="Button" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn" unique_id=181548716]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
@@ -202,14 +230,14 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="AreaFoto" type="Panel" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow" unique_id=38596150]
+[node name="AreaFoto" type="Panel" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow" unique_id=38596150]
 custom_minimum_size = Vector2(99, 99)
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_foto")
 
-[node name="CharacterPortrait" type="TextureRect" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/AreaFoto" unique_id=971436789]
+[node name="CharacterPortrait" type="TextureRect" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto" unique_id=971436789]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -225,7 +253,7 @@ texture = ExtResource("2_ext")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CharacterXpBar" type="ProgressBar" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/AreaFoto" unique_id=1879832173]
+[node name="CharacterXpBar" type="ProgressBar" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto" unique_id=1879832173]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
@@ -244,7 +272,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
 value = 65.0
 show_percentage = false
 
-[node name="CharacterXpLabel" type="Label" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/AreaFoto/CharacterXpBar" unique_id=78722055]
+[node name="CharacterXpLabel" type="Label" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto/CharacterXpBar" unique_id=78722055]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -261,13 +289,13 @@ text = "Nv.12 195/300"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PassiveColumn" type="VBoxContainer" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow" unique_id=1238705127]
+[node name="PassiveColumn" type="VBoxContainer" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow" unique_id=1238705127]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SlotSkillMenuPassiva0" type="Button" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/PassiveColumn" unique_id=1726093724]
+[node name="SlotSkillMenuPassiva0" type="Button" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn" unique_id=1726093724]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
@@ -278,7 +306,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuPassiva1" type="Button" parent="ColunaPersonagem/HeroVisualSection/HeroCardRow/PassiveColumn" unique_id=1386356382]
+[node name="SlotSkillMenuPassiva1" type="Button" parent="ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn" unique_id=1386356382]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
@@ -289,7 +317,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="CharacterAttributesButton" type="Button" parent="ColunaPersonagem/HeroVisualSection" unique_id=1922952545]
+[node name="CharacterAttributesButton" type="Button" parent="ColunaPersonagem/HeroVisualSection/Conteudo" unique_id=1922952545]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 28)
 layout_mode = 2
@@ -300,27 +328,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Atributos"
-
-[node name="PartySlots" type="HBoxContainer" parent="ColunaPersonagem/HeroVisualSection" unique_id=911457075]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="PartySlot0" parent="ColunaPersonagem/HeroVisualSection/PartySlots" unique_id=421355505 instance=ExtResource("5_ext")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="PartySlot1" parent="ColunaPersonagem/HeroVisualSection/PartySlots" unique_id=902967376 instance=ExtResource("5_ext")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="PartySlot2" parent="ColunaPersonagem/HeroVisualSection/PartySlots" unique_id=1733883316 instance=ExtResource("5_ext")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
 
 [node name="CharacterNameLabel" type="Label" parent="ColunaPersonagem" unique_id=2078191592]
 unique_name_in_owner = true
@@ -392,7 +399,34 @@ theme_override_font_sizes/font_size = 12
 text = "Equipe"
 horizontal_alignment = 1
 
-[node name="FormationButton" type="Button" parent="ColunaPersonagem/TeamArea" unique_id=500364364]
+[node name="PartySlots" type="HBoxContainer" parent="ColunaPersonagem/TeamArea" unique_id=911457075]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="PartySlot0" parent="ColunaPersonagem/TeamArea/PartySlots" unique_id=421355505 instance=ExtResource("5_ext")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="PartySlot1" parent="ColunaPersonagem/TeamArea/PartySlots" unique_id=902967376 instance=ExtResource("5_ext")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="PartySlot2" parent="ColunaPersonagem/TeamArea/PartySlots" unique_id=1733883316 instance=ExtResource("5_ext")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="FormationButtonHost" type="Control" parent="ColunaPersonagem/TeamArea"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("7_offset")
+
+[node name="FormationButton" type="Button" parent="ColunaPersonagem/TeamArea/FormationButtonHost" unique_id=500364364]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
@@ -432,6 +466,26 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 mouse_filter = 2
+
+[node name="EquipRight_priest" parent="EquipRight" instance=ExtResource("4_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipRight_tank" parent="EquipRight" instance=ExtResource("4_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipRight_assassin" parent="EquipRight" instance=ExtResource("4_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipRight_archer" parent="EquipRight" instance=ExtResource("4_ext")]
+visible = false
+layout_mode = 2
+
+[node name="EquipRight_mage" parent="EquipRight" instance=ExtResource("4_ext")]
+visible = false
+layout_mode = 2
 
 [node name="EquipRight_warrior" parent="EquipRight" unique_id=924670946 instance=ExtResource("4_ext")]
 layout_mode = 2

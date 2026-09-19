@@ -1,8 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://c8ferraria01"]
+[gd_scene load_steps=7 format=3 uid="uid://c8ferraria01"]
 
 [ext_resource type="Script" uid="uid://dxep2fv4y12m4" path="res://presentation/inventory/forge_panel.gd" id="1_ferraria"]
 [ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
 [ext_resource type="PackedScene" path="res://presentation/inventory/forge_slots_grid.tscn" id="10_forgegrid"]
+
+[ext_resource type="PackedScene" path="res://presentation/inventory/item_slot.tscn" id="11_itemslot"]
+[ext_resource type="Script" path="res://presentation/inventory/imbue_arrow.gd" id="12_arrow"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
 content_margin_left = 21.0
@@ -391,6 +394,24 @@ layout_mode = 0
 mouse_filter = 2
 theme_override_constants/separation = 0
 alignment = 1
+
+[node name="SlotJoiaAlvo" parent="Conteudo/ForgeBody/GemsArea" instance=ExtResource("11_itemslot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(44, 44)
+
+[node name="SetaImbuir" type="Control" parent="Conteudo/ForgeBody/GemsArea"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(32, 44)
+script = ExtResource("12_arrow")
+
+[node name="SlotJoiaGema" parent="Conteudo/ForgeBody/GemsArea" instance=ExtResource("11_itemslot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(44, 44)
+
+
 
 [node name="GemsPanel" type="VBoxContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true

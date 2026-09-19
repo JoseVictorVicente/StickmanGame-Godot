@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://presentation/inventory/attributes_panel.gd" id="1_atributos"]
 [ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
 
+[ext_resource type="PackedScene" path="res://presentation/inventory/attribute_row.tscn" id="10_row"]
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
 content_margin_top = 19.0
@@ -132,5 +134,54 @@ vertical_scroll_mode = 1
 [node name="AttributesList" type="VBoxContainer" parent="Conteudo/RolagemAtributos"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="AttrRow_attack" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "attack"
+
+[node name="AttrRow_hp" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "hp"
+
+[node name="AttrRow_xp" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "xp"
+
+[node name="AttrRow_xp_bonus" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "xp_bonus"
+
+[node name="AttrRow_gold_bonus" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "gold_bonus"
+
+[node name="AttrRow_attack_speed" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "attack_speed"
+
+[node name="AttrRow_crit_chance" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "crit_chance"
+
+[node name="AttrRow_crit_damage" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "crit_damage"
+
+[node name="AttrRow_evasion" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "evasion"
+
+[node name="AttrRow_phys_res" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "phys_res"
+
+[node name="AttrRow_arcane_res" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "arcane_res"
+
+[node name="AttrRow_elemental_res" parent="Conteudo/RolagemAtributos/AttributesList" instance=ExtResource("10_row")]
+layout_mode = 2
+row_key = "elemental_res"
+
