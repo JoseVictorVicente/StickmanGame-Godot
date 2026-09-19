@@ -5,3 +5,5 @@ extends CombatEffectResource
 @export var stat_key: String = ""
 @export var stat_value: float = 0.0
 @export var duration_sec: float = 0.0
+## self | party
+@export var target_scope: String = "self"

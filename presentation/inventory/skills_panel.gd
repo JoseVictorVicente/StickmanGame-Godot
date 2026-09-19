@@ -5,9 +5,6 @@ extends PanelContainer
 signal panel_open_changed(is_open: bool)
 signal slot_selected(stage_index: int)
 
-const SKILLS_ATIVAS_DISPONIVEIS := 5
-const SKILLS_PASSIVAS_DISPONIVEIS := 10
-const COLUNAS_GRADE := 5
 const TAMANHO_SLOT_EQUIPADO := Vector2(120, 64)
 const TAMANHO_SLOT_HABILIDADE := Vector2(64, 64)
 
@@ -20,8 +17,11 @@ const TAMANHO_SLOT_HABILIDADE := Vector2(64, 64)
 @onready var passive_section: VBoxContainer = %PassiveSkillsSection
 @onready var equipped_active_grid: GridContainer = %EquippedActiveGrid
 @onready var equipped_passive_grid: GridContainer = %EquippedPassiveGrid
-@onready var active_grid: GridContainer = %ActiveGrid
-@onready var passive_grid: GridContainer = %PassiveGrid
+@onready var _equipped_active_nodes: Array[Button] = [%EquippedActiveSlot0, %EquippedActiveSlot1]
+@onready var _equipped_passive_nodes: Array[Button] = [%EquippedPassiveSlot0, %EquippedPassiveSlot1]
+@onready var active_grid: SkillsActiveGrid = %ActiveGrid
+@onready var passive_grid: SkillsPassiveGrid = %PassiveGrid
+@onready var _hero_slot_nodes: Array[Button] = [%HeroSkillSlot0, %HeroSkillSlot1, %HeroSkillSlot2]
 @onready var title_label: Label = $Conteudo/SkillsHeader/BannerTitulo/Titulo
 @onready var hero_title_label: Label = $Conteudo/TituloHeroi
 @onready var equipped_active_title: Label = $Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/TituloEquipAtivas
@@ -34,16 +34,13 @@ var _menu: InventoryMenu
 var _party: PartyService
 var _slot_alvo: int = 0
 var _hero_buttons: Array[Button] = []
-var _hero_indices: Array[int] = []
 var _slots_equipados_ativos: Array[Button] = []
 var _slots_equipados_passivos: Array[Button] = []
 var _slots_ativos: Array[TextureButton] = []
 var _slots_passivos: Array[Button] = []
 var _slot_ativo_selecionado: int = 0
 var _slot_passivo_selecionado: int = 0
-var _grades_montadas: bool = false
-const _GRID_BUILD_VERSION := 2
-var _grid_build_version: int = 0
+var _equipped_grids_built: bool = false
 
 
 func _ready() -> void:
@@ -51,7 +48,10 @@ func _ready() -> void:
 	botao_fechar.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
-	_build_skill_grids()
+	_wire_equipped_slot_buttons()
+	_wire_skill_grids()
+	_wire_hero_selector()
+	_build_equipped_grids()
 	if not HeroEquipment.equipment_changed.is_connected(_on_equipment_changed):
 		HeroEquipment.equipment_changed.connect(_on_equipment_changed)
 	LocaleService.locale_changed.connect(_on_locale_changed)
@@ -111,114 +111,101 @@ func update() -> void:
 		return
 	if not (_party.active_party[_slot_alvo] is ClassData):
 		_slot_alvo = _party.first_occupied_slot()
-	_build_hero_selector()
+	_refresh_hero_selector()
 	_update_header()
 	_update_skills_ui()
 
 
-func _build_skill_grids() -> void:
-	if _grades_montadas and _grid_build_version == _GRID_BUILD_VERSION:
+func _wire_skill_grids() -> void:
+	if active_grid:
+		_slots_ativos = active_grid.setup(Callable(self, "_connect_active_slot"))
+	if passive_grid:
+		_slots_passivos = passive_grid.setup(Callable(self, "_connect_passive_slot"))
+
+
+func _wire_hero_selector() -> void:
+	_hero_buttons = _hero_slot_nodes.duplicate()
+	for i in PartyService.SLOTS:
+		if i >= _hero_buttons.size():
+			continue
+		var botao := _hero_buttons[i]
+		if botao.get_meta(&"hero_selector_wired", false):
+			continue
+		botao.pressed.connect(_on_hero_slot_pressed.bind(i))
+		botao.set_meta(&"hero_selector_wired", true)
+
+
+func _connect_active_slot(slot: TextureButton) -> void:
+	slot.pressed.connect(_on_available_active_pressed.bind(slot))
+	SkillTooltip.vincular(slot, func() -> SkillResource:
+		var skill: Variant = slot.get_meta("skill", null)
+		return skill if skill is SkillResource else null
+	)
+
+
+func _connect_passive_slot(slot: Button) -> void:
+	slot.pressed.connect(_on_available_skill_pressed.bind(slot))
+	SkillTooltip.vincular(slot, func() -> SkillResource:
+		var skill: Variant = slot.get_meta("skill", null)
+		return skill if skill is SkillResource else null
+	)
+
+
+func _build_equipped_grids() -> void:
+	if _equipped_grids_built:
 		return
-	if not _grades_montadas:
-		_create_equipped_slots()
-	else:
-		for filho in active_grid.get_children():
-			filho.queue_free()
-		for filho in passive_grid.get_children():
-			filho.queue_free()
-		_slots_ativos.clear()
-		_slots_passivos.clear()
-	active_grid.columns = COLUNAS_GRADE
-	passive_grid.columns = COLUNAS_GRADE
-	_create_framed_active_slots(active_grid, _slots_ativos, SKILLS_ATIVAS_DISPONIVEIS)
-	_create_skill_slots(passive_grid, _slots_passivos, SKILLS_PASSIVAS_DISPONIVEIS)
-	_grades_montadas = true
-	_grid_build_version = _GRID_BUILD_VERSION
+	_bind_equipped_slots()
+	_equipped_grids_built = true
 
 
-func _create_equipped_slots() -> void:
+func _wire_equipped_slot_buttons() -> void:
+	if has_meta("_equipped_slots_wired"):
+		return
+	for stage_index in HeroEquipment.MAX_ACTIVE:
+		_equipped_active_nodes[stage_index].pressed.connect(_on_active_slot_pressed.bind(stage_index))
+	for stage_index in HeroEquipment.MAX_PASSIVE:
+		_equipped_passive_nodes[stage_index].pressed.connect(_on_passive_slot_pressed.bind(stage_index))
+	set_meta("_equipped_slots_wired", true)
+
+
+func _bind_equipped_slots() -> void:
 	_slots_equipados_ativos.clear()
 	_slots_equipados_passivos.clear()
 	for stage_index in HeroEquipment.MAX_ACTIVE:
-		var botao := _create_equipped_slot_button("SlotAtiva%d" % stage_index, stage_index, true)
-		equipped_active_grid.add_child(botao)
+		var botao := _equipped_active_nodes[stage_index]
+		_configure_equipped_slot_button(botao, stage_index, true)
 		_slots_equipados_ativos.append(botao)
 	for stage_index in HeroEquipment.MAX_PASSIVE:
-		var botao := _create_equipped_slot_button("SlotPassiva%d" % stage_index, stage_index, false)
-		equipped_passive_grid.add_child(botao)
+		var botao := _equipped_passive_nodes[stage_index]
+		_configure_equipped_slot_button(botao, stage_index, false)
 		_slots_equipados_passivos.append(botao)
 
 
-func _create_equipped_slot_button(nome: String, stage_index: int, ativo: bool) -> Button:
-	var botao := Button.new()
-	botao.name = nome
+func _configure_equipped_slot_button(botao: Button, stage_index: int, ativo: bool) -> void:
 	botao.custom_minimum_size = TAMANHO_SLOT_EQUIPADO
 	botao.text = _empty_slot_text()
 	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	botao.add_theme_font_size_override("font_size", 10)
 	botao.set_meta("slot_equipado_ativo", ativo)
 	botao.set_meta("slot_equipado_indice", stage_index)
-	if ativo:
-		botao.pressed.connect(_on_active_slot_pressed.bind(stage_index))
-	else:
-		botao.pressed.connect(_on_passive_slot_pressed.bind(stage_index))
 	SkillTooltip.vincular(botao, func() -> SkillResource:
 		var classe_id := _get_class_id()
 		var tipo := SkillResource.Type.ACTIVE if ativo else SkillResource.Type.PASSIVE
 		return HeroEquipment.get_equipped(classe_id, tipo, stage_index)
 	)
-	return botao
 
 
-func _create_framed_active_slots(grade: GridContainer, destino: Array[TextureButton], quantidade: int) -> void:
-	destino.clear()
-	for stage_index in quantidade:
-		var slot := TextureButton.new()
-		slot.name = "SlotHabilidade%d" % (stage_index + 1)
-		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
-		slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		slot.focus_mode = Control.FOCUS_NONE
-		slot.disabled = true
-		slot.pressed.connect(_on_available_active_pressed.bind(slot))
-		SkillTooltip.vincular(slot, func() -> SkillResource:
-			var skill: Variant = slot.get_meta("skill", null)
-			return skill if skill is SkillResource else null
-		)
-		grade.add_child(slot)
-		destino.append(slot)
-
-
-func _create_skill_slots(grade: GridContainer, destino: Array[Button], amount: int) -> void:
-	destino.clear()
-	for stage_index in amount:
-		var slot := Button.new()
-		slot.name = "SlotHabilidade%d" % (stage_index + 1)
-		slot.custom_minimum_size = TAMANHO_SLOT_HABILIDADE
-		slot.text = ""
-		slot.disabled = true
-		slot.add_theme_font_size_override("font_size", 9)
-		slot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		slot.pressed.connect(_on_available_skill_pressed.bind(slot))
-		SkillTooltip.vincular(slot, func() -> SkillResource:
-			var skill: Variant = slot.get_meta("skill", null)
-			return skill if skill is SkillResource else null
-		)
-		grade.add_child(slot)
-		destino.append(slot)
-
-
-func _build_hero_selector() -> void:
-	for filho in hero_slots.get_children():
-		filho.queue_free()
-	_hero_buttons.clear()
-	_hero_indices.clear()
+func _refresh_hero_selector() -> void:
 	for i in PartyService.SLOTS:
+		if i >= _hero_buttons.size():
+			continue
+		var botao := _hero_buttons[i]
 		var classe: Variant = _party.active_party[i]
 		if not (classe is ClassData):
+			botao.visible = false
 			continue
 		var dados := classe as ClassData
-		var botao := Button.new()
+		botao.visible = true
 		botao.custom_minimum_size = Vector2(72, 82)
 		botao.text = dados.get_localized_name()
 		botao.icon = dados.character_sprite
@@ -229,10 +216,6 @@ func _build_hero_selector() -> void:
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		botao.add_theme_constant_override("icon_max_width", 48)
 		botao.add_theme_font_size_override("font_size", 9)
-		botao.pressed.connect(_on_hero_slot_pressed.bind(i))
-		hero_slots.add_child(botao)
-		_hero_buttons.append(botao)
-		_hero_indices.append(i)
 		_paint_hero(botao, i == _slot_alvo)
 
 
@@ -284,21 +267,26 @@ func _update_equipped_slots() -> void:
 
 func _update_available_skills() -> void:
 	var classe_id := _get_class_id()
-	for slot in _slots_ativos:
-		_setup_framed_active_slot(slot, null, classe_id)
-	for slot in _slots_passivos:
-		_setup_available_slot(slot, null, classe_id)
-	var indice_ativa := 0
-	var indice_passiva := 0
-	for skill in HeroEquipment.catalog_for(classe_id):
-		if skill == null:
+	var ativas := HeroEquipment.catalog_skills(classe_id, SkillResource.Type.ACTIVE)
+	var passivas := HeroEquipment.catalog_skills(classe_id, SkillResource.Type.PASSIVE)
+	for i in _slots_ativos.size():
+		var slot := _slots_ativos[i]
+		if i >= ativas.size():
+			slot.visible = false
+			slot.set_meta("skill", null)
+			_setup_framed_active_slot(slot, null, classe_id)
 			continue
-		if skill.type == SkillResource.Type.ACTIVE and indice_ativa < _slots_ativos.size():
-			_setup_framed_active_slot(_slots_ativos[indice_ativa], skill, classe_id)
-			indice_ativa += 1
-		elif skill.type == SkillResource.Type.PASSIVE and indice_passiva < _slots_passivos.size():
-			_setup_available_slot(_slots_passivos[indice_passiva], skill, classe_id)
-			indice_passiva += 1
+		slot.visible = true
+		_setup_framed_active_slot(slot, ativas[i], classe_id)
+	for i in _slots_passivos.size():
+		var slot := _slots_passivos[i]
+		if i >= passivas.size():
+			slot.visible = false
+			slot.set_meta("skill", null)
+			_setup_available_slot(slot, null, classe_id)
+			continue
+		slot.visible = true
+		_setup_available_slot(slot, passivas[i], classe_id)
 
 
 func _setup_framed_active_slot(slot: TextureButton, skill: SkillResource, classe_id: String) -> void:

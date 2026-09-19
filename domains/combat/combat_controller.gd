@@ -239,6 +239,7 @@ func _resolve_death() -> void:
 	gold_gained.emit(gold)
 	_apply_xp(_apply_xp_bonus(current_enemy.xp_reward))
 	_try_drop()
+	party.apply_on_kill_passives()
 	_advance_stage()
 	party.heal_party()
 	spawn_enemy()

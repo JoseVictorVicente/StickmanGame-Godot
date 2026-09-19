@@ -1,0 +1,211 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8invslots01"]
+
+[ext_resource type="Script" path="res://presentation/inventory/inventory_slots_grid.gd" id="1_grid"]
+[ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
+
+[node name="InventoryGrid" type="GridContainer"]
+custom_minimum_size = Vector2(378, 196)
+columns = 10
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+script = ExtResource("1_grid")
+
+[node name="SlotInventario_01" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_02" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_03" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_04" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_05" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_06" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_07" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_08" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_09" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_10" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_11" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_12" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_13" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_14" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_15" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_16" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_17" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_18" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_19" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_20" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_21" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_22" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_23" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_24" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_25" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_26" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_27" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_28" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_29" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_30" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_31" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_32" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_33" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_34" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_35" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_36" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_37" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_38" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_39" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_40" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_41" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_42" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_43" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_44" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_45" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_46" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_47" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_48" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_49" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotInventario_50" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2

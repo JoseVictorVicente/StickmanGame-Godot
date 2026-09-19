@@ -206,6 +206,9 @@ func _apply_buff_overlay(slot_index: int, class_data: ClassData, stats: Dictiona
 	overlay["crit_damage"] = float(bonus.get("crit_damage", 0.0))
 	overlay["evasion"] = float(bonus.get("evasion", 0.0))
 	overlay["phys_res"] = float(bonus.get("phys_res", 0.0))
+	overlay["arcane_res"] = float(bonus.get("arcane_res", 0.0))
+	overlay["elemental_res"] = float(bonus.get("elemental_res", 0.0))
+	overlay["cooldown_reduction"] = float(bonus.get("cooldown_reduction", 0.0))
 	return overlay
 
 
@@ -329,7 +332,9 @@ func mitigate_incoming_damage(slot_index: int, raw_damage: int) -> Dictionary:
 	return CombatMath.mitigate_damage(
 		raw_damage,
 		float(stats.get("evasion", 0.0)),
-		float(stats.get("phys_res", 0.0))
+		float(stats.get("phys_res", 0.0)),
+		float(stats.get("arcane_res", 0.0)),
+		float(stats.get("elemental_res", 0.0))
 	)
 
 
@@ -388,6 +393,79 @@ func heal_slots_for_scope(caster_slot: int, target_scope: String) -> Array[int]:
 		if is_hero_alive(i):
 			slots.append(i)
 	return slots
+
+
+func apply_on_kill_passives() -> void:
+	var flat_reduction := 0.0
+	for slot_index in SLOTS:
+		var classe: Variant = active_party[slot_index]
+		if classe == null or not (classe is ClassData):
+			continue
+		if not is_hero_alive(slot_index):
+			continue
+		var class_id := (classe as ClassData).id
+		for passive_slot in HeroEquipment.MAX_PASSIVE:
+			var passive: SkillResource = HeroEquipment.get_equipped(
+				class_id,
+				SkillResource.Type.PASSIVE,
+				passive_slot
+			)
+			if passive == null:
+				continue
+			match passive.skill_id:
+				"adrenaline":
+					flat_reduction = maxf(flat_reduction, 1.0)
+				"adrenaline_surge":
+					flat_reduction = maxf(flat_reduction, 0.5)
+	if flat_reduction > 0.0:
+		_active_runtime.reduce_all_cooldowns(flat_reduction)
+
+
+func cooldown_reduction_pct(slot_index: int) -> float:
+	var stats := hero_stats(slot_index)
+	if stats.is_empty():
+		return 0.0
+	var bonus: Variant = stats.get("skill_tree_bonus")
+	if bonus is Dictionary:
+		return float(bonus.get("cooldown_reduction", 0.0))
+	return float(stats.get("cooldown_reduction", 0.0))
+
+
+func _apply_skill_buffs(caster_slot: int, buffs: Array) -> bool:
+	var changed := false
+	for buff in buffs:
+		var stat_key := str(buff.get("stat_key", ""))
+		var stat_value := float(buff.get("stat_value", 0.0))
+		var duration_sec := float(buff.get("duration_sec", 0.0))
+		if stat_key == "" or duration_sec <= 0.0 or stat_value == 0.0:
+			continue
+		var scope := str(buff.get("target_scope", "self"))
+		if scope == "party":
+			var slots: Array = []
+			for i in SLOTS:
+				if is_hero_alive(i):
+					slots.append(i)
+			_buff_container.add_buff_to_slots(slots, stat_key, stat_value, duration_sec)
+		else:
+			_buff_container.add_buff(caster_slot, stat_key, stat_value, duration_sec)
+		changed = true
+	return changed
+
+
+func _apply_rune_resonance_stacking(slot_index: int, class_id: String) -> bool:
+	for passive_slot in HeroEquipment.MAX_PASSIVE:
+		var passive: SkillResource = HeroEquipment.get_equipped(
+			class_id,
+			SkillResource.Type.PASSIVE,
+			passive_slot
+		)
+		if passive == null or passive.skill_id != "rune_resonance":
+			continue
+		if _buff_container.count_stacks(slot_index, "cooldown_reduction") >= 4:
+			return false
+		_buff_container.add_buff(slot_index, "cooldown_reduction", 5.0, 3.0)
+		return true
+	return false
 
 
 func heal_party() -> void:
@@ -566,7 +644,8 @@ func _on_hero_timer(slot_index: int) -> void:
 	if sprite.has_method("play_attack"):
 		sprite.play_attack()
 	var class_data := classe as ClassData
-	var skill := _active_runtime.try_cast(slot_index, class_data.id)
+	var cdr_pct := cooldown_reduction_pct(slot_index)
+	var skill := _active_runtime.try_cast(slot_index, class_data.id, cdr_pct)
 	if skill != null:
 		var stats := hero_stats(slot_index)
 		var ctx := {
@@ -575,14 +654,9 @@ func _on_hero_timer(slot_index: int) -> void:
 			"crit_damage": float(stats.get("crit_damage", 0.0)),
 		}
 		var result: Dictionary = _combat_resolver.resolve_skill(skill, ctx)
-		for buff in result.get("buffs", []):
-			_buff_container.add_buff(
-				slot_index,
-				str(buff.get("stat_key", "")),
-				float(buff.get("stat_value", 0.0)),
-				float(buff.get("duration_sec", 0.0))
-			)
-		if not result.get("buffs", []).is_empty():
+		if _apply_skill_buffs(slot_index, result.get("buffs", [])):
+			recalculate_stats()
+		if _apply_rune_resonance_stacking(slot_index, class_data.id):
 			recalculate_stats()
 		hero_skill_used.emit(
 			slot_index,

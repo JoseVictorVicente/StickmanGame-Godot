@@ -1,12 +1,21 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/damage_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "damage_burst"
+multiplier = 1.5
+hits = 1
+force_crit = false
+armor_pen_pct = 0.0
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "punicao_divina"
-name_key = "SKILL_punicao_divina"
-description_key = "SKILL_punicao_divina_DESC"
+name_key = "SKILL_divine_punishment"
+description_key = "SKILL_divine_punishment_DESC"
 type = 0
 cooldown = 6.0
 icon_path = "res://sprites/ui/skills/priest/punicao_divina.png"
@@ -14,4 +23,4 @@ sort_order = 3
 stat_bonus_key = ""
 stat_value = 0.0
 vfx_id = ""
-effects = []
+effects = [SubResource("Effect_0")]

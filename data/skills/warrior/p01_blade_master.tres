@@ -12,6 +12,6 @@ cooldown = 0.0
 icon_path = "res://sprites/ui/skills/warrior/blade_master.png"
 sort_order = 1
 stat_bonus_key = "attack"
-stat_value = 6.0
+stat_value = 8.0
 vfx_id = ""
 effects = []

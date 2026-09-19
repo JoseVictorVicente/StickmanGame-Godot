@@ -12,6 +12,6 @@ cooldown = 0.0
 icon_path = "res://sprites/ui/skills/priest/sacred_touch.png"
 sort_order = 6
 stat_bonus_key = "hp"
-stat_value = 20.0
+stat_value = 25.0
 vfx_id = ""
 effects = []

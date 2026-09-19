@@ -26,6 +26,10 @@ func _ready() -> void:
 func _refresh() -> void:
 	if _conteudo == null:
 		return
+	if Engine.is_editor_hint():
+		_conteudo.position = Vector2.ZERO
+		custom_minimum_size = _conteudo.get_combined_minimum_size()
+		return
 	var tam := _conteudo.get_combined_minimum_size()
 	var largura := tam.x
 	if size.x > 1.0:

@@ -99,6 +99,15 @@ msgstr "All Classes"
 msgid "UI_EMPTY_SLOT"
 msgstr "Empty"
 
+msgid "START_TITLE"
+msgstr "Stickman Idle"
+
+msgid "START_SUBTITLE"
+msgstr "Desktop idle RPG"
+
+msgid "BTN_PLAY"
+msgstr "Play"
+
 msgid "BTN_CLOSE"
 msgstr "Close"
 
@@ -856,49 +865,49 @@ msgid "SKILL_instant_double_shot"
 msgstr "Instant Double Shot"
 
 msgid "SKILL_instant_double_shot_DESC"
-msgstr "Fires two rapid consecutive shots with 200% critical damage."
+msgstr "Two instant shots, both guaranteed critical hits."
 
 msgid "SKILL_dark_volley"
 msgstr "Dark Volley"
 
 msgid "SKILL_dark_volley_DESC"
-msgstr "Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at the strongest target."
+msgstr "Dark volley fires 5 arrows at 40% damage each."
 
 msgid "SKILL_precision_shot"
 msgstr "Precision Shot"
 
 msgid "SKILL_precision_shot_DESC"
-msgstr "A 0.4s charged shot that guarantees a critical hit and ignores 30% armor."
+msgstr "Precision shot: 50% bonus damage, guaranteed crit, 30% armor pen."
 
 msgid "SKILL_hunter_stance"
 msgstr "Hunter Stance"
 
 msgid "SKILL_hunter_stance_DESC"
-msgstr "Plants feet lightly and gains 30% Attack Speed and 10% Physical Damage for 3.5 seconds."
+msgstr "Hunter stance: +30% Attack Speed and +10% damage for 3.5 seconds."
 
 msgid "SKILL_neon_vision"
 msgstr "Neon Vision"
 
 msgid "SKILL_neon_vision_DESC"
-msgstr "Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds."
+msgstr "Neon vision grants 30% Critical Chance for 4 seconds."
 
 msgid "SKILL_armor_penetration"
 msgstr "Armor Penetration"
 
 msgid "SKILL_armor_penetration_DESC"
-msgstr "Basic attacks and skills ignore a portion of armored or boss enemy defense."
+msgstr "Arrows ignore part of enemy armor, increasing damage by 8%."
 
 msgid "SKILL_reflex_recoil"
 msgstr "Reflex Recoil"
 
 msgid "SKILL_reflex_recoil_DESC"
-msgstr "When HP drops below 25%, gains a temporary shield and a large movement speed boost for 3 seconds."
+msgstr "Quick reflexes grant 5% Evasion."
 
 msgid "SKILL_swift_execution"
 msgstr "Swift Execution"
 
 msgid "SKILL_swift_execution_DESC"
-msgstr "Deals 20% more damage to enemies below 30% max HP."
+msgstr "Swift strikes deal 6% more damage."
 
 msgid "SKILL_nimble_hands"
 msgstr "Nimble Hands"
@@ -910,349 +919,349 @@ msgid "SKILL_eagle_eye"
 msgstr "Eagle Eye"
 
 msgid "SKILL_eagle_eye_DESC"
-msgstr "Increases critical hit rate and on-screen vision range."
+msgstr "Eagle vision grants 6% Critical Chance."
 
 msgid "SKILL_drawstring_tension"
 msgstr "Drawstring Tension"
 
 msgid "SKILL_drawstring_tension_DESC"
-msgstr "Reduces frontal shot animation time, increasing basic Attack Speed by 15%."
+msgstr "Tensed bowstring increases Attack Speed by 12%."
 
 msgid "SKILL_wearing_poison"
 msgstr "Wearing Poison"
 
 msgid "SKILL_wearing_poison_DESC"
-msgstr "5% chance to apply poison on basic attacks."
+msgstr "Poisoned arrows add 4 flat damage."
 
 msgid "SKILL_weak_prey"
 msgstr "Weak Prey"
 
 msgid "SKILL_weak_prey_DESC"
-msgstr "Deals 15% more damage to monsters below 25% HP."
+msgstr "Hunter instinct adds 5% damage."
 
 msgid "SKILL_stacking_impact"
 msgstr "Stacking Impact"
 
 msgid "SKILL_stacking_impact_DESC"
-msgstr "Each arrow hitting the same target within 2s increases next hit damage by 5% (max 25%)."
+msgstr "Each impact lands harder, adding 7% damage."
 
 msgid "SKILL_surgical_aim"
 msgstr "Surgical Aim"
 
 msgid "SKILL_surgical_aim_DESC"
-msgstr "Increases Critical Hit Rate by 30% against targets above 70% HP."
+msgstr "Precise aim grants 8% Critical Chance."
 
 msgid "SKILL_twin_execution_cut"
 msgstr "Twin Execution Cut"
 
 msgid "SKILL_twin_execution_cut_DESC"
-msgstr "An X-shaped cross slash with both daggers. Deals double damage to enemies below 30% HP."
+msgstr "Cross slash hitting twice for full damage."
 
 msgid "SKILL_prey_mark"
 msgstr "Prey Mark"
 
 msgid "SKILL_prey_mark_DESC"
-msgstr "Marks a target for 4 seconds. Damage dealt is stored and explodes for 30% bonus damage at the end."
+msgstr "Marked prey takes 30% bonus burst damage."
 
 msgid "SKILL_quick_twin_cut"
 msgstr "Quick Twin Cut"
 
 msgid "SKILL_quick_twin_cut_DESC"
-msgstr "Two ultra-fast cross strikes to the target's chest."
+msgstr "Two ultra-fast cross strikes."
 
 msgid "SKILL_awakened_sequence"
 msgstr "Awakened Sequence"
 
 msgid "SKILL_awakened_sequence_DESC"
-msgstr "Gains an immediate 60% Attack Speed surge for 4 hits or 3 seconds."
+msgstr "Awakened rhythm grants 60% Attack Speed for 3 seconds."
 
 msgid "SKILL_swift_decapitation"
 msgstr "Swift Decapitation"
 
 msgid "SKILL_swift_decapitation_DESC"
-msgstr "A high neck strike dealing 50% extra damage if the target is below 30% HP."
+msgstr "Neck strike dealing 50% bonus damage."
 
 msgid "SKILL_shadow_reflexes"
 msgstr "Shadow Reflexes"
 
 msgid "SKILL_shadow_reflexes_DESC"
-msgstr "Increases base Critical Hit Rate and Attack Speed."
+msgstr "Shadow reflexes grant 5% Critical Chance."
 
 msgid "SKILL_adrenaline_surge"
 msgstr "Adrenaline Surge"
 
 msgid "SKILL_adrenaline_surge_DESC"
-msgstr "Killing an enemy restores 50% cooldown on all active skills."
+msgstr "Adrenaline surge increases Attack Speed by 8%. Killing an enemy resets 0.5s of skill cooldown."
 
 msgid "SKILL_venomous_vein"
 msgstr "Venomous Vein"
 
 msgid "SKILL_venomous_vein_DESC"
-msgstr "Increases critical damage by 25% against poisoned or bleeding targets."
+msgstr "Venomous strikes add 12% Critical Damage."
 
 msgid "SKILL_stealth_strike"
 msgstr "Stealth Strike"
 
 msgid "SKILL_stealth_strike_DESC"
-msgstr "First hit when entering combat deals 50% additional critical damage."
+msgstr "Stealth strikes add 10% Critical Damage."
 
 msgid "SKILL_lethal_execution"
 msgstr "Lethal Execution"
 
 msgid "SKILL_lethal_execution_DESC"
-msgstr "Attacks on targets below 15% max HP may instantly execute (except stage bosses)."
+msgstr "Lethal execution adds 8% damage."
 
 msgid "SKILL_deep_cut"
 msgstr "Deep Cut"
 
 msgid "SKILL_deep_cut_DESC"
-msgstr "Bleeds from daggers last 1.5s longer."
+msgstr "Deep cuts add 4 flat damage."
 
 msgid "SKILL_weak_point_mapping"
 msgstr "Weak Point Mapping"
 
 msgid "SKILL_weak_point_mapping_DESC"
-msgstr "Ignores 20% of enemy base armor."
+msgstr "Weak point knowledge adds 8% damage."
 
 msgid "SKILL_adrenaline"
 msgstr "Adrenaline"
 
 msgid "SKILL_adrenaline_DESC"
-msgstr "Killing an enemy resets 1 second of cooldown on all active skills."
+msgstr "Adrenaline rush increases Attack Speed by 5%. Killing an enemy resets 1s of skill cooldown."
 
 msgid "SKILL_assassin_rhythm"
 msgstr "Assassin Rhythm"
 
 msgid "SKILL_assassin_rhythm_DESC"
-msgstr "Each active skill hit adds 10% Attack Speed (stacks up to 5 times, +50% for 4s)."
+msgstr "Assassin rhythm increases Attack Speed by 10%."
 
 msgid "SKILL_light_blade"
 msgstr "Light Blade"
 
 msgid "SKILL_light_blade_DESC"
-msgstr "Increases damage by 10%."
+msgstr "Light blade adds 10% damage."
 
 msgid "SKILL_sacred_position"
 msgstr "Sacred Position"
 
 msgid "SKILL_sacred_position_DESC"
-msgstr "Instantly restores a portion of the lowest-HP ally's health."
+msgstr "Restores 15% max HP to the lowest-HP ally."
 
 msgid "SKILL_solar_shield"
 msgstr "Solar Shield"
 
 msgid "SKILL_solar_shield_DESC"
-msgstr "Grants a bright light shield to the most vulnerable ally, absorbing damage for 3 seconds."
+msgstr "Solar light restores 12% max HP to the lowest-HP ally."
 
 msgid "SKILL_divine_punishment"
 msgstr "Divine Punishment"
 
 msgid "SKILL_divine_punishment_DESC"
-msgstr "Calls a vertical beam of light on the densest enemy group, dealing elemental damage."
+msgstr "Divine beam dealing 50% bonus damage."
 
 msgid "SKILL_inviolability_aura"
 msgstr "Inviolability Aura"
 
 msgid "SKILL_inviolability_aura_DESC"
-msgstr "Creates a 1.5s dome that reduces all party damage taken by 15% and heals over time."
+msgstr "Heals party for 8% max HP and grants 15% Physical Resistance for 1.5s."
 
 msgid "SKILL_sacred_fervor"
 msgstr "Sacred Fervor"
 
 msgid "SKILL_sacred_fervor_DESC"
-msgstr "Raises the staff and channels a bright aura, increasing party damage by 15% for 4 seconds."
+msgstr "Sacred fervor grants all allies 15% damage for 4 seconds."
 
 msgid "SKILL_sun_touch"
 msgstr "Sun Touch"
 
 msgid "SKILL_sun_touch_DESC"
-msgstr "Increases healing power and shield effectiveness by 20%."
+msgstr "Solar vitality increases max HP by 35."
 
 msgid "SKILL_reactive_barrier"
 msgstr "Reactive Barrier"
 
 msgid "SKILL_reactive_barrier_DESC"
-msgstr "When HP drops below 30%, automatically gains a divine shield equal to 35% max HP (30s cooldown)."
+msgstr "Reactive barrier increases max HP by 40."
 
 msgid "SKILL_radiant_presence"
 msgstr "Radiant Presence"
 
 msgid "SKILL_radiant_presence_DESC"
-msgstr "Nearby allies gain 10% physical and magic damage resistance."
+msgstr "Radiant presence grants 8% Elemental Resistance."
 
 msgid "SKILL_unshakable_devotion"
 msgstr "Unshakable Devotion"
 
 msgid "SKILL_unshakable_devotion_DESC"
-msgstr "Reduces cooldown of all heal and shield skills by 15%."
+msgstr "Unshakable devotion reduces skill cooldowns by 10%."
 
 msgid "SKILL_divine_vigor"
 msgstr "Divine Vigor"
 
 msgid "SKILL_divine_vigor_DESC"
-msgstr "Converts overheal into a small temporary shield."
+msgstr "Divine vigor increases max HP by 25."
 
 msgid "SKILL_sacred_touch"
 msgstr "Sacred Touch"
 
 msgid "SKILL_sacred_touch_DESC"
-msgstr "Priest basic attacks have 15% chance to heal the most wounded ally."
+msgstr "Sacred touch increases max HP by 25."
 
 msgid "SKILL_critical_heal"
 msgstr "Critical Heal"
 
 msgid "SKILL_critical_heal_DESC"
-msgstr "Priest heal skills have 15% chance to critically heal (double value)."
+msgstr "Critical prayer grants 5% Critical Chance."
 
 msgid "SKILL_celestial_pact"
 msgstr "Celestial Pact"
 
 msgid "SKILL_celestial_pact_DESC"
-msgstr "On death, releases a final wave that fully heals a random ally and freezes the horde for 2s."
+msgstr "Celestial pact increases max HP by 50."
 
 msgid "SKILL_protective_light"
 msgstr "Protective Light"
 
 msgid "SKILL_protective_light_DESC"
-msgstr "Allies healed by the Priest gain 10% bonus armor for 3 seconds."
+msgstr "Protective light grants 10% Physical Resistance."
 
 msgid "SKILL_mercy"
 msgstr "Mercy"
 
 msgid "SKILL_mercy_DESC"
-msgstr "Increases healing by 20% on allies below 50% HP."
+msgstr "Mercy increases max HP by 35."
 
 msgid "SKILL_frenzied_sequence"
 msgstr "Frenzied Sequence"
 
 msgid "SKILL_frenzied_sequence_DESC"
-msgstr "Delivers 3 fast deep consecutive slashes in under 1 second."
+msgstr "Three rapid sword strikes dealing full damage each."
 
 msgid "SKILL_quick_slash"
 msgstr "Quick Slash"
 
 msgid "SKILL_quick_slash_DESC"
-msgstr "A simple fast horizontal sword strike hitting enemies ahead."
+msgstr "A fast horizontal slash dealing standard damage."
 
 msgid "SKILL_double_thrust"
 msgstr "Double Thrust"
 
 msgid "SKILL_double_thrust_DESC"
-msgstr "Two ultra-fast thrusts without moving."
+msgstr "Two ultra-fast thrusts, each dealing full damage."
 
 msgid "SKILL_heavy_blade"
 msgstr "Heavy Blade"
 
 msgid "SKILL_heavy_blade_DESC"
-msgstr "A slow 0.5s charged attack that deals double damage."
+msgstr "A slow heavy strike dealing double damage."
 
 msgid "SKILL_war_cry"
 msgstr "War Cry"
 
 msgid "SKILL_war_cry_DESC"
-msgstr "Raises the sword and emits a power pulse, increasing Physical Damage by 20% for 5 seconds."
+msgstr "War cry boosts Physical Damage by 20% for 5 seconds."
 
 msgid "SKILL_blade_master"
 msgstr "Blade Master"
 
 msgid "SKILL_blade_master_DESC"
-msgstr "Increases base Physical Damage and sword slash range."
+msgstr "Master of the blade adds 8 flat Physical Damage."
 
 msgid "SKILL_extreme_sharpening"
 msgstr "Extreme Sharpening"
 
 msgid "SKILL_extreme_sharpening_DESC"
-msgstr "Increases Critical Hit Rate and Critical Damage of sword attacks by 15%."
+msgstr "Razor edge grants 6% Critical Chance."
 
 msgid "SKILL_iron_armor"
 msgstr "Iron Armor"
 
 msgid "SKILL_iron_armor_DESC"
-msgstr "Grants 15% reduction to direct melee physical damage."
+msgstr "Iron plating reduces physical damage taken by 10%."
 
 msgid "SKILL_unbreakable_stance"
 msgstr "Unbreakable Stance"
 
 msgid "SKILL_unbreakable_stance_DESC"
-msgstr "Immune to stun and knockback during active skill animations."
+msgstr "Unbreakable stance grants 8% Physical Resistance."
 
 msgid "SKILL_precise_execution"
 msgstr "Precise Execution"
 
 msgid "SKILL_precise_execution_DESC"
-msgstr "Deals 20% more damage to targets below 35% max HP."
+msgstr "Precise strikes deal 8% more damage."
 
 msgid "SKILL_iron_will"
 msgstr "Iron Will"
 
 msgid "SKILL_iron_will_DESC"
-msgstr "Below 25% HP, gains 30% Attack Speed and 15% Lifesteal for 5 seconds (60s cooldown)."
+msgstr "Iron will increases Attack Speed by 10%."
 
 msgid "SKILL_defensive_stance"
 msgstr "Defensive Stance"
 
 msgid "SKILL_defensive_stance_DESC"
-msgstr "Gains 10% extra armor while below 50% HP."
+msgstr "Defensive stance grants 8% Physical Resistance."
 
 msgid "SKILL_brute_force"
 msgstr "Brute Force"
 
 msgid "SKILL_brute_force_DESC"
-msgstr "Deals 10% more damage to Elite enemies or bosses."
+msgstr "Brute strength adds 7% damage."
 
 msgid "SKILL_medium_resistance"
 msgstr "Medium Resistance"
 
 msgid "SKILL_medium_resistance_DESC"
-msgstr "Reduces all physical damage taken by 8%."
+msgstr "Medium armor reduces physical damage taken by 8%."
 
 msgid "SKILL_steel_muscles"
 msgstr "Steel Muscles"
 
 msgid "SKILL_steel_muscles_DESC"
-msgstr "Increases warrior max HP by 10%."
+msgstr "Steel muscles increase max HP by 10%."
 
 msgid "SKILL_abyssal_meteor"
 msgstr "Abyssal Meteor"
 
 msgid "SKILL_abyssal_meteor_DESC"
-msgstr "Summons a magic stone from above onto the densest enemy group."
+msgstr "Abyssal meteor deals double damage."
 
 msgid "SKILL_damage_portal"
 msgstr "Damage Portal"
 
 msgid "SKILL_damage_portal_DESC"
-msgstr "Fires a 1-second continuous beam from the staff."
+msgstr "Damage portal fires 5 magical hits at 40% damage each."
 
 msgid "SKILL_black_fireball"
 msgstr "Black Fireball"
 
 msgid "SKILL_black_fireball_DESC"
-msgstr "Fires a large sphere that deals area damage on impact."
+msgstr "Black fireball deals 50% bonus area damage."
 
 msgid "SKILL_ice_nova"
 msgstr "Ice Nova"
 
 msgid "SKILL_ice_nova_DESC"
-msgstr "A circular ice wave that freezes everything nearby for 1s."
+msgstr "Ice nova wave deals 20% bonus damage."
 
 msgid "SKILL_ice_lance"
 msgstr "Ice Lance"
 
 msgid "SKILL_ice_lance_DESC"
-msgstr "Fires a thin fast ice stake piercing up to 2 enemies in a line."
+msgstr "Ice lance pierces twice for full damage each."
 
 msgid "SKILL_arcane_heal"
 msgstr "Arcane Heal"
 
 msgid "SKILL_arcane_heal_DESC"
-msgstr "Channels arcane energy and restores 20% of max HP to the entire party."
+msgstr "Arcane heal restores 20% max HP to the entire party."
 
 msgid "SKILL_arcane_amplification"
 msgstr "Arcane Amplification"
 
 msgid "SKILL_arcane_amplification_DESC"
-msgstr "Increases base Magic Damage and staff attack range."
+msgstr "Arcane amplification adds 6 Magic Damage."
 
 msgid "SKILL_rune_resonance"
 msgstr "Rune Resonance"
@@ -1264,136 +1273,136 @@ msgid "SKILL_magic_penetration"
 msgstr "Magic Penetration"
 
 msgid "SKILL_magic_penetration_DESC"
-msgstr "Spells ignore 25% of enemy magic resistance/armor."
+msgstr "Magic penetration adds 8% spell damage."
 
 msgid "SKILL_critical_focus"
 msgstr "Critical Focus"
 
 msgid "SKILL_critical_focus_DESC"
-msgstr "Increases magic Critical Hit chance by 15% against enemies above 70% HP."
+msgstr "Critical focus grants 8% magic Critical Chance."
 
 msgid "SKILL_soul_drain"
 msgstr "Soul Drain"
 
 msgid "SKILL_soul_drain_DESC"
-msgstr "Killing an enemy with any spell instantly restores 5% max HP."
+msgstr "Soul drain increases max HP by 30."
 
 msgid "SKILL_mana_flow"
 msgstr "Mana Flow"
 
 msgid "SKILL_mana_flow_DESC"
-msgstr "Every 5 spells cast, the next deals 50% more damage."
+msgstr "Mana flow adds 7% spell damage."
 
 msgid "SKILL_tuning"
 msgstr "Tuning"
 
 msgid "SKILL_tuning_DESC"
-msgstr "Reduces all skill cooldowns by 0.1s on a critical hit."
+msgstr "Arcane tuning increases cast speed by 5%."
 
 msgid "SKILL_void_presence"
 msgstr "Void Presence"
 
 msgid "SKILL_void_presence_DESC"
-msgstr "Enemies on screen have defenses reduced by 10% passively."
+msgstr "Void presence adds 6% spell damage."
 
 msgid "SKILL_open_mind"
 msgstr "Open Mind"
 
 msgid "SKILL_open_mind_DESC"
-msgstr "Increases bonus critical hit rate by 25% against immobilized or frozen targets."
+msgstr "Open mind grants 7% Critical Chance."
 
 msgid "SKILL_elemental_symphony"
 msgstr "Elemental Symphony"
 
 msgid "SKILL_elemental_symphony_DESC"
-msgstr "Alternating spell elements increases overall damage by 5% (stacks up to 4 times)."
+msgstr "Elemental symphony adds 8% spell damage."
 
 msgid "SKILL_rune_barrier"
 msgstr "Rune Barrier"
 
 msgid "SKILL_rune_barrier_DESC"
-msgstr "Gains a magic energy shield equal to 25% max HP for 4 seconds."
+msgstr "Rune barrier increases max HP by 25% for 4 seconds."
 
 msgid "SKILL_dark_taunt"
 msgstr "Dark Taunt"
 
 msgid "SKILL_dark_taunt_DESC"
-msgstr "Forces all enemies to attack the Tank and converts 20% damage taken into HP during the effect."
+msgstr "Dark taunt sustains the tank, restoring 15% max HP."
 
 msgid "SKILL_inviolable_stance"
 msgstr "Inviolable Stance"
 
 msgid "SKILL_inviolable_stance_DESC"
-msgstr "Plants legs and uses the shield as a wall, immune to damage and crowd control for 2.5s."
+msgstr "Inviolable stance grants 100% Physical Resistance for 2.5 seconds."
 
 msgid "SKILL_total_suppression"
 msgstr "Total Suppression"
 
 msgid "SKILL_total_suppression_DESC"
-msgstr "Slams shield and mace together, dealing area damage with a metal thunder."
+msgstr "Shield slam dealing 30% bonus area damage."
 
 msgid "SKILL_crushing_mill"
 msgstr "Crushing Mill"
 
 msgid "SKILL_crushing_mill_DESC"
-msgstr "Performs a fast sequence of 3 alternating mace strikes (left, right, up)."
+msgstr "Three fast mace strikes at 90% damage each."
 
 msgid "SKILL_titanium_shell"
 msgstr "Titanium Shell"
 
 msgid "SKILL_titanium_shell_DESC"
-msgstr "Grants a fixed 5% chance to fully block any attack damage."
+msgstr "Titanium shell grants 5% Evasion."
 
 msgid "SKILL_surface_thorns"
 msgstr "Surface Thorns"
 
 msgid "SKILL_surface_thorns_DESC"
-msgstr "Reflects 20% of frontal melee physical damage taken on the shield."
+msgstr "Thorned plating adds 5 flat damage."
 
 msgid "SKILL_unshakable"
 msgstr "Unshakable"
 
 msgid "SKILL_unshakable_DESC"
-msgstr "Fully immune to knockback from common enemies or light projectiles."
+msgstr "Unshakable body grants 6% Physical Resistance."
 
 msgid "SKILL_impact_absorption"
 msgstr "Impact Absorption"
 
 msgid "SKILL_impact_absorption_DESC"
-msgstr "Defeating an enemy with a shield skill instantly restores 8% max HP."
+msgstr "Impact absorption increases max HP by 35."
 
 msgid "SKILL_magic_alloy"
 msgstr "Magic Alloy"
 
 msgid "SKILL_magic_alloy_DESC"
-msgstr "Increases resistance to elemental damage (fire, poison, and magic)."
+msgstr "Magic alloy grants 8% Elemental Resistance."
 
 msgid "SKILL_last_trench"
 msgstr "Last Trench"
 
 msgid "SKILL_last_trench_DESC"
-msgstr "On fatal damage, hides behind the shield and becomes invulnerable for 2 seconds (long cooldown / once per stage)."
+msgstr "Last trench resolve increases max HP by 45."
 
 msgid "SKILL_heavy_weight"
 msgstr "Heavy Weight"
 
 msgid "SKILL_heavy_weight_DESC"
-msgstr "Mace hits have a fixed 15% chance to stun common enemies for 0.5s."
+msgstr "Heavy mace adds 5 flat damage."
 
 msgid "SKILL_battle_inertia"
 msgstr "Battle Inertia"
 
 msgid "SKILL_battle_inertia_DESC"
-msgstr "Each mace hit grants 3% bonus armor for 4 seconds (stacks up to 5 times)."
+msgstr "Battle inertia grants 6% Physical Resistance."
 
 msgid "SKILL_hard_shell"
 msgstr "Hard Shell"
 
 msgid "SKILL_hard_shell_DESC"
-msgstr "Reduces damage taken from critical attacks by 20%."
+msgstr "Hard shell grants 10% Physical Resistance."
 
 msgid "SKILL_vital_crush"
 msgstr "Vital Crush"
 
 msgid "SKILL_vital_crush_DESC"
-msgstr "Enemies hit by mace skills lose 10% armor for 4 seconds."
+msgstr "Vital crush adds 7% mace skill damage."

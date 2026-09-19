@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c8skillact01"]
+
+[node name="SkillSlotActive" type="TextureButton"]
+custom_minimum_size = Vector2(64, 64)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+focus_mode = 0
+disabled = true
+expand_icon = true

@@ -104,6 +104,18 @@ func catalog_for(class_id: String) -> Array:
 	return _catalogos[class_id]
 
 
+func catalog_skills(class_id: String, tipo: SkillResource.Type) -> Array:
+	var result: Array = []
+	for skill in catalog_for(class_id):
+		if skill is SkillResource and skill.type == tipo:
+			result.append(skill)
+	return result
+
+
+func catalog_count(class_id: String, tipo: SkillResource.Type) -> int:
+	return catalog_skills(class_id, tipo).size()
+
+
 func _ensure_equipamento(classe_id: String) -> void:
 	if _equipment.has(classe_id):
 		return

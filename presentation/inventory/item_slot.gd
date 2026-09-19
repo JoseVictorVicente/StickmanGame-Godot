@@ -2,6 +2,8 @@ class_name ItemSlot
 extends Panel
 ## Slot de inventário ou equipamento. Usa ItemData (Resource).
 
+const SCENE := preload("res://presentation/inventory/item_slot.tscn")
+
 signal item_clicked(slot: ItemSlot)
 signal item_double_clicked(slot: ItemSlot)
 signal item_right_clicked(slot: ItemSlot)
@@ -41,8 +43,16 @@ func _ready() -> void:
 	tree_exiting.connect(_hide_tooltip)
 
 
-func configure(p_icone: TextureRect, p_tipo: ItemData.Type = ItemData.Type.WEAPON, p_qualquer: bool = true) -> void:
-	icone_rect = p_icone
+func get_icon_rect() -> TextureRect:
+	return get_node_or_null("Icone") as TextureRect
+
+
+func configure(
+	p_icone: TextureRect = null,
+	p_tipo: ItemData.Type = ItemData.Type.WEAPON,
+	p_qualquer: bool = true
+) -> void:
+	icone_rect = p_icone if p_icone else get_icon_rect()
 	accepted_type = p_tipo
 	accepts_any = p_qualquer
 	if not accepts_any:

@@ -21,6 +21,8 @@ static func mitigate_damage(
 	raw_damage: int,
 	evasion: float,
 	phys_res: float,
+	arcane_res: float = 0.0,
+	elemental_res: float = 0.0,
 	evasion_roll: float = -1.0
 ) -> Dictionary:
 	if raw_damage <= 0:
@@ -28,5 +30,6 @@ static func mitigate_damage(
 	var roll := evasion_roll if evasion_roll >= 0.0 else randf() * 100.0
 	if roll < evasion:
 		return {"damage": 0, "evaded": true}
-	var mitigated := maxi(0, int(round(float(raw_damage) * (1.0 - phys_res / 100.0))))
+	var effective_res := maxf(phys_res, maxf(arcane_res, elemental_res))
+	var mitigated := maxi(0, int(round(float(raw_damage) * (1.0 - effective_res / 100.0))))
 	return {"damage": mitigated, "evaded": false}

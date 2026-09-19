@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://c8skillspas1"]
+
+[ext_resource type="Script" path="res://presentation/inventory/skills_passive_grid.gd" id="1_grid"]
+[ext_resource type="PackedScene" path="res://presentation/inventory/skill_slot_passive.tscn" id="2_slot"]
+
+[node name="PassiveGrid" type="GridContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+script = ExtResource("1_grid")
+
+[node name="PassiveSkillSlot_01" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_02" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_03" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_04" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_05" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_06" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_07" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_08" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_09" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="PassiveSkillSlot_10" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true

@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c8skillpas01"]
+
+[node name="SkillSlotPassive" type="Button"]
+custom_minimum_size = Vector2(64, 64)
+focus_mode = 0
+disabled = true
+theme_override_font_sizes/font_size = 9
+text = ""
+autowrap_mode = 3

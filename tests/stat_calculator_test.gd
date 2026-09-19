@@ -6,6 +6,7 @@ const ClassDataScript := preload("res://data/class_data.gd")
 const SkillResourceScript := preload("res://data/skill_resource.gd")
 const SkillRuntimeScript := preload("res://domains/combat/skill_runtime.gd")
 const CombatMathScript := preload("res://domains/combat/combat_math.gd")
+const ActiveSkillRuntimeScript := preload("res://domains/combat/active_skill_runtime.gd")
 const TestLog := preload("res://tests/test_log_helper.gd")
 
 var _failed := false
@@ -15,6 +16,7 @@ func _init() -> void:
 	_test_basic_damage_and_hp()
 	_test_bonus_caps()
 	_test_passive_stat_bonus_key()
+	_test_cooldown_reduction_stat()
 	_test_combat_math()
 	if _failed:
 		TestLog.suite_complete("StatCalculator", false)
@@ -58,12 +60,29 @@ func _test_combat_math() -> void:
 	var no_crit: Dictionary = CombatMathScript.roll_crit_damage(100, 50.0, 50.0, 90.0)
 	if bool(no_crit.get("is_crit", false)):
 		_fail("high roll should not crit")
-	var evade: Dictionary = CombatMathScript.mitigate_damage(100, 80.0, 0.0, 10.0)
+	var evade: Dictionary = CombatMathScript.mitigate_damage(100, 80.0, 0.0, 0.0, 0.0, 10.0)
 	if not bool(evade.get("evaded", false)):
 		_fail("low evasion roll should evade")
-	var resisted: Dictionary = CombatMathScript.mitigate_damage(100, 0.0, 50.0, 90.0)
+	var resisted: Dictionary = CombatMathScript.mitigate_damage(100, 0.0, 50.0, 0.0, 0.0, 90.0)
 	if int(resisted.get("damage", 0)) != 50:
 		_fail("phys res should halve damage")
+	var arcane: Dictionary = CombatMathScript.mitigate_damage(100, 0.0, 0.0, 40.0, 0.0, 5.0)
+	if int(arcane.get("damage", 0)) != 60:
+		_fail("arcane res should reduce damage")
+
+
+func _test_cooldown_reduction_stat() -> void:
+	var skill := SkillResourceScript.new()
+	skill.type = SkillResource.Type.PASSIVE
+	skill.stat_bonus_key = "cooldown_reduction"
+	skill.stat_value = 15.0
+	var bonus := SkillTreeDefinition.empty_bonus()
+	SkillRuntimeScript.apply_passive(bonus, skill)
+	if not is_equal_approx(float(bonus.get("cooldown_reduction", 0.0)), 15.0):
+		_fail("passive should apply cooldown_reduction")
+	var mult := ActiveSkillRuntimeScript.cooldown_multiplier_from_pct(15.0)
+	if mult >= 1.0 or mult <= 0.8:
+		_fail("15% CDR should map to ~0.85 multiplier")
 
 
 func _test_passive_stat_bonus_key() -> void:

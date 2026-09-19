@@ -33,6 +33,7 @@ func resolve_skill(skill: SkillResource, ctx: Dictionary) -> Dictionary:
 					"stat_key": buff.stat_key,
 					"stat_value": buff.stat_value,
 					"duration_sec": buff.duration_sec,
+					"target_scope": buff.target_scope if buff.target_scope != "" else "self",
 				})
 		elif effect is HealEffect:
 			var heal := effect as HealEffect

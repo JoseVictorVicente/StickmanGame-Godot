@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://c8skillsact1"]
+
+[ext_resource type="Script" path="res://presentation/inventory/skills_active_grid.gd" id="1_grid"]
+[ext_resource type="PackedScene" path="res://presentation/inventory/skill_slot_active.tscn" id="2_slot"]
+
+[node name="ActiveGrid" type="GridContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+script = ExtResource("1_grid")
+
+[node name="ActiveSkillSlot_01" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="ActiveSkillSlot_02" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="ActiveSkillSlot_03" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="ActiveSkillSlot_04" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="ActiveSkillSlot_05" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true
+
+[node name="ActiveSkillSlot_06" parent="." instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+disabled = true

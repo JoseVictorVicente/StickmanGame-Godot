@@ -12,6 +12,6 @@ cooldown = 0.0
 icon_path = "res://sprites/ui/skills/priest/sun_touch.png"
 sort_order = 1
 stat_bonus_key = "hp"
-stat_value = 30.0
+stat_value = 35.0
 vfx_id = ""
 effects = []

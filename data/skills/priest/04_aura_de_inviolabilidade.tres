@@ -1,17 +1,33 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/heal_effect.gd" id="effect_0"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_1"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "heal_party"
+heal_pct_max_hp = 8.0
+target_scope = "party"
+
+[sub_resource type="Resource" id="Effect_1"]
+script = ExtResource("effect_1")
+effect_type = "buff_self"
+stat_key = "phys_res"
+stat_value = 15.0
+duration_sec = 1.5
+target_scope = "self"
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "aura_de_inviolabilidade"
-name_key = "SKILL_aura_de_inviolabilidade"
-description_key = "SKILL_aura_de_inviolabilidade_DESC"
+name_key = "SKILL_inviolability_aura"
+description_key = "SKILL_inviolability_aura_DESC"
 type = 0
 cooldown = 10.0
 icon_path = "res://sprites/ui/skills/priest/aura_de_inviolabilidade.png"
 sort_order = 4
 stat_bonus_key = ""
 stat_value = 0.0
-vfx_id = ""
-effects = []
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0"), SubResource("Effect_1")]

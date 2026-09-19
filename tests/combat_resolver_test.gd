@@ -18,8 +18,12 @@ func _init() -> void:
 	_test_precision_shot_scaling()
 	_test_hunter_stance_buff()
 	_test_cooldown_blocks_second_cast()
+	_test_cooldown_reduction_multiplier()
 	_test_empty_effects_fallback()
 	_test_arcane_heal_party()
+	_test_heal_lowest_scope()
+	_test_party_buff_scope()
+	_test_reduce_all_cooldowns()
 	if _failed:
 		TestLog.suite_complete("CombatResolver", false)
 		quit(1)
@@ -82,12 +86,73 @@ func _test_hunter_stance_buff() -> void:
 		_fail("hunter_stance buff should increase attack_speed")
 
 
+func _test_cooldown_reduction_multiplier() -> void:
+	var mult := ActiveSkillRuntimeScript.cooldown_multiplier_from_pct(15.0)
+	if not is_equal_approx(mult, 0.85):
+		_fail("15% CDR should produce 0.85 multiplier")
+
+
+func _test_reduce_all_cooldowns() -> void:
+	var runtime := ActiveSkillRuntimeScript.new()
+	var skill := SkillResourceScript.new()
+	skill.skill_id = "reset_test"
+	skill.cooldown = 10.0
+	runtime.notify_skill_cast(skill, 0.0)
+	var before := runtime.remaining_cooldown("reset_test")
+	runtime.reduce_all_cooldowns(1.0)
+	var after := runtime.remaining_cooldown("reset_test")
+	if after >= before:
+		_fail("reduce_all_cooldowns should lower remaining cooldown")
+
+
+func _test_heal_lowest_scope() -> void:
+	var skill := SkillResourceScript.new()
+	skill.skill_id = "sacred_position"
+	var heal := preload("res://data/effects/heal_effect.gd").new()
+	heal.effect_type = "heal_lowest"
+	heal.heal_pct_max_hp = 15.0
+	heal.target_scope = "lowest_hp"
+	skill.effects = [heal]
+	var resolver := CombatResolverScript.new()
+	var result: Dictionary = resolver.resolve_skill(skill, {"base_damage": 50})
+	var heals: Array = result.get("heals", [])
+	if heals.is_empty():
+		_fail("heal_lowest should emit heal entry")
+	if str(heals[0].get("target_scope", "")) != "lowest_hp":
+		_fail("heal_lowest scope should be lowest_hp")
+
+
+func _test_party_buff_scope() -> void:
+	var skill := SkillResourceScript.new()
+	skill.skill_id = "sacred_fervor"
+	var buff := BuffEffectScript.new()
+	buff.effect_type = "buff_self"
+	buff.stat_key = "attack_pct"
+	buff.stat_value = 15.0
+	buff.duration_sec = 4.0
+	buff.target_scope = "party"
+	skill.effects = [buff]
+	var resolver := CombatResolverScript.new()
+	var result: Dictionary = resolver.resolve_skill(skill, {"base_damage": 50})
+	var buffs: Array = result.get("buffs", [])
+	if buffs.is_empty():
+		_fail("party buff skill should emit buff")
+	if str(buffs[0].get("target_scope", "")) != "party":
+		_fail("party buff should include target_scope party")
+	var container := BuffContainerScript.new()
+	container.add_buff_to_slots([0, 1, 2], "attack_pct", 15.0, 4.0)
+	for slot in [0, 1, 2]:
+		var bonus: Dictionary = container.active_bonuses(slot)
+		if float(bonus.get("attack_pct", 0.0)) < 15.0:
+			_fail("party buff should apply to all slots")
+
+
 func _test_cooldown_blocks_second_cast() -> void:
 	var runtime := ActiveSkillRuntimeScript.new()
 	var skill := SkillResourceScript.new()
 	skill.skill_id = "test_skill"
 	skill.cooldown = 5.0
-	runtime.notify_skill_cast(skill, "archer")
+	runtime.notify_skill_cast(skill, 0.0)
 	if runtime.remaining_cooldown("test_skill") <= 0.0:
 		_fail("cooldown should be active immediately after cast")
 	if runtime.remaining_cooldown("missing") != 0.0:

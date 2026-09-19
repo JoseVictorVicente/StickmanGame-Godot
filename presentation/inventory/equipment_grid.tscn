@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8equipgrid1"]
+
+[ext_resource type="Script" path="res://presentation/inventory/equipment_grid.gd" id="1_grid"]
+
+[node name="EquipmentGrid" type="GridContainer"]
+columns = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 3
+script = ExtResource("1_grid")

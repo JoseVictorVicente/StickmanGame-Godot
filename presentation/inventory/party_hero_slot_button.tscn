@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://c8partybtn01"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.35, 0.24, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="PartyHeroSlotButton" type="Button"]
+custom_minimum_size = Vector2(64, 82)
+flat = true
+theme_override_font_sizes/font_size = 9
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_slot")
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+text = "Hero"

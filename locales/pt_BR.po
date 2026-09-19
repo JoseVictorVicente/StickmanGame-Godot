@@ -99,6 +99,15 @@ msgstr "Todas as classes"
 msgid "UI_EMPTY_SLOT"
 msgstr "Vazio"
 
+msgid "START_TITLE"
+msgstr "Stickman Idle"
+
+msgid "START_SUBTITLE"
+msgstr "RPG idle no desktop"
+
+msgid "BTN_PLAY"
+msgstr "Jogar"
+
 msgid "BTN_CLOSE"
 msgstr "Fechar"
 
@@ -856,544 +865,544 @@ msgid "SKILL_instant_double_shot"
 msgstr "Tiro Duplo Instantaneo"
 
 msgid "SKILL_instant_double_shot_DESC"
-msgstr "Executa dois disparos rapidos consecutivos com 200% de dano critico."
+msgstr "Dois tiros instantaneos, ambos criticos garantidos."
 
 msgid "SKILL_dark_volley"
 msgstr "Voleio Sombrio"
 
 msgid "SKILL_dark_volley_DESC"
-msgstr "Entra em postura de foco por 2 segundos e dispara uma rajada de 10 flechas energizadas em alta velocidade direto no alvo mais forte."
+msgstr "Volley sombrio dispara 5 flechas a 40% de dano cada."
 
 msgid "SKILL_precision_shot"
 msgstr "Tiro de Precisao"
 
 msgid "SKILL_precision_shot_DESC"
-msgstr "Um disparo carregado de 0.4s que garante acerto critico e ignora 30% da armadura."
+msgstr "Tiro de precisao: 50% dano bonus, critico garantido, 30% pen de armadura."
 
 msgid "SKILL_hunter_stance"
 msgstr "Postura do Cacador"
 
 msgid "SKILL_hunter_stance_DESC"
-msgstr "A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos."
+msgstr "Postura do cacador: +30% Velocidade de Ataque e +10% dano por 3,5 segundos."
 
 msgid "SKILL_neon_vision"
 msgstr "Visao Neon"
 
 msgid "SKILL_neon_vision_DESC"
-msgstr "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."
+msgstr "Visao neon concede 30% de Chance Critica por 4 segundos."
 
 msgid "SKILL_armor_penetration"
 msgstr "Penetracao de Armadura"
 
 msgid "SKILL_armor_penetration_DESC"
-msgstr "Ataques basicos e habilidades ignoram uma porcentagem da defesa de inimigos blindados ou chefes."
+msgstr "Flechas ignoram parte da armadura inimiga, aumentando o dano em 8%."
 
 msgid "SKILL_reflex_recoil"
 msgstr "Recuo Reflexo"
 
 msgid "SKILL_reflex_recoil_DESC"
-msgstr "Quando a vida do arqueiro fica abaixo de 25%, ele ganha um escudo temporario e um aumento drastico na velocidade de movimento por 3 segundos."
+msgstr "Reflexos rapidos concedem 5% de Evasao."
 
 msgid "SKILL_swift_execution"
 msgstr "Execucao Acelerada"
 
 msgid "SKILL_swift_execution_DESC"
-msgstr "Causa 20% a mais de dano contra inimigos que estejam com menos de 30% da vida maxima."
+msgstr "Golpes rapidos causam 6% a mais de dano."
 
 msgid "SKILL_nimble_hands"
 msgstr "Maos Ageis"
 
 msgid "SKILL_nimble_hands_DESC"
-msgstr "Reduz o tempo de recarga (cooldown) de todas as habilidades ativas em 15%."
+msgstr "Reduz o cooldown de todas as skills ativas em 15%."
 
 msgid "SKILL_eagle_eye"
 msgstr "Olho de Aguia"
 
 msgid "SKILL_eagle_eye_DESC"
-msgstr "Aumenta a taxa de acerto critico e o alcance de visao na tela."
+msgstr "Visao de aguia concede 6% de Chance Critica."
 
 msgid "SKILL_drawstring_tension"
 msgstr "Cordeiro Esticado"
 
 msgid "SKILL_drawstring_tension_DESC"
-msgstr "Reduz a animacao dos disparos frontais, aumentando a Velocidade de Ataque basica em 15%."
+msgstr "Corda tensa aumenta a Velocidade de Ataque em 12%."
 
 msgid "SKILL_wearing_poison"
 msgstr "Veneno Desgastante"
 
 msgid "SKILL_wearing_poison_DESC"
-msgstr "Tem 5% de chance de aplicar veneno no ataque basico."
+msgstr "Flechas envenenadas adicionam 4 de dano fixo."
 
 msgid "SKILL_weak_prey"
 msgstr "Caca aos Fracos"
 
 msgid "SKILL_weak_prey_DESC"
-msgstr "Causa 15% a mais de dano contra monstros que estejam com menos de 25% da vida."
+msgstr "Instinto de cacador adiciona 5% de dano."
 
 msgid "SKILL_stacking_impact"
 msgstr "Impacto Acumulativo"
 
 msgid "SKILL_stacking_impact_DESC"
-msgstr "Cada flecha que atinge o mesmo alvo em menos de 2s aumenta o dano da proxima em 5% (max 25%)."
+msgstr "Cada impacto fica mais forte, adicionando 7% de dano."
 
 msgid "SKILL_surgical_aim"
 msgstr "Mira Cirurgica"
 
 msgid "SKILL_surgical_aim_DESC"
-msgstr "Aumenta a Taxa de Acerto Critico em 30% contra alvos que estejam com a vida maior que 70%."
+msgstr "Mira precisa concede 8% de Chance Critica."
 
 msgid "SKILL_twin_execution_cut"
 msgstr "Corte Duplo Executor"
 
 msgid "SKILL_twin_execution_cut_DESC"
-msgstr "Um ataque cruzado em X com as duas adagas. Causa o dobro de dano contra inimigos que estejam com menos de 30% da vida."
+msgstr "Corte em cruz atingindo duas vezes com dano total."
 
 msgid "SKILL_prey_mark"
 msgstr "Marca da Presa"
 
 msgid "SKILL_prey_mark_DESC"
-msgstr "Marca um alvo por 4 segundos. Todo o dano que o Assassino causar nesse periodo e acumulado e explode ao final do efeito, causando 30% de dano bonus equivalente ao total causado."
+msgstr "Presa marcada recebe 30% de dano burst bonus."
 
 msgid "SKILL_quick_twin_cut"
 msgstr "Corte Duplo Rapido"
 
 msgid "SKILL_quick_twin_cut_DESC"
-msgstr "Dois golpes cruzados ultra-rapidos com as adagas no peito do alvo."
+msgstr "Dois golpes cruzados ultra-rapidos."
 
 msgid "SKILL_awakened_sequence"
 msgstr "Sequencia Desperta"
 
 msgid "SKILL_awakened_sequence_DESC"
-msgstr "Ganha um surto imediato de 60% de Velocidade de Ataque que dura exatamente 4 golpes ou 3 segundos."
+msgstr "Ritmo despertado concede 60% de Velocidade de Ataque por 3 segundos."
 
 msgid "SKILL_swift_decapitation"
 msgstr "Decaptacao Celerada"
 
 msgid "SKILL_swift_decapitation_DESC"
-msgstr "Um golpe alto mirado no pescoco que causa 50% de dano extra se o alvo estiver com menos de 30% de vida."
+msgstr "Golpe no pescoco causando 50% de dano bonus."
 
 msgid "SKILL_shadow_reflexes"
 msgstr "Reflexos Sombrios"
 
 msgid "SKILL_shadow_reflexes_DESC"
-msgstr "Aumenta a taxa de Acerto Critico base e a Velocidade de Ataque."
+msgstr "Reflexos sombrios concedem 5% de Chance Critica."
 
 msgid "SKILL_adrenaline_surge"
 msgstr "Impulso de Adrenalina"
 
 msgid "SKILL_adrenaline_surge_DESC"
-msgstr "Eliminar um inimigo restaura 50% do tempo de recarga (cooldown) de todas as habilidades ativas."
+msgstr "Surto de adrenalina aumenta a Velocidade de Ataque em 8%. Matar inimigo reduz 0,5s de cooldown."
 
 msgid "SKILL_venomous_vein"
 msgstr "Veia Venenosa"
 
 msgid "SKILL_venomous_vein_DESC"
-msgstr "Aumenta em 25% o dano de acerto critico contra alvos que estejam envenenados ou sangrando."
+msgstr "Golpes venenosos adicionam 12% de Dano Critico."
 
 msgid "SKILL_stealth_strike"
 msgstr "Ataque Furtivo"
 
 msgid "SKILL_stealth_strike_DESC"
-msgstr "O primeiro golpe disparado ao entrar em combate contra qualquer inimigo causa 50% de dano critico adicional."
+msgstr "Golpes furtivos adicionam 10% de Dano Critico."
 
 msgid "SKILL_lethal_execution"
 msgstr "Lethal Execution"
 
 msgid "SKILL_lethal_execution_DESC"
-msgstr "Ataques em alvos abaixo de 15% da vida maxima tem chance de causar execucao instantanea (exceto em chefes de fase)."
+msgstr "Execucao letal adiciona 8% de dano."
 
 msgid "SKILL_deep_cut"
 msgstr "Corte Profundo"
 
 msgid "SKILL_deep_cut_DESC"
-msgstr "Sangramentos aplicados pelas adagas duram 1.5s a mais."
+msgstr "Cortes profundos adicionam 4 de dano fixo."
 
 msgid "SKILL_weak_point_mapping"
 msgstr "Mapeamento de Pontos Frais"
 
 msgid "SKILL_weak_point_mapping_DESC"
-msgstr "Ignora 20% da armadura base dos inimigos."
+msgstr "Conhecimento de pontos fracos adiciona 8% de dano."
 
 msgid "SKILL_adrenaline"
 msgstr "Adrenalina"
 
 msgid "SKILL_adrenaline_DESC"
-msgstr "Matar um inimigo reseta 1 segundo do cooldown de todas as habilidades ativas."
+msgstr "Adrenalina aumenta a Velocidade de Ataque em 5%. Matar inimigo reduz 1s de cooldown."
 
 msgid "SKILL_assassin_rhythm"
 msgstr "Ritmo Assassino"
 
 msgid "SKILL_assassin_rhythm_DESC"
-msgstr "Cada acerto de habilidade ativa adiciona um acumulo de 10% de Velocidade de Ataque (acumula ate 5 vezes, totalizando +50% por 4s)."
+msgstr "Ritmo do assassino aumenta a Velocidade de Ataque em 10%."
 
 msgid "SKILL_light_blade"
 msgstr "Lamina Leve"
 
 msgid "SKILL_light_blade_DESC"
-msgstr "Aumenta o dano em 10%."
+msgstr "Lamina leve adiciona 10% de dano."
 
 msgid "SKILL_sacred_position"
 msgstr "Posicao Sagrada"
 
 msgid "SKILL_sacred_position_DESC"
-msgstr "Restaura uma porcentagem da vida do aliado com a menor vida na tela instantaneamente."
+msgstr "Restaura 15% do HP maximo do aliado com menos vida."
 
 msgid "SKILL_solar_shield"
 msgstr "Escudo Solar"
 
 msgid "SKILL_solar_shield_DESC"
-msgstr "Concede um escudo de luz brilhante ao aliado mais vulneravel que absorve dano por 3 segundos."
+msgstr "Luz solar restaura 12% do HP maximo do aliado com menos vida."
 
 msgid "SKILL_divine_punishment"
 msgstr "Punicao Divina"
 
 msgid "SKILL_divine_punishment_DESC"
-msgstr "Invoca um feixe de luz vertical do ceu que atinge o grupo mais denso de inimigos, causando dano elemental."
+msgstr "Feixe divino causando 50% de dano bonus."
 
 msgid "SKILL_inviolability_aura"
 msgstr "Aura de Inviolabilidade"
 
 msgid "SKILL_inviolability_aura_DESC"
-msgstr "Cria um domo temporario de 1.5s que reduz todo o dano recebido pelo grupo em 15% e cura por segundo a equipe."
+msgstr "Cura grupo em 8% HP max e concede 15% Resistencia Fisica por 1,5s."
 
 msgid "SKILL_sacred_fervor"
 msgstr "Fervor Sagrado"
 
 msgid "SKILL_sacred_fervor_DESC"
-msgstr "O Priest ergue o cetro e canaliza uma aura brilhante, aumentando o dano de todo o grupo em 15% por 4 segundos."
+msgstr "Fervor sagrado concede 15% de dano a todos os aliados por 4 segundos."
 
 msgid "SKILL_sun_touch"
 msgstr "Toque do Sol"
 
 msgid "SKILL_sun_touch_DESC"
-msgstr "Aumenta o poder de cura e a eficacia de todos os escudos aplicados em 20%."
+msgstr "Vitalidade solar aumenta o HP maximo em 35."
 
 msgid "SKILL_reactive_barrier"
 msgstr "Barreira Reativa"
 
 msgid "SKILL_reactive_barrier_DESC"
-msgstr "Quando a vida do Priest cai abaixo de 30%, ele ganha automaticamente um escudo divino equivalente a 35% da sua vida maxima (cooldown de 30s)."
+msgstr "Barreira reativa aumenta o HP maximo em 40."
 
 msgid "SKILL_radiant_presence"
 msgstr "Presenca Iluminada"
 
 msgid "SKILL_radiant_presence_DESC"
-msgstr "Aliados proximos ganham 10% de resistencia a dano fisico e magico."
+msgstr "Presenca radiante concede 8% de Resistencia Elemental."
 
 msgid "SKILL_unshakable_devotion"
 msgstr "Devocao Inabalavel"
 
 msgid "SKILL_unshakable_devotion_DESC"
-msgstr "Reduz o tempo de recarga (cooldown) de todas as habilidades de cura e escudo em 15%."
+msgstr "Devocao inabalavel reduz cooldowns de skills em 10%."
 
 msgid "SKILL_divine_vigor"
 msgstr "Vigor Divino"
 
 msgid "SKILL_divine_vigor_DESC"
-msgstr "Converter excesso de cura (quando o aliado ja esta com vida cheia) em um pequeno escudo temporario."
+msgstr "Vigor divino aumenta o HP maximo em 25."
 
 msgid "SKILL_sacred_touch"
 msgstr "Toque Sagrado"
 
 msgid "SKILL_sacred_touch_DESC"
-msgstr "Ataques basicos do Priest tem 15% de chance de aplicar uma pequena cura no aliado mais ferido."
+msgstr "Toque sagrado aumenta o HP maximo em 25."
 
 msgid "SKILL_critical_heal"
 msgstr "Cura Critica"
 
 msgid "SKILL_critical_heal_DESC"
-msgstr "As habilidades de cura do Priest tem 15% de chance de causar um Critico de Cura (cura o dobro do valor)."
+msgstr "Oracao critica concede 5% de Chance Critica."
 
 msgid "SKILL_celestial_pact"
 msgstr "Pacto Celestial"
 
 msgid "SKILL_celestial_pact_DESC"
-msgstr "Se o Priest morrer, libera uma onda de luz final que cura 100% da vida de um aliado aleatorio e congela a horda por 2s."
+msgstr "Pacto celestial aumenta o HP maximo em 50."
 
 msgid "SKILL_protective_light"
 msgstr "Luz Protetora"
 
 msgid "SKILL_protective_light_DESC"
-msgstr "Aliados curados pelo Priest ganham 10% de Armadura bonus por 3 segundos."
+msgstr "Luz protetora concede 10% de Resistencia Fisica."
 
 msgid "SKILL_mercy"
 msgstr "Misericordia"
 
 msgid "SKILL_mercy_DESC"
-msgstr "Aumenta em 20% a quantidade de cura realizada em aliados que estejam com menos de 50% de vida."
+msgstr "Misericordia aumenta o HP maximo em 35."
 
 msgid "SKILL_frenzied_sequence"
 msgstr "Sequencia Frenetica"
 
 msgid "SKILL_frenzied_sequence_DESC"
-msgstr "Desfere 3 cortes rapidos e profundos consecutivos em menos de 1 segundo."
+msgstr "Tres golpes rapidos de espada causando dano total cada."
 
 msgid "SKILL_quick_slash"
 msgstr "Corte Rapido"
 
 msgid "SKILL_quick_slash_DESC"
-msgstr "Um golpe horizontal simples e veloz com a espada que atinge os inimigos a frente."
+msgstr "Corte horizontal rapido causando dano padrao."
 
 msgid "SKILL_double_thrust"
 msgstr "Perfuracao Dupla"
 
 msgid "SKILL_double_thrust_DESC"
-msgstr "Duas estocadas ultra-rapidas sem sair do lugar."
+msgstr "Dois thrusts ultra-rapidos, cada um com dano total."
 
 msgid "SKILL_heavy_blade"
 msgstr "Lamina Pesada"
 
 msgid "SKILL_heavy_blade_DESC"
-msgstr "Um ataque lento e carregado de 0.5s que causa dano duplo."
+msgstr "Golpe pesado lento causando dano dobrado."
 
 msgid "SKILL_war_cry"
 msgstr "Grito de Guerra"
 
 msgid "SKILL_war_cry_DESC"
-msgstr "Erguer a espada para cima e emite um pulso de poder que aumenta o Dano Fisico em 20% por 5 segundos."
+msgstr "Grito de guerra aumenta Dano Fisico em 20% por 5 segundos."
 
 msgid "SKILL_blade_master"
 msgstr "Mestre das Laminas"
 
 msgid "SKILL_blade_master_DESC"
-msgstr "Aumenta o Dano Fisico base e o alcance de corte da espada."
+msgstr "Mestre da lamina adiciona 8 de Dano Fisico fixo."
 
 msgid "SKILL_extreme_sharpening"
 msgstr "Afiacao Extrema"
 
 msgid "SKILL_extreme_sharpening_DESC"
-msgstr "Aumenta a taxa de Acerto Critico e o Dano Critico de todos os ataques de espada em 15%."
+msgstr "Fio afiado concede 6% de Chance Critica."
 
 msgid "SKILL_iron_armor"
 msgstr "Armadura de Ferro"
 
 msgid "SKILL_iron_armor_DESC"
-msgstr "Concede 15% de reducao de dano fisico direto vindo de ataques corpo a corpo."
+msgstr "Placas de ferro reduzem dano fisico recebido em 10%."
 
 msgid "SKILL_unbreakable_stance"
 msgstr "Postura Inquebravel"
 
 msgid "SKILL_unbreakable_stance_DESC"
-msgstr "Confere imunidade a efeitos de atordoamento e empurrao (Knockback) enquanto estiver no meio da animacao de uma habilidade ativa."
+msgstr "Postura inquebravel concede 8% de Resistencia Fisica."
 
 msgid "SKILL_precise_execution"
 msgstr "Execucao Precisa"
 
 msgid "SKILL_precise_execution_DESC"
-msgstr "Causa 20% a mais de dano contra alvos que estejam com menos de 35% da vida maxima."
+msgstr "Golpes precisos causam 8% a mais de dano."
 
 msgid "SKILL_iron_will"
 msgstr "Vontade de Ferro"
 
 msgid "SKILL_iron_will_DESC"
-msgstr "Ao ficar com menos de 25% de vida, ganha 30% de Velocidade de Ataque e 15% de Roubo de Vida (Lifesteal) por 5 segundos (60 segundos de cooldown)."
+msgstr "Vontade de ferro aumenta a Velocidade de Ataque em 10%."
 
 msgid "SKILL_defensive_stance"
 msgstr "Postura de Defesa"
 
 msgid "SKILL_defensive_stance_DESC"
-msgstr "Ganha 10% de armadura extra enquanto estiver com menos de 50% de vida."
+msgstr "Postura defensiva concede 8% de Resistencia Fisica."
 
 msgid "SKILL_brute_force"
 msgstr "Forca Bruta"
 
 msgid "SKILL_brute_force_DESC"
-msgstr "Causa 10% a mais de dano contra inimigos do tipo Elite ou Chefes."
+msgstr "Forca bruta adiciona 7% de dano."
 
 msgid "SKILL_medium_resistance"
 msgstr "Resistencia Media"
 
 msgid "SKILL_medium_resistance_DESC"
-msgstr "Reduz todo o dano fisico recebido em 8%."
+msgstr "Armadura media reduz dano fisico recebido em 8%."
 
 msgid "SKILL_steel_muscles"
 msgstr "Musculos de Aco"
 
 msgid "SKILL_steel_muscles_DESC"
-msgstr "Aumenta a vida maxima do guerreiro em 10%."
+msgstr "Musculos de aco aumentam o HP maximo em 10%."
 
 msgid "SKILL_abyssal_meteor"
 msgstr "Meteoro Abissal"
 
 msgid "SKILL_abyssal_meteor_DESC"
-msgstr "Evoca uma pedra magica do topo da tela que cai sobre o grupo mais denso de inimigos."
+msgstr "Meteoro abissal causa dano dobrado."
 
 msgid "SKILL_damage_portal"
 msgstr "Portal de Dano"
 
 msgid "SKILL_damage_portal_DESC"
-msgstr "Dispara um raio continuo de 1 segundo direto do cajado."
+msgstr "Portal de dano dispara 5 hits magicos a 40% de dano cada."
 
 msgid "SKILL_black_fireball"
 msgstr "Bola de Fogo Negra"
 
 msgid "SKILL_black_fireball_DESC"
-msgstr "Dispara uma grande esfera que causa dano em area no impacto."
+msgstr "Bola de fogo negra causa 50% de dano bonus em area."
 
 msgid "SKILL_ice_nova"
 msgstr "Nova de Gelo"
 
 msgid "SKILL_ice_nova_DESC"
-msgstr "Uma onda circular de gelo que congela tudo ao redor por 1s."
+msgstr "Onda de gelo causa 20% de dano bonus."
 
 msgid "SKILL_ice_lance"
 msgstr "Lanca de Gelo"
 
 msgid "SKILL_ice_lance_DESC"
-msgstr "Dispara uma estaca de gelo fina e rapida que atravessa ate 2 inimigos em linha reta."
+msgstr "Lanca de gelo perfura duas vezes com dano total cada."
 
 msgid "SKILL_arcane_heal"
 msgstr "Cura Arcana"
 
 msgid "SKILL_arcane_heal_DESC"
-msgstr "Canaliza energia arcana e restaura 20% da vida maxima de toda a equipe."
+msgstr "Cura arcana restaura 20% do HP maximo de todo o grupo."
 
 msgid "SKILL_arcane_amplification"
 msgstr "Amplificacao Arcana"
 
 msgid "SKILL_arcane_amplification_DESC"
-msgstr "Aumenta o Dano Magico base e o Alcance de Ataque do cajado."
+msgstr "Amplificacao arcana adiciona 6 de Dano Magico fixo."
 
 msgid "SKILL_rune_resonance"
 msgstr "Ressoar de Runas"
 
 msgid "SKILL_rune_resonance_DESC"
-msgstr "Toda vez que uma habilidade ativa e disparada, concede 5% de Velocidade de Convocacao (cooldown reduction) por 3s (acumula ate 4 vezes)."
+msgstr "Cada skill ativa lancada concede 5% de reducao de cooldown por 3s (ate 4 stacks)."
 
 msgid "SKILL_magic_penetration"
 msgstr "Penetracao Magica"
 
 msgid "SKILL_magic_penetration_DESC"
-msgstr "Suas magias ignoram 25% da resistencia magica/armadura dos inimigos e chefes."
+msgstr "Penetracao magica adiciona 8% de dano de feitico."
 
 msgid "SKILL_critical_focus"
 msgstr "Foco Critico"
 
 msgid "SKILL_critical_focus_DESC"
-msgstr "Aumenta a chance de Acerto Critico Magico em 15% contra inimigos com mais de 70% da vida."
+msgstr "Foco critico concede 8% de Chance Critica magica."
 
 msgid "SKILL_soul_drain"
 msgstr "Dreno de Alma"
 
 msgid "SKILL_soul_drain_DESC"
-msgstr "Matar um inimigo com qualquer magia restaura 5% da vida maxima do Mago instantaneamente."
+msgstr "Dreno de alma aumenta o HP maximo em 30."
 
 msgid "SKILL_mana_flow"
 msgstr "Fluxo de Mana"
 
 msgid "SKILL_mana_flow_DESC"
-msgstr "A cada 5 magias lancadas, a proxima causa 50% a mais de dano."
+msgstr "Fluxo de mana adiciona 7% de dano de feitico."
 
 msgid "SKILL_tuning"
 msgstr "Sintonizacao"
 
 msgid "SKILL_tuning_DESC"
-msgstr "Reduz em 0.1s o cooldown de todas as habilidades ao acertar um acerto critico."
+msgstr "Sintonia arcana aumenta a velocidade de conjuracao em 5%."
 
 msgid "SKILL_void_presence"
 msgstr "Presenca do Vazio"
 
 msgid "SKILL_void_presence_DESC"
-msgstr "Inimigos na tela tem suas defesas reduzidas em 10% passivamente."
+msgstr "Presenca do vazio adiciona 6% de dano de feitico."
 
 msgid "SKILL_open_mind"
 msgstr "Mente Aberta"
 
 msgid "SKILL_open_mind_DESC"
-msgstr "Aumenta a taxa de acerto critico bonus contra alvos imobilizados ou congelados em 25%."
+msgstr "Mente aberta concede 7% de Chance Critica."
 
 msgid "SKILL_elemental_symphony"
 msgstr "Sinfonia Elementar"
 
 msgid "SKILL_elemental_symphony_DESC"
-msgstr "Alternar entre magias de elementos diferentes aumenta o dano geral em 5% (acumula ate 4 vezes)."
+msgstr "Sinfonia elemental adiciona 8% de dano de feitico."
 
 msgid "SKILL_rune_barrier"
 msgstr "Barreira de Runas"
 
 msgid "SKILL_rune_barrier_DESC"
-msgstr "Ganha um escudo magico de energia proporcional a 25% da sua vida maxima por 4 segundos."
+msgstr "Barreira de runas aumenta HP maximo em 25% por 4 segundos."
 
 msgid "SKILL_dark_taunt"
 msgstr "Provocacao Sombria"
 
 msgid "SKILL_dark_taunt_DESC"
-msgstr "Forca todos os inimigos da tela a atacarem o Tank e converte 20% do dano recebido durante o efeito em vida."
+msgstr "Provocacao sombria sustenta o tank, restaurando 15% do HP maximo."
 
 msgid "SKILL_inviolable_stance"
 msgstr "Postura Inviolavel"
 
 msgid "SKILL_inviolable_stance_DESC"
-msgstr "Trava as pernas e usa o escudo como parede, ficando totalmente imune a dano e controle de grupo por 2.5s."
+msgstr "Postura inviolavel concede 100% de Resistencia Fisica por 2,5 segundos."
 
 msgid "SKILL_total_suppression"
 msgstr "Supressao Total"
 
 msgid "SKILL_total_suppression_DESC"
-msgstr "Bate o escudo e a maca um contra o outro, emitindo um estrondo de metal que causa dano aos inimigos na area."
+msgstr "Golpe de escudo causando 30% de dano bonus em area."
 
 msgid "SKILL_crushing_mill"
 msgstr "Moinho Esmagador"
 
 msgid "SKILL_crushing_mill_DESC"
-msgstr "Executa uma sequencia rapida de 3 golpes de maca alternados (esquerda, direita, cima)."
+msgstr "Tres golpes rapidos de maca a 90% de dano cada."
 
 msgid "SKILL_titanium_shell"
 msgstr "Casca de Titanio"
 
 msgid "SKILL_titanium_shell_DESC"
-msgstr "Concede 5% de chance fixa de bloquear totalmente o dano de qualquer ataque."
+msgstr "Casco de titanio concede 5% de Evasao."
 
 msgid "SKILL_surface_thorns"
 msgstr "Espinhos da Superficie"
 
 msgid "SKILL_surface_thorns_DESC"
-msgstr "Reflete 20% do dano fisico de ataques corpo a corpo recebidos na parte frontal do escudo."
+msgstr "Placas espinhosas adicionam 5 de dano fixo."
 
 msgid "SKILL_unshakable"
 msgstr "Inabalavel"
 
 msgid "SKILL_unshakable_DESC"
-msgstr "Imunidade total a qualquer efeito de empurrao (knockback) causado por inimigos comuns ou projeteis leves."
+msgstr "Corpo inabalavel concede 6% de Resistencia Fisica."
 
 msgid "SKILL_impact_absorption"
 msgstr "Absorcao no Impacto"
 
 msgid "SKILL_impact_absorption_DESC"
-msgstr "Derrotar um inimigo usando uma habilidade com o escudo restaura 8% da vida maxima instantaneamente."
+msgstr "Absorcao de impacto aumenta o HP maximo em 35."
 
 msgid "SKILL_magic_alloy"
 msgstr "Liga Magica"
 
 msgid "SKILL_magic_alloy_DESC"
-msgstr "Aumenta a resistencia a danos elementais (fogo, veneno e magia)."
+msgstr "Liga magica concede 8% de Resistencia Elemental."
 
 msgid "SKILL_last_trench"
 msgstr "Ultima Trincheira"
 
 msgid "SKILL_last_trench_DESC"
-msgstr "Ao receber dano fatal, o Tank se esconde atras do escudo e fica totalmente invulneravel por 2 segundos (cooldown longo / 1 vez por fase)."
+msgstr "Trincheira final aumenta o HP maximo em 45."
 
 msgid "SKILL_heavy_weight"
 msgstr "Peso Pesado"
 
 msgid "SKILL_heavy_weight_DESC"
-msgstr "Golpes de maca tem 15% de chance fixa de atordoar inimigos comuns por 0.5s a cada impacto."
+msgstr "Maça pesada adiciona 5 de dano fixo."
 
 msgid "SKILL_battle_inertia"
 msgstr "Inercia de Batalha"
 
 msgid "SKILL_battle_inertia_DESC"
-msgstr "Cada golpe acertado com a maca concede 3% de armadura bonus por 4 segundos (acumula ate 5 vezes)."
+msgstr "Inercia de batalha concede 6% de Resistencia Fisica."
 
 msgid "SKILL_hard_shell"
 msgstr "Casca Dura"
 
 msgid "SKILL_hard_shell_DESC"
-msgstr "Reduz em 20% o dano recebido de ataques criticos."
+msgstr "Casco duro concede 10% de Resistencia Fisica."
 
 msgid "SKILL_vital_crush"
 msgstr "Esmagamento Vital"
 
 msgid "SKILL_vital_crush_DESC"
-msgstr "Inimigos atingidos por habilidades de maca perdem 10% da armadura por 4 segundos."
+msgstr "Esmagamento vital adiciona 7% de dano de maça."

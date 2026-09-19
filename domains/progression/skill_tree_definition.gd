@@ -289,6 +289,7 @@ static func empty_bonus() -> Dictionary:
 		"phys_res": 0.0,
 		"arcane_res": 0.0,
 		"elemental_res": 0.0,
+		"cooldown_reduction": 0.0,
 	}
 
 

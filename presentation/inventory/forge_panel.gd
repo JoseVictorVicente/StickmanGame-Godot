@@ -1,3 +1,4 @@
+@tool
 class_name ForgePanel
 extends Control
 ## Painel lateral de forja e desmonte.
@@ -21,8 +22,8 @@ const Z_INDEX_LEGENDA_INFO := 100
 const OFFSET_LEGENDA_INFO := Vector2(10, 0)
 const GEMS_ARROW_WIDTH := 32.0
 
-@onready var synthesis_grid: GridContainer = %SynthesisGrid
-@onready var dismantle_grid: GridContainer = %DismantleGrid
+@onready var synthesis_grid: ForgeSlotsGrid = %SynthesisGrid
+@onready var dismantle_grid: ForgeSlotsGrid = %DismantleGrid
 @onready var botao_fechar: Button = %CloseForgeButton
 @onready var autofill_button: Button = %AutofillButton
 @onready var level_info_button: PanelContainer = %LevelInfoButton
@@ -49,6 +50,7 @@ const GEMS_ARROW_WIDTH := 32.0
 @onready var cabecalho: HBoxContainer = %ForgeHeader
 @onready var forge_body: Control = %ForgeBody
 @onready var title_label: Label = $Conteudo/ForgeHeader/BannerTitulo/Titulo
+
 var _menu: InventoryMenu
 var _slots: Array[ItemSlot] = []
 var _slots_desmontar: Array[ItemSlot] = []
@@ -66,8 +68,7 @@ var _forge_service := ForgeService.new()
 
 func _ready() -> void:
 	hide()
-	_create_slots(synthesis_grid, _slots, true)
-	_create_slots(dismantle_grid, _slots_desmontar, false)
+	_bind_forge_slots()
 	_create_filter_popup()
 	botao_fechar.pressed.connect(close)
 	autofill_button.pressed.connect(auto_fill)
@@ -684,34 +685,22 @@ func _forge_slot_style() -> StyleBoxFlat:
 	return estilo
 
 
-func _create_slots(grade: GridContainer, destino: Array[ItemSlot], sintese: bool) -> void:
-	grade.columns = COLUNAS
+func _bind_forge_slots() -> void:
 	var estilo_slot := _forge_slot_style()
-	for stage_index in SYNTHESIS_SLOTS:
-		var slot := ItemSlot.new()
-		slot.name = "%s_%d" % [grade.name, stage_index + 1]
-		slot.custom_minimum_size = SLOT_SIZE
-		if estilo_slot:
-			slot.add_theme_stylebox_override("panel", estilo_slot)
-		var icone := TextureRect.new()
-		icone.name = "Icone"
-		icone.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icone.offset_left = 4.0
-		icone.offset_top = 4.0
-		icone.offset_right = -4.0
-		icone.offset_bottom = -4.0
-		icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slot.add_child(icone)
-		slot.configure(icone, ItemData.Type.WEAPON, true)
+	_slots = _bind_forge_grid(synthesis_grid, true, estilo_slot)
+	_slots_desmontar = _bind_forge_grid(dismantle_grid, false, estilo_slot)
+
+
+func _bind_forge_grid(grade: ForgeSlotsGrid, sintese: bool, estilo_slot: StyleBoxFlat) -> Array[ItemSlot]:
+	var slots := grade.ensure_slots(SLOT_SIZE, estilo_slot)
+	for slot in slots:
 		if sintese:
 			slot.validar_drop_extra = _validate_synthesis_drop
 		else:
 			slot.validar_drop_extra = _validate_dismantle_drop
-		slot.item_double_clicked.connect(_on_slot_double_clicked)
-		grade.add_child(slot)
-		destino.append(slot)
+		if not slot.item_double_clicked.is_connected(_on_slot_double_clicked):
+			slot.item_double_clicked.connect(_on_slot_double_clicked)
+	return slots
 
 
 func _validate_synthesis_drop(item: ItemData, origem: ItemSlot = null) -> bool:

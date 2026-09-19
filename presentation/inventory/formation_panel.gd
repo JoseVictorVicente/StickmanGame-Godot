@@ -8,8 +8,9 @@ signal slot_selected(stage_index: int)
 @onready var botao_fechar: Button = %CloseFormationButton
 @onready var cabecalho: HBoxContainer = %FormationHeader
 @onready var party_slots: HBoxContainer = %FormationSlots
+@onready var _formation_slot_widgets: Array[FormationPartySlot] = [%FormationSlot0, %FormationSlot1, %FormationSlot2]
 @onready var hero_scroll: ScrollContainer = %HeroScroll
-@onready var hero_grid: GridContainer = %FormationHeroGrid
+@onready var hero_grid: FormationHeroGrid = %FormationHeroGrid
 @onready var hint_label: Label = %FormationHintLabel
 @onready var title_label: Label = $Conteudo/FormationHeader/BannerTitulo/Titulo
 @onready var party_title: Label = %PartyTitle
@@ -25,6 +26,8 @@ var _hero_buttons: Array[Button] = []
 
 func _ready() -> void:
 	hide()
+	_wire_formation_slots()
+	_wire_hero_buttons()
 	botao_fechar.pressed.connect(close)
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
@@ -74,7 +77,7 @@ func update() -> void:
 	if not (_party.active_party[_slot_alvo] is ClassData):
 		_slot_alvo = _party.first_occupied_slot()
 	_build_slots()
-	_build_heroes()
+	_refresh_hero_grid()
 	if hint_label:
 		if _party.can_remove():
 			hint_label.text = tr(LocaleKeys.FORMATION_HINT_CAN_REMOVE)
@@ -82,57 +85,78 @@ func update() -> void:
 			hint_label.text = tr(LocaleKeys.FORMATION_HINT_MIN_ONE)
 
 
+func _wire_formation_slots() -> void:
+	if has_meta("_formation_slots_wired"):
+		return
+	for i in PartyService.SLOTS:
+		var widget := _formation_slot_widgets[i]
+		if widget == null:
+			continue
+		widget.hero_button.pressed.connect(_on_slot_pressed.bind(i))
+		widget.remove_button.pressed.connect(_on_retirar.bind(i))
+	set_meta("_formation_slots_wired", true)
+
+
+func _wire_hero_buttons() -> void:
+	if hero_grid == null:
+		return
+	_hero_buttons = hero_grid.setup(Callable(self, "_on_hero_button_ready"))
+
+
+func _on_hero_button_ready(botao: Button) -> void:
+	if botao.get_meta(&"formation_pressed_wired", false):
+		return
+	var class_id := str(botao.get_meta("class_id", ""))
+	if class_id.is_empty():
+		return
+	botao.pressed.connect(_on_hero_button_pressed.bind(class_id))
+	botao.set_meta(&"formation_pressed_wired", true)
+
+
 func _build_slots() -> void:
-	for filho in party_slots.get_children():
-		filho.queue_free()
 	_botoes_slot.clear()
 	_botoes_retirar.clear()
 	for i in PartyService.SLOTS:
-		var caixa := VBoxContainer.new()
-		caixa.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		caixa.add_theme_constant_override("separation", 4)
-		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(88, 102)
-		botao.clip_text = true
-		botao.expand_icon = true
-		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.add_theme_constant_override("icon_max_width", 64)
-		botao.add_theme_font_size_override("font_size", 10)
-		botao.pressed.connect(_on_slot_pressed.bind(i))
+		var widget := _formation_slot_widgets[i]
+		if widget == null:
+			continue
+		var botao := widget.hero_button
+		var retirar := widget.remove_button
 		var classe: Variant = _party.active_party[i]
 		if classe is ClassData:
 			var dados := classe as ClassData
 			botao.icon = dados.character_sprite
 			botao.text = dados.get_localized_name()
+			botao.disabled = false
 		else:
+			botao.icon = null
 			botao.text = tr(LocaleKeys.UI_EMPTY_SLOT)
 			botao.disabled = true
-		caixa.add_child(botao)
-		var retirar := Button.new()
 		retirar.text = tr(LocaleKeys.FORMATION_REMOVE)
-		retirar.add_theme_font_size_override("font_size", 10)
-		retirar.pressed.connect(_on_retirar.bind(i))
 		var ocupado := classe is ClassData
 		retirar.disabled = not ocupado or not _party.can_remove()
 		retirar.tooltip_text = tr(LocaleKeys.FORMATION_REMOVE_BLOCKED) if retirar.disabled and ocupado else tr(LocaleKeys.FORMATION_REMOVE_TOOLTIP)
-		caixa.add_child(retirar)
-		party_slots.add_child(caixa)
 		_botoes_slot.append(botao)
 		_botoes_retirar.append(retirar)
 		_paint_slot(botao, i == _slot_alvo and ocupado)
 
 
-func _build_heroes() -> void:
-	for filho in hero_grid.get_children():
-		filho.queue_free()
-	_hero_buttons.clear()
-	hero_grid.columns = 3
+func _refresh_hero_grid() -> void:
+	if hero_grid == null or _party == null:
+		return
+	if _hero_buttons.is_empty():
+		_hero_buttons = hero_grid.hero_buttons()
+	var unlocked_ids: Dictionary = {}
 	for classe in _party.unlocked_classes:
-		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(86, 98)
+		if classe is ClassData:
+			unlocked_ids[(classe as ClassData).id] = classe
+	for botao in _hero_buttons:
+		var class_id := str(botao.get_meta("class_id", ""))
+		var classe: ClassData = unlocked_ids.get(class_id) as ClassData
+		if classe == null:
+			botao.visible = false
+			continue
+		botao.visible = true
 		botao.text = classe.get_localized_name()
 		botao.tooltip_text = classe.get_localized_name()
 		botao.icon = classe.character_sprite
@@ -143,9 +167,6 @@ func _build_heroes() -> void:
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		botao.add_theme_constant_override("icon_max_width", 56)
 		botao.add_theme_font_size_override("font_size", 10)
-		botao.pressed.connect(_on_hero_pressed.bind(classe))
-		hero_grid.add_child(botao)
-		_hero_buttons.append(botao)
 		var na_equipe := _party._index_of_class(classe.id) >= 0
 		_paint_hero(botao, na_equipe)
 
@@ -162,6 +183,20 @@ func _on_retirar(stage_index: int) -> void:
 	if _party.remove_from_slot(stage_index):
 		_slot_alvo = _party.first_occupied_slot()
 		slot_selected.emit(_slot_alvo)
+
+
+func _on_hero_button_pressed(class_id: String) -> void:
+	var classe := _find_unlocked_class(class_id)
+	if classe == null:
+		return
+	_on_hero_pressed(classe)
+
+
+func _find_unlocked_class(class_id: String) -> ClassData:
+	for classe in _party.unlocked_classes:
+		if classe is ClassData and (classe as ClassData).id == class_id:
+			return classe
+	return null
 
 
 func _on_hero_pressed(classe: ClassData) -> void:

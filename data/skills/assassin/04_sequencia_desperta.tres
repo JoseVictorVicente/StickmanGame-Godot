@@ -1,17 +1,26 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "buff_self"
+stat_key = "attack_speed"
+stat_value = 60.0
+duration_sec = 3.0
+target_scope = "self"
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "sequencia_desperta"
-name_key = "SKILL_sequencia_desperta"
-description_key = "SKILL_sequencia_desperta_DESC"
+name_key = "SKILL_awakened_sequence"
+description_key = "SKILL_awakened_sequence_DESC"
 type = 0
 cooldown = 10.0
 icon_path = "res://sprites/ui/skills/assassin/sequencia_desperta.png"
 sort_order = 4
 stat_bonus_key = ""
 stat_value = 0.0
-vfx_id = ""
-effects = []
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0")]

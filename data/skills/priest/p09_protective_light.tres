@@ -12,6 +12,6 @@ cooldown = 0.0
 icon_path = "res://sprites/ui/skills/priest/protective_light.png"
 sort_order = 9
 stat_bonus_key = "phys_res"
-stat_value = 8.0
+stat_value = 10.0
 vfx_id = ""
 effects = []

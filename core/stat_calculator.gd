@@ -33,6 +33,7 @@ func compute(slot_index: int, class_data: ClassData) -> Dictionary:
 		"elemental_res": float(bonus.get("elemental_res", 0.0)),
 		"gold_bonus": float(bonus.get("gold_bonus", 0.0)),
 		"xp_bonus": float(bonus.get("xp_bonus", 0.0)),
+		"cooldown_reduction": float(bonus.get("cooldown_reduction", 0.0)),
 		"skill_tree_bonus": bonus,
 	}
 
@@ -110,5 +111,6 @@ static func _empty() -> Dictionary:
 		"elemental_res": 0.0,
 		"gold_bonus": 0.0,
 		"xp_bonus": 0.0,
+		"cooldown_reduction": 0.0,
 		"skill_tree_bonus": SkillTreeDefinition.empty_bonus(),
 	}

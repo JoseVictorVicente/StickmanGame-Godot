@@ -6,6 +6,7 @@ signal slot_selected(stage_index: int)
 signal class_assigned(slot: int, classe: ClassData)
 signal formation_requested
 
+var layout_resource: InventoryLayout
 var _party: PartyService
 var _slot_alvo: int = 0
 var _botoes_slot: Array[Button] = []
@@ -16,12 +17,24 @@ var _indices_slot: Array[int] = []
 @onready var formation_button: Button = %FormationButton
 @onready var party_title: Label = $PartyTitle
 @onready var classes_title: Label = $ClassesTitle
+@onready var _party_slot_nodes: Array[Button] = [%PartySlot0, %PartySlot1, %PartySlot2]
 
 
 func _ready() -> void:
 	if not LocaleService.locale_changed.is_connected(_on_locale_changed):
 		LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
+	_wire_party_slot_buttons()
+
+
+func _find_menu_layout() -> InventoryLayout:
+	var atual: Node = self
+	while atual:
+		var layout: Variant = atual.get("layout_inventario")
+		if layout is InventoryLayout:
+			return layout
+		atual = atual.get_parent()
+	return null
 
 
 func configure(party: PartyService, slot_inicial: int = 0) -> void:
@@ -36,7 +49,6 @@ func configure(party: PartyService, slot_inicial: int = 0) -> void:
 	if formation_button and not formation_button.pressed.is_connected(_on_formation_pressed):
 		formation_button.pressed.connect(_on_formation_pressed)
 	_update_localized_texts()
-	_build_slots()
 	update()
 	if not _party.party_changed.is_connected(update):
 		_party.party_changed.connect(update)
@@ -54,7 +66,7 @@ func select_slot(stage_index: int, emitir_sinal: bool = true) -> void:
 func update() -> void:
 	if _party and not (_party.active_party[_slot_alvo] is ClassData):
 		_slot_alvo = _party.first_occupied_slot()
-	_build_slots()
+	_sync_party_slot_buttons()
 	_paint_slots()
 
 
@@ -76,20 +88,38 @@ func _on_locale_changed(_locale_code: String) -> void:
 	_update_localized_texts()
 
 
-func _build_slots() -> void:
-	for filho in party_slots.get_children():
-		filho.queue_free()
+func _wire_party_slot_buttons() -> void:
+	if has_meta("_party_slots_wired"):
+		return
+	for i in PartyService.SLOTS:
+		var botao := _party_slot_nodes[i]
+		if botao == null:
+			continue
+		botao.pressed.connect(select_slot.bind(i))
+		botao.visible = false
+	set_meta("_party_slots_wired", true)
+
+
+func _sync_party_slot_buttons() -> void:
 	_botoes_slot.clear()
 	_indices_slot.clear()
 	if _party == null:
+		for botao in _party_slot_nodes:
+			if botao:
+				botao.visible = false
 		return
+	var tamanho := layout_resource.party_hero_slot_size if layout_resource else Vector2(64, 82)
 	for i in PartyService.SLOTS:
+		var botao := _party_slot_nodes[i]
+		if botao == null:
+			continue
 		var classe: Variant = _party.active_party[i]
 		if not (classe is ClassData):
+			botao.visible = false
 			continue
 		var dados := classe as ClassData
-		var botao := Button.new()
-		botao.custom_minimum_size = Vector2(64, 82)
+		botao.visible = true
+		botao.custom_minimum_size = tamanho
 		botao.text = dados.display_name
 		botao.tooltip_text = dados.display_name
 		botao.flat = true
@@ -101,8 +131,6 @@ func _build_slots() -> void:
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		botao.add_theme_constant_override("icon_max_width", 52)
 		botao.add_theme_font_size_override("font_size", 9)
-		botao.pressed.connect(select_slot.bind(i))
-		party_slots.add_child(botao)
 		_botoes_slot.append(botao)
 		_indices_slot.append(i)
 

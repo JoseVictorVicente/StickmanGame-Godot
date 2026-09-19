@@ -64,6 +64,7 @@ Passives that only alter stats integrate via `stat_bonus_key` + `stat_value` + `
 
 - `equip_skill(class_id, resource, slot_index)`
 - Tooltip via `SkillResource.texto_tooltip()` (migrate to i18n later).
+- The **available** skills grid grows automatically from `HeroEquipment.catalog_for()` — no UI constant to update when adding `.tres` files. Use `catalog_count()` / `catalog_skills()` if you need per-type counts in code.
 
 ### 7. Save (v4)
 
@@ -82,10 +83,12 @@ Equipped skills persist in save v4:
 
 ## Per-class limits
 
-| Type | Maximum |
-|------|---------|
-| Active | 2 (`HeroEquipment.MAX_ACTIVE`) |
-| Passive | 2 (`HeroEquipment.MAX_PASSIVE`) |
+| Scope | Active | Passive |
+|-------|--------|---------|
+| **Equipped** (combat loadout) | 2 (`HeroEquipment.MAX_ACTIVE`) | 2 (`HeroEquipment.MAX_PASSIVE`) |
+| **Catalog** (available in panel) | All `.tres` in `data/skills/<class>/` | All `.tres` in `data/skills/<class>/` |
+
+The skills panel shows every skill registered for the class; only the equipped slots are capped at 2+2.
 
 ## Naming
 

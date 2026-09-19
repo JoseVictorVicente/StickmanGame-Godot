@@ -1,108 +1,108 @@
 {
   "character": {
-    "id": "dba9d610-d58a-4b48-afb6-3e454a60b47a",
-    "name": "Idle",
-    "prompt": "A 2D pixel-art stickman archer wearing a green hooded cape, leather belt with a buckle, brown boots, and carrying a wooden bow with a quiver of arrows on his back. Bright white glowing eyes. Clean black outlines.",
-    "size": {
-      "width": 140,
-      "height": 256
-    },
-    "directions": 8,
-    "view": "side"
+	"id": "dba9d610-d58a-4b48-afb6-3e454a60b47a",
+	"name": "Idle",
+	"prompt": "A 2D pixel-art stickman archer wearing a green hooded cape, leather belt with a buckle, brown boots, and carrying a wooden bow with a quiver of arrows on his back. Bright white glowing eyes. Clean black outlines.",
+	"size": {
+	  "width": 140,
+	  "height": 256
+	},
+	"directions": 8,
+	"view": "side"
   },
   "spritesheet": {
-    "path": "A_2D_pixel-art_stickman-Idle.png",
-    "cell_size": {
-      "width": 256,
-      "height": 256
-    },
-    "sheet_size": {
-      "width": 10496,
-      "height": 2304
-    },
-    "columns": 41,
-    "pivot": "cell-center",
-    "rows": [
-      {
-        "row": 0,
-        "type": "rotations",
-        "frame_count": 8,
-        "directions": [
-          "south",
-          "south-east",
-          "east",
-          "north-east",
-          "north",
-          "north-west",
-          "west",
+	"path": "A_2D_pixel-art_stickman-Idle.png",
+	"cell_size": {
+	  "width": 256,
+	  "height": 256
+	},
+	"sheet_size": {
+	  "width": 10496,
+	  "height": 2304
+	},
+	"columns": 41,
+	"pivot": "cell-center",
+	"rows": [
+	  {
+		"row": 0,
+		"type": "rotations",
+		"frame_count": 8,
+		"directions": [
+		  "south",
+		  "south-east",
+		  "east",
+		  "north-east",
+		  "north",
+		  "north-west",
+		  "west",
           "south-west"
-        ]
-      },
-      {
-        "row": 1,
-        "type": "animation",
-        "frame_count": 5,
-        "animation": "Fluid 8-frame 2D pixel-art hit reaction animation of green hooded stickman archer taking damage. \n1. Impact (3f): Archer snaps backward from hit, body recoils with bright red flashing highlight overlay, head tilts back, glowing white eyes flicker. \n2. Recovery (5f): Slides back slightly on boots, quickly regains balance and combat stance, red flash fades away. Clean black outlines, 256x256 canvas.",
-        "animation_group_id": "0cc62feb-742e-45d3-94ba-1642cc3f4e89",
-        "direction": "south"
-      },
-      {
-        "row": 2,
-        "type": "animation",
-        "frame_count": 9,
-        "animation": "Detailed 2D pixel art character animation spritesheet: Shooting an arrow with a bow. The animation sequence must include the full range of motion. 1. Character stands in a ready stance, nocking an arrow onto the bowstring. 2. He draws the bowstring back fully to his cheek, creating maximum tension, with the wooden bow flexing visibly and his body weight shifting backward. 3. Holding the aim for a moment, then releasing the string, showing the arrow flying forward rapidly with motion blur effect. 4. Recoil from the bow release, followed by a follow-through motion with the cloak flowing, and a smooth reset back to the initial idle pose. The eyes maintain their white glow throughout. Maintain the exact style and green cape design from the reference image.",
-        "animation_group_id": "189265b0-4825-4fff-9acc-db34dca60319",
-        "direction": "south-east"
-      },
-      {
-        "row": 3,
-        "type": "animation",
-        "frame_count": 21,
-        "animation": "Fluid 20-frame 2D pixel-art animation of green hooded stickman archer performing 'Rapid Fire' barrage skill. \n1. Stance & Buff (4f): Archer leans forward, eyes glow intense green, a green wind aura erupts around his body. \n2. Rapid Barrage (12f): Archer pulls and releases bowstring at extreme blinding speed, hands move in a fast blur, firing multiple neon-green arrows in rapid succession. Bow string vibrates, motion lines and green spark particles fly out. \n3. Recovery (4f): Archer lowers bow, green aura fades, wind settles, returning smoothly to initial idle pose. Clean black outlines, 256x256 canvas.",
-        "animation_group_id": "3c822997-520c-4638-b03c-aab860cf754c",
-        "direction": "east"
-      },
-      {
-        "row": 4,
-        "type": "animation",
-        "frame_count": 9,
-        "animation": "Detailed 2D pixel art character animation spritesheet: Shooting an arrow with a bow. The animation sequence must include the full range of motion. 1. Character stands in a ready stance, nocking an arrow onto the bowstring. 2. He draws the bowstring back fully to his cheek, creating maximum tension, with the wooden bow flexing visibly and his body weight shifting backward. 3. Holding the aim for a moment, then releasing the string, showing the arrow flying forward rapidly with motion blur effect. 4. Recoil from the bow release, followed by a follow-through motion with the cloak flowing, and a smooth reset back to the initial idle pose. The eyes maintain their white glow throughout. Maintain the exact style and green cape design from the reference image._2",
-        "animation_group_id": "dd73057a-4957-4062-b47a-3b14409f7f2a",
-        "direction": "south"
-      },
-      {
-        "row": 5,
-        "type": "animation",
-        "frame_count": 41,
-        "animation": "Fluid 40-frame 2D pixel-art animation of green hooded stickman archer performing ultimate 'Charged Shot'. \n1. Anticipation (8f): Roots feet in low stance, pulls glowing arrow, nocks string, body weight shifts back. \n2. Charging (12f): Pulls bowstring to cheek under heavy tension, wooden bow flexes. Green and gold energy particles absorb into arrow tip, glowing brighter. Ground cracks under boots. \n3. Release (8f): Fires arrow with green-gold blast. Heavy recoil pushes archer back on boots, cloak and hood fly wildly, dust kicks up. \n4. Recovery (12f): Rides recoil, slowly lowers bow, dust settles, cloak calms down, smooth transition back to idle pose. White glowing eyes. Clean outlines, 256x256 canvas.",
-        "animation_group_id": "e08baf43-512f-4b26-bfdd-aecdf43979bf",
-        "direction": "south"
-      },
-      {
-        "row": 6,
-        "type": "animation",
-        "frame_count": 21,
-        "animation": "Fluid 20-frame 2D pixel-art running animation of green hooded stickman archer sprinting forward. \n1. Fast Stride (5f): Dynamic forward-leaning posture, fast alternating legs, boots pushing off ground. \n2. Arms & Bow (5f): Holds bow firmly, pumping arms rapidly in opposition to legs for high speed momentum. \n3. Cape Physics (5f): Green hooded cape flies back horizontally in the wind, quiver bounces on back. \n4. Loop (5f): Head locked ahead with glowing white eyes, perfectly looping back to frame 1. Clean black outlines, 256x256 canvas.",
-        "animation_group_id": "e8bf6379-eccd-44d4-bbe9-80d06a7b60fc",
-        "direction": "east"
-      },
-      {
-        "row": 7,
-        "type": "animation",
-        "frame_count": 41,
-        "animation": "Fluid 40-frame 2D pixel-art animation of green hooded stickman archer performing ultimate 'Charged Shot'. \n1. Anticipation (8f): Roots feet in low stance, pulls glowing arrow, nocks string, body weight shifts back. \n2. Charging (12f): Pulls bowstring to cheek under heavy tension, wooden bow flexes. Green and gold energy particles absorb into arrow tip, glowing brighter. Ground cracks under boots. \n3. Release (8f): Fires arrow with green-gold blast. Heavy recoil pushes archer back on boots, cloak and hood fly wildly, dust kicks up. \n4. Recovery (12f): Rides recoil, slowly lowers bow, dust settles, cloak calms down, smooth transition back to idle pose. White glowing eyes. Clean outlines, 256x256 canvas._2",
-        "animation_group_id": "e9552c30-32d5-4daf-bd1b-cb98d76a0073",
-        "direction": "south"
-      },
-      {
-        "row": 8,
-        "type": "animation",
-        "frame_count": 17,
-        "animation": "Fluid 16-frame 2D pixel-art death animation of green hooded stickman archer dying. \n1. Collapse (8f): Archer collapses forward onto knees from lethal strike, bow drops from hand, head drops, glowing white eyes fade out completely. \n2. Dissolve (8f): Body hits the ground, green hooded cape collapses, character rapidly dissolves into dark smoke and green magic particles fading away to empty screen. Clean black outlines, 256x256 canvas.",
-        "animation_group_id": "f2eff7e3-9968-474a-b757-ef653ad71c1f",
-        "direction": "south"
-      }
-    ]
+		]
+	  },
+	  {
+		"row": 1,
+		"type": "animation",
+		"frame_count": 5,
+		"animation": "Fluid 8-frame 2D pixel-art hit reaction animation of green hooded stickman archer taking damage. \n1. Impact (3f): Archer snaps backward from hit, body recoils with bright red flashing highlight overlay, head tilts back, glowing white eyes flicker. \n2. Recovery (5f): Slides back slightly on boots, quickly regains balance and combat stance, red flash fades away. Clean black outlines, 256x256 canvas.",
+		"animation_group_id": "0cc62feb-742e-45d3-94ba-1642cc3f4e89",
+		"direction": "south"
+	  },
+	  {
+		"row": 2,
+		"type": "animation",
+		"frame_count": 9,
+		"animation": "Detailed 2D pixel art character animation spritesheet: Shooting an arrow with a bow. The animation sequence must include the full range of motion. 1. Character stands in a ready stance, nocking an arrow onto the bowstring. 2. He draws the bowstring back fully to his cheek, creating maximum tension, with the wooden bow flexing visibly and his body weight shifting backward. 3. Holding the aim for a moment, then releasing the string, showing the arrow flying forward rapidly with motion blur effect. 4. Recoil from the bow release, followed by a follow-through motion with the cloak flowing, and a smooth reset back to the initial idle pose. The eyes maintain their white glow throughout. Maintain the exact style and green cape design from the reference image.",
+		"animation_group_id": "189265b0-4825-4fff-9acc-db34dca60319",
+		"direction": "south-east"
+	  },
+	  {
+		"row": 3,
+		"type": "animation",
+		"frame_count": 21,
+		"animation": "Fluid 20-frame 2D pixel-art animation of green hooded stickman archer performing 'Rapid Fire' barrage skill. \n1. Stance & Buff (4f): Archer leans forward, eyes glow intense green, a green wind aura erupts around his body. \n2. Rapid Barrage (12f): Archer pulls and releases bowstring at extreme blinding speed, hands move in a fast blur, firing multiple neon-green arrows in rapid succession. Bow string vibrates, motion lines and green spark particles fly out. \n3. Recovery (4f): Archer lowers bow, green aura fades, wind settles, returning smoothly to initial idle pose. Clean black outlines, 256x256 canvas.",
+		"animation_group_id": "3c822997-520c-4638-b03c-aab860cf754c",
+		"direction": "east"
+	  },
+	  {
+		"row": 4,
+		"type": "animation",
+		"frame_count": 9,
+		"animation": "Detailed 2D pixel art character animation spritesheet: Shooting an arrow with a bow. The animation sequence must include the full range of motion. 1. Character stands in a ready stance, nocking an arrow onto the bowstring. 2. He draws the bowstring back fully to his cheek, creating maximum tension, with the wooden bow flexing visibly and his body weight shifting backward. 3. Holding the aim for a moment, then releasing the string, showing the arrow flying forward rapidly with motion blur effect. 4. Recoil from the bow release, followed by a follow-through motion with the cloak flowing, and a smooth reset back to the initial idle pose. The eyes maintain their white glow throughout. Maintain the exact style and green cape design from the reference image._2",
+		"animation_group_id": "dd73057a-4957-4062-b47a-3b14409f7f2a",
+		"direction": "south"
+	  },
+	  {
+		"row": 5,
+		"type": "animation",
+		"frame_count": 41,
+		"animation": "Fluid 40-frame 2D pixel-art animation of green hooded stickman archer performing ultimate 'Charged Shot'. \n1. Anticipation (8f): Roots feet in low stance, pulls glowing arrow, nocks string, body weight shifts back. \n2. Charging (12f): Pulls bowstring to cheek under heavy tension, wooden bow flexes. Green and gold energy particles absorb into arrow tip, glowing brighter. Ground cracks under boots. \n3. Release (8f): Fires arrow with green-gold blast. Heavy recoil pushes archer back on boots, cloak and hood fly wildly, dust kicks up. \n4. Recovery (12f): Rides recoil, slowly lowers bow, dust settles, cloak calms down, smooth transition back to idle pose. White glowing eyes. Clean outlines, 256x256 canvas.",
+		"animation_group_id": "e08baf43-512f-4b26-bfdd-aecdf43979bf",
+		"direction": "south"
+	  },
+	  {
+		"row": 6,
+		"type": "animation",
+		"frame_count": 21,
+		"animation": "Fluid 20-frame 2D pixel-art running animation of green hooded stickman archer sprinting forward. \n1. Fast Stride (5f): Dynamic forward-leaning posture, fast alternating legs, boots pushing off ground. \n2. Arms & Bow (5f): Holds bow firmly, pumping arms rapidly in opposition to legs for high speed momentum. \n3. Cape Physics (5f): Green hooded cape flies back horizontally in the wind, quiver bounces on back. \n4. Loop (5f): Head locked ahead with glowing white eyes, perfectly looping back to frame 1. Clean black outlines, 256x256 canvas.",
+		"animation_group_id": "e8bf6379-eccd-44d4-bbe9-80d06a7b60fc",
+		"direction": "east"
+	  },
+	  {
+		"row": 7,
+		"type": "animation",
+		"frame_count": 41,
+		"animation": "Fluid 40-frame 2D pixel-art animation of green hooded stickman archer performing ultimate 'Charged Shot'. \n1. Anticipation (8f): Roots feet in low stance, pulls glowing arrow, nocks string, body weight shifts back. \n2. Charging (12f): Pulls bowstring to cheek under heavy tension, wooden bow flexes. Green and gold energy particles absorb into arrow tip, glowing brighter. Ground cracks under boots. \n3. Release (8f): Fires arrow with green-gold blast. Heavy recoil pushes archer back on boots, cloak and hood fly wildly, dust kicks up. \n4. Recovery (12f): Rides recoil, slowly lowers bow, dust settles, cloak calms down, smooth transition back to idle pose. White glowing eyes. Clean outlines, 256x256 canvas._2",
+		"animation_group_id": "e9552c30-32d5-4daf-bd1b-cb98d76a0073",
+		"direction": "south"
+	  },
+	  {
+		"row": 8,
+		"type": "animation",
+		"frame_count": 17,
+		"animation": "Fluid 16-frame 2D pixel-art death animation of green hooded stickman archer dying. \n1. Collapse (8f): Archer collapses forward onto knees from lethal strike, bow drops from hand, head drops, glowing white eyes fade out completely. \n2. Dissolve (8f): Body hits the ground, green hooded cape collapses, character rapidly dissolves into dark smoke and green magic particles fading away to empty screen. Clean black outlines, 256x256 canvas.",
+		"animation_group_id": "f2eff7e3-9968-474a-b757-ef653ad71c1f",
+		"direction": "south"
+	  }
+	]
   },
   "export_version": "1.0",
   "export_date": "2026-09-16T15:49:55.324157+00:00"

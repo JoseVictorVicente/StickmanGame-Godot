@@ -1,17 +1,24 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/heal_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "heal_lowest"
+heal_pct_max_hp = 12.0
+target_scope = "lowest_hp"
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "escudo_solar"
-name_key = "SKILL_escudo_solar"
-description_key = "SKILL_escudo_solar_DESC"
+name_key = "SKILL_solar_shield"
+description_key = "SKILL_solar_shield_DESC"
 type = 0
 cooldown = 16.0
 icon_path = "res://sprites/ui/skills/priest/escudo_solar.png"
 sort_order = 2
 stat_bonus_key = ""
 stat_value = 0.0
-vfx_id = ""
-effects = []
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0")]

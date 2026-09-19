@@ -1,17 +1,26 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "buff_self"
+stat_key = "attack_pct"
+stat_value = 20.0
+duration_sec = 5.0
+target_scope = "self"
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "grito_de_guerra"
-name_key = "SKILL_grito_de_guerra"
-description_key = "SKILL_grito_de_guerra_DESC"
+name_key = "SKILL_war_cry"
+description_key = "SKILL_war_cry_DESC"
 type = 0
 cooldown = 12.0
 icon_path = "res://sprites/ui/skills/warrior/grito_de_guerra.png"
 sort_order = 5
 stat_bonus_key = ""
 stat_value = 0.0
-vfx_id = ""
-effects = []
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0")]

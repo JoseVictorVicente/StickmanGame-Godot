@@ -248,11 +248,9 @@ func _on_gold_changed(_new_amount: int) -> void:
 
 
 func _on_item_dropped(item: ItemData) -> void:
-	if inventory_menu.add_item(item):
+	if inventory_menu.try_add_inventory_item(item):
 		_show_notice(tr(LocaleKeys.UI_DROP_PREFIX) % item.get_display_name())
 		AudioManager.play_coin_sound()
-	else:
-		_show_notice(tr(LocaleKeys.UI_INVENTORY_FULL))
 
 
 func _on_progression_changed() -> void:

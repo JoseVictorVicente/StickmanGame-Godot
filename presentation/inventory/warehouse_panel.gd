@@ -12,6 +12,7 @@ const INDICE_PRIMEIRA_PAGINA_EXTRA := 4
 const COLUNAS := 5
 const LINHAS := 8
 const SLOT_SIZE := Vector2(42, 42)
+const WAREHOUSE_GRID_SCENE := preload("res://presentation/inventory/warehouse_slots_grid.tscn")
 
 @onready var cabecalho: HBoxContainer = %WarehouseHeader
 @onready var botao_fechar: Button = %CloseWarehouseButton
@@ -19,6 +20,7 @@ const SLOT_SIZE := Vector2(42, 42)
 @onready var warehouse_grid: GridContainer = %WarehouseGrid
 @onready var status_label: Label = %WarehouseStatusLabel
 @onready var sort_button: Button = %SortWarehouseButton
+@onready var title_label: Label = $Conteudo/WarehouseHeader/BannerTitulo/Titulo
 
 var _menu: InventoryMenu
 var _slots_por_aba: Array = []
@@ -187,6 +189,15 @@ func apply(dados: Variant) -> void:
 
 
 func _create_tabs() -> void:
+	if tab_row.get_child_count() >= ABAS:
+		_collect_tab_buttons()
+		if not tab_row.has_meta("_tabs_wired"):
+			for i in _botoes_aba.size():
+				_botoes_aba[i].pressed.connect(show_tab.bind(i))
+			tab_row.set_meta("_tabs_wired", true)
+		for i in _botoes_aba.size():
+			_style_tab(_botoes_aba[i], i == _aba_atual, _unlocked_tabs[i])
+		return
 	tab_row.columns = COLUNAS_ABAS
 	for i in ABAS:
 		var botao := Button.new()
@@ -207,39 +218,36 @@ func _create_tabs() -> void:
 
 
 func _create_grids() -> void:
+	if warehouse_grid.get_child_count() >= ABAS:
+		_collect_grid_slots()
+		return
 	warehouse_grid.columns = 1
 	for i in ABAS:
-		var grade := GridContainer.new()
+		var grade := WAREHOUSE_GRID_SCENE.instantiate() as WarehouseSlotsGrid
 		grade.name = "GradeAba_%d" % i
-		grade.columns = COLUNAS
-		grade.add_theme_constant_override("h_separation", 4)
-		grade.add_theme_constant_override("v_separation", 4)
 		grade.visible = i == 0
-		var lista: Array[ItemSlot] = []
-		for n in COLUNAS * LINHAS:
-			lista.append(_create_slot(grade, i, n))
-		_slots_por_aba.append(lista)
 		warehouse_grid.add_child(grade)
+		var lista := grade.build_slots(SLOT_SIZE)
+		_slots_por_aba.append(lista)
 
 
-func _create_slot(grade: GridContainer, aba: int, stage_index: int) -> ItemSlot:
-	var slot := ItemSlot.new()
-	slot.name = "SlotArmazem_%d_%02d" % [aba, stage_index + 1]
-	slot.custom_minimum_size = SLOT_SIZE
-	var icone := TextureRect.new()
-	icone.name = "Icone"
-	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icone.offset_left = 4.0
-	icone.offset_top = 4.0
-	icone.offset_right = -4.0
-	icone.offset_bottom = -4.0
-	icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.add_child(icone)
-	slot.configure(icone, ItemData.Type.WEAPON, true)
-	grade.add_child(slot)
-	return slot
+func _collect_tab_buttons() -> void:
+	_botoes_aba.clear()
+	for filho in tab_row.get_children():
+		if filho is Button:
+			_botoes_aba.append(filho as Button)
+
+
+func _collect_grid_slots() -> void:
+	_slots_por_aba.clear()
+	for i in ABAS:
+		var grade := warehouse_grid.get_node_or_null("GradeAba_%d" % i) as WarehouseSlotsGrid
+		if grade == null:
+			continue
+		var lista := grade.slots()
+		if lista.is_empty():
+			lista = grade.ensure_slots(SLOT_SIZE)
+		_slots_por_aba.append(lista)
 
 
 func _slots_for_tab(stage_index: int) -> Array[ItemSlot]:
@@ -290,8 +298,11 @@ func refresh_locale() -> void:
 
 
 func _update_localized_texts() -> void:
+	if title_label:
+		title_label.text = tr(LocaleKeys.UI_WAREHOUSE).to_upper()
 	if botao_fechar:
 		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
+		botao_fechar.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
 	if sort_button:
 		sort_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
 

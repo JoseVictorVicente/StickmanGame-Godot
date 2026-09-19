@@ -1,0 +1,170 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8whslots01"]
+
+[ext_resource type="Script" path="res://presentation/inventory/warehouse_slots_grid.gd" id="1_grid"]
+[ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
+
+[node name="WarehouseSlotsGrid" type="GridContainer"]
+columns = 5
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+script = ExtResource("1_grid")
+
+[node name="SlotArmazem_01" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_02" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_03" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_04" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_05" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_06" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_07" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_08" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_09" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_10" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_11" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_12" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_13" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_14" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_15" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_16" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_17" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_18" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_19" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_20" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_21" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_22" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_23" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_24" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_25" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_26" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_27" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_28" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_29" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_30" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_31" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_32" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_33" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_34" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_35" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_36" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_37" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_38" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_39" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotArmazem_40" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2

@@ -8,7 +8,7 @@ Add one active skill by creating a **Godot resource** in the class folder. No bu
 data/skills/<class>/XX_<skill_id>.tres
 sprites/ui/skills/<class>/<skill_id>.png
 locales/en.po + locales/pt_BR.po
-        ↓ (auto)
+		↓ (auto)
 HeroEquipment catalog scan → equip in UI → ActiveSkillRuntime → CombatResolver
 ```
 

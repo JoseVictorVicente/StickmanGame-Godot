@@ -12,6 +12,6 @@ cooldown = 0.0
 icon_path = "res://sprites/ui/skills/warrior/iron_will.png"
 sort_order = 6
 stat_bonus_key = "attack_speed"
-stat_value = 12.0
+stat_value = 10.0
 vfx_id = ""
 effects = []

@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://c8equipleft1"]
+
+[ext_resource type="Script" path="res://presentation/inventory/equipment_grid.gd" id="1_grid"]
+[ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
+
+[node name="EquipmentGridLeft" type="GridContainer"]
+columns = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 3
+script = ExtResource("1_grid")
+
+[node name="SlotWeapon" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotOffhand" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotHelmet" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotChest" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotGloves" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotPants" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="SlotBoots" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2

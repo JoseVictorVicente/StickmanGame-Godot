@@ -121,6 +121,7 @@ static func _aplicar_caps_bonus(total: Dictionary) -> Dictionary:
 		"phys_res": 35.0,
 		"arcane_res": 35.0,
 		"elemental_res": 35.0,
+		"cooldown_reduction": 40.0,
 	}
 	for chave in caps.keys():
 		if chave in total:

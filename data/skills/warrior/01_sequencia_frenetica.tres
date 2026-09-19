@@ -1,12 +1,21 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/damage_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "damage_multi"
+multiplier = 1.0
+hits = 3
+force_crit = false
+armor_pen_pct = 0.0
 
 [resource]
 script = ExtResource("1_skill")
 skill_id = "sequencia_frenetica"
-name_key = "SKILL_sequencia_frenetica"
-description_key = "SKILL_sequencia_frenetica_DESC"
+name_key = "SKILL_frenzied_sequence"
+description_key = "SKILL_frenzied_sequence_DESC"
 type = 0
 cooldown = 5.0
 icon_path = "res://sprites/ui/skills/warrior/sequencia_frenetica.png"
@@ -14,4 +23,4 @@ sort_order = 1
 stat_bonus_key = ""
 stat_value = 0.0
 vfx_id = ""
-effects = []
+effects = [SubResource("Effect_0")]

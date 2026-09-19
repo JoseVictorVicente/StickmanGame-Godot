@@ -1,7 +1,11 @@
 [gd_scene format=3 uid="uid://c8formacao01"]
 
 [ext_resource type="Script" path="res://presentation/inventory/formation_panel.gd" id="1_formacao"]
+[ext_resource type="PackedScene" uid="uid://c8formslot01" path="res://presentation/inventory/formation_party_slot.tscn" id="10_formslot"]
 [ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
+
+[ext_resource type="Script" path="res://presentation/inventory/formation_hero_grid.gd" id="11_hero_grid"]
+[ext_resource type="PackedScene" uid="uid://c8partybtn01" path="res://presentation/inventory/party_hero_slot_button.tscn" id="12_hero_btn"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
@@ -173,6 +177,18 @@ layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
+[node name="FormationSlot0" parent="Conteudo/CorpoFormacao/FormationSlots" instance=ExtResource("10_formslot")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FormationSlot1" parent="Conteudo/CorpoFormacao/FormationSlots" instance=ExtResource("10_formslot")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FormationSlot2" parent="Conteudo/CorpoFormacao/FormationSlots" instance=ExtResource("10_formslot")]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="HeroesTitle" type="Label" parent="Conteudo/CorpoFormacao"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -196,6 +212,32 @@ size_flags_horizontal = 3
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
+script = ExtResource("11_hero_grid")
+[node name="Hero_priest" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "priest"
+[node name="Hero_tank" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "tank"
+[node name="Hero_assassin" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "assassin"
+[node name="Hero_archer" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "archer"
+[node name="Hero_mage" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "mage"
+[node name="Hero_warrior" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+layout_mode = 2
+custom_minimum_size = Vector2(86, 98)
+metadata/class_id = "warrior"
+
 
 [node name="FormationHintLabel" type="Label" parent="Conteudo"]
 unique_name_in_owner = true

@@ -5,3 +5,29 @@
 - `shared/` — window manager, icons, coin VFX
 - `worlds/` — world map UI
 - `inventory/` — inventory panels
+
+## UI scene checklist
+
+1. **Structure in `.tscn`** — use `VBoxContainer` / `HBoxContainer` / `GridContainer` + `custom_minimum_size`; avoid manual `layout_mode = 0` except overlay side panels positioned by `PanelLayout`.
+2. **Prefabs for repeats** — `item_slot.tscn`, `equipment_grid.tscn`, `inventory_slots_grid.tscn` (50 baked slots), `equipment_grid_left.tscn` / `equipment_grid_right.tscn` (warrior bake), `warehouse_slots_grid.tscn`, `forge_slots_grid.tscn`, `party_hero_slot_button.tscn`, `formation_party_slot.tscn`, `formation_hero_grid.gd`, `skills_active_grid.tscn` (6 slots), `skills_passive_grid.tscn` (10 slots), `skill_slot_active.tscn`, `skill_slot_passive.tscn`.
+3. **Hub prefabs** — `hero_section.tscn`, `inventory_row.tscn`, `bottom_nav.tscn` instanced from `inventory_menu.tscn`; edit layout in each `.tscn` (WYSIWYG).
+4. **`%UniqueName`** — mark nodes referenced from scripts; bind with `@onready var foo = %Foo`.
+5. **Layout resource** — `InventoryLayout` (`inventory_layout_default.tres`): `base_unit` scales portrait, party, equip, and **10×5** inventory grid; `_apply_panel_layout()` applies tokens at runtime without overwriting designer sizes in the editor.
+6. **Runtime loops** — `InventorySlotsGrid.setup(connect)` wires signals to baked slots; `EquipmentGrid.build_slots()` reuses baked children when counts match. `configure()` for data-driven panels only.
+7. **Signals up, calls down** — child widgets emit or call parent controller; domain code never references `Control` nodes.
+8. **`@tool`** — overlay panels (`warehouse_panel`, `forge_panel`, etc.) and slot-grid helpers that auto-fill empty grids in the editor; `inventory_menu.gd` stays non-`@tool`.
+
+## Inventory menu layout
+
+- Main panel: [`inventory_menu.tscn`](inventory/inventory_menu.tscn) + [`inventory_menu.gd`](inventory/inventory_menu.gd) (controller).
+- Hub blocks: `AreaHeroi` → `hero_section.tscn`, `LinhaInventario` → `inventory_row.tscn`, `MenuInferior` → `bottom_nav.tscn`.
+- Equipment: warrior left/right grids baked in `hero_section.tscn`; other classes created at runtime via `equipment_grid.tscn`.
+- Party row: three `party_hero_slot_button.tscn` under `%PartySlots`; `TeamSelectionUI` updates state only.
+- Side overlays (warehouse, forge, worlds): positioned by [`panel_layout.gd`](inventory/panel_layout.gd).
+
+## Manual check (inventory hub)
+
+1. Open `inventory_menu.tscn` → hero section, **50-slot grid**, sort button, chest, bottom nav visible without F5.
+2. Open `inventory_slots_grid.tscn` → tweak slot size/separation; confirm change propagates to menu instance.
+3. F5 → pickup, sort, drag, equip, save/load unchanged.
+4. Open each overlay `.tscn` in isolation → no parse errors in Output.
