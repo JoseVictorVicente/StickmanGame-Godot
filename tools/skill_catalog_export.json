@@ -1,0 +1,117 @@
+{
+  "active_cooldowns": [
+    5.0,
+    16.0,
+    6.0,
+    10.0,
+    12.0,
+    8.0
+  ],
+  "active_id_overrides": {
+    "archer": [
+      "instant_double_shot",
+      "dark_volley",
+      "precision_shot",
+      "hunter_stance",
+      "neon_vision"
+    ],
+    "mage": [
+      "abyssal_meteor",
+      "damage_portal",
+      "black_fireball",
+      "ice_nova",
+      "ice_lance",
+      "arcane_heal"
+    ]
+  },
+  "active_effects": {
+    "archer": [
+      [
+        {
+          "effect_type": "damage_multi",
+          "multiplier": 1.0,
+          "hits": 2,
+          "force_crit": true,
+          "armor_pen_pct": 0.0
+        }
+      ],
+      [
+        {
+          "effect_type": "damage_multi",
+          "multiplier": 0.4,
+          "hits": 5,
+          "force_crit": false,
+          "armor_pen_pct": 0.0
+        }
+      ],
+      [
+        {
+          "effect_type": "damage_burst",
+          "multiplier": 1.5,
+          "hits": 1,
+          "force_crit": true,
+          "armor_pen_pct": 30.0
+        }
+      ],
+      [
+        {
+          "effect_type": "buff_self",
+          "stat_key": "attack_speed",
+          "stat_value": 30.0,
+          "duration_sec": 3.5
+        },
+        {
+          "effect_type": "buff_self",
+          "stat_key": "attack_pct",
+          "stat_value": 10.0,
+          "duration_sec": 3.5
+        }
+      ],
+      [
+        {
+          "effect_type": "buff_self",
+          "stat_key": "crit_chance",
+          "stat_value": 30.0,
+          "duration_sec": 4.0
+        }
+      ]
+    ],
+    "mage": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [
+        {
+          "effect_type": "heal_party",
+          "heal_pct_max_hp": 20.0,
+          "target_scope": "party"
+        }
+      ]
+    ]
+  },
+  "active_vfx": {
+    "archer": [
+      "arrow_burst",
+      "arrow_burst",
+      "arrow_single",
+      "buff_glow",
+      "buff_glow"
+    ],
+    "mage": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "buff_glow"
+    ]
+  },
+  "icon_inner_only": {
+    "archer": [
+      "hunter_stance",
+      "precision_shot"
+    ]
+  }
+}

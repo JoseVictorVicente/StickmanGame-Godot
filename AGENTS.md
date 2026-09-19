@@ -54,6 +54,18 @@
 
 Full checklist: `docs/workflows/playtest-checklist.md`
 
+## Assisted logging (Cursor / CI)
+
+Structured events for automated validation. **Read:** `docs/workflows/assisted-logging.md`
+
+After combat, save, or `main.gd` wiring changes:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_assisted_check.ps1
+```
+
+**Rule:** do not add `GameLog` calls inside skills, resolvers, or per-function paths. Logging happens at **flow boundaries** (signals → `EventLogBridge`). New skills are logged automatically if they use the existing combat pipeline.
+
 ## Git
 
 - No force-push to `main`

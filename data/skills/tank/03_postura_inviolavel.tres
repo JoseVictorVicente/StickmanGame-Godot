@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "postura_inviolavel"
+name_key = "SKILL_postura_inviolavel"
+description_key = "SKILL_postura_inviolavel_DESC"
+type = 0
+cooldown = 6.0
+icon_path = "res://sprites/ui/skills/tank/postura_inviolavel.png"
+sort_order = 3
+stat_bonus_key = ""
+stat_value = 0.0
+vfx_id = ""
+effects = []

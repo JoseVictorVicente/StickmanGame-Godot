@@ -342,12 +342,24 @@ func _on_hero_slot_pressed(stage_index: int) -> void:
 
 
 func _on_active_slot_pressed(stage_index: int) -> void:
-	_slot_ativo_selecionado = stage_index
+	var classe_id := _get_class_id()
+	if HeroEquipment.get_equipped(classe_id, SkillResource.Type.ACTIVE, stage_index) != null:
+		HeroEquipment.unequip_skill(classe_id, SkillResource.Type.ACTIVE, stage_index)
+		if _menu and _menu.has_method("_update_main_skill_slots"):
+			_menu._update_main_skill_slots()
+	else:
+		_slot_ativo_selecionado = stage_index
 	_update_skills_ui()
 
 
 func _on_passive_slot_pressed(stage_index: int) -> void:
-	_slot_passivo_selecionado = stage_index
+	var classe_id := _get_class_id()
+	if HeroEquipment.get_equipped(classe_id, SkillResource.Type.PASSIVE, stage_index) != null:
+		HeroEquipment.unequip_skill(classe_id, SkillResource.Type.PASSIVE, stage_index)
+		if _menu and _menu.has_method("_update_main_skill_slots"):
+			_menu._update_main_skill_slots()
+	else:
+		_slot_passivo_selecionado = stage_index
 	_update_skills_ui()
 
 

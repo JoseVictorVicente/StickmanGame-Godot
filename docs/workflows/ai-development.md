@@ -78,7 +78,10 @@ domains/combat/party_service.gd  # target
 
 ## Automated tests
 
-Phase 7 (optional): see [`testing.md`](testing.md). Until then, manual playtest is the quality gate.
+- **Assisted logging:** after combat/save/main changes, run `powershell -ExecutionPolicy Bypass -File tools/run_assisted_check.ps1` — see [`assisted-logging.md`](assisted-logging.md)
+- **Logging rule:** never add `GameLog` per skill/function; logs flow through signals → `EventLogBridge`
+- **Phase 7 GUT (optional):** see [`testing.md`](testing.md)
+- Manual playtest remains mandatory for UI/visual changes
 
 ## Communication
 

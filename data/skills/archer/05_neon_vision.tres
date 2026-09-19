@@ -1,6 +1,14 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_0"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "buff_self"
+stat_key = "crit_chance"
+stat_value = 30.0
+duration_sec = 4.0
 
 [resource]
 script = ExtResource("1_skill")
@@ -8,7 +16,10 @@ skill_id = "neon_vision"
 name_key = "SKILL_neon_vision"
 description_key = "SKILL_neon_vision_DESC"
 type = 0
-cooldown = 12
+cooldown = 12.0
 icon_path = "res://sprites/ui/skills/archer/neon_vision.png"
 sort_order = 5
+stat_bonus_key = ""
 stat_value = 0.0
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0")]

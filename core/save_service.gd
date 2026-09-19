@@ -57,19 +57,33 @@ static func save_game(root: Node) -> void:
 	var err := cfg.save(SAVE_PATH)
 	if err != OK:
 		push_warning("SaveService: failed to save: %s" % err)
+		_log_save_event(EventCatalog.SAVE_WRITE_FAILED, {
+			"error_code": err,
+		}, GameLog.Level.WARN)
+	else:
+		_log_save_event(EventCatalog.SAVE_WRITTEN, {
+			"version": SAVE_VERSION,
+			"gold": int(payload.get("gold", 0)),
+			"stage": int(payload.get("stage", 1)),
+			"payload_keys": payload.keys().size(),
+		})
 
 
 static func load_game(root: Node) -> bool:
 	if root == null or not is_instance_valid(root):
+		_log_save_event(EventCatalog.SAVE_LOAD_FAILED, {"reason": "invalid_root"}, GameLog.Level.WARN)
 		return false
 	if not FileAccess.file_exists(SAVE_PATH):
+		_log_save_event(EventCatalog.SAVE_LOAD_FAILED, {"reason": "no_file"}, GameLog.Level.WARN)
 		return false
 	var cfg := ConfigFile.new()
 	if cfg.load(SAVE_PATH) != OK:
+		_log_save_event(EventCatalog.SAVE_LOAD_FAILED, {"reason": "parse_error"}, GameLog.Level.WARN)
 		return false
 	var version := int(cfg.get_value("game", "version", cfg.get_value("jogo", "versao", 0)))
 	if version < 1:
 		_clear_progress(cfg)
+		_log_save_event(EventCatalog.SAVE_LOAD_FAILED, {"reason": "invalid_version"}, GameLog.Level.WARN)
 		return false
 	var payload := _build_payload_from_config(cfg, version)
 	payload = normalize_keys(payload)
@@ -84,7 +98,17 @@ static func load_game(root: Node) -> bool:
 		payload = _migrate_schema_v6(payload)
 	if root.has_method("apply_from_save"):
 		root.apply_from_save(payload)
+		_log_save_event(EventCatalog.SAVE_LOADED, {
+			"version": SAVE_VERSION,
+			"gold": int(payload.get("gold", 0)),
+			"migrated_from": version,
+		})
+		GameLog.invariant("save_version_match", version <= SAVE_VERSION, {
+			"expected": SAVE_VERSION,
+			"actual": version,
+		})
 		return true
+	_log_save_event(EventCatalog.SAVE_LOAD_FAILED, {"reason": "no_apply_method"}, GameLog.Level.WARN)
 	return false
 
 
@@ -354,6 +378,16 @@ static func _to_legacy_payload(data: Dictionary) -> Dictionary:
 static func _parse_json(text: String, default_value: Variant) -> Variant:
 	var parsed: Variant = JSON.parse_string(text)
 	return parsed if parsed != null else default_value
+
+
+static func _log_save_event(
+	event_name: String,
+	data: Dictionary,
+	level: int = GameLog.Level.INFO
+) -> void:
+	if not GameLog.is_enabled():
+		return
+	GameLog.event(GameLog.Category.SAVE, event_name, data, level)
 
 
 static func _clear_progress(cfg: ConfigFile) -> void:

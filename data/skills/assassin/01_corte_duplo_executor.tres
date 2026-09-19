@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "corte_duplo_executor"
+name_key = "SKILL_corte_duplo_executor"
+description_key = "SKILL_corte_duplo_executor_DESC"
+type = 0
+cooldown = 5.0
+icon_path = "res://sprites/ui/skills/assassin/corte_duplo_executor.png"
+sort_order = 1
+stat_bonus_key = ""
+stat_value = 0.0
+vfx_id = ""
+effects = []

@@ -27,6 +27,13 @@ func _notification(what: int) -> void:
 
 
 func save() -> void:
+	if GameLog.is_enabled():
+		GameLog.event(
+			GameLog.Category.SAVE,
+			EventCatalog.SAVE_AUTOSAVE,
+			{"interval": SaveServiceScript.AUTOSAVE_INTERVAL},
+			GameLog.Level.DEBUG,
+		)
 	SaveServiceScript.save_game(_root)
 
 

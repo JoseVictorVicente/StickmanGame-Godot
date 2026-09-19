@@ -110,7 +110,18 @@ Signal `item_dropado(item: ItemData)` → `main` adds to inventory.
 
 ## Skills in combat
 
-`HeroEquipment` (autoload in `domains/combat/hero_equipment.gd`) stores up to 2 active + 2 passive skills per class. Cooldown runtime lives in `domains/combat/` (e.g. `archer_skills.gd`, `skill_runtime.gd`). **Equipped skills persist in save v4** — see [`save-format.md`](save-format.md).
+`HeroEquipment` (autoload in `domains/combat/hero_equipment.gd`) stores up to 2 active + 2 passive skills per class.
+
+| Component | Role |
+|-----------|------|
+| `skill_runtime.gd` | Passive stat bonuses from equipped passives |
+| `active_skill_runtime.gd` | Active cooldowns and cast priority |
+| `combat_resolver.gd` | Resolves `SkillResource.effects` into hits/buffs |
+| `buff_container.gd` | Timed combat buffs per party slot |
+
+On each hero timer tick, equipped actives (slot 0 → 1) are tried before a basic attack. See [`active-skills.md`](active-skills.md).
+
+**Equipped skills persist in save v4** — cooldowns do not (MVP). See [`save-format.md`](save-format.md).
 
 ## UI integration
 

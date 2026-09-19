@@ -46,7 +46,72 @@ func _ready() -> void:
 	_enemy_timer.start()
 
 
-func on_hero_attacked(_slot_index: int, damage: int) -> void:
+func on_hero_skill_used(
+	slot_index: int,
+	skill: SkillResource,
+	hits: Array,
+	heals: Array = []
+) -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if current_enemy == null or current_enemy.is_dead():
+		spawn_enemy()
+	AudioManager.play_attack_sound()
+	var combat_root: Node = enemy_visual.get_parent() if enemy_visual else self
+	_apply_skill_heals(slot_index, heals, combat_root)
+	CombatCueAdapter.play(skill.vfx_id, party, slot_index, enemy_visual, combat_root, hits.size())
+	if hits.is_empty():
+		hud_refresh.emit()
+		return
+	for hit in hits:
+		if _resolvendo_morte or _resolvendo_derrota:
+			return
+		if current_enemy == null or current_enemy.is_dead():
+			break
+		var delay_sec := float(hit.get("delay_sec", 0.0))
+		if delay_sec > 0.0:
+			await get_tree().create_timer(delay_sec).timeout
+		if _resolvendo_morte or _resolvendo_derrota:
+			return
+		if current_enemy == null or current_enemy.is_dead():
+			break
+		var damage := int(hit.get("damage", 0))
+		var is_crit := bool(hit.get("is_crit", false))
+		if damage <= 0:
+			continue
+		var morreu := current_enemy.take_damage(damage)
+		_emit_enemy_hp()
+		enemy_hit.emit(damage, current_enemy.current_hp, current_enemy.max_hp)
+		enemy_health_bar.update_hp(current_enemy.current_hp)
+		if enemy_visual.has_method("update_hp"):
+			enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
+		var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
+		DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage, cor, is_crit)
+		enemy_visual.flash_hit()
+		AudioManager.play_hit_sound()
+		if morreu:
+			enemy_died.emit()
+			await _resolve_death()
+			return
+	hud_refresh.emit()
+
+
+func _apply_skill_heals(caster_slot: int, heals: Array, combat_root: Node) -> void:
+	for heal in heals:
+		var pct := float(heal.get("heal_pct_max_hp", 0.0))
+		if pct <= 0.0:
+			continue
+		var scope := str(heal.get("target_scope", "party"))
+		for target_slot in party.heal_slots_for_scope(caster_slot, scope):
+			var healed := party.heal_hero_percent(target_slot, pct)
+			if healed <= 0:
+				continue
+			var pos := party.hero_world_position(target_slot)
+			if pos != Vector2.ZERO:
+				DamageNumber.spawn_heal(combat_root, pos, healed)
+
+
+func on_hero_attacked(_slot_index: int, damage: int, is_crit: bool = false) -> void:
 	if _resolvendo_morte or _resolvendo_derrota:
 		return
 	if current_enemy == null or current_enemy.is_dead():
@@ -58,7 +123,8 @@ func on_hero_attacked(_slot_index: int, damage: int) -> void:
 	enemy_health_bar.update_hp(current_enemy.current_hp)
 	if enemy_visual.has_method("update_hp"):
 		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
-	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage)
+	var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
+	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage, cor, is_crit)
 	enemy_visual.flash_hit()
 	AudioManager.play_hit_sound()
 	if morreu:
@@ -81,8 +147,16 @@ func on_enemy_attacked() -> void:
 	if enemy_visual.has_method("play_attack"):
 		enemy_visual.play_attack()
 	AudioManager.play_attack_sound()
-	party.apply_damage_to_hero(alvo, current_enemy.damage)
-	AudioManager.play_hit_sound()
+	var mitigation: Dictionary = party.mitigate_incoming_damage(alvo, current_enemy.damage)
+	if bool(mitigation.get("evaded", false)):
+		var posicao := party.hero_world_position(alvo)
+		if posicao != Vector2.ZERO:
+			DamageNumber.spawn_miss(enemy_visual.get_parent(), posicao, tr(LocaleKeys.COMBAT_MISS))
+		return
+	var dano_recebido := int(mitigation.get("damage", 0))
+	if dano_recebido > 0:
+		party.apply_damage_to_hero(alvo, dano_recebido)
+		AudioManager.play_hit_sound()
 	if party.right_target_index() < 0:
 		await _resolve_defeat()
 

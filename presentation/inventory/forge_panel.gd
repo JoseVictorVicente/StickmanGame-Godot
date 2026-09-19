@@ -61,6 +61,7 @@ var _camada_legenda_info: CanvasLayer
 var _caixa_legenda_info: PanelContainer
 var slot_joia_alvo: ItemSlot
 var slot_joia_gema: ItemSlot
+var _forge_service := ForgeService.new()
 
 
 func _ready() -> void:
@@ -282,10 +283,10 @@ func notify_blocked_category(item: ItemData) -> void:
 	var travada: Variant = locked_synthesis_category()
 	if travada == null or item == null:
 		return
-		_set_status(tr(LocaleKeys.FORGE_MIXED_CATEGORY) % [
-			ItemData.display_name_categoria(travada as ItemData.Category),
-			ItemData.display_name_categoria(item.category()),
-		], Color(1, 0.55, 0.4, 1))
+	_set_status(tr(LocaleKeys.FORGE_MIXED_CATEGORY) % [
+		ItemData.display_name_categoria(travada as ItemData.Category),
+		ItemData.display_name_categoria(item.category()),
+	], Color(1, 0.55, 0.4, 1))
 
 
 func first_empty_slot() -> ItemSlot:
@@ -406,6 +407,10 @@ func synthesize() -> void:
 	var ingredientes: Array[ItemData] = []
 	for slot in _slots:
 		ingredientes.append(slot.item)
+	var custo := _forge_service.get_cost(ingredientes[0], "synthesis")
+	if _menu == null or not _menu.try_spend_gold(custo):
+		_set_status(tr(LocaleKeys.FORGE_NOT_ENOUGH_GOLD) % custo, Color(1, 0.55, 0.4, 1))
+		return
 	var raridade_base := ingredientes[0].rarity
 	var chance := ItemData.forge_success_chance(raridade_base)
 	var sucesso := randf() <= chance
@@ -610,6 +615,10 @@ func _on_imbue_pressed() -> void:
 	if not can_accept_target_jewelry(equipamento) or not can_accept_gem_jewelry(gema):
 		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_INVALID), Color(1, 0.55, 0.4, 1))
 		return
+	var custo := _forge_service.get_cost(equipamento, "imbue")
+	if not _menu.try_spend_gold(custo):
+		_set_jewelry_status(tr(LocaleKeys.FORGE_NOT_ENOUGH_GOLD) % custo, Color(1, 0.55, 0.4, 1))
+		return
 	var origem_gema: ItemSlot = _vinculos.get(slot_joia_gema)
 	if origem_gema == null:
 		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_DRAG_GEM), Color(1, 0.55, 0.4, 1))
@@ -654,8 +663,12 @@ func _update_jewelry_state() -> void:
 	elif valido:
 		var equipamento: ItemData = slot_joia_alvo.item
 		var gema: ItemData = slot_joia_gema.item
+		var custo := _forge_service.get_cost(equipamento, "imbue")
 		_set_jewelry_status(
-			tr(LocaleKeys.FORGE_JEWELRY_IMBUE) % [gema.get_display_name(), equipamento.get_display_name()],
+			"%s %s" % [
+				tr(LocaleKeys.FORGE_JEWELRY_IMBUE) % [gema.get_display_name(), equipamento.get_display_name()],
+				tr(LocaleKeys.FORGE_COST) % custo,
+			],
 			Color(0.85, 0.78, 0.32, 1)
 		)
 	elif slot_joia_alvo == null or slot_joia_gema == null or (slot_joia_alvo.item == null and slot_joia_gema.item == null):
@@ -1148,7 +1161,11 @@ func _update_state() -> void:
 	if valida:
 		var amostra: ItemData = _slots[0].item
 		var pct := ItemData.forge_success_chance_pct(amostra.rarity)
-		_set_status(tr(LocaleKeys.FORGE_SUCCESS_CHANCE) % pct, Color(0.85, 0.78, 0.32, 1))
+		var custo := _forge_service.get_cost(amostra, "synthesis")
+		_set_status(
+			"%s %s" % [tr(LocaleKeys.FORGE_SUCCESS_CHANCE) % pct, tr(LocaleKeys.FORGE_COST) % custo],
+			Color(0.85, 0.78, 0.32, 1)
+		)
 	elif _count_occupied(_slots) == 0:
 		_set_status(tr(LocaleKeys.FORGE_SYNTHESIS_HINT), Color(0.72, 0.66, 0.52, 1))
 	else:

@@ -3,7 +3,8 @@ extends Node2D
 ## Party of up to 3 stickmen with independent attack timers and stats.
 
 signal party_changed
-signal hero_attacked(slot_index: int, damage: int)
+signal hero_attacked(slot_index: int, damage: int, is_crit: bool)
+signal hero_skill_used(slot_index: int, skill: SkillResource, hits: Array, heals: Array)
 signal dps_changed(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
@@ -29,6 +30,9 @@ var _posicoes: Array[Marker2D] = []
 var _vida_atual: Array[int] = [0, 0, 0]
 var _vida_max: Array[int] = [0, 0, 0]
 var _skill_runtime := SkillRuntime.new()
+var _buff_container := BuffContainer.new()
+var _active_runtime := ActiveSkillRuntime.new()
+var _combat_resolver := CombatResolver.new()
 
 
 func _ready() -> void:
@@ -40,6 +44,18 @@ func _ready() -> void:
 		scale_character(0, get_class_by_id("warrior"))
 		scale_character(1, get_class_by_id("mage"))
 		scale_character(2, get_class_by_id("archer"))
+	if not HeroEquipment.equipment_changed.is_connected(_on_equipment_changed):
+		HeroEquipment.equipment_changed.connect(_on_equipment_changed)
+
+
+func _process(delta: float) -> void:
+	if _buff_container.tick(delta):
+		recalculate_stats()
+
+
+func _on_equipment_changed(_class_id: String) -> void:
+	_active_runtime.clear_cooldowns()
+	recalculate_stats()
 
 
 func get_class_by_id(class_id: String) -> ClassData:
@@ -145,6 +161,54 @@ func _index_of_class(id_classe: String) -> int:
 	return -1
 
 
+func hero_stats(slot_index: int) -> Dictionary:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return StatCalculator._empty()
+	var classe: Variant = active_party[slot_index]
+	if classe == null or not (classe is ClassData):
+		return StatCalculator._empty()
+	if stat_calculator != null:
+		return _apply_buff_overlay(slot_index, classe as ClassData, stat_calculator.compute(slot_index, classe as ClassData))
+	return StatCalculator._empty()
+
+
+func get_hero_sprite(slot_index: int) -> AnimatedSprite2D:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return null
+	return _sprites[slot_index]
+
+
+func _apply_buff_overlay(slot_index: int, class_data: ClassData, stats: Dictionary) -> Dictionary:
+	var buff_bonus := _buff_container.active_bonuses(slot_index)
+	if buff_bonus.is_empty():
+		return stats
+	var overlay := stats.duplicate(true)
+	var bonus: Variant = overlay.get("skill_tree_bonus")
+	if bonus is Dictionary:
+		bonus = bonus.duplicate(true)
+	else:
+		bonus = SkillTreeDefinition.empty_bonus()
+	SkillRuntime.merge_into(bonus, buff_bonus)
+	bonus = StatCalculator.apply_bonus_caps(bonus)
+	overlay["skill_tree_bonus"] = bonus
+	var level := _slot_level(slot_index)
+	var equip_damage := 0
+	if get_equipped_damage.is_valid():
+		equip_damage = int(get_equipped_damage.call(slot_index))
+	var equip_hp := 0
+	if get_equipped_hp.is_valid():
+		equip_hp = int(get_equipped_hp.call(slot_index))
+	overlay["damage"] = StatCalculator._compute_damage(class_data, level, equip_damage, bonus)
+	overlay["hp"] = StatCalculator._compute_hp(class_data, level, equip_hp, bonus)
+	overlay["attack_speed"] = class_data.attack_speed * (1.0 + float(bonus.get("attack_speed", 0.0)) / 100.0)
+	overlay["attack_speed_bonus"] = float(bonus.get("attack_speed", 0.0))
+	overlay["crit_chance"] = float(bonus.get("crit_chance", 0.0))
+	overlay["crit_damage"] = float(bonus.get("crit_damage", 0.0))
+	overlay["evasion"] = float(bonus.get("evasion", 0.0))
+	overlay["phys_res"] = float(bonus.get("phys_res", 0.0))
+	return overlay
+
+
 func hero_damage(slot_index: int) -> int:
 	if slot_index < 0 or slot_index >= SLOTS:
 		return 0
@@ -152,8 +216,7 @@ func hero_damage(slot_index: int) -> int:
 	if classe == null or not (classe is ClassData):
 		return 0
 	if stat_calculator != null:
-		var stats := stat_calculator.compute(slot_index, classe as ClassData)
-		return int(stats.get("damage", 0))
+		return int(hero_stats(slot_index).get("damage", 0))
 	var dados: ClassData = classe
 	var extra := 0
 	if get_equipped_damage.is_valid():
@@ -193,8 +256,7 @@ func hero_max_hp(slot_index: int) -> int:
 	if classe == null or not (classe is ClassData):
 		return 0
 	if stat_calculator != null:
-		var stats := stat_calculator.compute(slot_index, classe as ClassData)
-		return int(stats.get("hp", 0))
+		return int(hero_stats(slot_index).get("hp", 0))
 	var extra := 0
 	if get_equipped_hp.is_valid():
 		extra = int(get_equipped_hp.call(slot_index))
@@ -206,6 +268,11 @@ func hero_max_hp(slot_index: int) -> int:
 
 
 func _skill_tree_bonus(slot_index: int) -> Dictionary:
+	if stat_calculator != null:
+		var stats := hero_stats(slot_index)
+		var bonus: Variant = stats.get("skill_tree_bonus")
+		if bonus is Dictionary:
+			return bonus
 	var bonus := SkillTreeDefinition.empty_bonus()
 	if get_skill_tree_bonus.is_valid():
 		var raw: Variant = get_skill_tree_bonus.call(slot_index)
@@ -214,7 +281,7 @@ func _skill_tree_bonus(slot_index: int) -> Dictionary:
 	var classe: Variant = active_party[slot_index]
 	if classe is ClassData:
 		SkillRuntime.merge_into(bonus, _skill_runtime.bonuses_for_class((classe as ClassData).id))
-	return bonus
+	return StatCalculator.apply_bonus_caps(bonus)
 
 
 func _slot_level(slot_index: int) -> int:
@@ -238,6 +305,34 @@ func right_target_index() -> int:
 	return -1
 
 
+func hero_world_position(slot_index: int) -> Vector2:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return Vector2.ZERO
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite == null or not sprite.visible:
+		return Vector2.ZERO
+	return sprite.global_position
+
+
+func roll_attack_damage(slot_index: int) -> Dictionary:
+	var base := hero_damage(slot_index)
+	var stats := hero_stats(slot_index)
+	return CombatMath.roll_crit_damage(
+		base,
+		float(stats.get("crit_chance", 0.0)),
+		float(stats.get("crit_damage", 0.0))
+	)
+
+
+func mitigate_incoming_damage(slot_index: int, raw_damage: int) -> Dictionary:
+	var stats := hero_stats(slot_index)
+	return CombatMath.mitigate_damage(
+		raw_damage,
+		float(stats.get("evasion", 0.0)),
+		float(stats.get("phys_res", 0.0))
+	)
+
+
 func apply_damage_to_hero(slot_index: int, amount: int) -> bool:
 	if not is_hero_alive(slot_index):
 		return false
@@ -252,6 +347,47 @@ func apply_damage_to_hero(slot_index: int, amount: int) -> bool:
 		_emit_dps()
 		return true
 	return false
+
+
+func heal_hero_percent(slot_index: int, pct: float) -> int:
+	if slot_index < 0 or slot_index >= SLOTS or pct <= 0.0:
+		return 0
+	if not is_hero_alive(slot_index):
+		return 0
+	var max_hp := _vida_max[slot_index]
+	if max_hp <= 0:
+		return 0
+	var amount := maxi(1, int(round(float(max_hp) * pct / 100.0)))
+	var before := _vida_atual[slot_index]
+	_vida_atual[slot_index] = mini(max_hp, before + amount)
+	var healed := _vida_atual[slot_index] - before
+	if healed > 0:
+		_update_bar_slot(slot_index)
+	return healed
+
+
+func heal_slots_for_scope(caster_slot: int, target_scope: String) -> Array[int]:
+	var scope := target_scope if target_scope != "" else "party"
+	if scope == "self":
+		return [caster_slot] if is_hero_alive(caster_slot) else []
+	if scope == "lowest_hp":
+		var best_slot := -1
+		var best_ratio := 2.0
+		for i in SLOTS:
+			if not is_hero_alive(i):
+				continue
+			if _vida_max[i] <= 0:
+				continue
+			var ratio := float(_vida_atual[i]) / float(_vida_max[i])
+			if ratio < best_ratio:
+				best_ratio = ratio
+				best_slot = i
+		return [best_slot] if best_slot >= 0 else []
+	var slots: Array[int] = []
+	for i in SLOTS:
+		if is_hero_alive(i):
+			slots.append(i)
+	return slots
 
 
 func heal_party() -> void:
@@ -377,9 +513,8 @@ func _update_timer_slot(slot_index: int) -> void:
 	if classe == null or not is_hero_alive(slot_index):
 		timer.stop()
 		return
-	var dados: ClassData = classe
-	var bonus := _skill_tree_bonus(slot_index)
-	var vel := dados.attack_speed * (1.0 + float(bonus.get("attack_speed", 0.0)) / 100.0)
+	var stats := hero_stats(slot_index)
+	var vel := float(stats.get("attack_speed", 1.0))
 	timer.wait_time = INTERVALO_BASE / maxf(0.25, vel)
 	if timer.is_stopped():
 		timer.start()
@@ -424,10 +559,40 @@ func _on_hero_timer(slot_index: int) -> void:
 		return
 	if not is_hero_alive(slot_index):
 		return
+	var classe: Variant = active_party[slot_index]
+	if classe == null or not (classe is ClassData):
+		return
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	if sprite.has_method("play_attack"):
 		sprite.play_attack()
-	hero_attacked.emit(slot_index, hero_damage(slot_index))
+	var class_data := classe as ClassData
+	var skill := _active_runtime.try_cast(slot_index, class_data.id)
+	if skill != null:
+		var stats := hero_stats(slot_index)
+		var ctx := {
+			"base_damage": int(stats.get("damage", 1)),
+			"crit_chance": float(stats.get("crit_chance", 0.0)),
+			"crit_damage": float(stats.get("crit_damage", 0.0)),
+		}
+		var result: Dictionary = _combat_resolver.resolve_skill(skill, ctx)
+		for buff in result.get("buffs", []):
+			_buff_container.add_buff(
+				slot_index,
+				str(buff.get("stat_key", "")),
+				float(buff.get("stat_value", 0.0)),
+				float(buff.get("duration_sec", 0.0))
+			)
+		if not result.get("buffs", []).is_empty():
+			recalculate_stats()
+		hero_skill_used.emit(
+			slot_index,
+			skill,
+			result.get("hits", []),
+			result.get("heals", [])
+		)
+		return
+	var roll := roll_attack_damage(slot_index)
+	hero_attacked.emit(slot_index, int(roll.get("damage", 0)), bool(roll.get("is_crit", false)))
 
 
 func _emit_dps() -> void:

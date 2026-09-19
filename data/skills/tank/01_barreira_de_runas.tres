@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "barreira_de_runas"
+name_key = "SKILL_barreira_de_runas"
+description_key = "SKILL_barreira_de_runas_DESC"
+type = 0
+cooldown = 5.0
+icon_path = "res://sprites/ui/skills/tank/barreira_de_runas.png"
+sort_order = 1
+stat_bonus_key = ""
+stat_value = 0.0
+vfx_id = ""
+effects = []

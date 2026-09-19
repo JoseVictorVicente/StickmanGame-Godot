@@ -75,6 +75,16 @@ Requires Godot on the runner or a container with GL Compatibility.
 - Visual combat timers (flaky)
 - Procedural icon generation
 
+## Assisted logging (available now)
+
+Structured JSONL events for Cursor/CI validation. See [`assisted-logging.md`](assisted-logging.md).
+
+```powershell
+pwsh tools/run_assisted_check.ps1
+```
+
+Runs unit tests + 30s idle smoke test and validates invariants via `tools/parse_game_log.py`.
+
 ## Quality gate today
 
 Until Phase 7 is active:
@@ -82,6 +92,7 @@ Until Phase 7 is active:
 1. [`playtest-checklist.md`](playtest-checklist.md) manual
 2. No console errors on boot
 3. Save review in PRs touching persistence
+4. Optional: `pwsh tools/run_assisted_check.ps1` after combat/save changes
 
 ## Adding a new test
 

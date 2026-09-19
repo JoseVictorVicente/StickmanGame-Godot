@@ -39,6 +39,14 @@
 - `docs/conventions/i18n.md`
 - `locales/pt_BR.po`, `locales/en.po`
 
+### Assisted logging (Cursor / CI)
+- `docs/workflows/assisted-logging.md` — how it works, commands, rules for devs
+- `docs/architecture/event-catalog.md` — event schema and full catalog
+- `platform/game_log.gd` — autoload emitter
+- `core/event_log_bridge.gd` — signal → log wiring (single integration point)
+- `tools/run_assisted_check.ps1` — one-command validation
+- `.cursor/rules/assisted-logging.mdc` — Cursor rule when editing combat/save
+
 ## Navigation routes
 
 | Task | Path |
@@ -49,3 +57,5 @@
 | New item | workflows/add-item.md → platform/item_database |
 | Broken save | save-format.md → save_service migrations |
 | AI on project | workflows/ai-development.md |
+| Logging / assisted test | workflows/assisted-logging.md → event-catalog.md |
+| New skill (logging) | No per-skill logs — flows through PartyService signals automatically |

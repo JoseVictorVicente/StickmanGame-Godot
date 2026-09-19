@@ -1,6 +1,6 @@
 """Shared skill catalog (PT display + EN i18n) for generate_skills.py and gen_locales.py."""
 
-ACTIVE_COOLDOWNS = [5.0, 16.0, 6.0, 10.0, 12.0]
+ACTIVE_COOLDOWNS = [5.0, 16.0, 6.0, 10.0, 12.0, 8.0]
 
 # (pt_name, pt_desc, en_name, en_desc)
 ACTIVE_ID_OVERRIDES: dict[str, list[str]] = {
@@ -10,6 +10,254 @@ ACTIVE_ID_OVERRIDES: dict[str, list[str]] = {
         "precision_shot",
         "hunter_stance",
         "neon_vision",
+    ],
+    "mage": [
+        "abyssal_meteor",
+        "damage_portal",
+        "black_fireball",
+        "ice_nova",
+        "ice_lance",
+        "arcane_heal",
+    ],
+}
+
+# English slugs for passive skills (same order as CATALOG[class]["passive"]).
+PASSIVE_ID_OVERRIDES: dict[str, list[str]] = {
+    "archer": [
+        "armor_penetration",
+        "reflex_recoil",
+        "swift_execution",
+        "nimble_hands",
+        "eagle_eye",
+        "drawstring_tension",
+        "wearing_poison",
+        "weak_prey",
+        "stacking_impact",
+        "surgical_aim",
+    ],
+    "assassin": [
+        "shadow_reflexes",
+        "adrenaline_surge",
+        "venomous_vein",
+        "stealth_strike",
+        "lethal_execution",
+        "deep_cut",
+        "weak_point_mapping",
+        "adrenaline",
+        "assassin_rhythm",
+        "light_blade",
+    ],
+    "priest": [
+        "sun_touch",
+        "reactive_barrier",
+        "radiant_presence",
+        "unshakable_devotion",
+        "divine_vigor",
+        "sacred_touch",
+        "critical_heal",
+        "celestial_pact",
+        "protective_light",
+        "mercy",
+    ],
+    "warrior": [
+        "blade_master",
+        "extreme_sharpening",
+        "iron_armor",
+        "unbreakable_stance",
+        "precise_execution",
+        "iron_will",
+        "defensive_stance",
+        "brute_force",
+        "medium_resistance",
+        "steel_muscles",
+    ],
+    "mage": [
+        "arcane_amplification",
+        "rune_resonance",
+        "magic_penetration",
+        "critical_focus",
+        "soul_drain",
+        "mana_flow",
+        "tuning",
+        "void_presence",
+        "open_mind",
+        "elemental_symphony",
+    ],
+    "tank": [
+        "titanium_shell",
+        "surface_thorns",
+        "unshakable",
+        "impact_absorption",
+        "magic_alloy",
+        "last_trench",
+        "heavy_weight",
+        "battle_inertia",
+        "hard_shell",
+        "vital_crush",
+    ],
+}
+
+# (stat_bonus_key, stat_value) per passive — same order as CATALOG[class]["passive"].
+# Complex conditional effects are approximated with the closest idle stat bonus.
+PASSIVE_STATS: dict[str, list[tuple[str, float]]] = {
+    "archer": [
+        ("attack_pct", 8.0),
+        ("evasion", 5.0),
+        ("attack_pct", 6.0),
+        ("attack_speed", 8.0),
+        ("crit_chance", 6.0),
+        ("attack_speed", 12.0),
+        ("attack", 4.0),
+        ("attack_pct", 5.0),
+        ("attack_pct", 7.0),
+        ("crit_chance", 8.0),
+    ],
+    "assassin": [
+        ("crit_chance", 5.0),
+        ("attack_speed", 5.0),
+        ("crit_damage", 12.0),
+        ("crit_damage", 10.0),
+        ("attack_pct", 8.0),
+        ("attack", 4.0),
+        ("attack_pct", 8.0),
+        ("attack_speed", 5.0),
+        ("attack_speed", 10.0),
+        ("attack_pct", 10.0),
+    ],
+    "priest": [
+        ("hp", 30.0),
+        ("hp", 40.0),
+        ("phys_res", 8.0),
+        ("attack_speed", 5.0),
+        ("hp", 25.0),
+        ("hp", 20.0),
+        ("crit_chance", 5.0),
+        ("hp", 50.0),
+        ("phys_res", 8.0),
+        ("hp", 35.0),
+    ],
+    "warrior": [
+        ("attack", 6.0),
+        ("crit_chance", 6.0),
+        ("phys_res", 10.0),
+        ("phys_res", 8.0),
+        ("attack_pct", 8.0),
+        ("attack_speed", 12.0),
+        ("phys_res", 8.0),
+        ("attack_pct", 7.0),
+        ("phys_res", 8.0),
+        ("hp_pct", 10.0),
+    ],
+    "mage": [
+        ("attack", 6.0),
+        ("attack_speed", 8.0),
+        ("attack_pct", 8.0),
+        ("crit_chance", 8.0),
+        ("hp", 30.0),
+        ("attack_pct", 7.0),
+        ("attack_speed", 5.0),
+        ("attack_pct", 6.0),
+        ("crit_chance", 7.0),
+        ("attack_pct", 8.0),
+    ],
+    "tank": [
+        ("evasion", 5.0),
+        ("attack", 5.0),
+        ("phys_res", 6.0),
+        ("hp", 35.0),
+        ("elemental_res", 8.0),
+        ("hp", 45.0),
+        ("attack", 5.0),
+        ("phys_res", 6.0),
+        ("phys_res", 10.0),
+        ("attack_pct", 7.0),
+    ],
+}
+
+# Combat effects per active skill (same order as CATALOG[class]["active"]).
+ACTIVE_EFFECTS: dict[str, list[list[dict]]] = {
+    "archer": [
+        [
+            {
+                "effect_type": "damage_multi",
+                "multiplier": 1.0,
+                "hits": 2,
+                "force_crit": True,
+                "armor_pen_pct": 0.0,
+            }
+        ],
+        [
+            {
+                "effect_type": "damage_multi",
+                "multiplier": 0.4,
+                "hits": 5,
+                "force_crit": False,
+                "armor_pen_pct": 0.0,
+            }
+        ],
+        [
+            {
+                "effect_type": "damage_burst",
+                "multiplier": 1.5,
+                "hits": 1,
+                "force_crit": True,
+                "armor_pen_pct": 30.0,
+            }
+        ],
+        [
+            {
+                "effect_type": "buff_self",
+                "stat_key": "attack_speed",
+                "stat_value": 30.0,
+                "duration_sec": 3.5,
+            },
+            {
+                "effect_type": "buff_self",
+                "stat_key": "attack_pct",
+                "stat_value": 10.0,
+                "duration_sec": 3.5,
+            },
+        ],
+        [
+            {
+                "effect_type": "buff_self",
+                "stat_key": "crit_chance",
+                "stat_value": 30.0,
+                "duration_sec": 4.0,
+            }
+        ],
+    ],
+    "mage": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+            {
+                "effect_type": "heal_party",
+                "heal_pct_max_hp": 20.0,
+                "target_scope": "party",
+            }
+        ],
+    ],
+}
+
+ACTIVE_VFX: dict[str, list[str]] = {
+    "archer": [
+        "arrow_burst",
+        "arrow_burst",
+        "arrow_single",
+        "buff_glow",
+        "buff_glow",
+    ],
+    "mage": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "buff_glow",
     ],
 }
 
@@ -109,6 +357,7 @@ CATALOG: dict[str, dict[str, list[tuple[str, str, str, str]]]] = {
             ("Bola de Fogo Negra", "Dispara uma grande esfera que causa dano em area no impacto.", "Black Fireball", "Fires a large sphere that deals area damage on impact."),
             ("Nova de Gelo", "Uma onda circular de gelo que congela tudo ao redor por 1s.", "Ice Nova", "A circular ice wave that freezes everything nearby for 1s."),
             ("Lanca de Gelo", "Dispara uma estaca de gelo fina e rapida que atravessa ate 2 inimigos em linha reta.", "Ice Lance", "Fires a thin fast ice stake piercing up to 2 enemies in a line."),
+            ("Cura Arcana", "Canaliza energia arcana e restaura 20% da vida maxima de toda a equipe.", "Arcane Heal", "Channels arcane energy and restores 20% of max HP to the entire party."),
         ],
         "passive": [
             ("Amplificacao Arcana", "Aumenta o Dano Magico base e o Alcance de Ataque do cajado.", "Arcane Amplification", "Increases base Magic Damage and staff attack range."),

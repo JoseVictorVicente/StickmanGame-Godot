@@ -45,6 +45,9 @@ msgstr "Hell completed!"
 msgid "COMBAT_WORLD_UNLOCKED"
 msgstr "World %d unlocked!"
 
+msgid "COMBAT_MISS"
+msgstr ""
+
 msgid "DIFFICULTY_EASY"
 msgstr "Easy"
 
@@ -560,6 +563,12 @@ msgstr "Gem imbued successfully!"
 
 msgid "FORGE_JEWELRY_IMBUE"
 msgstr "Imbue %s into %s?"
+
+msgid "FORGE_COST"
+msgstr ""
+
+msgid "FORGE_NOT_ENOUGH_GOLD"
+msgstr ""
 
 msgid "FORGE_LEVEL_HINT_EMPTY"
 msgstr "Place items to see level chances."
@@ -1232,6 +1241,12 @@ msgstr "Ice Lance"
 
 msgid "SKILL_ice_lance_DESC"
 msgstr "Fires a thin fast ice stake piercing up to 2 enemies in a line."
+
+msgid "SKILL_arcane_heal"
+msgstr "Arcane Heal"
+
+msgid "SKILL_arcane_heal_DESC"
+msgstr "Channels arcane energy and restores 20% of max HP to the entire party."
 
 msgid "SKILL_arcane_amplification"
 msgstr "Arcane Amplification"

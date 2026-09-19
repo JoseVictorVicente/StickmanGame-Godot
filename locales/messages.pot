@@ -48,6 +48,9 @@ msgstr ""
 msgid "COMBAT_WORLD_UNLOCKED"
 msgstr ""
 
+msgid "COMBAT_MISS"
+msgstr ""
+
 msgid "DIFFICULTY_EASY"
 msgstr ""
 
@@ -562,6 +565,12 @@ msgid "FORGE_JEWELRY_SUCCESS"
 msgstr ""
 
 msgid "FORGE_JEWELRY_IMBUE"
+msgstr ""
+
+msgid "FORGE_COST"
+msgstr ""
+
+msgid "FORGE_NOT_ENOUGH_GOLD"
 msgstr ""
 
 msgid "FORGE_LEVEL_HINT_EMPTY"
@@ -1234,6 +1243,12 @@ msgid "SKILL_ice_lance"
 msgstr ""
 
 msgid "SKILL_ice_lance_DESC"
+msgstr ""
+
+msgid "SKILL_arcane_heal"
+msgstr ""
+
+msgid "SKILL_arcane_heal_DESC"
 msgstr ""
 
 msgid "SKILL_arcane_amplification"

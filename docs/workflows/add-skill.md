@@ -30,14 +30,7 @@ Match existing skill size (~64×64). Godot imports automatically.
 
 ### 3. Create `.tres` resource
 
-**Manual** — duplicate an existing skill in `data/skills/<class>/`.
-
-**Script** — `tools/gerar_skills.ps1` (edit skill list and run):
-
-```powershell
-cd tools
-.\gerar_skills.ps1
-```
+**Recommended** — duplicate an existing skill in `data/skills/<class>/` and edit fields (see [`add-active-skill.md`](add-active-skill.md)).
 
 Example content:
 
@@ -58,12 +51,12 @@ sort_order = 6
 
 ### 5. Combat runtime (if active)
 
-Active skills with combat effects need a handler in `domains/combat/`:
+Active skills use the GAS-lite pipeline — see [`docs/architecture/active-skills.md`](../architecture/active-skills.md) and [`add-active-skill.md`](add-active-skill.md).
 
-- Example: `archer_skills.gd` — cooldown, `skill_used` signal.
-- Connect to `PartyService` / `CombatController` loop per design.
+1. Add `effects[]` and `vfx_id` directly in the `.tres` (see `archer/01_instant_double_shot.tres`, `mage/06_arcane_heal.tres`).
+2. `PartyService` + `CombatResolver` handle cooldown, damage, heals, and buffs automatically.
 
-Passives that only alter stats may integrate via `stat_value` + `StatCalculator`.
+Passives that only alter stats integrate via `stat_bonus_key` + `stat_value` + `StatCalculator`.
 
 ### 6. UI
 
@@ -107,4 +100,5 @@ Equipped skills persist in save v4:
 | Skill not listed | Path outside `data/skills/<class>/` |
 | Pink icon | Wrong `icon_path` or missing PNG |
 | Cannot equip | Slots full; call `unequip_skill` first |
-| Cooldown ignored | Missing integration in `*_skills.gd` |
+| Cooldown ignored | Missing `ACTIVE_EFFECTS` entry or empty `effects[]` in `.tres` |
+| Need logging for new skill | **No extra step** — `hero_skill_used` → `combat.skill_cast` is automatic. See [assisted-logging.md](assisted-logging.md) |

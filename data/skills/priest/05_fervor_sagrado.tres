@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "fervor_sagrado"
+name_key = "SKILL_fervor_sagrado"
+description_key = "SKILL_fervor_sagrado_DESC"
+type = 0
+cooldown = 12.0
+icon_path = "res://sprites/ui/skills/priest/fervor_sagrado.png"
+sort_order = 5
+stat_bonus_key = ""
+stat_value = 0.0
+vfx_id = ""
+effects = []

@@ -17,7 +17,6 @@ var _usar_arte: bool = false
 var _id_classe: String = ""
 var _flecha_solta: bool = false
 var _frames_stick: SpriteFrames
-var _habilidades: ArcherSkills
 
 
 func _ready() -> void:
@@ -56,7 +55,6 @@ func apply_class(classe: ClassData) -> void:
 		self_modulate = Color.WHITE
 		scale = HeroSpritesheet.ESCALA_STICK
 		sprite_frames = _default_frames()
-		_setup_skills(null)
 		_adjust_bar()
 		return
 	_id_classe = classe.id
@@ -72,25 +70,21 @@ func apply_class(classe: ClassData) -> void:
 		if not _caido:
 			self_modulate = _cor_classe
 		sprite_frames = _default_frames()
-	_setup_skills(classe)
 	_adjust_bar()
 	if not _caido:
 		play("Idle")
 
 
-func archer_skills() -> ArcherSkills:
-	return _habilidades
-
-
-func _setup_skills(classe: ClassData) -> void:
-	if _habilidades:
-		_habilidades.queue_free()
-		_habilidades = null
-	if classe == null or classe.id != "archer":
+func play_buff_glow() -> void:
+	if _caido:
 		return
-	_habilidades = ArcherSkills.new()
-	_habilidades.name = "ArcherSkills"
-	add_child(_habilidades)
+	if _tween_flash:
+		_tween_flash.kill()
+	var alvo := Color.WHITE if _usar_arte else _cor_classe
+	self_modulate = Color(0.65, 1.0, 0.55, 1.0)
+	_tween_flash = create_tween()
+	_tween_flash.tween_interval(0.12)
+	_tween_flash.tween_property(self, "self_modulate", alvo, 0.18)
 
 
 func update_hp(atual: int, maximo: int) -> void:

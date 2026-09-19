@@ -1,0 +1,29 @@
+---
+description: Run assisted logging checks after combat/save/main changes
+globs:
+  - domains/combat/**
+  - core/save_service.gd
+  - core/event_log_bridge.gd
+  - platform/game_log.gd
+  - platform/save_system.gd
+  - scenes/main.gd
+  - tests/**
+---
+
+# Assisted logging
+
+Read `docs/workflows/assisted-logging.md` before changing combat/save logging.
+
+## Rules
+
+- **Do not** add `GameLog` inside skills, `combat_resolver.gd`, or per-function combat code. Logging is at flow boundaries via signals → `EventLogBridge`.
+- New skills using the normal pipeline are logged automatically (`combat.skill_cast`, `combat.enemy_hit`).
+- Only add logging when introducing a **new flow**: new signal → one handler in `event_log_bridge.gd` → constant in `event_catalog.gd` → row in `event-catalog.md`.
+
+## After editing combat/save/main/tests
+
+1. Run `powershell -ExecutionPolicy Bypass -File tools/run_assisted_check.ps1`
+2. Confirm `[TEST PASS]` for all suites
+3. If parser runs, confirm `"passed": true`
+
+Do not log translated UI strings, per-frame ticks, or timer ticks.

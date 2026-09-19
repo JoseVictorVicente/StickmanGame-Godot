@@ -15,7 +15,13 @@ enum Type { ACTIVE, PASSIVE }
 ## Quando true, icon_path é só a arte interna e a moldura ativa é composta em runtime.
 @export var icon_inner_only: bool = false
 @export var sort_order: int = 0
+## Bonus dictionary key from SkillTreeDefinition.empty_bonus() (passives only).
+@export var stat_bonus_key: String = ""
 @export var stat_value: float = 0.0
+## Presentation cue id (arrow_single, arrow_burst, buff_glow).
+@export var vfx_id: String = ""
+## Composite combat effects interpreted by CombatResolver.
+@export var effects: Array[CombatEffectResource] = []
 
 
 func get_display_name() -> String:

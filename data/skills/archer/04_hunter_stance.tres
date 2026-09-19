@@ -1,6 +1,22 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_0"]
+[ext_resource type="Script" path="res://data/effects/buff_effect.gd" id="effect_1"]
+
+[sub_resource type="Resource" id="Effect_0"]
+script = ExtResource("effect_0")
+effect_type = "buff_self"
+stat_key = "attack_speed"
+stat_value = 30.0
+duration_sec = 3.5
+
+[sub_resource type="Resource" id="Effect_1"]
+script = ExtResource("effect_1")
+effect_type = "buff_self"
+stat_key = "attack_pct"
+stat_value = 10.0
+duration_sec = 3.5
 
 [resource]
 script = ExtResource("1_skill")
@@ -8,8 +24,11 @@ skill_id = "hunter_stance"
 name_key = "SKILL_hunter_stance"
 description_key = "SKILL_hunter_stance_DESC"
 type = 0
-cooldown = 10
+cooldown = 10.0
 icon_path = "res://sprites/ui/skills/archer/hunter_stance.png"
 icon_inner_only = true
 sort_order = 4
+stat_bonus_key = ""
 stat_value = 0.0
+vfx_id = "buff_glow"
+effects = [SubResource("Effect_0"), SubResource("Effect_1")]

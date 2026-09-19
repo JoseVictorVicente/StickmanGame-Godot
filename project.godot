@@ -17,6 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameLog="*res://platform/game_log.gd"
+GodotLogCapture="*res://platform/godot_log_capture.gd"
 AudioManager="*res://platform/audio_manager.gd"
 ItemDatabase="*res://platform/item_database.gd"
 SaveSystem="*res://platform/save_system.gd"

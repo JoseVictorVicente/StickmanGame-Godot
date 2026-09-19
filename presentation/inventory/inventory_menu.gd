@@ -864,47 +864,24 @@ func get_equipped_hp(stage_index: int) -> int:
 
 func current_hero_stats() -> Dictionary:
 	var stage_index := _character_index
-	var dados: Dictionary = HERO_SLOTS[stage_index] if stage_index >= 0 and stage_index < HERO_SLOTS.size() else {}
 	var hero_progress := _progress_for_index(stage_index)
-	var classe: ClassData = get_current_class()
 	var party: PartyService = team_ui._party if team_ui else null
-	var ataque := 0
-	var vida := 0
-	if party:
-		ataque = party.hero_damage(stage_index)
-		vida = party.hero_max_hp(stage_index)
-	elif classe:
-		var nivel := maxi(1, int(hero_progress.get("level", 1)))
-		ataque = maxi(1, int(round(float(classe.base_damage) * classe.attack_multiplier)))
-		ataque += (nivel - 1) * classe.atk_per_level
-		vida = classe.base_hp + (nivel - 1) * classe.hp_per_level
-	var vel := 100.0
-	if classe:
-		vel = classe.attack_speed * 100.0
-	var bonus: Dictionary = skill_tree_bonus_for_slot(stage_index)
-	var atk_extra := 0
-	var vida_extra := 0
-	if not party:
-		atk_extra = int(bonus.get("attack", 0))
-		vida_extra = int(bonus.get("hp", 0))
-		var pct := float(bonus.get("attack_pct", 0.0))
-		ataque = maxi(1, int(round(float(ataque + atk_extra) * (1.0 + pct / 100.0))))
-		vida += vida_extra
+	var computed: Dictionary = party.hero_stats(stage_index) if party else StatCalculator._empty()
 	return {
-		"attack": ataque,
-		"hp": vida,
+		"attack": int(computed.get("damage", 0)),
+		"hp": int(computed.get("hp", 0)),
 		"level": int(hero_progress.get("level", 1)),
 		"xp": int(hero_progress.get("xp", 0)),
 		"xp_next": int(hero_progress.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)),
-		"xp_bonus": float(bonus.get("xp_bonus", 0.0)),
-		"gold_bonus": float(bonus.get("gold_bonus", 0.0)),
-		"attack_speed": vel + float(bonus.get("attack_speed", 0.0)),
-		"crit_chance": float(bonus.get("crit_chance", 0.0)),
-		"crit_damage": float(bonus.get("crit_damage", 0.0)),
-		"evasion": float(bonus.get("evasion", 0.0)),
-		"phys_res": float(bonus.get("phys_res", 0.0)),
-		"arcane_res": float(bonus.get("arcane_res", 0.0)),
-		"elemental_res": float(bonus.get("elemental_res", 0.0)),
+		"xp_bonus": float(computed.get("xp_bonus", 0.0)),
+		"gold_bonus": float(computed.get("gold_bonus", 0.0)),
+		"attack_speed": float(computed.get("attack_speed", 1.0)) * 100.0,
+		"crit_chance": float(computed.get("crit_chance", 0.0)),
+		"crit_damage": float(computed.get("crit_damage", 0.0)),
+		"evasion": float(computed.get("evasion", 0.0)),
+		"phys_res": float(computed.get("phys_res", 0.0)),
+		"arcane_res": float(computed.get("arcane_res", 0.0)),
+		"elemental_res": float(computed.get("elemental_res", 0.0)),
 	}
 
 
@@ -1022,6 +999,9 @@ func _bind_main_skill_slot(botao: Button, tipo: SkillResource.Type, stage_index:
 
 func _on_equipment_skills_changed(_classe_id: String) -> void:
 	_update_main_skill_slots()
+	equipment_changed.emit()
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.update()
 
 
 func _update_main_skill_slots() -> void:

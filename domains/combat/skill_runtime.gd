@@ -2,6 +2,8 @@
 extends RefCounted
 ## Reads HeroEquipment passives and applies SkillResource stat_value bonuses.
 
+const _EquipmentAccess := preload("res://domains/combat/hero_equipment_access.gd")
+
 const STAT_KEY_ATTACK := "attack"
 const STAT_KEY_ATTACK_SPEED := "attack_speed"
 const STAT_KEY_CRIT_CHANCE := "crit_chance"
@@ -13,8 +15,11 @@ func bonuses_for_class(class_id: String) -> Dictionary:
 	var bonus := SkillTreeDefinition.empty_bonus()
 	if class_id == "":
 		return bonus
-	for slot_index in HeroEquipment.MAX_PASSIVE:
-		var skill: SkillResource = HeroEquipment.get_equipped(
+	var equipment: Node = _EquipmentAccess.get_service()
+	if equipment == null:
+		return bonus
+	for slot_index in equipment.MAX_PASSIVE:
+		var skill: SkillResource = equipment.get_equipped(
 			class_id,
 			SkillResource.Type.PASSIVE,
 			slot_index
@@ -34,6 +39,8 @@ static func apply_passive(bonus: Dictionary, skill: SkillResource) -> void:
 
 
 static func stat_key_for_skill(skill: SkillResource) -> String:
+	if skill.stat_bonus_key != "":
+		return skill.stat_bonus_key
 	var skill_id := skill.skill_id.to_lower()
 	if "vel" in skill_id or "ritmo" in skill_id or "agil" in skill_id:
 		return STAT_KEY_ATTACK_SPEED

@@ -45,6 +45,9 @@ msgstr "Inferno concluído!"
 msgid "COMBAT_WORLD_UNLOCKED"
 msgstr "Mundo %d liberado!"
 
+msgid "COMBAT_MISS"
+msgstr ""
+
 msgid "DIFFICULTY_EASY"
 msgstr "Fácil"
 
@@ -560,6 +563,12 @@ msgstr "Gema imbuída com sucesso!"
 
 msgid "FORGE_JEWELRY_IMBUE"
 msgstr "Imbuir %s em %s?"
+
+msgid "FORGE_COST"
+msgstr ""
+
+msgid "FORGE_NOT_ENOUGH_GOLD"
+msgstr ""
 
 msgid "FORGE_LEVEL_HINT_EMPTY"
 msgstr "Coloque itens para ver as chances de nível."
@@ -1232,6 +1241,12 @@ msgstr "Lanca de Gelo"
 
 msgid "SKILL_ice_lance_DESC"
 msgstr "Dispara uma estaca de gelo fina e rapida que atravessa ate 2 inimigos em linha reta."
+
+msgid "SKILL_arcane_heal"
+msgstr "Cura Arcana"
+
+msgid "SKILL_arcane_heal_DESC"
+msgstr "Canaliza energia arcana e restaura 20% da vida maxima de toda a equipe."
 
 msgid "SKILL_arcane_amplification"
 msgstr "Amplificacao Arcana"

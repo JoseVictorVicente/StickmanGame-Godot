@@ -28,6 +28,7 @@ $skillIdMigration = @{
     'corte_duplo_executor' = 'twin_execution_cut'
     'luz_protetora' = 'protective_light'
     'caca_aos_fracos' = 'weak_prey'
+    'cura_arcana' = 'arcane_heal'
     'fluxo_de_mana' = 'mana_flow'
     'mapeamento_de_pontos_frais' = 'weak_point_mapping'
     'veneno_desgastante' = 'wearing_poison'

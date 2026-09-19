@@ -25,6 +25,7 @@ var _combat: CombatController
 var _hero_progress := HeroProgress.new()
 var _game_state := GameState.new()
 var _stat_calculator := StatCalculator.new()
+var _event_log_bridge := EventLogBridge.new()
 
 
 func _ready() -> void:
@@ -93,8 +94,15 @@ func _ready() -> void:
 	party.get_level = get_level_for_slot
 	party.get_skill_tree_bonus = get_skill_tree_bonus_for_slot
 	party.hero_attacked.connect(_combat.on_hero_attacked)
+	party.hero_skill_used.connect(_combat.on_hero_skill_used)
 	party.dps_changed.connect(_on_dps_changed)
 	inventory_menu.setup_party(party)
+
+	_event_log_bridge.connect_combat(_combat, party)
+	_event_log_bridge.connect_inventory(inventory_menu)
+	_event_log_bridge.connect_hero_equipment()
+	_event_log_bridge.set_snapshot_provider(_build_log_snapshot)
+	_combat.save_needed.connect(func() -> void: call_deferred("_on_save_needed_log"))
 
 	SaveSystem.register(self)
 	if not SaveSystem.load_game():
@@ -108,6 +116,28 @@ func _ready() -> void:
 	stage_panel.gui_input.connect(_window_manager.on_drag_area)
 	battle_panel.gui_input.connect(_window_manager.on_drag_area)
 	call_deferred("_align_initial")
+	call_deferred("_emit_boot_log_snapshot")
+
+
+func _emit_boot_log_snapshot() -> void:
+	_event_log_bridge.emit_boot_snapshot()
+
+
+func _on_save_needed_log() -> void:
+	_event_log_bridge.emit_snapshot("save")
+
+
+func _build_log_snapshot() -> Dictionary:
+	var enemy_hp := 0
+	if _combat.current_enemy != null:
+		enemy_hp = _combat.current_enemy.current_hp
+	return {
+		"gold": _game_state.get_gold(),
+		"world": _combat.world,
+		"stage": _combat.stage,
+		"enemy_hp": enemy_hp,
+		"dps": party.party_dps(),
+	}
 
 
 func _align_initial() -> void:
