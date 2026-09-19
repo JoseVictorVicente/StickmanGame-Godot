@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "divine_punishment"
+name_key = "SKILL_divine_punishment"
+description_key = "SKILL_divine_punishment_DESC"
+type = 0
+cooldown = 6
+icon_path = "res://sprites/ui/skills/priest/divine_punishment.png"
+sort_order = 3
+stat_value = 0.0

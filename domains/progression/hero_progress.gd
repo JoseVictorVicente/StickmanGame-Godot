@@ -1,4 +1,4 @@
-class_name HeroProgress
+﻿class_name HeroProgress
 extends RefCounted
 ## Per-class hero level and XP tracking.
 
@@ -39,7 +39,7 @@ func get_level_at_slot(slot_index: int, active_party: Array) -> int:
 	var class_id := class_id_at_slot(slot_index, active_party)
 	if class_id == "":
 		return 1
-	return maxi(1, int(get_by_class(class_id)["nivel"]))
+	return maxi(1, int(get_by_class(class_id)["level"]))
 
 
 func at_index(slot_index: int, active_party: Array) -> Dictionary:
@@ -59,12 +59,12 @@ func apply_xp(amount: int, active_party: Array) -> PackedInt32Array:
 			continue
 		var progress: Dictionary = get_by_class(class_id)
 		progress["xp"] = int(progress["xp"]) + amount
-		while int(progress["xp"]) >= int(progress["xp_proximo"]) and int(progress["xp_proximo"]) > 0:
-			progress["xp"] = int(progress["xp"]) - int(progress["xp_proximo"])
-			progress["nivel"] = int(progress["nivel"]) + 1
-			progress["xp_proximo"] = xp_for_next_level(int(progress["nivel"]))
+		while int(progress["xp"]) >= int(progress["xp_next"]) and int(progress["xp_next"]) > 0:
+			progress["xp"] = int(progress["xp"]) - int(progress["xp_next"])
+			progress["level"] = int(progress["level"]) + 1
+			progress["xp_next"] = xp_for_next_level(int(progress["level"]))
 		_by_class[class_id] = progress
-		levels[slot_index] = int(progress["nivel"])
+		levels[slot_index] = int(progress["level"])
 	return levels
 
 
@@ -73,7 +73,7 @@ func serialize() -> Dictionary:
 	for class_id in _by_class.keys():
 		var progress: Dictionary = _by_class[class_id]
 		data[class_id] = {
-			"nivel": int(progress["nivel"]),
+			"level": int(progress["level"]),
 			"xp": int(progress["xp"]),
 		}
 	return data
@@ -85,11 +85,11 @@ func apply(data: Variant, party_class_ids: Array = []) -> void:
 			if not (data[class_id] is Dictionary):
 				continue
 			var entry: Dictionary = data[class_id]
-			var level := maxi(1, int(entry.get("nivel", 1)))
+			var level := maxi(1, int(entry.get("level", 1)))
 			_by_class[str(class_id)] = {
-				"nivel": level,
+				"level": level,
 				"xp": maxi(0, int(entry.get("xp", 0))),
-				"xp_proximo": xp_for_next_level(level),
+				"xp_next": xp_for_next_level(level),
 			}
 		return
 	if not (data is Array):
@@ -98,13 +98,13 @@ func apply(data: Variant, party_class_ids: Array = []) -> void:
 		var class_id := str(party_class_ids[i])
 		if class_id == "" or not (data[i] is Dictionary):
 			continue
-		var level := maxi(1, int(data[i].get("nivel", 1)))
+		var level := maxi(1, int(data[i].get("level", 1)))
 		_by_class[class_id] = {
-			"nivel": level,
+			"level": level,
 			"xp": maxi(0, int(data[i].get("xp", 0))),
-			"xp_proximo": xp_for_next_level(level),
+			"xp_next": xp_for_next_level(level),
 		}
 
 
 func _empty_slot() -> Dictionary:
-	return {"nivel": 1, "xp": 0, "xp_proximo": BASE_XP_PER_LEVEL}
+	return {"level": 1, "xp": 0, "xp_next": BASE_XP_PER_LEVEL}

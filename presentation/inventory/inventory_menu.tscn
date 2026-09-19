@@ -213,7 +213,7 @@ size_flags_vertical = 0
 mouse_filter = 2
 clip_contents = false
 
-[node name="Painel" type="PanelContainer" parent="CenterAnchor/MenuArea"]
+[node name="Panel" type="PanelContainer" parent="CenterAnchor/MenuArea"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(580, 0)
 layout_mode = 0
@@ -221,16 +221,16 @@ mouse_filter = 0
 clip_contents = false
 theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_inventario")
 
-[node name="Conteudo" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel"]
+[node name="Conteudo" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="Cabecalho" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo"]
+[node name="Header" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="QuitGameButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/Cabecalho"]
+[node name="QuitGameButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 36)
 layout_mode = 2
@@ -242,12 +242,12 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Sair do jogo"
 
-[node name="EspacoCabecalho" type="Control" parent="CenterAnchor/MenuArea/Painel/Conteudo/Cabecalho"]
+[node name="EspacoCabecalho" type="Control" parent="CenterAnchor/MenuArea/Panel/Conteudo/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 0
 
-[node name="SettingsButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/Cabecalho"]
+[node name="SettingsButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -261,7 +261,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 icon_alignment = 1
 expand_icon = true
 
-[node name="ExitButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/Cabecalho"]
+[node name="ExitButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/Header"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(36, 36)
@@ -274,24 +274,24 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="AreaHeroi" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo"]
+[node name="AreaHeroi" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo"]
 layout_mode = 2
 clip_contents = false
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="EquipLeft" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi"]
+[node name="EquipLeft" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 4
 
-[node name="GoldPanel" type="PanelContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/EquipLeft"]
+[node name="GoldPanel" type="PanelContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/EquipLeft"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ouro")
 
-[node name="GoldLabel" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/EquipLeft/GoldPanel"]
+[node name="GoldLabel" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/EquipLeft/GoldPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
@@ -299,36 +299,36 @@ theme_override_font_sizes/font_size = 13
 text = "Ouro  0"
 horizontal_alignment = 1
 
-[node name="ColunaPersonagem" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi"]
+[node name="ColunaPersonagem" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="HeroVisualSection" type="Control" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+[node name="HeroVisualSection" type="Control" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("11_offset_visual")
 
-[node name="Conteudo" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection"]
+[node name="Conteudo" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection"]
 layout_mode = 0
 theme_override_constants/separation = 2
 
-[node name="HeroCardRow" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
+[node name="HeroCardRow" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="ActiveColumn" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
+[node name="ActiveColumn" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SlotSkillMenuAtiva0" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn"]
+[node name="SlotSkillMenuAtiva0" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -339,7 +339,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuAtiva1" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn"]
+[node name="SlotSkillMenuAtiva1" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/ActiveColumn"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -350,14 +350,14 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 text = "+"
 autowrap_mode = 3
 
-[node name="AreaFoto" type="Panel" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
+[node name="AreaFoto" type="Panel" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
 clip_contents = true
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_foto")
 
-[node name="CharacterPortrait" type="TextureRect" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto"]
+[node name="CharacterPortrait" type="TextureRect" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -372,7 +372,7 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CharacterXpBar" type="ProgressBar" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto"]
+[node name="CharacterXpBar" type="ProgressBar" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
@@ -391,7 +391,7 @@ show_percentage = false
 theme_override_styles/background = SubResource("StyleBoxFlat_xp_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
 
-[node name="CharacterXpLabel" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto/CharacterXpBar"]
+[node name="CharacterXpLabel" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/AreaFoto/CharacterXpBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -409,13 +409,13 @@ text = "Nv.1  0/20"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PassiveColumn" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
+[node name="PassiveColumn" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SlotSkillMenuPassiva0" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn"]
+[node name="SlotSkillMenuPassiva0" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -426,7 +426,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuPassiva1" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn"]
+[node name="SlotSkillMenuPassiva1" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo/HeroCardRow/PassiveColumn"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -437,7 +437,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 text = "+"
 autowrap_mode = 3
 
-[node name="CharacterNameLabel" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+[node name="CharacterNameLabel" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -446,7 +446,7 @@ theme_override_font_sizes/font_size = 15
 text = "Guerreiro"
 horizontal_alignment = 1
 
-[node name="CharacterLevelLabel" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+[node name="CharacterLevelLabel" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -455,7 +455,7 @@ theme_override_font_sizes/font_size = 13
 text = "Lv. 1"
 horizontal_alignment = 1
 
-[node name="CharacterAttributesButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
+[node name="CharacterAttributesButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 28)
 layout_mode = 2
@@ -467,7 +467,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Atributos"
 
-[node name="CharacterRow" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+[node name="CharacterRow" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -475,13 +475,13 @@ size_flags_horizontal = 4
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="TeamArea" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem"]
+[node name="TeamArea" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("2_equipe")
 
-[node name="PartyTitle" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
+[node name="PartyTitle" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
@@ -489,19 +489,19 @@ theme_override_font_sizes/font_size = 12
 text = "Equipe"
 horizontal_alignment = 1
 
-[node name="PartySlots" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
+[node name="PartySlots" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/HeroVisualSection/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="FormationButtonHost" type="Control" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
+[node name="FormationButtonHost" type="Control" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("11_offset_visual")
 
-[node name="FormationButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea/FormationButtonHost"]
+[node name="FormationButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea/FormationButtonHost"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
@@ -510,17 +510,17 @@ theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "Formação"
+text = "Formation"
 
-[node name="ClassesTitle" type="Label" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
+[node name="ClassesTitle" type="Label" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 11
-text = "Classes desbloqueadas"
+text = "Classes unlocked"
 horizontal_alignment = 1
 
-[node name="GradeClasses" type="GridContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
+[node name="GradeClasses" type="GridContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/ColunaPersonagem/TeamArea"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -529,33 +529,33 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 6
 
-[node name="EquipRight" type="VBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi"]
+[node name="EquipRight" type="VBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi"]
 unique_name_in_owner = true
 layout_mode = 2
 clip_contents = false
 size_flags_vertical = 0
 theme_override_constants/separation = 4
 
-[node name="GoldSpacer" type="Control" parent="CenterAnchor/MenuArea/Painel/Conteudo/AreaHeroi/EquipRight"]
+[node name="GoldSpacer" type="Control" parent="CenterAnchor/MenuArea/Panel/Conteudo/AreaHeroi/EquipRight"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="LinhaInventario" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo"]
+[node name="LinhaInventario" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SortInventoryButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/LinhaInventario"]
+[node name="SortInventoryButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/LinhaInventario"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_vertical = 8
 tooltip_text = "Organizar inventário"
 
-[node name="InventoryGrid" type="GridContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo/LinhaInventario"]
+[node name="InventoryGrid" type="GridContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo/LinhaInventario"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -563,7 +563,7 @@ theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 2
 columns = 10
 
-[node name="WarehouseButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/LinhaInventario"]
+[node name="WarehouseButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/LinhaInventario"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(86, 0)
 layout_mode = 2
@@ -578,12 +578,12 @@ vertical_icon_alignment = 1
 expand_icon = true
 text = ""
 
-[node name="MenuInferior" type="HBoxContainer" parent="CenterAnchor/MenuArea/Painel/Conteudo"]
+[node name="MenuInferior" type="HBoxContainer" parent="CenterAnchor/MenuArea/Panel/Conteudo"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BotaoSkills" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/MenuInferior"]
+[node name="SkillsButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -596,7 +596,7 @@ icon_alignment = 0
 expand_icon = true
 text = "Skills"
 
-[node name="BotaoInventario" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/MenuInferior"]
+[node name="InventoryButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -609,7 +609,7 @@ icon_alignment = 0
 expand_icon = true
 text = "Árvore"
 
-[node name="BotaoForgePanel" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/MenuInferior"]
+[node name="ForgePanelButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -622,7 +622,7 @@ icon_alignment = 0
 expand_icon = true
 text = "ForgePanel"
 
-[node name="WorldButton" type="Button" parent="CenterAnchor/MenuArea/Painel/Conteudo/MenuInferior"]
+[node name="WorldButton" type="Button" parent="CenterAnchor/MenuArea/Panel/Conteudo/MenuInferior"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -640,7 +640,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 0
 
-[node name="PainelForgePanel" parent="CenterAnchor/MenuArea" instance=ExtResource("3_ferraria")]
+[node name="PanelForgePanel" parent="CenterAnchor/MenuArea" instance=ExtResource("3_ferraria")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
@@ -682,16 +682,16 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_painel")
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="CabecalhoConfig" type="HBoxContainer" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
+[node name="HeaderConfig" type="HBoxContainer" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerConfig" type="PanelContainer" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/CabecalhoConfig"]
+[node name="BannerConfig" type="PanelContainer" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/HeaderConfig"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="TituloConfig" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/CabecalhoConfig/BannerConfig"]
+[node name="SettingsTitle" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/HeaderConfig/BannerConfig"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
@@ -700,7 +700,7 @@ text = "Settings"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CloseSettingsButton" type="Button" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/CabecalhoConfig"]
+[node name="CloseSettingsButton" type="Button" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig/HeaderConfig"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -712,7 +712,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="LabelVolumeTitulo" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
+[node name="VolumeTitleLabel" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
@@ -720,7 +720,7 @@ theme_override_font_sizes/font_size = 12
 text = "Volume"
 horizontal_alignment = 1
 
-[node name="SliderVolume" type="HSlider" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
+[node name="VolumeSlider" type="HSlider" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
@@ -729,7 +729,7 @@ max_value = 100.0
 step = 1.0
 value = 100.0
 
-[node name="LabelVolumeValor" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
+[node name="VolumeValueLabel" type="Label" parent="CenterAnchor/MenuArea/SettingsPanel/ConteudoConfig"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.86, 0.7, 1)

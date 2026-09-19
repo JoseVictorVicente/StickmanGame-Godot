@@ -112,14 +112,14 @@ static func enemy_stats(world: int, stage: int, difficulty: int) -> Dictionary:
 	var recomp_mundo := pow(mundo_mult, 0.35)
 	var vida := HP_BASE * desafio * mult * chefe_vida * mundo_mult
 	var dano := DAMAGE_BASE * pow(1.0 + float(nivel) / DAMAGE_SCALE, DAMAGE_EXPONENT) * mult * chefe_dano * sqrt(mundo_mult)
-	var ouro := 4.0 * recomp * mult * recomp_mundo
+	var gold := 4.0 * recomp * mult * recomp_mundo
 	var xp := 6.0 * recomp * mult * 1.15 * recomp_mundo
 	return {
-		"nome": "Monstro %d-%d" % [world, stage],
-		"rotulo": "%d-%d" % [world, stage],
-		"vida": maxi(1, int(round(vida))),
-		"dano": maxi(1, int(round(dano))),
-		"ouro": maxi(1, int(round(ouro))),
+		"name": "Enemy %d-%d" % [world, stage],
+		"label": "%d-%d" % [world, stage],
+		"hp": maxi(1, int(round(vida))),
+		"damage": maxi(1, int(round(dano))),
+		"gold": maxi(1, int(round(gold))),
 		"xp": maxi(1, int(round(xp))),
-		"nivel": nivel,
+		"level": nivel,
 	}

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "protective_light"
+name_key = "SKILL_protective_light"
+description_key = "SKILL_protective_light_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/priest/protective_light.png"
+sort_order = 9
+stat_value = 0.0

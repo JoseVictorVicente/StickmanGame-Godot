@@ -5,8 +5,6 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "precision_shot"
-skill_name = "Tiro de Precisão"
-description = "Um disparo carregado de 0.4s que garante acerto critico e ignora 30% da armadura."
 name_key = "SKILL_precision_shot"
 description_key = "SKILL_precision_shot_DESC"
 type = 0

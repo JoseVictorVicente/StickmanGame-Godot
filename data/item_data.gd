@@ -206,7 +206,7 @@ func gem_slot_label_color() -> Color:
 func get_embedded_gem() -> ItemData:
 	if embedded_gem.is_empty():
 		return null
-	return de_dicionario(embedded_gem)
+	return from_dictionary(embedded_gem)
 
 
 func imbue_gem(gema: ItemData) -> bool:
@@ -231,27 +231,27 @@ func apply_bonus_to(destino: Dictionary) -> void:
 		return
 	match gem_attribute:
 		GemAttribute.ATTACK:
-			destino["ataque"] = int(destino.get("ataque", 0)) + int(round(gem_value))
+			destino["attack"] = int(destino.get("attack", 0)) + int(round(gem_value))
 		GemAttribute.ATTACK_PCT:
-			destino["ataque_pct"] = float(destino.get("ataque_pct", 0.0)) + gem_value
+			destino["attack_pct"] = float(destino.get("attack_pct", 0.0)) + gem_value
 		GemAttribute.HP:
-			destino["vida"] = int(destino.get("vida", 0)) + int(round(gem_value))
+			destino["hp"] = int(destino.get("hp", 0)) + int(round(gem_value))
 		GemAttribute.HP_PCT:
-			destino["vida_pct"] = float(destino.get("vida_pct", 0.0)) + gem_value
+			destino["hp_pct"] = float(destino.get("hp_pct", 0.0)) + gem_value
 		GemAttribute.ATTACK_SPEED:
-			destino["vel_ataque"] = float(destino.get("vel_ataque", 0.0)) + gem_value
+			destino["attack_speed"] = float(destino.get("attack_speed", 0.0)) + gem_value
 		GemAttribute.CRIT_CHANCE:
 			destino["crit_chance"] = float(destino.get("crit_chance", 0.0)) + gem_value
 		GemAttribute.CRIT_DAMAGE:
-			destino["crit_dano"] = float(destino.get("crit_dano", 0.0)) + gem_value
+			destino["crit_damage"] = float(destino.get("crit_damage", 0.0)) + gem_value
 		GemAttribute.EVASION:
-			destino["evasao"] = float(destino.get("evasao", 0.0)) + gem_value
+			destino["evasion"] = float(destino.get("evasion", 0.0)) + gem_value
 		GemAttribute.PHYS_RES:
-			destino["res_fisica"] = float(destino.get("res_fisica", 0.0)) + gem_value
+			destino["phys_res"] = float(destino.get("phys_res", 0.0)) + gem_value
 		GemAttribute.ARCANE_RES:
-			destino["res_arcana"] = float(destino.get("res_arcana", 0.0)) + gem_value
+			destino["arcane_res"] = float(destino.get("arcane_res", 0.0)) + gem_value
 		GemAttribute.ELEMENTAL_RES:
-			destino["res_elemental"] = float(destino.get("res_elemental", 0.0)) + gem_value
+			destino["elemental_res"] = float(destino.get("elemental_res", 0.0)) + gem_value
 
 
 static func gem_attribute_name(atributo: GemAttribute) -> String:
@@ -482,7 +482,7 @@ static func item_level_index(nivel: int) -> int:
 	return stage_index if stage_index >= 0 else 0
 
 
-static func comparar_ordenacao(a: ItemData, b: ItemData) -> bool:
+static func compare_sort(a: ItemData, b: ItemData) -> bool:
 	if a == null and b == null:
 		return false
 	if a == null:
@@ -659,7 +659,7 @@ func to_dictionary() -> Dictionary:
 	return dados
 
 
-static func de_dicionario(dados: Dictionary) -> ItemData:
+static func from_dictionary(dados: Dictionary) -> ItemData:
 	if dados.is_empty():
 		return null
 	var item := ItemData.new()

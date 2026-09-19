@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "critical_heal"
+name_key = "SKILL_critical_heal"
+description_key = "SKILL_critical_heal_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/priest/critical_heal.png"
+sort_order = 7
+stat_value = 0.0

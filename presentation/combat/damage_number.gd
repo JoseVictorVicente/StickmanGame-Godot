@@ -1,6 +1,6 @@
 class_name DamageNumber
 extends Label
-## Número flutuante de dano: sobe, some e se destrói.
+## Número flutuante de damage: sobe, some e se destrói.
 
 const CENA := preload("res://presentation/combat/damage_number.tscn")
 const SUBIDA := 32.0
@@ -9,13 +9,13 @@ const DURACAO := 0.7
 static var _rng := RandomNumberGenerator.new()
 
 
-static func spawn(pai: Node, posicao_global: Vector2, dano: int, cor: Color = Color(1, 0.92, 0.4, 1)) -> void:
-	if pai == null or dano <= 0:
+static func spawn(pai: Node, posicao_global: Vector2, damage: int, cor: Color = Color(1, 0.92, 0.4, 1)) -> void:
+	if pai == null or damage <= 0:
 		return
 	var numero: DamageNumber = CENA.instantiate()
 	pai.add_child(numero)
 	numero.global_position = posicao_global + Vector2(_rng.randf_range(-10.0, 10.0), -20.0)
-	numero.show_damage(dano, cor)
+	numero.show_damage(damage, cor)
 
 
 func _ready() -> void:
@@ -25,8 +25,8 @@ func _ready() -> void:
 	vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 
-func show_damage(dano: int, cor: Color) -> void:
-	text = str(dano)
+func show_damage(damage: int, cor: Color) -> void:
+	text = str(damage)
 	modulate = Color(1, 1, 1, 1)
 	add_theme_color_override("font_color", cor)
 	reset_size()

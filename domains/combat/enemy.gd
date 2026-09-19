@@ -5,16 +5,16 @@ extends RefCounted
 var display_name: String = "Enemy"
 var max_hp: int = 20
 var current_hp: int = 20
-var dano: int = 3
+var damage: int = 3
 var gold_reward: int = 3
 var xp_reward: int = 5
 
 
-func configure(p_display_name: String, p_hp: int, p_gold: int, p_xp: int, p_dano: int = 1) -> void:
+func configure(p_display_name: String, p_hp: int, p_gold: int, p_xp: int, p_damage: int = 1) -> void:
 	display_name = p_display_name
 	max_hp = max(1, p_hp)
 	current_hp = max_hp
-	dano = max(1, p_dano)
+	damage = max(1, p_damage)
 	gold_reward = max(0, p_gold)
 	xp_reward = max(0, p_xp)
 

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "dark_taunt"
+name_key = "SKILL_dark_taunt"
+description_key = "SKILL_dark_taunt_DESC"
+type = 0
+cooldown = 16
+icon_path = "res://sprites/ui/skills/tank/dark_taunt.png"
+sort_order = 2
+stat_value = 0.0

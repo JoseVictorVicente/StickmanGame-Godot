@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "reactive_barrier"
+name_key = "SKILL_reactive_barrier"
+description_key = "SKILL_reactive_barrier_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/priest/reactive_barrier.png"
+sort_order = 2
+stat_value = 0.0

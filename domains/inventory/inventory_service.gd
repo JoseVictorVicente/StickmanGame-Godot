@@ -69,7 +69,7 @@ func sort_items() -> void:
 	for slot in _slots:
 		if slot is ItemData:
 			items.append(slot)
-	items.sort_custom(ItemData.comparar_ordenacao)
+	items.sort_custom(ItemData.compare_sort)
 	for i in _slots.size():
 		_slots[i] = items[i] if i < items.size() else null
 
@@ -97,6 +97,6 @@ func from_dict(data: Variant) -> void:
 		lista = data
 	for i in mini(lista.size(), SLOT_COUNT):
 		if lista[i] is Dictionary and not (lista[i] as Dictionary).is_empty():
-			_slots[i] = ItemData.de_dicionario(lista[i])
+			_slots[i] = ItemData.from_dictionary(lista[i])
 		else:
 			_slots[i] = null

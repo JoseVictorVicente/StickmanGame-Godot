@@ -6,46 +6,21 @@ $lkText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root 'presentation\shared\
 $localeKeys = [regex]::Matches($lkText, 'const [A-Z_]+ := "([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
 
 $idbText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root 'platform\item_database.gd')
-$items = [regex]::Matches($idbText, '_create\("([^"]+)", "([^"]+)"') | ForEach-Object {
-    @{ id = $_.Groups[1].Value; pt = $_.Groups[2].Value }
+. (Join-Path $Root 'tools\item_id_map.ps1')
+$items = [regex]::Matches($idbText, '_create\("([^"]+)",\s*ItemData') | ForEach-Object {
+    $id = $_.Groups[1].Value
+    $pt = if ($itemNamePt.ContainsKey($id)) { $itemNamePt[$id] } else { $id }
+    @{ id = $id; pt = $pt }
 }
 
-$skills = [ordered]@{
-    'SKILL_instant_double_shot' = @('Instant Double Shot', 'Tiro Duplo Instantâneo')
-    'SKILL_instant_double_shot_DESC' = @('Fires two rapid consecutive shots with 200% critical damage.', 'Executa dois disparos rapidos consecutivos com 200% de dano critico.')
-    'SKILL_dark_volley' = @('Dark Volley', 'Voleio Sombrio')
-    'SKILL_dark_volley_DESC' = @('Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at high speed at the strongest target.', 'Entra em postura de foco por 2 segundos e dispara uma rajada de 10 flechas energizadas em alta velocidade direto no alvo mais forte.')
-    'SKILL_precision_shot' = @('Precision Shot', 'Tiro de Precisão')
-    'SKILL_precision_shot_DESC' = @('A 0.4s charged shot that guarantees a critical hit and ignores 30% armor.', 'Um disparo carregado de 0.4s que garante acerto critico e ignora 30% da armadura.')
-    'SKILL_hunter_stance' = @('Hunter Stance', 'Postura do Caçador')
-    'SKILL_hunter_stance_DESC' = @('Plants feet lightly and gains 30% Attack Speed and 10% Physical Damage for 3.5 seconds.', 'A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos.')
-    'SKILL_neon_vision' = @('Neon Vision', 'Visão Neon')
-    'SKILL_neon_vision_DESC' = @('Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds.', 'Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos.')
+$skillLocalesPath = Join-Path $Root 'tools\skill_locales.ps1'
+if (-not (Test-Path $skillLocalesPath)) {
+    throw "Missing tools/skill_locales.ps1 - run tools/generate_skills.ps1 first"
 }
+. $skillLocalesPath
+$skills = $skillLocales
 
-$itemEn = @{
-    espada_ferro='Iron Sword'; espada_treino='Training Sword'; escudo_madeira='Wooden Shield'
-    elmo_guerreiro='Warrior Helmet'; peitoral_guerreiro='Warrior Chestplate'; luvas_guerreiro='Warrior Gloves'
-    calca_guerreiro='Warrior Pants'; botas_guerreiro='Warrior Boots'; mascote_leao='Lion Pet'
-    anel_honra='Ring of Honor'; bracelete_guerreiro='Warrior Bracelet'; cajado_arcano='Arcane Staff'
-    grimorio='Grimoire'; familiar='Arcane Familiar'; manto_mistico='Mystic Cloak'; tiara_arcano='Arcane Tiara'
-    luvas_mago='Mage Gloves'; calca_mago='Mage Pants'; botas_mago='Mage Boots'; cinto_arcano='Arcane Belt'
-    pingente_mana='Mana Pendant'; arco_curto='Short Bow'; aljava='Quiver'; capuz_couro='Leather Hood'
-    peitoral_arqueiro='Archer Chestplate'; luvas_arqueiro='Archer Gloves'; calca_arqueiro='Archer Pants'
-    botas_arqueiro='Archer Boots'; falcao_companheiro='Companion Falcon'; anel_precisao='Precision Ring'
-    adaga_sombria='Shadow Dagger'; adaga_secundaria='Twin Dagger'; capuz_assassino='Assassin Hood'
-    peitoral_sombrio='Shadow Chestplate'; luvas_assassino='Assassin Gloves'; calca_assassino='Assassin Pants'
-    botas_assassino='Assassin Boots'; cinto_sombrio='Shadow Belt'; bracelete_sombrio='Shadow Bracelet'
-    maca_pesada='Heavy Mace'; escudo_torre='Tower Shield'; peitoral_ferro='Iron Chestplate'
-    elmo_torre='Tower Helmet'; luvas_tanque='Tank Gloves'; calca_tanque='Tank Pants'; botas_tanque='Tank Boots'
-    mascote_tartaruga='Turtle Pet'; pingente_guardiao='Guardian Pendant'; cajado_sagrado='Holy Staff'
-    tomo_luz='Tome of Light'; manto_clerical='Clerical Cloak'; pingente_fe='Faith Pendant'
-    tiara_sagrada='Sacred Tiara'; luvas_sacerdote='Priest Gloves'; calca_sacerdote='Priest Pants'
-    botas_sacerdote='Priest Boots'; anel_devocao='Devotion Ring'; luvas_tecido='Cloth Gloves'
-    calca_couro='Leather Pants'; botas_viagem='Travel Boots'; cinto_simples='Simple Belt'
-    anel_bruto='Rough Ring'; bracelete_ferro='Iron Bracelet'; capuz_viagem='Travel Hood'
-    peitoral_couro='Leather Chestplate'; pingente_simples='Simple Pendant'; mascote_rato='Rat Pet'
-}
+$itemEn = $itemNameEn
 
 # Load translations from embedded JSON-like hashtables via here-strings parsed manually is too heavy.
 # Use the Python file's dictionaries by invoking Get-Content and regex on gen_locales.py for UI_EN/UI_PT blocks.

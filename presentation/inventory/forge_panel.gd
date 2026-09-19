@@ -21,34 +21,34 @@ const Z_INDEX_LEGENDA_INFO := 100
 const OFFSET_LEGENDA_INFO := Vector2(10, 0)
 const GEMS_ARROW_WIDTH := 32.0
 
-@onready var synthesis_grid: GridContainer = %GradeSintese
-@onready var dismantle_grid: GridContainer = %GradeDesmontar
-@onready var botao_fechar: Button = %BotaoFecharForgePanel
-@onready var autofill_button: Button = %BotaoPreenchimento
-@onready var level_info_button: PanelContainer = %BotaoInfoNivel
-@onready var warehouse_toggle: Control = %ToggleArmazem
-@onready var toggle_track: Panel = %ToggleTrilho
+@onready var synthesis_grid: GridContainer = %SynthesisGrid
+@onready var dismantle_grid: GridContainer = %DismantleGrid
+@onready var botao_fechar: Button = %CloseForgeButton
+@onready var autofill_button: Button = %AutofillButton
+@onready var level_info_button: PanelContainer = %LevelInfoButton
+@onready var warehouse_toggle: Control = %WarehouseToggle
+@onready var toggle_track: Panel = %ToggleTrack
 @onready var toggle_knob: Panel = %ToggleKnob
-@onready var synthesize_button: Button = %BotaoSintetizar
-@onready var dismantle_button: Button = %BotaoDesmontar
-@onready var synthesis_tab_button: Button = %BotaoAbaSintese
-@onready var dismantle_tab_button: Button = %BotaoAbaDesmontar
-@onready var gems_tab_button: Button = %BotaoAbaJoias
-@onready var forge_filter_button: Button = %BotaoFiltroForja
-@onready var dismantle_autofill_button: Button = %BotaoPreenchimentoDesmonte
-@onready var dismantle_filter_button: Button = %BotaoFiltroDesmonte
-@onready var synthesis_panel: VBoxContainer = %PainelSintese
-@onready var dismantle_panel: VBoxContainer = %PainelDesmontar
-@onready var gems_panel: VBoxContainer = %PainelJoias
-@onready var gems_area: HBoxContainer = %AreaJoias
-@onready var imbue_button: Button = %BotaoImbuir
-@onready var explanation_label: Label = %LabelExplicacaoForgePanel
-@onready var dismantle_explanation_label: Label = %LabelExplicacaoDesmontar
-@onready var gems_explanation_label: Label = %LabelExplicacaoJoias
-@onready var dismantle_value_label: Label = %LabelValorDesmonte
-@onready var cabecalho: HBoxContainer = %CabecalhoForgePanel
-@onready var forge_body: Control = %CorpoForgePanel
-@onready var title_label: Label = $Conteudo/CabecalhoForgePanel/BannerTitulo/Titulo
+@onready var synthesize_button: Button = %SynthesizeButton
+@onready var dismantle_button: Button = %DismantleButton
+@onready var synthesis_tab_button: Button = %SynthesisTabButton
+@onready var dismantle_tab_button: Button = %DismantleTabButton
+@onready var gems_tab_button: Button = %GemsTabButton
+@onready var forge_filter_button: Button = %ForgeFilterButton
+@onready var dismantle_autofill_button: Button = %DismantleAutofillButton
+@onready var dismantle_filter_button: Button = %DismantleFilterButton
+@onready var synthesis_panel: VBoxContainer = %SynthesisPanel
+@onready var dismantle_panel: VBoxContainer = %DismantlePanel
+@onready var gems_panel: VBoxContainer = %GemsPanel
+@onready var gems_area: HBoxContainer = %GemsArea
+@onready var imbue_button: Button = %ImbueButton
+@onready var explanation_label: Label = %ForgeExplanationLabel
+@onready var dismantle_explanation_label: Label = %DismantleExplanationLabel
+@onready var gems_explanation_label: Label = %GemsExplanationLabel
+@onready var dismantle_value_label: Label = %DismantleValueLabel
+@onready var cabecalho: HBoxContainer = %ForgeHeader
+@onready var forge_body: Control = %ForgeBody
+@onready var title_label: Label = $Conteudo/ForgeHeader/BannerTitulo/Titulo
 var _menu: InventoryMenu
 var _slots: Array[ItemSlot] = []
 var _slots_desmontar: Array[ItemSlot] = []
@@ -161,7 +161,7 @@ func reserve_item(origem: ItemSlot, slot_ferraria: ItemSlot) -> bool:
 		return false
 	if origem.item == null or slot_ferraria.item != null:
 		return false
-	if origem.reservado_ferraria or is_origin_reserved(origem):
+	if origem.forge_reserved or is_origin_reserved(origem):
 		return false
 	if is_jewelry_target_slot(slot_ferraria) and not can_accept_target_jewelry(origem.item):
 		_set_jewelry_status(tr(LocaleKeys.FORGE_JEWELRY_NEED_GEAR), Color(1, 0.55, 0.4, 1))
@@ -239,7 +239,7 @@ func collect_result_to(destino: ItemSlot = null) -> bool:
 	var central := _slots[SLOT_CENTRAL]
 	var item := central.item
 	if destino != null:
-		if destino.item != null or destino.reservado_ferraria:
+		if destino.item != null or destino.forge_reserved:
 			return false
 		destino.set_item(item)
 		central.set_item(null)
@@ -563,13 +563,13 @@ func _build_jewelry_area() -> void:
 
 
 func _validate_jewelry_target_drop(item: ItemData, origem: ItemSlot = null) -> bool:
-	if origem and (origem.reservado_ferraria or is_origin_reserved(origem)):
+	if origem and (origem.forge_reserved or is_origin_reserved(origem)):
 		return false
 	return can_accept_target_jewelry(item)
 
 
 func _validate_jewelry_gem_drop(item: ItemData, origem: ItemSlot = null) -> bool:
-	if origem and (origem.reservado_ferraria or is_origin_reserved(origem)):
+	if origem and (origem.forge_reserved or is_origin_reserved(origem)):
 		return false
 	return can_accept_gem_jewelry(item)
 
@@ -702,13 +702,13 @@ func _create_slots(grade: GridContainer, destino: Array[ItemSlot], sintese: bool
 
 
 func _validate_synthesis_drop(item: ItemData, origem: ItemSlot = null) -> bool:
-	if origem and (origem.reservado_ferraria or is_origin_reserved(origem)):
+	if origem and (origem.forge_reserved or is_origin_reserved(origem)):
 		return false
 	return can_accept_in_synthesis(item)
 
 
 func _validate_dismantle_drop(item: ItemData, origem: ItemSlot = null) -> bool:
-	if origem and (origem.reservado_ferraria or is_origin_reserved(origem)):
+	if origem and (origem.forge_reserved or is_origin_reserved(origem)):
 		return false
 	return item != null
 
@@ -757,7 +757,7 @@ func _clear_tab(aba: Aba) -> void:
 func _find_eligible_group() -> Array[ItemSlot]:
 	var grupos: Dictionary = {}
 	for slot in _source_slots():
-		if slot.item == null or slot.reservado_ferraria:
+		if slot.item == null or slot.forge_reserved:
 			continue
 		if ItemData.is_max_rarity(slot.item.rarity):
 			continue
@@ -1249,7 +1249,7 @@ func _passes_filter(item: ItemData) -> bool:
 func _filtered_source_items(ignorar_lendario: bool) -> Array[ItemSlot]:
 	var lista: Array[ItemSlot] = []
 	for slot in _source_slots():
-		if slot.item == null or slot.reservado_ferraria:
+		if slot.item == null or slot.forge_reserved:
 			continue
 		if ignorar_lendario and ItemData.is_max_rarity(slot.item.rarity):
 			continue

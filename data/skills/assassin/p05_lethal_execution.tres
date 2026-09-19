@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "lethal_execution"
-skill_name = "Lethal Execution"
-description = "Ataques em alvos abaixo de 15% da vida maxima tem chance de causar execucao instantanea (exceto em chefes de fase)."
+name_key = "SKILL_lethal_execution"
+description_key = "SKILL_lethal_execution_DESC"
 type = 1
 cooldown = 0
 icon_path = "res://sprites/ui/skills/assassin/lethal_execution.png"

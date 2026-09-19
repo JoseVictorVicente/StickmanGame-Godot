@@ -143,7 +143,7 @@ func _load_catalog(class_id: String) -> Array:
 		if not dir.current_is_dir() and nome_arquivo.ends_with(".tres"):
 			var caminho := pasta + nome_arquivo
 			if not ResourceLoader.exists(caminho):
-				push_warning("Habilidade não encontrada: %s" % caminho)
+				push_warning("Skill not found: %s" % caminho)
 			else:
 				var recurso: Resource = load(caminho)
 				if recurso != null and recurso.get_script() == _SkillResourceScript:
@@ -203,7 +203,7 @@ func _deserialize_slots(ids: Variant, max_slots: int) -> Array:
 	if not (ids is Array):
 		return slots
 	for i in mini(ids.size(), max_slots):
-		var skill_id := str(ids[i])
+		var skill_id := IdMigration.migrate_skill_id(str(ids[i]))
 		if skill_id == "":
 			continue
 		var skill := _find_skill_by_id(skill_id)

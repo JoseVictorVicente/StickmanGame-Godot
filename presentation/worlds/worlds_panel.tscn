@@ -198,21 +198,21 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Fácil"
 
-[node name="PainelStageMap" type="PanelContainer" parent="Camada/Conteudo"]
+[node name="PanelStageMap" type="PanelContainer" parent="Camada/Conteudo"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mapa")
 
-[node name="StageMap" type="Control" parent="Camada/Conteudo/PainelStageMap"]
+[node name="StageMap" type="Control" parent="Camada/Conteudo/PanelStageMap"]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 mouse_filter = 0
 script = ExtResource("2_mapa")
 
-[node name="MapBackground" type="TextureRect" parent="Camada/Conteudo/PainelStageMap/StageMap"]
+[node name="MapBackground" type="TextureRect" parent="Camada/Conteudo/PanelStageMap/StageMap"]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1

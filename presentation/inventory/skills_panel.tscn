@@ -216,7 +216,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeEquipAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas"]
+[node name="EquippedActiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 10
@@ -238,7 +238,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeEquipPassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas"]
+[node name="EquippedPassiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 10
@@ -272,7 +272,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradeAtivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection/CentralAtivas"]
+[node name="ActiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection/CentralAtivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8
@@ -299,7 +299,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GradePassivas" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection/CentralPassivas"]
+[node name="PassiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection/CentralPassivas"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 8

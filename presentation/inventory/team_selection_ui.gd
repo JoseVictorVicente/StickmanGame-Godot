@@ -18,6 +18,12 @@ var _indices_slot: Array[int] = []
 @onready var classes_title: Label = $ClassesTitle
 
 
+func _ready() -> void:
+	if not LocaleService.locale_changed.is_connected(_on_locale_changed):
+		LocaleService.locale_changed.connect(_on_locale_changed)
+	_update_localized_texts()
+
+
 func configure(party: PartyService, slot_inicial: int = 0) -> void:
 	_party = party
 	_slot_alvo = slot_inicial
@@ -29,6 +35,7 @@ func configure(party: PartyService, slot_inicial: int = 0) -> void:
 		party_title.visible = false
 	if formation_button and not formation_button.pressed.is_connected(_on_formation_pressed):
 		formation_button.pressed.connect(_on_formation_pressed)
+	_update_localized_texts()
 	_build_slots()
 	update()
 	if not _party.party_changed.is_connected(update):
@@ -53,6 +60,20 @@ func update() -> void:
 
 func _on_formation_pressed() -> void:
 	formation_requested.emit()
+
+
+func refresh_locale() -> void:
+	_update_localized_texts()
+	update()
+
+
+func _update_localized_texts() -> void:
+	if formation_button:
+		formation_button.text = tr(LocaleKeys.BTN_FORMATION)
+
+
+func _on_locale_changed(_locale_code: String) -> void:
+	_update_localized_texts()
 
 
 func _build_slots() -> void:

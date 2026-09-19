@@ -103,24 +103,24 @@ func sort_tab(tab_index: int) -> void:
 	for slot in tab:
 		if slot is ItemData:
 			items.append(slot)
-	items.sort_custom(ItemData.comparar_ordenacao)
+	items.sort_custom(ItemData.compare_sort)
 	for i in tab.size():
 		tab[i] = items[i] if i < items.size() else null
 
 
 func to_dict() -> Dictionary:
-	var abas: Array = []
+	var tabs: Array = []
 	for tab in _tabs:
-		var itens: Array = []
+		var items: Array = []
 		for slot in tab:
 			if slot is ItemData:
-				itens.append((slot as ItemData).to_dictionary())
+				items.append((slot as ItemData).to_dictionary())
 			else:
-				itens.append({})
-		abas.append(itens)
+				items.append({})
+		tabs.append(items)
 	return {
-		"desbloqueadas": _unlocked.duplicate(),
-		"abas": abas,
+		"unlocked": _unlocked.duplicate(),
+		"tabs": tabs,
 	}
 
 
@@ -131,15 +131,15 @@ func from_dict(data: Variant) -> void:
 		return
 	if not (data is Dictionary):
 		return
-	var flags: Variant = data.get("desbloqueadas", [])
+	var flags: Variant = data.get("unlocked", [])
 	if flags is Array:
 		for i in range(EXTRA_TAB_UNLOCK_START, mini(flags.size(), TAB_COUNT)):
 			_unlocked[i] = bool(flags[i])
-	var abas: Variant = data.get("abas", [])
-	if abas is Array:
-		for i in mini(abas.size(), TAB_COUNT):
-			if abas[i] is Array:
-				_apply_tab_items(i, abas[i])
+	var tabs: Variant = data.get("tabs", data.get("abas", []))
+	if tabs is Array:
+		for i in mini(tabs.size(), TAB_COUNT):
+			if tabs[i] is Array:
+				_apply_tab_items(i, tabs[i])
 
 
 func _apply_tab_items(tab_index: int, lista: Array) -> void:
@@ -150,7 +150,7 @@ func _apply_tab_items(tab_index: int, lista: Array) -> void:
 		tab[i] = null
 	for i in mini(lista.size(), tab.size()):
 		if lista[i] is Dictionary and not (lista[i] as Dictionary).is_empty():
-			tab[i] = ItemData.de_dicionario(lista[i])
+			tab[i] = ItemData.from_dictionary(lista[i])
 		else:
 			tab[i] = null
 

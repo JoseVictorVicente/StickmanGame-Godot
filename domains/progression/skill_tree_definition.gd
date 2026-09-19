@@ -87,12 +87,12 @@ static func catalog() -> Array[Dictionary]:
 				"regiao": secao,
 				"slot": slot,
 				"linha": linha,
-				"tipo": int(def["tipo"]),
+				"type": int(def["tipo"]),
 				"valor_base": int(def["valor_base"]),
 				"valor": int(def["valor_base"]),
-				"rotulo": str(def.get("rotulo", def.get("nome", ""))),
+				"label": str(def.get("rotulo", def.get("name", ""))),
 				"eh_pct": bool(def.get("eh_pct", false)),
-				"nome": str(def["nome"]),
+				"name": str(def["name"]),
 				"sigla": str(def["sigla"]),
 				"premium": bool(def.get("premium", false)),
 			})
@@ -201,7 +201,7 @@ static func next_level_cost(no: Dictionary, nivel_atual: int) -> int:
 
 
 static func max_level(no: Dictionary) -> int:
-	if int(no.get("tipo", -1)) == BonusType.WAREHOUSE:
+	if int(no.get("type", -1)) == BonusType.WAREHOUSE:
 		return MAX_WAREHOUSE_LEVEL
 	return MAX_LEVEL
 
@@ -212,20 +212,20 @@ static func bonus_value(no: Dictionary, nivel: int) -> float:
 	return float(int(no.get("valor_base", no.get("valor", 1))) * nivel)
 
 
-static func descricao_bonus(no: Dictionary, nivel: int) -> String:
+static func bonus_description(no: Dictionary, nivel: int) -> String:
 	if nivel <= 0:
-		return str(no.get("nome", ""))
-	if int(no.get("tipo", -1)) == BonusType.WAREHOUSE:
-		return str(no.get("nome", ""))
+		return str(no.get("name", ""))
+	if int(no.get("type", -1)) == BonusType.WAREHOUSE:
+		return str(no.get("name", ""))
 	var rotulo := str(no.get("rotulo", no.get("sigla", "")))
 	var total := int(bonus_value(no, nivel))
-	if bool(no.get("eh_pct", false)) or int(no.get("tipo", -1)) == BonusType.ATTACK_PCT:
+	if bool(no.get("eh_pct", false)) or int(no.get("type", -1)) == BonusType.ATTACK_PCT:
 		return "%s +%d%%" % [rotulo, total]
 	return "%s +%d" % [rotulo, total]
 
 
 static func next_level_name(no: Dictionary, nivel_atual: int) -> String:
-	return descricao_bonus(no, nivel_atual + 1)
+	return bonus_description(no, nivel_atual + 1)
 
 
 static func posicao_do_no(no: Dictionary) -> Vector2:
@@ -246,29 +246,29 @@ static func posicao_do_no(no: Dictionary) -> Vector2:
 static func bonus_key(tipo: BonusType) -> String:
 	match tipo:
 		BonusType.ATTACK:
-			return "ataque"
+			return "attack"
 		BonusType.ATTACK_PCT:
-			return "ataque_pct"
+			return "attack_pct"
 		BonusType.HP:
-			return "vida"
+			return "hp"
 		BonusType.BONUS_XP:
-			return "bonus_xp"
+			return "xp_bonus"
 		BonusType.GOLD_BONUS:
-			return "bonus_ouro"
+			return "gold_bonus"
 		BonusType.ATTACK_SPEED:
-			return "vel_ataque"
+			return "attack_speed"
 		BonusType.CRIT_CHANCE:
 			return "crit_chance"
 		BonusType.CRIT_DAMAGE:
-			return "crit_dano"
+			return "crit_damage"
 		BonusType.EVASION:
-			return "evasao"
+			return "evasion"
 		BonusType.PHYS_RES:
-			return "res_fisica"
+			return "phys_res"
 		BonusType.ARCANE_RES:
-			return "res_arcana"
+			return "arcane_res"
 		BonusType.ELEMENTAL_RES:
-			return "res_elemental"
+			return "elemental_res"
 		BonusType.WAREHOUSE:
 			return ""
 	return ""
@@ -276,19 +276,19 @@ static func bonus_key(tipo: BonusType) -> String:
 
 static func empty_bonus() -> Dictionary:
 	return {
-		"ataque": 0,
-		"ataque_pct": 0.0,
-		"vida": 0,
-		"vida_pct": 0.0,
-		"bonus_xp": 0.0,
-		"bonus_ouro": 0.0,
-		"vel_ataque": 0.0,
+		"attack": 0,
+		"attack_pct": 0.0,
+		"hp": 0,
+		"hp_pct": 0.0,
+		"xp_bonus": 0.0,
+		"gold_bonus": 0.0,
+		"attack_speed": 0.0,
 		"crit_chance": 0.0,
-		"crit_dano": 0.0,
-		"evasao": 0.0,
-		"res_fisica": 0.0,
-		"res_arcana": 0.0,
-		"res_elemental": 0.0,
+		"crit_damage": 0.0,
+		"evasion": 0.0,
+		"phys_res": 0.0,
+		"arcane_res": 0.0,
+		"elemental_res": 0.0,
 	}
 
 
@@ -322,9 +322,9 @@ static func _create_attack_node(slot: int, linha: int) -> Dictionary:
 			"tipo": BonusType.ATTACK_PCT,
 			"valor_base": pct,
 			"sigla": "%",
-			"rotulo": "Ataque",
+			"label": "Ataque",
 			"eh_pct": true,
-			"nome": "Ataque +%d%%" % pct,
+			"name": "Ataque +%d%%" % pct,
 			"premium": true,
 		}
 	var tipos: Array = [
@@ -348,9 +348,9 @@ static func _create_defense_node(slot: int, linha: int) -> Dictionary:
 			"tipo": BonusType.HP,
 			"valor_base": valor,
 			"sigla": "VID",
-			"rotulo": "Vida",
+			"label": "Vida",
 			"eh_pct": false,
-			"nome": "Vida +%d" % valor,
+			"name": "Vida +%d" % valor,
 			"premium": true,
 		}
 	var tipos: Array = [
@@ -376,9 +376,9 @@ static func _create_utility_node(slot: int, linha: int) -> Dictionary:
 			"tipo": BonusType.WAREHOUSE,
 			"valor_base": valor,
 			"sigla": "ARM",
-			"rotulo": "Armazém",
+			"label": "Armazém",
 			"eh_pct": false,
-			"nome": "Armazém %d" % (valor + 1),
+			"name": "Armazém %d" % (valor + 1),
 			"premium": false,
 		}
 	if merge and linha in [5, 9, 13]:
@@ -387,9 +387,9 @@ static func _create_utility_node(slot: int, linha: int) -> Dictionary:
 			"tipo": BonusType.BONUS_XP,
 			"valor_base": pct,
 			"sigla": "XP",
-			"rotulo": "XP",
+			"label": "XP",
 			"eh_pct": true,
-			"nome": "XP +%d%%" % pct,
+			"name": "XP +%d%%" % pct,
 			"premium": true,
 		}
 	var usa_xp := (slot + linha) % 2 == 0
@@ -399,9 +399,9 @@ static func _create_utility_node(slot: int, linha: int) -> Dictionary:
 			"tipo": BonusType.BONUS_XP,
 			"valor_base": valor_xp,
 			"sigla": "XP",
-			"rotulo": "XP",
+			"label": "XP",
 			"eh_pct": true,
-			"nome": "XP +%d%%" % valor_xp,
+			"name": "XP +%d%%" % valor_xp,
 			"premium": false,
 		}
 	var valor_ouro := 1 + _idiv(linha, 3)
@@ -409,9 +409,9 @@ static func _create_utility_node(slot: int, linha: int) -> Dictionary:
 		"tipo": BonusType.GOLD_BONUS,
 		"valor_base": valor_ouro,
 		"sigla": "OURO",
-		"rotulo": "Ouro",
+		"label": "Ouro",
 		"eh_pct": true,
-		"nome": "Ouro +%d%%" % valor_ouro,
+		"name": "Ouro +%d%%" % valor_ouro,
 		"premium": false,
 	}
 
@@ -430,9 +430,9 @@ static func _build_stat_def(
 		"tipo": tipo,
 		"valor_base": valor,
 		"sigla": sigla,
-		"rotulo": rotulo,
+		"label": rotulo,
 		"eh_pct": eh_pct,
-		"nome": nome,
+		"name": nome,
 		"premium": premium,
 	}
 

@@ -7,7 +7,7 @@ msgid "UI_GOLD"
 msgstr "Ouro"
 
 msgid "UI_GOLD_FORMAT"
-msgstr "Ouro  %d"
+msgstr "Ouro: %d"
 
 msgid "UI_INVENTORY_TITLE"
 msgstr "Inventário"
@@ -346,7 +346,7 @@ msgid "SKILL_TYPE_PASSIVE"
 msgstr "Passiva"
 
 msgid "SKILL_COOLDOWN_LINE"
-msgstr "Ativa | Recarga: %.1fs"
+msgstr "Recarga: %ds"
 
 msgid "SKILLS_TITLE"
 msgstr "Habilidades"
@@ -414,6 +414,12 @@ msgstr "Res. Elemental"
 msgid "FORMATION_TITLE"
 msgstr "Formação"
 
+msgid "FORMATION_PARTY_TITLE"
+msgstr "Em campo"
+
+msgid "FORMATION_HEROES_TITLE"
+msgstr "Heróis"
+
 msgid "FORMATION_HINT_CAN_REMOVE"
 msgstr "Toque em um herói para remover da formação"
 
@@ -457,16 +463,16 @@ msgid "FORGE_IMBUE"
 msgstr "Imbuir"
 
 msgid "FORGE_SYNTHESIS_HINT"
-msgstr "Forje 9 itens da mesma raridade e família."
+msgstr "Coloque 3 itens do mesmo tipo e raridade para sintetizar."
 
 msgid "FORGE_DISMANTLE_HINT"
-msgstr "Desmonte itens para receber ouro."
+msgstr "Coloque um item para desmontá-lo por ouro."
 
 msgid "FORGE_GEMS_HINT"
-msgstr "Imbua uma gema em equipamento lendário ou superior."
+msgstr "Arraste uma gema sobre o equipamento para imbuir."
 
 msgid "FORGE_DISMANTLE_VALUE"
-msgstr "Valor: %d ouro"
+msgstr "Valor de desmontagem: %d ouro"
 
 msgid "FORGE_WAREHOUSE_TOGGLE"
 msgstr "Incluir itens do armazém"
@@ -475,28 +481,28 @@ msgid "FORGE_SUCCESS_CHANCE"
 msgstr "Chance de sucesso: %d%%"
 
 msgid "FORGE_PROGRESS"
-msgstr "%d/9 — mesma raridade e família. Níveis podem ser misturados.%s"
+msgstr "%d/3 itens colocados%s"
 
 msgid "FORGE_FAMILY_LOCKED"
-msgstr " Família: %s."
+msgstr "(bloqueado: apenas %s)"
 
 msgid "FORGE_MIXED_CATEGORY"
 msgstr "Categorias mistas: %s e %s"
 
 msgid "FORGE_RECIPE_INVALID"
-msgstr "Coloque 9 itens da mesma raridade e família (equipamento, acessório ou gema)."
+msgstr "Receita inválida — verifique os itens."
 
 msgid "FORGE_SUCCESS"
 msgstr "Sucesso! %s (%s, Nv.%d)"
 
 msgid "FORGE_FAILED"
-msgstr "Forja falhou (%d%%). Recebeu: %s (%s, Nv.%d). Retire do slot central."
+msgstr "Falhou! Perdeu %s (%s, Nv.%d)"
 
 msgid "FORGE_ITEM_READY"
-msgstr "Item pronto: %s (%s, Nv.%d). Retire do slot central."
+msgstr "Pronto: %s (%s, Nv.%d)"
 
 msgid "FORGE_INVENTORY_FULL"
-msgstr "Inventário cheio. Libere espaço para retirar o item."
+msgstr "Inventário cheio!"
 
 msgid "FORGE_INVENTORY_FULL_FORGE"
 msgstr "Inventário cheio — não é possível coletar o resultado!"
@@ -595,7 +601,7 @@ msgid "TREE_NOT_ENOUGH_GOLD"
 msgstr "Ouro insuficiente (%d necessário)"
 
 msgid "TREE_LEVEL_UP"
-msgstr "Nível %d/%d: %s"
+msgstr "Melhorado para %s Nv.%d!"
 
 msgid "TREE_WAREHOUSE_UNLOCK"
 msgstr " Armazém desbloqueado!"
@@ -636,209 +642,209 @@ msgstr "Mundo %d"
 msgid "WORLD_LOCKED"
 msgstr "(bloqueado)"
 
-msgid "ITEM_espada_ferro"
+msgid "ITEM_iron_sword"
 msgstr "Espada de Ferro"
 
-msgid "ITEM_espada_treino"
+msgid "ITEM_training_sword"
 msgstr "Espada de Treino"
 
-msgid "ITEM_escudo_madeira"
+msgid "ITEM_wooden_shield"
 msgstr "Escudo de Madeira"
 
-msgid "ITEM_elmo_guerreiro"
+msgid "ITEM_warrior_helmet"
 msgstr "Elmo do Guerreiro"
 
-msgid "ITEM_peitoral_guerreiro"
+msgid "ITEM_warrior_chestplate"
 msgstr "Peitoral do Guerreiro"
 
-msgid "ITEM_luvas_guerreiro"
+msgid "ITEM_warrior_gloves"
 msgstr "Luvas do Guerreiro"
 
-msgid "ITEM_calca_guerreiro"
-msgstr "Calça do Guerreiro"
+msgid "ITEM_warrior_pants"
+msgstr "CalÃ§a do Guerreiro"
 
-msgid "ITEM_botas_guerreiro"
+msgid "ITEM_warrior_boots"
 msgstr "Botas do Guerreiro"
 
-msgid "ITEM_mascote_leao"
-msgstr "Mascote Leão"
+msgid "ITEM_lion_pet"
+msgstr "Mascote LeÃ£o"
 
-msgid "ITEM_anel_honra"
+msgid "ITEM_ring_of_honor"
 msgstr "Anel de Honra"
 
-msgid "ITEM_bracelete_guerreiro"
+msgid "ITEM_warrior_bracelet"
 msgstr "Bracelete do Guerreiro"
 
-msgid "ITEM_cajado_arcano"
+msgid "ITEM_arcane_staff"
 msgstr "Cajado Arcano"
 
-msgid "ITEM_grimorio"
-msgstr "Grimório"
+msgid "ITEM_grimoire"
+msgstr "GrimÃ³rio"
 
-msgid "ITEM_familiar"
+msgid "ITEM_arcane_familiar"
 msgstr "Familiar Arcano"
 
-msgid "ITEM_manto_mistico"
-msgstr "Manto Místico"
+msgid "ITEM_mystic_cloak"
+msgstr "Manto MÃ­stico"
 
-msgid "ITEM_tiara_arcano"
+msgid "ITEM_arcane_tiara"
 msgstr "Tiara Arcana"
 
-msgid "ITEM_luvas_mago"
+msgid "ITEM_mage_gloves"
 msgstr "Luvas do Mago"
 
-msgid "ITEM_calca_mago"
-msgstr "Calça do Mago"
+msgid "ITEM_mage_pants"
+msgstr "CalÃ§a do Mago"
 
-msgid "ITEM_botas_mago"
+msgid "ITEM_mage_boots"
 msgstr "Botas do Mago"
 
-msgid "ITEM_cinto_arcano"
+msgid "ITEM_arcane_belt"
 msgstr "Cinto Arcano"
 
-msgid "ITEM_pingente_mana"
+msgid "ITEM_mana_pendant"
 msgstr "Pingente de Mana"
 
-msgid "ITEM_arco_curto"
+msgid "ITEM_short_bow"
 msgstr "Arco Curto"
 
-msgid "ITEM_aljava"
+msgid "ITEM_quiver"
 msgstr "Aljava"
 
-msgid "ITEM_capuz_couro"
+msgid "ITEM_leather_hood"
 msgstr "Capuz de Couro"
 
-msgid "ITEM_peitoral_arqueiro"
+msgid "ITEM_archer_chestplate"
 msgstr "Peitoral do Arqueiro"
 
-msgid "ITEM_luvas_arqueiro"
+msgid "ITEM_archer_gloves"
 msgstr "Luvas do Arqueiro"
 
-msgid "ITEM_calca_arqueiro"
-msgstr "Calça do Arqueiro"
+msgid "ITEM_archer_pants"
+msgstr "CalÃ§a do Arqueiro"
 
-msgid "ITEM_botas_arqueiro"
+msgid "ITEM_archer_boots"
 msgstr "Botas do Arqueiro"
 
-msgid "ITEM_falcao_companheiro"
-msgstr "Falcão Companheiro"
+msgid "ITEM_companion_falcon"
+msgstr "FalcÃ£o Companheiro"
 
-msgid "ITEM_anel_precisao"
-msgstr "Anel de Precisão"
+msgid "ITEM_precision_ring"
+msgstr "Anel de PrecisÃ£o"
 
-msgid "ITEM_adaga_sombria"
+msgid "ITEM_shadow_dagger"
 msgstr "Adaga Sombria"
 
-msgid "ITEM_adaga_secundaria"
-msgstr "Adaga Gêmea"
+msgid "ITEM_twin_dagger"
+msgstr "Adaga GÃªmea"
 
-msgid "ITEM_capuz_assassino"
+msgid "ITEM_assassin_hood"
 msgstr "Capuz do Assassino"
 
-msgid "ITEM_peitoral_sombrio"
+msgid "ITEM_shadow_chestplate"
 msgstr "Peitoral Sombrio"
 
-msgid "ITEM_luvas_assassino"
+msgid "ITEM_assassin_gloves"
 msgstr "Luvas do Assassino"
 
-msgid "ITEM_calca_assassino"
-msgstr "Calça do Assassino"
+msgid "ITEM_assassin_pants"
+msgstr "CalÃ§a do Assassino"
 
-msgid "ITEM_botas_assassino"
+msgid "ITEM_assassin_boots"
 msgstr "Botas do Assassino"
 
-msgid "ITEM_cinto_sombrio"
+msgid "ITEM_shadow_belt"
 msgstr "Cinto Sombrio"
 
-msgid "ITEM_bracelete_sombrio"
+msgid "ITEM_shadow_bracelet"
 msgstr "Bracelete Sombrio"
 
-msgid "ITEM_maca_pesada"
-msgstr "Maça Pesada"
+msgid "ITEM_heavy_mace"
+msgstr "MaÃ§a Pesada"
 
-msgid "ITEM_escudo_torre"
+msgid "ITEM_tower_shield"
 msgstr "Escudo Torre"
 
-msgid "ITEM_peitoral_ferro"
+msgid "ITEM_iron_chestplate"
 msgstr "Peitoral de Ferro"
 
-msgid "ITEM_elmo_torre"
+msgid "ITEM_tower_helmet"
 msgstr "Elmo Torre"
 
-msgid "ITEM_luvas_tanque"
+msgid "ITEM_tank_gloves"
 msgstr "Luvas do Tanque"
 
-msgid "ITEM_calca_tanque"
-msgstr "Calça do Tanque"
+msgid "ITEM_tank_pants"
+msgstr "CalÃ§a do Tanque"
 
-msgid "ITEM_botas_tanque"
+msgid "ITEM_tank_boots"
 msgstr "Botas do Tanque"
 
-msgid "ITEM_mascote_tartaruga"
+msgid "ITEM_turtle_pet"
 msgstr "Mascote Tartaruga"
 
-msgid "ITEM_pingente_guardiao"
-msgstr "Pingente do Guardião"
+msgid "ITEM_guardian_pendant"
+msgstr "Pingente do GuardiÃ£o"
 
-msgid "ITEM_cajado_sagrado"
+msgid "ITEM_holy_staff"
 msgstr "Cajado Sagrado"
 
-msgid "ITEM_tomo_luz"
+msgid "ITEM_tome_of_light"
 msgstr "Tomo de Luz"
 
-msgid "ITEM_manto_clerical"
+msgid "ITEM_clerical_cloak"
 msgstr "Manto Clerical"
 
-msgid "ITEM_pingente_fe"
-msgstr "Pingente de Fé"
+msgid "ITEM_faith_pendant"
+msgstr "Pingente de FÃ©"
 
-msgid "ITEM_tiara_sagrada"
+msgid "ITEM_sacred_tiara"
 msgstr "Tiara Sagrada"
 
-msgid "ITEM_luvas_sacerdote"
+msgid "ITEM_priest_gloves"
 msgstr "Luvas do Sacerdote"
 
-msgid "ITEM_calca_sacerdote"
-msgstr "Calça do Sacerdote"
+msgid "ITEM_priest_pants"
+msgstr "CalÃ§a do Sacerdote"
 
-msgid "ITEM_botas_sacerdote"
+msgid "ITEM_priest_boots"
 msgstr "Botas do Sacerdote"
 
-msgid "ITEM_anel_devocao"
+msgid "ITEM_devotion_ring"
 msgstr "Anel de Devotos"
 
-msgid "ITEM_luvas_tecido"
+msgid "ITEM_cloth_gloves"
 msgstr "Luvas de Tecido"
 
-msgid "ITEM_calca_couro"
-msgstr "Calça de Couro"
+msgid "ITEM_leather_pants"
+msgstr "CalÃ§a de Couro"
 
-msgid "ITEM_botas_viagem"
+msgid "ITEM_travel_boots"
 msgstr "Botas de Viagem"
 
-msgid "ITEM_cinto_simples"
+msgid "ITEM_simple_belt"
 msgstr "Cinto Simples"
 
-msgid "ITEM_anel_bruto"
+msgid "ITEM_rough_ring"
 msgstr "Anel Bruto"
 
-msgid "ITEM_bracelete_ferro"
+msgid "ITEM_iron_bracelet"
 msgstr "Bracelete de Ferro"
 
-msgid "ITEM_capuz_viagem"
+msgid "ITEM_travel_hood"
 msgstr "Capuz de Viagem"
 
-msgid "ITEM_peitoral_couro"
+msgid "ITEM_leather_chestplate"
 msgstr "Peitoral de Couro"
 
-msgid "ITEM_pingente_simples"
+msgid "ITEM_simple_pendant"
 msgstr "Pingente Simples"
 
-msgid "ITEM_mascote_rato"
+msgid "ITEM_rat_pet"
 msgstr "Mascote Rato"
 
 msgid "SKILL_instant_double_shot"
-msgstr "Tiro Duplo Instantâneo"
+msgstr "Tiro Duplo Instantaneo"
 
 msgid "SKILL_instant_double_shot_DESC"
 msgstr "Executa dois disparos rapidos consecutivos com 200% de dano critico."
@@ -850,19 +856,529 @@ msgid "SKILL_dark_volley_DESC"
 msgstr "Entra em postura de foco por 2 segundos e dispara uma rajada de 10 flechas energizadas em alta velocidade direto no alvo mais forte."
 
 msgid "SKILL_precision_shot"
-msgstr "Tiro de Precisão"
+msgstr "Tiro de Precisao"
 
 msgid "SKILL_precision_shot_DESC"
 msgstr "Um disparo carregado de 0.4s que garante acerto critico e ignora 30% da armadura."
 
 msgid "SKILL_hunter_stance"
-msgstr "Postura do Caçador"
+msgstr "Postura do Cacador"
 
 msgid "SKILL_hunter_stance_DESC"
 msgstr "A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos."
 
 msgid "SKILL_neon_vision"
-msgstr "Visão Neon"
+msgstr "Visao Neon"
 
 msgid "SKILL_neon_vision_DESC"
 msgstr "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."
+
+msgid "SKILL_armor_penetration"
+msgstr "Penetracao de Armadura"
+
+msgid "SKILL_armor_penetration_DESC"
+msgstr "Ataques basicos e habilidades ignoram uma porcentagem da defesa de inimigos blindados ou chefes."
+
+msgid "SKILL_reflex_recoil"
+msgstr "Recuo Reflexo"
+
+msgid "SKILL_reflex_recoil_DESC"
+msgstr "Quando a vida do arqueiro fica abaixo de 25%, ele ganha um escudo temporario e um aumento drastico na velocidade de movimento por 3 segundos."
+
+msgid "SKILL_swift_execution"
+msgstr "Execucao Acelerada"
+
+msgid "SKILL_swift_execution_DESC"
+msgstr "Causa 20% a mais de dano contra inimigos que estejam com menos de 30% da vida maxima."
+
+msgid "SKILL_nimble_hands"
+msgstr "Maos Ageis"
+
+msgid "SKILL_nimble_hands_DESC"
+msgstr "Reduz o tempo de recarga (cooldown) de todas as habilidades ativas em 15%."
+
+msgid "SKILL_eagle_eye"
+msgstr "Olho de Aguia"
+
+msgid "SKILL_eagle_eye_DESC"
+msgstr "Aumenta a taxa de acerto critico e o alcance de visao na tela."
+
+msgid "SKILL_drawstring_tension"
+msgstr "Cordeiro Esticado"
+
+msgid "SKILL_drawstring_tension_DESC"
+msgstr "Reduz a animacao dos disparos frontais, aumentando a Velocidade de Ataque basica em 15%."
+
+msgid "SKILL_wearing_poison"
+msgstr "Veneno Desgastante"
+
+msgid "SKILL_wearing_poison_DESC"
+msgstr "Tem 5% de chance de aplicar veneno no ataque basico."
+
+msgid "SKILL_weak_prey"
+msgstr "Caca aos Fracos"
+
+msgid "SKILL_weak_prey_DESC"
+msgstr "Causa 15% a mais de dano contra monstros que estejam com menos de 25% da vida."
+
+msgid "SKILL_stacking_impact"
+msgstr "Impacto Acumulativo"
+
+msgid "SKILL_stacking_impact_DESC"
+msgstr "Cada flecha que atinge o mesmo alvo em menos de 2s aumenta o dano da proxima em 5% (max 25%)."
+
+msgid "SKILL_surgical_aim"
+msgstr "Mira Cirurgica"
+
+msgid "SKILL_surgical_aim_DESC"
+msgstr "Aumenta a Taxa de Acerto Critico em 30% contra alvos que estejam com a vida maior que 70%."
+
+msgid "SKILL_twin_execution_cut"
+msgstr "Corte Duplo Executor"
+
+msgid "SKILL_twin_execution_cut_DESC"
+msgstr "Um ataque cruzado em X com as duas adagas. Causa o dobro de dano contra inimigos que estejam com menos de 30% da vida."
+
+msgid "SKILL_prey_mark"
+msgstr "Marca da Presa"
+
+msgid "SKILL_prey_mark_DESC"
+msgstr "Marca um alvo por 4 segundos. Todo o dano que o Assassino causar nesse periodo e acumulado e explode ao final do efeito, causando 30% de dano bonus equivalente ao total causado."
+
+msgid "SKILL_quick_twin_cut"
+msgstr "Corte Duplo Rapido"
+
+msgid "SKILL_quick_twin_cut_DESC"
+msgstr "Dois golpes cruzados ultra-rapidos com as adagas no peito do alvo."
+
+msgid "SKILL_awakened_sequence"
+msgstr "Sequencia Desperta"
+
+msgid "SKILL_awakened_sequence_DESC"
+msgstr "Ganha um surto imediato de 60% de Velocidade de Ataque que dura exatamente 4 golpes ou 3 segundos."
+
+msgid "SKILL_swift_decapitation"
+msgstr "Decaptacao Celerada"
+
+msgid "SKILL_swift_decapitation_DESC"
+msgstr "Um golpe alto mirado no pescoco que causa 50% de dano extra se o alvo estiver com menos de 30% de vida."
+
+msgid "SKILL_shadow_reflexes"
+msgstr "Reflexos Sombrios"
+
+msgid "SKILL_shadow_reflexes_DESC"
+msgstr "Aumenta a taxa de Acerto Critico base e a Velocidade de Ataque."
+
+msgid "SKILL_adrenaline_surge"
+msgstr "Impulso de Adrenalina"
+
+msgid "SKILL_adrenaline_surge_DESC"
+msgstr "Eliminar um inimigo restaura 50% do tempo de recarga (cooldown) de todas as habilidades ativas."
+
+msgid "SKILL_venomous_vein"
+msgstr "Veia Venenosa"
+
+msgid "SKILL_venomous_vein_DESC"
+msgstr "Aumenta em 25% o dano de acerto critico contra alvos que estejam envenenados ou sangrando."
+
+msgid "SKILL_stealth_strike"
+msgstr "Ataque Furtivo"
+
+msgid "SKILL_stealth_strike_DESC"
+msgstr "O primeiro golpe disparado ao entrar em combate contra qualquer inimigo causa 50% de dano critico adicional."
+
+msgid "SKILL_lethal_execution"
+msgstr "Lethal Execution"
+
+msgid "SKILL_lethal_execution_DESC"
+msgstr "Ataques em alvos abaixo de 15% da vida maxima tem chance de causar execucao instantanea (exceto em chefes de fase)."
+
+msgid "SKILL_deep_cut"
+msgstr "Corte Profundo"
+
+msgid "SKILL_deep_cut_DESC"
+msgstr "Sangramentos aplicados pelas adagas duram 1.5s a mais."
+
+msgid "SKILL_weak_point_mapping"
+msgstr "Mapeamento de Pontos Frais"
+
+msgid "SKILL_weak_point_mapping_DESC"
+msgstr "Ignora 20% da armadura base dos inimigos."
+
+msgid "SKILL_adrenaline"
+msgstr "Adrenalina"
+
+msgid "SKILL_adrenaline_DESC"
+msgstr "Matar um inimigo reseta 1 segundo do cooldown de todas as habilidades ativas."
+
+msgid "SKILL_assassin_rhythm"
+msgstr "Ritmo Assassino"
+
+msgid "SKILL_assassin_rhythm_DESC"
+msgstr "Cada acerto de habilidade ativa adiciona um acumulo de 10% de Velocidade de Ataque (acumula ate 5 vezes, totalizando +50% por 4s)."
+
+msgid "SKILL_light_blade"
+msgstr "Lamina Leve"
+
+msgid "SKILL_light_blade_DESC"
+msgstr "Aumenta o dano em 10%."
+
+msgid "SKILL_sacred_position"
+msgstr "Posicao Sagrada"
+
+msgid "SKILL_sacred_position_DESC"
+msgstr "Restaura uma porcentagem da vida do aliado com a menor vida na tela instantaneamente."
+
+msgid "SKILL_solar_shield"
+msgstr "Escudo Solar"
+
+msgid "SKILL_solar_shield_DESC"
+msgstr "Concede um escudo de luz brilhante ao aliado mais vulneravel que absorve dano por 3 segundos."
+
+msgid "SKILL_divine_punishment"
+msgstr "Punicao Divina"
+
+msgid "SKILL_divine_punishment_DESC"
+msgstr "Invoca um feixe de luz vertical do ceu que atinge o grupo mais denso de inimigos, causando dano elemental."
+
+msgid "SKILL_inviolability_aura"
+msgstr "Aura de Inviolabilidade"
+
+msgid "SKILL_inviolability_aura_DESC"
+msgstr "Cria um domo temporario de 1.5s que reduz todo o dano recebido pelo grupo em 15% e cura por segundo a equipe."
+
+msgid "SKILL_sacred_fervor"
+msgstr "Fervor Sagrado"
+
+msgid "SKILL_sacred_fervor_DESC"
+msgstr "O Priest ergue o cetro e canaliza uma aura brilhante, aumentando o dano de todo o grupo em 15% por 4 segundos."
+
+msgid "SKILL_sun_touch"
+msgstr "Toque do Sol"
+
+msgid "SKILL_sun_touch_DESC"
+msgstr "Aumenta o poder de cura e a eficacia de todos os escudos aplicados em 20%."
+
+msgid "SKILL_reactive_barrier"
+msgstr "Barreira Reativa"
+
+msgid "SKILL_reactive_barrier_DESC"
+msgstr "Quando a vida do Priest cai abaixo de 30%, ele ganha automaticamente um escudo divino equivalente a 35% da sua vida maxima (cooldown de 30s)."
+
+msgid "SKILL_radiant_presence"
+msgstr "Presenca Iluminada"
+
+msgid "SKILL_radiant_presence_DESC"
+msgstr "Aliados proximos ganham 10% de resistencia a dano fisico e magico."
+
+msgid "SKILL_unshakable_devotion"
+msgstr "Devocao Inabalavel"
+
+msgid "SKILL_unshakable_devotion_DESC"
+msgstr "Reduz o tempo de recarga (cooldown) de todas as habilidades de cura e escudo em 15%."
+
+msgid "SKILL_divine_vigor"
+msgstr "Vigor Divino"
+
+msgid "SKILL_divine_vigor_DESC"
+msgstr "Converter excesso de cura (quando o aliado ja esta com vida cheia) em um pequeno escudo temporario."
+
+msgid "SKILL_sacred_touch"
+msgstr "Toque Sagrado"
+
+msgid "SKILL_sacred_touch_DESC"
+msgstr "Ataques basicos do Priest tem 15% de chance de aplicar uma pequena cura no aliado mais ferido."
+
+msgid "SKILL_critical_heal"
+msgstr "Cura Critica"
+
+msgid "SKILL_critical_heal_DESC"
+msgstr "As habilidades de cura do Priest tem 15% de chance de causar um Critico de Cura (cura o dobro do valor)."
+
+msgid "SKILL_celestial_pact"
+msgstr "Pacto Celestial"
+
+msgid "SKILL_celestial_pact_DESC"
+msgstr "Se o Priest morrer, libera uma onda de luz final que cura 100% da vida de um aliado aleatorio e congela a horda por 2s."
+
+msgid "SKILL_protective_light"
+msgstr "Luz Protetora"
+
+msgid "SKILL_protective_light_DESC"
+msgstr "Aliados curados pelo Priest ganham 10% de Armadura bonus por 3 segundos."
+
+msgid "SKILL_mercy"
+msgstr "Misericordia"
+
+msgid "SKILL_mercy_DESC"
+msgstr "Aumenta em 20% a quantidade de cura realizada em aliados que estejam com menos de 50% de vida."
+
+msgid "SKILL_frenzied_sequence"
+msgstr "Sequencia Frenetica"
+
+msgid "SKILL_frenzied_sequence_DESC"
+msgstr "Desfere 3 cortes rapidos e profundos consecutivos em menos de 1 segundo."
+
+msgid "SKILL_quick_slash"
+msgstr "Corte Rapido"
+
+msgid "SKILL_quick_slash_DESC"
+msgstr "Um golpe horizontal simples e veloz com a espada que atinge os inimigos a frente."
+
+msgid "SKILL_double_thrust"
+msgstr "Perfuracao Dupla"
+
+msgid "SKILL_double_thrust_DESC"
+msgstr "Duas estocadas ultra-rapidas sem sair do lugar."
+
+msgid "SKILL_heavy_blade"
+msgstr "Lamina Pesada"
+
+msgid "SKILL_heavy_blade_DESC"
+msgstr "Um ataque lento e carregado de 0.5s que causa dano duplo."
+
+msgid "SKILL_war_cry"
+msgstr "Grito de Guerra"
+
+msgid "SKILL_war_cry_DESC"
+msgstr "Erguer a espada para cima e emite um pulso de poder que aumenta o Dano Fisico em 20% por 5 segundos."
+
+msgid "SKILL_blade_master"
+msgstr "Mestre das Laminas"
+
+msgid "SKILL_blade_master_DESC"
+msgstr "Aumenta o Dano Fisico base e o alcance de corte da espada."
+
+msgid "SKILL_extreme_sharpening"
+msgstr "Afiacao Extrema"
+
+msgid "SKILL_extreme_sharpening_DESC"
+msgstr "Aumenta a taxa de Acerto Critico e o Dano Critico de todos os ataques de espada em 15%."
+
+msgid "SKILL_iron_armor"
+msgstr "Armadura de Ferro"
+
+msgid "SKILL_iron_armor_DESC"
+msgstr "Concede 15% de reducao de dano fisico direto vindo de ataques corpo a corpo."
+
+msgid "SKILL_unbreakable_stance"
+msgstr "Postura Inquebravel"
+
+msgid "SKILL_unbreakable_stance_DESC"
+msgstr "Confere imunidade a efeitos de atordoamento e empurrao (Knockback) enquanto estiver no meio da animacao de uma habilidade ativa."
+
+msgid "SKILL_precise_execution"
+msgstr "Execucao Precisa"
+
+msgid "SKILL_precise_execution_DESC"
+msgstr "Causa 20% a mais de dano contra alvos que estejam com menos de 35% da vida maxima."
+
+msgid "SKILL_iron_will"
+msgstr "Vontade de Ferro"
+
+msgid "SKILL_iron_will_DESC"
+msgstr "Ao ficar com menos de 25% de vida, ganha 30% de Velocidade de Ataque e 15% de Roubo de Vida (Lifesteal) por 5 segundos (60 segundos de cooldown)."
+
+msgid "SKILL_defensive_stance"
+msgstr "Postura de Defesa"
+
+msgid "SKILL_defensive_stance_DESC"
+msgstr "Ganha 10% de armadura extra enquanto estiver com menos de 50% de vida."
+
+msgid "SKILL_brute_force"
+msgstr "Forca Bruta"
+
+msgid "SKILL_brute_force_DESC"
+msgstr "Causa 10% a mais de dano contra inimigos do tipo Elite ou Chefes."
+
+msgid "SKILL_medium_resistance"
+msgstr "Resistencia Media"
+
+msgid "SKILL_medium_resistance_DESC"
+msgstr "Reduz todo o dano fisico recebido em 8%."
+
+msgid "SKILL_steel_muscles"
+msgstr "Musculos de Aco"
+
+msgid "SKILL_steel_muscles_DESC"
+msgstr "Aumenta a vida maxima do guerreiro em 10%."
+
+msgid "SKILL_abyssal_meteor"
+msgstr "Meteoro Abissal"
+
+msgid "SKILL_abyssal_meteor_DESC"
+msgstr "Evoca uma pedra magica do topo da tela que cai sobre o grupo mais denso de inimigos."
+
+msgid "SKILL_damage_portal"
+msgstr "Portal de Dano"
+
+msgid "SKILL_damage_portal_DESC"
+msgstr "Dispara um raio continuo de 1 segundo direto do cajado."
+
+msgid "SKILL_black_fireball"
+msgstr "Bola de Fogo Negra"
+
+msgid "SKILL_black_fireball_DESC"
+msgstr "Dispara uma grande esfera que causa dano em area no impacto."
+
+msgid "SKILL_ice_nova"
+msgstr "Nova de Gelo"
+
+msgid "SKILL_ice_nova_DESC"
+msgstr "Uma onda circular de gelo que congela tudo ao redor por 1s."
+
+msgid "SKILL_ice_lance"
+msgstr "Lanca de Gelo"
+
+msgid "SKILL_ice_lance_DESC"
+msgstr "Dispara uma estaca de gelo fina e rapida que atravessa ate 2 inimigos em linha reta."
+
+msgid "SKILL_arcane_amplification"
+msgstr "Amplificacao Arcana"
+
+msgid "SKILL_arcane_amplification_DESC"
+msgstr "Aumenta o Dano Magico base e o Alcance de Ataque do cajado."
+
+msgid "SKILL_rune_resonance"
+msgstr "Ressoar de Runas"
+
+msgid "SKILL_rune_resonance_DESC"
+msgstr "Toda vez que uma habilidade ativa e disparada, concede 5% de Velocidade de Convocacao (cooldown reduction) por 3s (acumula ate 4 vezes)."
+
+msgid "SKILL_magic_penetration"
+msgstr "Penetracao Magica"
+
+msgid "SKILL_magic_penetration_DESC"
+msgstr "Suas magias ignoram 25% da resistencia magica/armadura dos inimigos e chefes."
+
+msgid "SKILL_critical_focus"
+msgstr "Foco Critico"
+
+msgid "SKILL_critical_focus_DESC"
+msgstr "Aumenta a chance de Acerto Critico Magico em 15% contra inimigos com mais de 70% da vida."
+
+msgid "SKILL_soul_drain"
+msgstr "Dreno de Alma"
+
+msgid "SKILL_soul_drain_DESC"
+msgstr "Matar um inimigo com qualquer magia restaura 5% da vida maxima do Mago instantaneamente."
+
+msgid "SKILL_mana_flow"
+msgstr "Fluxo de Mana"
+
+msgid "SKILL_mana_flow_DESC"
+msgstr "A cada 5 magias lancadas, a proxima causa 50% a mais de dano."
+
+msgid "SKILL_tuning"
+msgstr "Sintonizacao"
+
+msgid "SKILL_tuning_DESC"
+msgstr "Reduz em 0.1s o cooldown de todas as habilidades ao acertar um acerto critico."
+
+msgid "SKILL_void_presence"
+msgstr "Presenca do Vazio"
+
+msgid "SKILL_void_presence_DESC"
+msgstr "Inimigos na tela tem suas defesas reduzidas em 10% passivamente."
+
+msgid "SKILL_open_mind"
+msgstr "Mente Aberta"
+
+msgid "SKILL_open_mind_DESC"
+msgstr "Aumenta a taxa de acerto critico bonus contra alvos imobilizados ou congelados em 25%."
+
+msgid "SKILL_elemental_symphony"
+msgstr "Sinfonia Elementar"
+
+msgid "SKILL_elemental_symphony_DESC"
+msgstr "Alternar entre magias de elementos diferentes aumenta o dano geral em 5% (acumula ate 4 vezes)."
+
+msgid "SKILL_rune_barrier"
+msgstr "Barreira de Runas"
+
+msgid "SKILL_rune_barrier_DESC"
+msgstr "Ganha um escudo magico de energia proporcional a 25% da sua vida maxima por 4 segundos."
+
+msgid "SKILL_dark_taunt"
+msgstr "Provocacao Sombria"
+
+msgid "SKILL_dark_taunt_DESC"
+msgstr "Forca todos os inimigos da tela a atacarem o Tank e converte 20% do dano recebido durante o efeito em vida."
+
+msgid "SKILL_inviolable_stance"
+msgstr "Postura Inviolavel"
+
+msgid "SKILL_inviolable_stance_DESC"
+msgstr "Trava as pernas e usa o escudo como parede, ficando totalmente imune a dano e controle de grupo por 2.5s."
+
+msgid "SKILL_total_suppression"
+msgstr "Supressao Total"
+
+msgid "SKILL_total_suppression_DESC"
+msgstr "Bate o escudo e a maca um contra o outro, emitindo um estrondo de metal que causa dano aos inimigos na area."
+
+msgid "SKILL_crushing_mill"
+msgstr "Moinho Esmagador"
+
+msgid "SKILL_crushing_mill_DESC"
+msgstr "Executa uma sequencia rapida de 3 golpes de maca alternados (esquerda, direita, cima)."
+
+msgid "SKILL_titanium_shell"
+msgstr "Casca de Titanio"
+
+msgid "SKILL_titanium_shell_DESC"
+msgstr "Concede 5% de chance fixa de bloquear totalmente o dano de qualquer ataque."
+
+msgid "SKILL_surface_thorns"
+msgstr "Espinhos da Superficie"
+
+msgid "SKILL_surface_thorns_DESC"
+msgstr "Reflete 20% do dano fisico de ataques corpo a corpo recebidos na parte frontal do escudo."
+
+msgid "SKILL_unshakable"
+msgstr "Inabalavel"
+
+msgid "SKILL_unshakable_DESC"
+msgstr "Imunidade total a qualquer efeito de empurrao (knockback) causado por inimigos comuns ou projeteis leves."
+
+msgid "SKILL_impact_absorption"
+msgstr "Absorcao no Impacto"
+
+msgid "SKILL_impact_absorption_DESC"
+msgstr "Derrotar um inimigo usando uma habilidade com o escudo restaura 8% da vida maxima instantaneamente."
+
+msgid "SKILL_magic_alloy"
+msgstr "Liga Magica"
+
+msgid "SKILL_magic_alloy_DESC"
+msgstr "Aumenta a resistencia a danos elementais (fogo, veneno e magia)."
+
+msgid "SKILL_last_trench"
+msgstr "Ultima Trincheira"
+
+msgid "SKILL_last_trench_DESC"
+msgstr "Ao receber dano fatal, o Tank se esconde atras do escudo e fica totalmente invulneravel por 2 segundos (cooldown longo / 1 vez por fase)."
+
+msgid "SKILL_heavy_weight"
+msgstr "Peso Pesado"
+
+msgid "SKILL_heavy_weight_DESC"
+msgstr "Golpes de maca tem 15% de chance fixa de atordoar inimigos comuns por 0.5s a cada impacto."
+
+msgid "SKILL_battle_inertia"
+msgstr "Inercia de Batalha"
+
+msgid "SKILL_battle_inertia_DESC"
+msgstr "Cada golpe acertado com a maca concede 3% de armadura bonus por 4 segundos (acumula ate 5 vezes)."
+
+msgid "SKILL_hard_shell"
+msgstr "Casca Dura"
+
+msgid "SKILL_hard_shell_DESC"
+msgstr "Reduz em 20% o dano recebido de ataques criticos."
+
+msgid "SKILL_vital_crush"
+msgstr "Esmagamento Vital"
+
+msgid "SKILL_vital_crush_DESC"
+msgstr "Inimigos atingidos por habilidades de maca perdem 10% da armadura por 4 segundos."

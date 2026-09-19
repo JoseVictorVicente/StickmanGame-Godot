@@ -94,7 +94,7 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="PainelForgePanel" type="Control"]
+[node name="ForgePanel" type="Control"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(300, 0)
@@ -129,17 +129,17 @@ grow_vertical = 2
 clip_contents = false
 theme_override_constants/separation = 8
 
-[node name="CabecalhoForgePanel" type="HBoxContainer" parent="Conteudo"]
+[node name="ForgeHeader" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/CabecalhoForgePanel"]
+[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/ForgeHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/CabecalhoForgePanel/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Conteudo/ForgeHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
@@ -147,7 +147,7 @@ text = "FERRARIA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoFecharForgePanel" type="Button" parent="Conteudo/CabecalhoForgePanel"]
+[node name="CloseForgeButton" type="Button" parent="Conteudo/ForgeHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -164,7 +164,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BotaoAbaSintese" type="Button" parent="Conteudo/AbasForgePanel"]
+[node name="SynthesisTabButton" type="Button" parent="Conteudo/AbasForgePanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -175,7 +175,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Forja"
 
-[node name="BotaoAbaDesmontar" type="Button" parent="Conteudo/AbasForgePanel"]
+[node name="DismantleTabButton" type="Button" parent="Conteudo/AbasForgePanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -186,7 +186,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Desmontar"
 
-[node name="BotaoAbaJoias" type="Button" parent="Conteudo/AbasForgePanel"]
+[node name="GemsTabButton" type="Button" parent="Conteudo/AbasForgePanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -197,12 +197,12 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Joias"
 
-[node name="CorpoForgePanel" type="Control" parent="Conteudo"]
+[node name="ForgeBody" type="Control" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GradeSintese" type="GridContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="SynthesisGrid" type="GridContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 z_index = 2
 layout_mode = 0
@@ -211,7 +211,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 0
 columns = 3
 
-[node name="PainelSintese" type="VBoxContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="SynthesisPanel" type="VBoxContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 z_index = 1
 layout_mode = 1
@@ -226,20 +226,20 @@ mouse_filter = 2
 clip_contents = false
 theme_override_constants/separation = 8
 
-[node name="LinhaInfoNivel" type="HBoxContainer" parent="Conteudo/CorpoForgePanel/PainelSintese"]
+[node name="LinhaInfoNivel" type="HBoxContainer" parent="Conteudo/ForgeBody/SynthesisPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 28)
 alignment = 1
 theme_override_constants/separation = 10
 
-[node name="ToggleArmazem" type="Control" parent="Conteudo/CorpoForgePanel/PainelSintese/LinhaInfoNivel"]
+[node name="WarehouseToggle" type="Control" parent="Conteudo/ForgeBody/SynthesisPanel/LinhaInfoNivel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 26)
 layout_mode = 2
 mouse_filter = 0
 
-[node name="ToggleTrilho" type="Panel" parent="Conteudo/CorpoForgePanel/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
+[node name="ToggleTrack" type="Panel" parent="Conteudo/ForgeBody/SynthesisPanel/LinhaInfoNivel/WarehouseToggle"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -249,7 +249,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ToggleKnob" type="Panel" parent="Conteudo/CorpoForgePanel/PainelSintese/LinhaInfoNivel/ToggleArmazem"]
+[node name="ToggleKnob" type="Panel" parent="Conteudo/ForgeBody/SynthesisPanel/LinhaInfoNivel/WarehouseToggle"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 3.0
@@ -258,13 +258,13 @@ offset_right = 23.0
 offset_bottom = 23.0
 mouse_filter = 2
 
-[node name="BotaoInfoNivel" type="PanelContainer" parent="Conteudo/CorpoForgePanel/PainelSintese/LinhaInfoNivel"]
+[node name="LevelInfoButton" type="PanelContainer" parent="Conteudo/ForgeBody/SynthesisPanel/LinhaInfoNivel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 0
 
-[node name="BotaoPreenchimento" type="Button" parent="Conteudo/CorpoForgePanel/PainelSintese"]
+[node name="AutofillButton" type="Button" parent="Conteudo/ForgeBody/SynthesisPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
@@ -275,7 +275,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Preenchimento Automático"
 
-[node name="BotaoFiltroForja" type="Button" parent="Conteudo/CorpoForgePanel/PainelSintese"]
+[node name="ForgeFilterButton" type="Button" parent="Conteudo/ForgeBody/SynthesisPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -286,7 +286,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Filtro: Todos"
 
-[node name="BotaoSintetizar" type="Button" parent="Conteudo/CorpoForgePanel/PainelSintese"]
+[node name="SynthesizeButton" type="Button" parent="Conteudo/ForgeBody/SynthesisPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -297,7 +297,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "FORJAR"
 
-[node name="LabelExplicacaoForgePanel" type="Label" parent="Conteudo/CorpoForgePanel/PainelSintese"]
+[node name="ForgeExplanationLabel" type="Label" parent="Conteudo/ForgeBody/SynthesisPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
@@ -307,7 +307,7 @@ text = "Forje 9 itens da mesma raridade e tipo"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="GradeDesmontar" type="GridContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="DismantleGrid" type="GridContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 visible = false
 z_index = 2
@@ -317,7 +317,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 0
 columns = 3
 
-[node name="PainelDesmontar" type="VBoxContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="DismantlePanel" type="VBoxContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 visible = false
 z_index = 1
@@ -332,11 +332,11 @@ grow_vertical = 0
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="LinhaValorDesmonte" type="CenterContainer" parent="Conteudo/CorpoForgePanel/PainelDesmontar"]
+[node name="LinhaValorDesmonte" type="CenterContainer" parent="Conteudo/ForgeBody/DismantlePanel"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 28)
 
-[node name="LabelValorDesmonte" type="Label" parent="Conteudo/CorpoForgePanel/PainelDesmontar/LinhaValorDesmonte"]
+[node name="DismantleValueLabel" type="Label" parent="Conteudo/ForgeBody/DismantlePanel/LinhaValorDesmonte"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -345,7 +345,7 @@ text = "Valor: 0 ouro"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BotaoPreenchimentoDesmonte" type="Button" parent="Conteudo/CorpoForgePanel/PainelDesmontar"]
+[node name="DismantleAutofillButton" type="Button" parent="Conteudo/ForgeBody/DismantlePanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
@@ -356,7 +356,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Preenchimento Automático"
 
-[node name="BotaoFiltroDesmonte" type="Button" parent="Conteudo/CorpoForgePanel/PainelDesmontar"]
+[node name="DismantleFilterButton" type="Button" parent="Conteudo/ForgeBody/DismantlePanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -367,7 +367,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Filtro: Todos"
 
-[node name="BotaoDesmontar" type="Button" parent="Conteudo/CorpoForgePanel/PainelDesmontar"]
+[node name="DismantleButton" type="Button" parent="Conteudo/ForgeBody/DismantlePanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -378,7 +378,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "DESMONTAR"
 
-[node name="LabelExplicacaoDesmontar" type="Label" parent="Conteudo/CorpoForgePanel/PainelDesmontar"]
+[node name="DismantleExplanationLabel" type="Label" parent="Conteudo/ForgeBody/DismantlePanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
@@ -388,7 +388,7 @@ text = "Desmonte itens para receber ouro"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="AreaJoias" type="HBoxContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="GemsArea" type="HBoxContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 visible = false
 z_index = 2
@@ -397,7 +397,7 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="PainelJoias" type="VBoxContainer" parent="Conteudo/CorpoForgePanel"]
+[node name="GemsPanel" type="VBoxContainer" parent="Conteudo/ForgeBody"]
 unique_name_in_owner = true
 visible = false
 z_index = 1
@@ -412,7 +412,7 @@ grow_vertical = 0
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="BotaoImbuir" type="Button" parent="Conteudo/CorpoForgePanel/PainelJoias"]
+[node name="ImbueButton" type="Button" parent="Conteudo/ForgeBody/GemsPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
@@ -423,7 +423,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "IMBUIR"
 
-[node name="LabelExplicacaoJoias" type="Label" parent="Conteudo/CorpoForgePanel/PainelJoias"]
+[node name="GemsExplanationLabel" type="Label" parent="Conteudo/ForgeBody/GemsPanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2

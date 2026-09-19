@@ -1,12 +1,12 @@
-class_name SkillRuntime
+﻿class_name SkillRuntime
 extends RefCounted
 ## Reads HeroEquipment passives and applies SkillResource stat_value bonuses.
 
-const STAT_KEY_ATTACK := "ataque"
-const STAT_KEY_ATTACK_SPEED := "vel_ataque"
+const STAT_KEY_ATTACK := "attack"
+const STAT_KEY_ATTACK_SPEED := "attack_speed"
 const STAT_KEY_CRIT_CHANCE := "crit_chance"
-const STAT_KEY_CRIT_DAMAGE := "crit_dano"
-const STAT_KEY_HP := "vida"
+const STAT_KEY_CRIT_DAMAGE := "crit_damage"
+const STAT_KEY_HP := "hp"
 
 
 func bonuses_for_class(class_id: String) -> Dictionary:
@@ -39,7 +39,7 @@ static func stat_key_for_skill(skill: SkillResource) -> String:
 		return STAT_KEY_ATTACK_SPEED
 	if "crit" in skill_id or "precis" in skill_id or "execu" in skill_id:
 		return STAT_KEY_CRIT_CHANCE
-	if "vida" in skill_id or "vigor" in skill_id or "casca" in skill_id or "resist" in skill_id:
+	if "hp" in skill_id or "vigor" in skill_id or "casca" in skill_id or "resist" in skill_id:
 		return STAT_KEY_HP
 	if "dano" in skill_id or "forca" in skill_id or "lamina" in skill_id:
 		return STAT_KEY_ATTACK

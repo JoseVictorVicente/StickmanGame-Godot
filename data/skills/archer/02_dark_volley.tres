@@ -5,8 +5,6 @@
 [resource]
 script = ExtResource("1_skill")
 skill_id = "dark_volley"
-skill_name = "Voleio Sombrio"
-description = "Entra em postura de foco por 2 segundos e dispara uma rajada de 10 flechas energizadas em alta velocidade direto no alvo mais forte."
 name_key = "SKILL_dark_volley"
 description_key = "SKILL_dark_volley_DESC"
 type = 0

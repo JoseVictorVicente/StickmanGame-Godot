@@ -9,7 +9,7 @@ signal item_dropped(item: ItemData)
 signal progression_changed
 signal hud_refresh
 signal save_needed
-signal hero_level_changed(stage_index: int, nivel: int)
+signal hero_level_changed(stage_index: int, level: int)
 signal enemy_hp_changed(current: int, max_hp: int)
 signal enemy_hit(damage: int, current: int, max_hp: int)
 signal enemy_died
@@ -46,19 +46,19 @@ func _ready() -> void:
 	_enemy_timer.start()
 
 
-func on_hero_attacked(_slot_index: int, dano: int) -> void:
+func on_hero_attacked(_slot_index: int, damage: int) -> void:
 	if _resolvendo_morte or _resolvendo_derrota:
 		return
 	if current_enemy == null or current_enemy.is_dead():
 		spawn_enemy()
 	AudioManager.play_attack_sound()
-	var morreu := current_enemy.take_damage(dano)
+	var morreu := current_enemy.take_damage(damage)
 	_emit_enemy_hp()
-	enemy_hit.emit(dano, current_enemy.current_hp, current_enemy.max_hp)
+	enemy_hit.emit(damage, current_enemy.current_hp, current_enemy.max_hp)
 	enemy_health_bar.update_hp(current_enemy.current_hp)
 	if enemy_visual.has_method("update_hp"):
 		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
-	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, dano)
+	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage)
 	enemy_visual.flash_hit()
 	AudioManager.play_hit_sound()
 	if morreu:
@@ -81,7 +81,7 @@ func on_enemy_attacked() -> void:
 	if enemy_visual.has_method("play_attack"):
 		enemy_visual.play_attack()
 	AudioManager.play_attack_sound()
-	party.apply_damage_to_hero(alvo, current_enemy.dano)
+	party.apply_damage_to_hero(alvo, current_enemy.damage)
 	AudioManager.play_hit_sound()
 	if party.right_target_index() < 0:
 		await _resolve_defeat()
@@ -112,14 +112,14 @@ func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
 
 func spawn_enemy() -> void:
 	var stats := WorldProgress.enemy_stats(world, stage, difficulty)
-	wave = int(stats["nivel"])
+	wave = int(stats["level"])
 	current_enemy = Enemy.new()
 	current_enemy.configure(
-		str(stats["nome"]),
-		int(stats["vida"]),
-		int(stats["ouro"]),
+		str(stats["name"]),
+		int(stats["hp"]),
+		int(stats["gold"]),
 		int(stats["xp"]),
-		int(stats.get("dano", 1))
+		int(stats.get("damage", 1))
 	)
 	enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
@@ -153,16 +153,16 @@ func _resolve_death() -> void:
 	_resolvendo_morte = true
 	party.combat_paused = true
 	AudioManager.play_death_sound()
-	var ouro := _drops.gold_with_variance(current_enemy.gold_reward)
-	ouro = _apply_gold_bonus(ouro)
+	var gold := _drops.gold_with_variance(current_enemy.gold_reward)
+	gold = _apply_gold_bonus(gold)
 	var destino := Vector2.ZERO
 	if get_gold_destination.is_valid():
 		destino = get_gold_destination.call()
-	coin_effect_requested.emit(enemy_visual.global_position, destino, 2 + ouro / 2)
+	coin_effect_requested.emit(enemy_visual.global_position, destino, 2 + gold / 2)
 	enemy_visual.fade_out()
 	enemy_health_bar.fade_out()
 	await get_tree().create_timer(0.4).timeout
-	gold_gained.emit(ouro)
+	gold_gained.emit(gold)
 	_apply_xp(_apply_xp_bonus(current_enemy.xp_reward))
 	_try_drop()
 	_advance_stage()
@@ -233,12 +233,12 @@ func _skill_tree_bonus() -> Dictionary:
 
 
 func _apply_gold_bonus(valor: int) -> int:
-	var pct := float(_skill_tree_bonus().get("bonus_ouro", 0.0))
+	var pct := float(_skill_tree_bonus().get("gold_bonus", 0.0))
 	return maxi(1, int(round(float(valor) * (1.0 + pct / 100.0))))
 
 
 func _apply_xp_bonus(valor: int) -> int:
-	var pct := float(_skill_tree_bonus().get("bonus_xp", 0.0))
+	var pct := float(_skill_tree_bonus().get("xp_bonus", 0.0))
 	return maxi(1, int(round(float(valor) * (1.0 + pct / 100.0))))
 
 

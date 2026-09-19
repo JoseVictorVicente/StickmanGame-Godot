@@ -160,6 +160,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 8
 
 [node name="PartyTitle" type="Label" parent="Conteudo/CorpoFormacao"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
 theme_override_font_sizes/font_size = 12
@@ -172,7 +173,8 @@ layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="TituloHerois" type="Label" parent="Conteudo/CorpoFormacao"]
+[node name="HeroesTitle" type="Label" parent="Conteudo/CorpoFormacao"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
 theme_override_font_sizes/font_size = 12

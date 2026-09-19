@@ -126,7 +126,7 @@ func _build_nodes() -> void:
 		botao.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		botao.focus_mode = Control.FOCUS_NONE
 		botao.position = pos
-		var tipo := int(no.get("tipo", 0))
+		var tipo := int(no.get("type", 0))
 		TreeIcons.apply_to_button(botao, tipo, true)
 		botao.pressed.connect(_on_node_pressed.bind(id))
 		botao.mouse_entered.connect(_on_node_hover_entered.bind(id))
@@ -247,7 +247,7 @@ func _node_size(_no: Dictionary) -> Vector2:
 
 func _node_label_text(no: Dictionary, nivel: int) -> String:
 	var max_nivel := SkillTreeDefinition.max_level(no)
-	if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
+	if int(no.get("type", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
 		if nivel >= 1:
 			return "P%d" % (int(no.get("valor_base", no.get("valor", 0))) + 1)
 		return ""
@@ -303,7 +303,7 @@ func _update_visual() -> void:
 		var pode := hero_progress.can_purchase(int(id))
 		var custo := SkillTreeDefinition.next_level_cost(no, nivel)
 		var bloqueado := nivel <= 0 and not pode
-		TreeIcons.apply_to_button(botao, int(no.get("tipo", 0)), bloqueado)
+		TreeIcons.apply_to_button(botao, int(no.get("type", 0)), bloqueado)
 		var modulate := Color.WHITE
 		if bool(no.get("premium", false)) and not bloqueado:
 			modulate = Color(1.08, 1.02, 0.82, 1)
@@ -311,10 +311,10 @@ func _update_visual() -> void:
 		var rotulo: Label = botao.get_node("Rotulo")
 		if rotulo:
 			rotulo.text = _node_label_text(no, nivel)
-		var dica := SkillTreeDefinition.descricao_bonus(no, maxi(nivel, 1))
+		var dica := SkillTreeDefinition.bonus_description(no, maxi(nivel, 1))
 		if nivel > 0:
-			dica = tr(LocaleKeys.TREE_CURRENT) % SkillTreeDefinition.descricao_bonus(no, nivel)
-		if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
+			dica = tr(LocaleKeys.TREE_CURRENT) % SkillTreeDefinition.bonus_description(no, nivel)
+		if int(no.get("type", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
 			dica += "\n" + tr(LocaleKeys.TREE_WAREHOUSE_NODE)
 		else:
 			dica += "\n" + tr(LocaleKeys.TREE_ALL_HEROES_NOTE)

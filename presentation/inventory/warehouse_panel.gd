@@ -15,7 +15,7 @@ const SLOT_SIZE := Vector2(42, 42)
 
 @onready var cabecalho: HBoxContainer = %WarehouseHeader
 @onready var botao_fechar: Button = %CloseWarehouseButton
-@onready var tab_row: GridContainer = %LinhaAbas
+@onready var tab_row: GridContainer = %TabRow
 @onready var warehouse_grid: GridContainer = %WarehouseGrid
 @onready var status_label: Label = %WarehouseStatusLabel
 @onready var sort_button: Button = %SortWarehouseButton
@@ -155,15 +155,15 @@ func _initialize_unlocks() -> void:
 
 
 func serialize() -> Dictionary:
-	var abas: Array = []
+	var tabs: Array = []
 	for lista in _slots_por_aba:
-		var itens: Array = []
+		var items: Array = []
 		for slot in lista:
-			itens.append(slot.item.to_dictionary() if slot.item else {})
-		abas.append(itens)
+			items.append(slot.item.to_dictionary() if slot.item else {})
+		tabs.append(items)
 	return {
-		"desbloqueadas": _unlocked_tabs.duplicate(),
-		"abas": abas,
+		"unlocked": _unlocked_tabs.duplicate(),
+		"tabs": tabs,
 	}
 
 
@@ -173,16 +173,16 @@ func apply(dados: Variant) -> void:
 		return
 	if not (dados is Dictionary):
 		return
-	var flags: Variant = dados.get("desbloqueadas", [])
+	var flags: Variant = dados.get("unlocked", [])
 	if flags is Array:
 		for i in range(INDICE_PRIMEIRA_PAGINA_EXTRA, mini(flags.size(), ABAS)):
 			_unlocked_tabs[i] = bool(flags[i])
 			_set_tab_state(i, _unlocked_tabs[i])
-	var abas: Variant = dados.get("abas", [])
-	if abas is Array:
-		for i in mini(abas.size(), ABAS):
-			if abas[i] is Array:
-				_apply_item_list(_slots_for_tab(i), abas[i])
+	var tabs: Variant = dados.get("tabs", dados.get("abas", []))
+	if tabs is Array:
+		for i in mini(tabs.size(), ABAS):
+			if tabs[i] is Array:
+				_apply_item_list(_slots_for_tab(i), tabs[i])
 	show_tab(_aba_atual)
 
 
@@ -255,7 +255,7 @@ func _apply_item_list(slots: Array[ItemSlot], lista: Array) -> void:
 	for i in slots.size():
 		var item: ItemData = null
 		if i < lista.size() and lista[i] is Dictionary:
-			item = ItemData.de_dicionario(lista[i])
+			item = ItemData.from_dictionary(lista[i])
 		slots[i].set_item(item)
 
 

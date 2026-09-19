@@ -12,6 +12,8 @@ signal slot_selected(stage_index: int)
 @onready var hero_grid: GridContainer = %FormationHeroGrid
 @onready var hint_label: Label = %FormationHintLabel
 @onready var title_label: Label = $Conteudo/FormationHeader/BannerTitulo/Titulo
+@onready var party_title: Label = %PartyTitle
+@onready var heroes_title: Label = %HeroesTitle
 
 var _menu: InventoryMenu
 var _party: PartyService
@@ -216,6 +218,10 @@ func refresh_locale() -> void:
 func _update_localized_texts() -> void:
 	if title_label:
 		title_label.text = tr(LocaleKeys.FORMATION_TITLE).to_upper()
+	if party_title:
+		party_title.text = tr(LocaleKeys.FORMATION_PARTY_TITLE)
+	if heroes_title:
+		heroes_title.text = tr(LocaleKeys.FORMATION_HEROES_TITLE)
 	if botao_fechar:
 		botao_fechar.text = tr(LocaleKeys.BTN_CLOSE)
 	if botao_fechar:

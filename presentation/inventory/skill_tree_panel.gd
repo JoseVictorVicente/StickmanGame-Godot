@@ -87,9 +87,9 @@ func _on_node_selected(id_no: int) -> void:
 	var msg := tr(LocaleKeys.TREE_LEVEL_UP) % [
 		novo_nivel,
 		hero_progress.max_level(id_no),
-		SkillTreeDefinition.descricao_bonus(no, novo_nivel),
+		SkillTreeDefinition.bonus_description(no, novo_nivel),
 	]
-	if int(no.get("tipo", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
+	if int(no.get("type", -1)) == SkillTreeDefinition.BonusType.WAREHOUSE:
 		msg += tr(LocaleKeys.TREE_WAREHOUSE_UNLOCK)
 	else:
 		msg += tr(LocaleKeys.TREE_ALL_HEROES)

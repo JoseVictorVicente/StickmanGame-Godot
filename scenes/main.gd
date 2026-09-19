@@ -229,13 +229,13 @@ func _on_progression_changed() -> void:
 	inventory_menu.update_world_progress(_combat.world, _combat.stage, _combat.difficulty, _combat.unlocked_stages)
 
 
-func _on_hero_level_changed(stage_index: int, nivel: int) -> void:
+func _on_hero_level_changed(stage_index: int, level: int) -> void:
 	var hero_progress: Dictionary = _hero_progress.at_index(stage_index, party.active_party)
 	if stage_index == inventory_menu.current_character_index():
 		inventory_menu.update_displayed_level(
-			nivel,
+			level,
 			int(hero_progress.get("xp", 0)),
-			int(hero_progress.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)),
+			int(hero_progress.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)),
 		)
 	recalculate_attributes()
 
@@ -255,9 +255,9 @@ func _show_notice(texto: String) -> void:
 func _on_character_changed(_indice: int) -> void:
 	var hero_progress: Dictionary = _hero_progress.at_index(inventory_menu.current_character_index(), party.active_party)
 	inventory_menu.update_displayed_level(
-		int(hero_progress["nivel"]),
+		int(hero_progress["level"]),
 		int(hero_progress.get("xp", 0)),
-		int(hero_progress.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)),
+		int(hero_progress.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)),
 	)
 	recalculate_attributes()
 
@@ -284,14 +284,14 @@ func _update_hud() -> void:
 	inventory_menu.update_gold(_game_state.get_gold())
 	var hero_progress: Dictionary = _hero_progress.at_index(inventory_menu.current_character_index(), party.active_party)
 	level_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [
-		int(hero_progress["nivel"]),
+		int(hero_progress["level"]),
 		int(hero_progress["xp"]),
-		int(hero_progress["xp_proximo"]),
+		int(hero_progress["xp_next"]),
 	]
 	inventory_menu.update_displayed_level(
-		int(hero_progress["nivel"]),
+		int(hero_progress["level"]),
 		int(hero_progress["xp"]),
-		int(hero_progress["xp_proximo"]),
+		int(hero_progress["xp_next"]),
 	)
 	damage_label.text = tr(LocaleKeys.UI_DPS_FORMAT) % party.party_dps()
 
@@ -360,7 +360,7 @@ func collect_save() -> Dictionary:
 	})
 
 
-func apply_save(data: Dictionary) -> void:
+func apply_from_save(data: Dictionary) -> void:
 	var dados := SaveService.normalize_keys(data)
 	_game_state.set_gold(int(dados.get("gold", dados.get("ouro", 0))))
 	_combat.apply_state({
@@ -378,7 +378,7 @@ func apply_save(data: Dictionary) -> void:
 		if classes is Array:
 			for id_classe in classes:
 				ids_equipe.append(str(id_classe))
-		party.apply_save(party_save)
+		party.apply_from_save(party_save)
 	_hero_progress.apply(dados.get("progress", dados.get("hero_progress", [])), ids_equipe)
 	inventory_menu.apply_inventory(dados.get("inventory", dados.get("inventario", [])))
 	inventory_menu.apply_warehouse(dados.get("warehouse", dados.get("armazem", [])))
@@ -390,9 +390,9 @@ func apply_save(data: Dictionary) -> void:
 	inventory_menu.select_character(int(dados.get("active_character_index", dados.get("personagem_atual", 0))))
 	var atual: Dictionary = _hero_progress.at_index(inventory_menu.current_character_index(), party.active_party)
 	inventory_menu.update_displayed_level(
-		int(atual["nivel"]),
+		int(atual["level"]),
 		int(atual.get("xp", 0)),
-		int(atual.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)),
+		int(atual.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)),
 	)
 	_on_progression_changed()
 	_update_repeat_visual()

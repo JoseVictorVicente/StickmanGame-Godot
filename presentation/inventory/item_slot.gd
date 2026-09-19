@@ -23,11 +23,11 @@ static var _caixa_legenda: PanelContainer
 static var _slot_legenda: ItemSlot
 
 var item: ItemData = null
-var tipo_aceitavel: ItemData.Type = ItemData.Type.WEAPON
-var aceita_qualquer: bool = true
-var nome_slot: String = ""
+var accepted_type: ItemData.Type = ItemData.Type.WEAPON
+var accepts_any: bool = true
+var slot_label: String = ""
 var validar_drop_extra: Callable
-var reservado_ferraria: bool = false
+var forge_reserved: bool = false
 var icone_rect: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
@@ -43,10 +43,10 @@ func _ready() -> void:
 
 func configure(p_icone: TextureRect, p_tipo: ItemData.Type = ItemData.Type.WEAPON, p_qualquer: bool = true) -> void:
 	icone_rect = p_icone
-	tipo_aceitavel = p_tipo
-	aceita_qualquer = p_qualquer
-	if not aceita_qualquer:
-		_textura_vazia = InterfaceIcons.equipment_slot(tipo_aceitavel)
+	accepted_type = p_tipo
+	accepts_any = p_qualquer
+	if not accepts_any:
+		_textura_vazia = InterfaceIcons.equipment_slot(accepted_type)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_ensure_abbreviation()
@@ -81,7 +81,7 @@ func update_visual(selecionado: bool = _selecionado) -> void:
 
 
 func set_forge_reserved(ativa: bool) -> void:
-	reservado_ferraria = ativa
+	forge_reserved = ativa
 	_apply_icon()
 	update_visual()
 
@@ -89,11 +89,11 @@ func set_forge_reserved(ativa: bool) -> void:
 func aceita(candidato: ItemData) -> bool:
 	if candidato == null:
 		return true
-	if reservado_ferraria:
+	if forge_reserved:
 		return false
-	if aceita_qualquer:
+	if accepts_any:
 		return true
-	return candidato.item_type == tipo_aceitavel
+	return candidato.item_type == accepted_type
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -177,7 +177,7 @@ func _position_tooltip() -> void:
 
 
 func _should_open_tooltip_left(slot_rect: Rect2) -> bool:
-	if EQUIP_RIGHT_TYPES.has(tipo_aceitavel) or _is_in_right_column():
+	if EQUIP_RIGHT_TYPES.has(accepted_type) or _is_in_right_column():
 		return true
 	var hud := _get_hud_rect()
 	if hud.size.x <= 0.0:
@@ -188,7 +188,7 @@ func _should_open_tooltip_left(slot_rect: Rect2) -> bool:
 func _is_in_right_column() -> bool:
 	var no: Node = self
 	while no:
-		if no.name == "EquipRight" or str(no.name).begins_with("EquipDir_"):
+		if no.name == "EquipRight" or str(no.name).begins_with("EquipRight_"):
 			return true
 		no = no.get_parent()
 	return false
@@ -197,7 +197,7 @@ func _is_in_right_column() -> bool:
 func _get_hud_rect() -> Rect2:
 	var no: Node = self
 	while no:
-		if no is Control and (no.name == "Painel" or no.name == "Menu"):
+		if no is Control and (no.name == "Panel" or no.name == "Menu"):
 			return (no as Control).get_global_rect()
 		no = no.get_parent()
 	return Rect2()
@@ -272,7 +272,7 @@ func _tooltip_label(texto: String, cor: Color, tamanho: int, negrito: bool) -> L
 
 func _get_drag_data(_posicao: Vector2) -> Variant:
 	_hide_tooltip()
-	if item == null or reservado_ferraria:
+	if item == null or forge_reserved:
 		return null
 	var preview := TextureRect.new()
 	preview.texture = item.icone
@@ -312,7 +312,7 @@ func _apply_icon() -> void:
 		return
 	if item and item.icone:
 		icone_rect.texture = item.icone
-		if reservado_ferraria:
+		if forge_reserved:
 			icone_rect.modulate = Color(0.42, 0.42, 0.45, 0.75)
 		else:
 			icone_rect.modulate = Color.WHITE
@@ -349,7 +349,7 @@ func _current_style() -> StyleBoxFlat:
 	estilo.set_border_width_all(3 if _selecionado else 2)
 	if _selecionado:
 		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-	if reservado_ferraria:
+	if forge_reserved:
 		estilo.bg_color = Color(estilo.bg_color.r * 0.45, estilo.bg_color.g * 0.45, estilo.bg_color.b * 0.45, estilo.bg_color.a)
 		estilo.border_color = Color(estilo.border_color.r * 0.55, estilo.border_color.g * 0.55, estilo.border_color.b * 0.55, 0.65)
 	return estilo

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "ice_nova"
+name_key = "SKILL_ice_nova"
+description_key = "SKILL_ice_nova_DESC"
+type = 0
+cooldown = 10
+icon_path = "res://sprites/ui/skills/mage/ice_nova.png"
+sort_order = 4
+stat_value = 0.0

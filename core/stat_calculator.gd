@@ -20,10 +20,10 @@ func compute(slot_index: int, class_data: ClassData) -> Dictionary:
 	return {
 		"damage": damage,
 		"hp": hp,
-		"attack_speed_bonus": float(bonus.get("vel_ataque", 0.0)),
+		"attack_speed_bonus": float(bonus.get("attack_speed", 0.0)),
 		"crit_chance": float(bonus.get("crit_chance", 0.0)),
-		"gold_bonus": float(bonus.get("bonus_ouro", 0.0)),
-		"xp_bonus": float(bonus.get("bonus_xp", 0.0)),
+		"gold_bonus": float(bonus.get("gold_bonus", 0.0)),
+		"xp_bonus": float(bonus.get("xp_bonus", 0.0)),
 		"skill_tree_bonus": bonus,
 	}
 
@@ -38,14 +38,14 @@ func compute_global_skill_tree_bonus() -> Dictionary:
 
 static func _compute_damage(class_data: ClassData, level: int, equip_damage: int, bonus: Dictionary) -> int:
 	var base := maxi(1, int(round(float(class_data.base_damage + equip_damage) * class_data.attack_multiplier)))
-	base += (level - 1) * class_data.atk_per_level + int(bonus.get("ataque", 0))
-	var pct := float(bonus.get("ataque_pct", 0.0))
+	base += (level - 1) * class_data.atk_per_level + int(bonus.get("attack", 0))
+	var pct := float(bonus.get("attack_pct", 0.0))
 	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 
 static func _compute_hp(class_data: ClassData, level: int, equip_hp: int, bonus: Dictionary) -> int:
-	var base := maxi(1, class_data.base_hp + equip_hp + (level - 1) * class_data.hp_per_level + int(bonus.get("vida", 0)))
-	var pct := float(bonus.get("vida_pct", 0.0))
+	var base := maxi(1, class_data.base_hp + equip_hp + (level - 1) * class_data.hp_per_level + int(bonus.get("hp", 0)))
+	var pct := float(bonus.get("hp_pct", 0.0))
 	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 

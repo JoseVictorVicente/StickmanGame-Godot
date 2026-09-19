@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "weak_prey"
+name_key = "SKILL_weak_prey"
+description_key = "SKILL_weak_prey_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/archer/weak_prey.png"
+sort_order = 8
+stat_value = 0.0

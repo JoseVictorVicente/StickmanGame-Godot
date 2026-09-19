@@ -417,6 +417,12 @@ msgstr ""
 msgid "FORMATION_TITLE"
 msgstr ""
 
+msgid "FORMATION_PARTY_TITLE"
+msgstr ""
+
+msgid "FORMATION_HEROES_TITLE"
+msgstr ""
+
 msgid "FORMATION_HINT_CAN_REMOVE"
 msgstr ""
 
@@ -639,205 +645,205 @@ msgstr ""
 msgid "WORLD_LOCKED"
 msgstr ""
 
-msgid "ITEM_espada_ferro"
+msgid "ITEM_iron_sword"
 msgstr ""
 
-msgid "ITEM_espada_treino"
+msgid "ITEM_training_sword"
 msgstr ""
 
-msgid "ITEM_escudo_madeira"
+msgid "ITEM_wooden_shield"
 msgstr ""
 
-msgid "ITEM_elmo_guerreiro"
+msgid "ITEM_warrior_helmet"
 msgstr ""
 
-msgid "ITEM_peitoral_guerreiro"
+msgid "ITEM_warrior_chestplate"
 msgstr ""
 
-msgid "ITEM_luvas_guerreiro"
+msgid "ITEM_warrior_gloves"
 msgstr ""
 
-msgid "ITEM_calca_guerreiro"
+msgid "ITEM_warrior_pants"
 msgstr ""
 
-msgid "ITEM_botas_guerreiro"
+msgid "ITEM_warrior_boots"
 msgstr ""
 
-msgid "ITEM_mascote_leao"
+msgid "ITEM_lion_pet"
 msgstr ""
 
-msgid "ITEM_anel_honra"
+msgid "ITEM_ring_of_honor"
 msgstr ""
 
-msgid "ITEM_bracelete_guerreiro"
+msgid "ITEM_warrior_bracelet"
 msgstr ""
 
-msgid "ITEM_cajado_arcano"
+msgid "ITEM_arcane_staff"
 msgstr ""
 
-msgid "ITEM_grimorio"
+msgid "ITEM_grimoire"
 msgstr ""
 
-msgid "ITEM_familiar"
+msgid "ITEM_arcane_familiar"
 msgstr ""
 
-msgid "ITEM_manto_mistico"
+msgid "ITEM_mystic_cloak"
 msgstr ""
 
-msgid "ITEM_tiara_arcano"
+msgid "ITEM_arcane_tiara"
 msgstr ""
 
-msgid "ITEM_luvas_mago"
+msgid "ITEM_mage_gloves"
 msgstr ""
 
-msgid "ITEM_calca_mago"
+msgid "ITEM_mage_pants"
 msgstr ""
 
-msgid "ITEM_botas_mago"
+msgid "ITEM_mage_boots"
 msgstr ""
 
-msgid "ITEM_cinto_arcano"
+msgid "ITEM_arcane_belt"
 msgstr ""
 
-msgid "ITEM_pingente_mana"
+msgid "ITEM_mana_pendant"
 msgstr ""
 
-msgid "ITEM_arco_curto"
+msgid "ITEM_short_bow"
 msgstr ""
 
-msgid "ITEM_aljava"
+msgid "ITEM_quiver"
 msgstr ""
 
-msgid "ITEM_capuz_couro"
+msgid "ITEM_leather_hood"
 msgstr ""
 
-msgid "ITEM_peitoral_arqueiro"
+msgid "ITEM_archer_chestplate"
 msgstr ""
 
-msgid "ITEM_luvas_arqueiro"
+msgid "ITEM_archer_gloves"
 msgstr ""
 
-msgid "ITEM_calca_arqueiro"
+msgid "ITEM_archer_pants"
 msgstr ""
 
-msgid "ITEM_botas_arqueiro"
+msgid "ITEM_archer_boots"
 msgstr ""
 
-msgid "ITEM_falcao_companheiro"
+msgid "ITEM_companion_falcon"
 msgstr ""
 
-msgid "ITEM_anel_precisao"
+msgid "ITEM_precision_ring"
 msgstr ""
 
-msgid "ITEM_adaga_sombria"
+msgid "ITEM_shadow_dagger"
 msgstr ""
 
-msgid "ITEM_adaga_secundaria"
+msgid "ITEM_twin_dagger"
 msgstr ""
 
-msgid "ITEM_capuz_assassino"
+msgid "ITEM_assassin_hood"
 msgstr ""
 
-msgid "ITEM_peitoral_sombrio"
+msgid "ITEM_shadow_chestplate"
 msgstr ""
 
-msgid "ITEM_luvas_assassino"
+msgid "ITEM_assassin_gloves"
 msgstr ""
 
-msgid "ITEM_calca_assassino"
+msgid "ITEM_assassin_pants"
 msgstr ""
 
-msgid "ITEM_botas_assassino"
+msgid "ITEM_assassin_boots"
 msgstr ""
 
-msgid "ITEM_cinto_sombrio"
+msgid "ITEM_shadow_belt"
 msgstr ""
 
-msgid "ITEM_bracelete_sombrio"
+msgid "ITEM_shadow_bracelet"
 msgstr ""
 
-msgid "ITEM_maca_pesada"
+msgid "ITEM_heavy_mace"
 msgstr ""
 
-msgid "ITEM_escudo_torre"
+msgid "ITEM_tower_shield"
 msgstr ""
 
-msgid "ITEM_peitoral_ferro"
+msgid "ITEM_iron_chestplate"
 msgstr ""
 
-msgid "ITEM_elmo_torre"
+msgid "ITEM_tower_helmet"
 msgstr ""
 
-msgid "ITEM_luvas_tanque"
+msgid "ITEM_tank_gloves"
 msgstr ""
 
-msgid "ITEM_calca_tanque"
+msgid "ITEM_tank_pants"
 msgstr ""
 
-msgid "ITEM_botas_tanque"
+msgid "ITEM_tank_boots"
 msgstr ""
 
-msgid "ITEM_mascote_tartaruga"
+msgid "ITEM_turtle_pet"
 msgstr ""
 
-msgid "ITEM_pingente_guardiao"
+msgid "ITEM_guardian_pendant"
 msgstr ""
 
-msgid "ITEM_cajado_sagrado"
+msgid "ITEM_holy_staff"
 msgstr ""
 
-msgid "ITEM_tomo_luz"
+msgid "ITEM_tome_of_light"
 msgstr ""
 
-msgid "ITEM_manto_clerical"
+msgid "ITEM_clerical_cloak"
 msgstr ""
 
-msgid "ITEM_pingente_fe"
+msgid "ITEM_faith_pendant"
 msgstr ""
 
-msgid "ITEM_tiara_sagrada"
+msgid "ITEM_sacred_tiara"
 msgstr ""
 
-msgid "ITEM_luvas_sacerdote"
+msgid "ITEM_priest_gloves"
 msgstr ""
 
-msgid "ITEM_calca_sacerdote"
+msgid "ITEM_priest_pants"
 msgstr ""
 
-msgid "ITEM_botas_sacerdote"
+msgid "ITEM_priest_boots"
 msgstr ""
 
-msgid "ITEM_anel_devocao"
+msgid "ITEM_devotion_ring"
 msgstr ""
 
-msgid "ITEM_luvas_tecido"
+msgid "ITEM_cloth_gloves"
 msgstr ""
 
-msgid "ITEM_calca_couro"
+msgid "ITEM_leather_pants"
 msgstr ""
 
-msgid "ITEM_botas_viagem"
+msgid "ITEM_travel_boots"
 msgstr ""
 
-msgid "ITEM_cinto_simples"
+msgid "ITEM_simple_belt"
 msgstr ""
 
-msgid "ITEM_anel_bruto"
+msgid "ITEM_rough_ring"
 msgstr ""
 
-msgid "ITEM_bracelete_ferro"
+msgid "ITEM_iron_bracelet"
 msgstr ""
 
-msgid "ITEM_capuz_viagem"
+msgid "ITEM_travel_hood"
 msgstr ""
 
-msgid "ITEM_peitoral_couro"
+msgid "ITEM_leather_chestplate"
 msgstr ""
 
-msgid "ITEM_pingente_simples"
+msgid "ITEM_simple_pendant"
 msgstr ""
 
-msgid "ITEM_mascote_rato"
+msgid "ITEM_rat_pet"
 msgstr ""
 
 msgid "SKILL_instant_double_shot"
@@ -868,4 +874,514 @@ msgid "SKILL_neon_vision"
 msgstr ""
 
 msgid "SKILL_neon_vision_DESC"
+msgstr ""
+
+msgid "SKILL_armor_penetration"
+msgstr ""
+
+msgid "SKILL_armor_penetration_DESC"
+msgstr ""
+
+msgid "SKILL_reflex_recoil"
+msgstr ""
+
+msgid "SKILL_reflex_recoil_DESC"
+msgstr ""
+
+msgid "SKILL_swift_execution"
+msgstr ""
+
+msgid "SKILL_swift_execution_DESC"
+msgstr ""
+
+msgid "SKILL_nimble_hands"
+msgstr ""
+
+msgid "SKILL_nimble_hands_DESC"
+msgstr ""
+
+msgid "SKILL_eagle_eye"
+msgstr ""
+
+msgid "SKILL_eagle_eye_DESC"
+msgstr ""
+
+msgid "SKILL_drawstring_tension"
+msgstr ""
+
+msgid "SKILL_drawstring_tension_DESC"
+msgstr ""
+
+msgid "SKILL_wearing_poison"
+msgstr ""
+
+msgid "SKILL_wearing_poison_DESC"
+msgstr ""
+
+msgid "SKILL_weak_prey"
+msgstr ""
+
+msgid "SKILL_weak_prey_DESC"
+msgstr ""
+
+msgid "SKILL_stacking_impact"
+msgstr ""
+
+msgid "SKILL_stacking_impact_DESC"
+msgstr ""
+
+msgid "SKILL_surgical_aim"
+msgstr ""
+
+msgid "SKILL_surgical_aim_DESC"
+msgstr ""
+
+msgid "SKILL_twin_execution_cut"
+msgstr ""
+
+msgid "SKILL_twin_execution_cut_DESC"
+msgstr ""
+
+msgid "SKILL_prey_mark"
+msgstr ""
+
+msgid "SKILL_prey_mark_DESC"
+msgstr ""
+
+msgid "SKILL_quick_twin_cut"
+msgstr ""
+
+msgid "SKILL_quick_twin_cut_DESC"
+msgstr ""
+
+msgid "SKILL_awakened_sequence"
+msgstr ""
+
+msgid "SKILL_awakened_sequence_DESC"
+msgstr ""
+
+msgid "SKILL_swift_decapitation"
+msgstr ""
+
+msgid "SKILL_swift_decapitation_DESC"
+msgstr ""
+
+msgid "SKILL_shadow_reflexes"
+msgstr ""
+
+msgid "SKILL_shadow_reflexes_DESC"
+msgstr ""
+
+msgid "SKILL_adrenaline_surge"
+msgstr ""
+
+msgid "SKILL_adrenaline_surge_DESC"
+msgstr ""
+
+msgid "SKILL_venomous_vein"
+msgstr ""
+
+msgid "SKILL_venomous_vein_DESC"
+msgstr ""
+
+msgid "SKILL_stealth_strike"
+msgstr ""
+
+msgid "SKILL_stealth_strike_DESC"
+msgstr ""
+
+msgid "SKILL_lethal_execution"
+msgstr ""
+
+msgid "SKILL_lethal_execution_DESC"
+msgstr ""
+
+msgid "SKILL_deep_cut"
+msgstr ""
+
+msgid "SKILL_deep_cut_DESC"
+msgstr ""
+
+msgid "SKILL_weak_point_mapping"
+msgstr ""
+
+msgid "SKILL_weak_point_mapping_DESC"
+msgstr ""
+
+msgid "SKILL_adrenaline"
+msgstr ""
+
+msgid "SKILL_adrenaline_DESC"
+msgstr ""
+
+msgid "SKILL_assassin_rhythm"
+msgstr ""
+
+msgid "SKILL_assassin_rhythm_DESC"
+msgstr ""
+
+msgid "SKILL_light_blade"
+msgstr ""
+
+msgid "SKILL_light_blade_DESC"
+msgstr ""
+
+msgid "SKILL_sacred_position"
+msgstr ""
+
+msgid "SKILL_sacred_position_DESC"
+msgstr ""
+
+msgid "SKILL_solar_shield"
+msgstr ""
+
+msgid "SKILL_solar_shield_DESC"
+msgstr ""
+
+msgid "SKILL_divine_punishment"
+msgstr ""
+
+msgid "SKILL_divine_punishment_DESC"
+msgstr ""
+
+msgid "SKILL_inviolability_aura"
+msgstr ""
+
+msgid "SKILL_inviolability_aura_DESC"
+msgstr ""
+
+msgid "SKILL_sacred_fervor"
+msgstr ""
+
+msgid "SKILL_sacred_fervor_DESC"
+msgstr ""
+
+msgid "SKILL_sun_touch"
+msgstr ""
+
+msgid "SKILL_sun_touch_DESC"
+msgstr ""
+
+msgid "SKILL_reactive_barrier"
+msgstr ""
+
+msgid "SKILL_reactive_barrier_DESC"
+msgstr ""
+
+msgid "SKILL_radiant_presence"
+msgstr ""
+
+msgid "SKILL_radiant_presence_DESC"
+msgstr ""
+
+msgid "SKILL_unshakable_devotion"
+msgstr ""
+
+msgid "SKILL_unshakable_devotion_DESC"
+msgstr ""
+
+msgid "SKILL_divine_vigor"
+msgstr ""
+
+msgid "SKILL_divine_vigor_DESC"
+msgstr ""
+
+msgid "SKILL_sacred_touch"
+msgstr ""
+
+msgid "SKILL_sacred_touch_DESC"
+msgstr ""
+
+msgid "SKILL_critical_heal"
+msgstr ""
+
+msgid "SKILL_critical_heal_DESC"
+msgstr ""
+
+msgid "SKILL_celestial_pact"
+msgstr ""
+
+msgid "SKILL_celestial_pact_DESC"
+msgstr ""
+
+msgid "SKILL_protective_light"
+msgstr ""
+
+msgid "SKILL_protective_light_DESC"
+msgstr ""
+
+msgid "SKILL_mercy"
+msgstr ""
+
+msgid "SKILL_mercy_DESC"
+msgstr ""
+
+msgid "SKILL_frenzied_sequence"
+msgstr ""
+
+msgid "SKILL_frenzied_sequence_DESC"
+msgstr ""
+
+msgid "SKILL_quick_slash"
+msgstr ""
+
+msgid "SKILL_quick_slash_DESC"
+msgstr ""
+
+msgid "SKILL_double_thrust"
+msgstr ""
+
+msgid "SKILL_double_thrust_DESC"
+msgstr ""
+
+msgid "SKILL_heavy_blade"
+msgstr ""
+
+msgid "SKILL_heavy_blade_DESC"
+msgstr ""
+
+msgid "SKILL_war_cry"
+msgstr ""
+
+msgid "SKILL_war_cry_DESC"
+msgstr ""
+
+msgid "SKILL_blade_master"
+msgstr ""
+
+msgid "SKILL_blade_master_DESC"
+msgstr ""
+
+msgid "SKILL_extreme_sharpening"
+msgstr ""
+
+msgid "SKILL_extreme_sharpening_DESC"
+msgstr ""
+
+msgid "SKILL_iron_armor"
+msgstr ""
+
+msgid "SKILL_iron_armor_DESC"
+msgstr ""
+
+msgid "SKILL_unbreakable_stance"
+msgstr ""
+
+msgid "SKILL_unbreakable_stance_DESC"
+msgstr ""
+
+msgid "SKILL_precise_execution"
+msgstr ""
+
+msgid "SKILL_precise_execution_DESC"
+msgstr ""
+
+msgid "SKILL_iron_will"
+msgstr ""
+
+msgid "SKILL_iron_will_DESC"
+msgstr ""
+
+msgid "SKILL_defensive_stance"
+msgstr ""
+
+msgid "SKILL_defensive_stance_DESC"
+msgstr ""
+
+msgid "SKILL_brute_force"
+msgstr ""
+
+msgid "SKILL_brute_force_DESC"
+msgstr ""
+
+msgid "SKILL_medium_resistance"
+msgstr ""
+
+msgid "SKILL_medium_resistance_DESC"
+msgstr ""
+
+msgid "SKILL_steel_muscles"
+msgstr ""
+
+msgid "SKILL_steel_muscles_DESC"
+msgstr ""
+
+msgid "SKILL_abyssal_meteor"
+msgstr ""
+
+msgid "SKILL_abyssal_meteor_DESC"
+msgstr ""
+
+msgid "SKILL_damage_portal"
+msgstr ""
+
+msgid "SKILL_damage_portal_DESC"
+msgstr ""
+
+msgid "SKILL_black_fireball"
+msgstr ""
+
+msgid "SKILL_black_fireball_DESC"
+msgstr ""
+
+msgid "SKILL_ice_nova"
+msgstr ""
+
+msgid "SKILL_ice_nova_DESC"
+msgstr ""
+
+msgid "SKILL_ice_lance"
+msgstr ""
+
+msgid "SKILL_ice_lance_DESC"
+msgstr ""
+
+msgid "SKILL_arcane_amplification"
+msgstr ""
+
+msgid "SKILL_arcane_amplification_DESC"
+msgstr ""
+
+msgid "SKILL_rune_resonance"
+msgstr ""
+
+msgid "SKILL_rune_resonance_DESC"
+msgstr ""
+
+msgid "SKILL_magic_penetration"
+msgstr ""
+
+msgid "SKILL_magic_penetration_DESC"
+msgstr ""
+
+msgid "SKILL_critical_focus"
+msgstr ""
+
+msgid "SKILL_critical_focus_DESC"
+msgstr ""
+
+msgid "SKILL_soul_drain"
+msgstr ""
+
+msgid "SKILL_soul_drain_DESC"
+msgstr ""
+
+msgid "SKILL_mana_flow"
+msgstr ""
+
+msgid "SKILL_mana_flow_DESC"
+msgstr ""
+
+msgid "SKILL_tuning"
+msgstr ""
+
+msgid "SKILL_tuning_DESC"
+msgstr ""
+
+msgid "SKILL_void_presence"
+msgstr ""
+
+msgid "SKILL_void_presence_DESC"
+msgstr ""
+
+msgid "SKILL_open_mind"
+msgstr ""
+
+msgid "SKILL_open_mind_DESC"
+msgstr ""
+
+msgid "SKILL_elemental_symphony"
+msgstr ""
+
+msgid "SKILL_elemental_symphony_DESC"
+msgstr ""
+
+msgid "SKILL_rune_barrier"
+msgstr ""
+
+msgid "SKILL_rune_barrier_DESC"
+msgstr ""
+
+msgid "SKILL_dark_taunt"
+msgstr ""
+
+msgid "SKILL_dark_taunt_DESC"
+msgstr ""
+
+msgid "SKILL_inviolable_stance"
+msgstr ""
+
+msgid "SKILL_inviolable_stance_DESC"
+msgstr ""
+
+msgid "SKILL_total_suppression"
+msgstr ""
+
+msgid "SKILL_total_suppression_DESC"
+msgstr ""
+
+msgid "SKILL_crushing_mill"
+msgstr ""
+
+msgid "SKILL_crushing_mill_DESC"
+msgstr ""
+
+msgid "SKILL_titanium_shell"
+msgstr ""
+
+msgid "SKILL_titanium_shell_DESC"
+msgstr ""
+
+msgid "SKILL_surface_thorns"
+msgstr ""
+
+msgid "SKILL_surface_thorns_DESC"
+msgstr ""
+
+msgid "SKILL_unshakable"
+msgstr ""
+
+msgid "SKILL_unshakable_DESC"
+msgstr ""
+
+msgid "SKILL_impact_absorption"
+msgstr ""
+
+msgid "SKILL_impact_absorption_DESC"
+msgstr ""
+
+msgid "SKILL_magic_alloy"
+msgstr ""
+
+msgid "SKILL_magic_alloy_DESC"
+msgstr ""
+
+msgid "SKILL_last_trench"
+msgstr ""
+
+msgid "SKILL_last_trench_DESC"
+msgstr ""
+
+msgid "SKILL_heavy_weight"
+msgstr ""
+
+msgid "SKILL_heavy_weight_DESC"
+msgstr ""
+
+msgid "SKILL_battle_inertia"
+msgstr ""
+
+msgid "SKILL_battle_inertia_DESC"
+msgstr ""
+
+msgid "SKILL_hard_shell"
+msgstr ""
+
+msgid "SKILL_hard_shell_DESC"
+msgstr ""
+
+msgid "SKILL_vital_crush"
+msgstr ""
+
+msgid "SKILL_vital_crush_DESC"
 msgstr ""

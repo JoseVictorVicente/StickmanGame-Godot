@@ -1,4 +1,4 @@
-class_name WorldsPanel
+﻿class_name WorldsPanel
 extends PanelContainer
 ## Painel direito de mundos e fases. Só um painel direito fica aberto por vez.
 
@@ -36,7 +36,7 @@ const TEXTURAS_MAPA: Dictionary = {
 @onready var difficulty_options: VBoxContainer = %DifficultyOptions
 @onready var difficulty_menu: PanelContainer = %DifficultyMenu
 @onready var difficulty_menu_backdrop: ColorRect = %DifficultyMenuBackdrop
-@onready var map_panel: Control = %PainelStageMap
+@onready var map_panel: Control = %PanelStageMap
 @onready var stage_map: StageMap = %StageMap
 @onready var map_background: TextureRect = %MapBackground
 
@@ -143,7 +143,7 @@ func _create_world_list() -> void:
 	_world_buttons.clear()
 	for i in WorldProgress.TOTAL_WORLDS:
 		var botao := Button.new()
-		botao.name = "BotaoMundo_%d" % (i + 1)
+		botao.name = "WorldButton_%d" % (i + 1)
 		botao.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		botao.custom_minimum_size = Vector2(0, 42)
 		botao.add_theme_font_size_override("font_size", 16)

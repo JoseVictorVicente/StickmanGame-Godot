@@ -3,7 +3,7 @@ extends Node2D
 ## Party of up to 3 stickmen with independent attack timers and stats.
 
 signal party_changed
-signal hero_attacked(slot_index: int, dano: int)
+signal hero_attacked(slot_index: int, damage: int)
 signal dps_changed(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
@@ -160,8 +160,8 @@ func hero_damage(slot_index: int) -> int:
 		extra = int(get_equipped_damage.call(slot_index))
 	var bonus := _skill_tree_bonus(slot_index)
 	var base := maxi(1, int(round(float(dados.base_damage + extra) * dados.attack_multiplier)))
-	base += (_slot_level(slot_index) - 1) * dados.atk_per_level + int(bonus.get("ataque", 0))
-	var pct := float(bonus.get("ataque_pct", 0.0))
+	base += (_slot_level(slot_index) - 1) * dados.atk_per_level + int(bonus.get("attack", 0))
+	var pct := float(bonus.get("attack_pct", 0.0))
 	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 
@@ -180,7 +180,7 @@ func party_dps() -> float:
 			continue
 		var classe: ClassData = active_party[i]
 		var bonus := _skill_tree_bonus(i)
-		var vel := classe.attack_speed * (1.0 + float(bonus.get("vel_ataque", 0.0)) / 100.0)
+		var vel := classe.attack_speed * (1.0 + float(bonus.get("attack_speed", 0.0)) / 100.0)
 		var intervalo := INTERVALO_BASE / maxf(0.25, vel)
 		dps += float(hero_damage(i)) / intervalo
 	return dps
@@ -200,8 +200,8 @@ func hero_max_hp(slot_index: int) -> int:
 		extra = int(get_equipped_hp.call(slot_index))
 	var dados := classe as ClassData
 	var bonus := _skill_tree_bonus(slot_index)
-	var base := maxi(1, dados.base_hp + extra + (_slot_level(slot_index) - 1) * dados.hp_per_level + int(bonus.get("vida", 0)))
-	var pct := float(bonus.get("vida_pct", 0.0))
+	var base := maxi(1, dados.base_hp + extra + (_slot_level(slot_index) - 1) * dados.hp_per_level + int(bonus.get("hp", 0)))
+	var pct := float(bonus.get("hp_pct", 0.0))
 	return maxi(1, int(round(float(base) * (1.0 + pct / 100.0))))
 
 
@@ -285,19 +285,19 @@ func serialize() -> Dictionary:
 			ids.append((classe as ClassData).id)
 		else:
 			ids.append("")
-	var desbloqueadas: Array = []
+	var unlocked: Array = []
 	for classe in unlocked_classes:
-		desbloqueadas.append(classe.id)
-	return {"classes": ids, "desbloqueadas": desbloqueadas}
+		unlocked.append(classe.id)
+	return {"classes": ids, "unlocked": unlocked}
 
 
-func apply_save(dados: Dictionary) -> void:
+func apply_from_save(dados: Dictionary) -> void:
 	var ids: Variant = dados.get("classes", [])
 	if ids is Array and ids.size() > 0:
 		for i in SLOTS:
 			var id_classe := str(ids[i]) if i < ids.size() else ""
 			scale_character(i, get_class_by_id(id_classe))
-	var lista: Variant = dados.get("desbloqueadas", [])
+	var lista: Variant = dados.get("unlocked", [])
 	if lista is Array and not lista.is_empty():
 		unlocked_classes.clear()
 		for id_classe in lista:
@@ -379,7 +379,7 @@ func _update_timer_slot(slot_index: int) -> void:
 		return
 	var dados: ClassData = classe
 	var bonus := _skill_tree_bonus(slot_index)
-	var vel := dados.attack_speed * (1.0 + float(bonus.get("vel_ataque", 0.0)) / 100.0)
+	var vel := dados.attack_speed * (1.0 + float(bonus.get("attack_speed", 0.0)) / 100.0)
 	timer.wait_time = INTERVALO_BASE / maxf(0.25, vel)
 	if timer.is_stopped():
 		timer.start()

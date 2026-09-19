@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "medium_resistance"
+name_key = "SKILL_medium_resistance"
+description_key = "SKILL_medium_resistance_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/warrior/medium_resistance.png"
+sort_order = 9
+stat_value = 0.0

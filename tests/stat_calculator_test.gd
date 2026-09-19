@@ -1,4 +1,4 @@
-extends SceneTree
+﻿extends SceneTree
 ## Headless sanity check for StatCalculator (run: godot --headless -s res://tests/stat_calculator_test.gd)
 
 const StatCalculatorScript := preload("res://core/stat_calculator.gd")
@@ -15,7 +15,7 @@ func _init() -> void:
 	calc.get_equipped_damage = func(_slot: int) -> int: return 5
 	calc.get_equipped_hp = func(_slot: int) -> int: return 10
 	calc.get_level = func(_slot: int) -> int: return 3
-	calc.get_skill_tree_bonus = func(_slot: int) -> Dictionary: return {"ataque": 2, "vida": 4}
+	calc.get_skill_tree_bonus = func(_slot: int) -> Dictionary: return {"attack": 2, "hp": 4}
 	var stats: Dictionary = calc.compute(0, warrior)
 	if int(stats.get("damage", 0)) < 1:
 		push_error("[TEST FAIL] damage should be positive")

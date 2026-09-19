@@ -7,7 +7,7 @@ msgid "UI_GOLD"
 msgstr "Gold"
 
 msgid "UI_GOLD_FORMAT"
-msgstr "Gold  %d"
+msgstr "Gold: %d"
 
 msgid "UI_INVENTORY_TITLE"
 msgstr "Inventory"
@@ -346,7 +346,7 @@ msgid "SKILL_TYPE_PASSIVE"
 msgstr "Passive"
 
 msgid "SKILL_COOLDOWN_LINE"
-msgstr "Active | Cooldown: %.1fs"
+msgstr "Cooldown: %ds"
 
 msgid "SKILLS_TITLE"
 msgstr "Skills"
@@ -414,6 +414,12 @@ msgstr "Elemental Res."
 msgid "FORMATION_TITLE"
 msgstr "Formation"
 
+msgid "FORMATION_PARTY_TITLE"
+msgstr "In party"
+
+msgid "FORMATION_HEROES_TITLE"
+msgstr "Heroes"
+
 msgid "FORMATION_HINT_CAN_REMOVE"
 msgstr "Tap a hero to remove from formation"
 
@@ -457,7 +463,7 @@ msgid "FORGE_IMBUE"
 msgstr "Imbue"
 
 msgid "FORGE_SYNTHESIS_HINT"
-msgstr "Forge 9 items of the same rarity and family."
+msgstr "Place 3 items of the same type and rarity to synthesize."
 
 msgid "FORGE_DISMANTLE_HINT"
 msgstr "Place an item to dismantle it for gold."
@@ -475,10 +481,10 @@ msgid "FORGE_SUCCESS_CHANCE"
 msgstr "Success chance: %d%%"
 
 msgid "FORGE_PROGRESS"
-msgstr "%d/9 — same rarity and family. Levels may be mixed.%s"
+msgstr "%d/3 items placed%s"
 
 msgid "FORGE_FAMILY_LOCKED"
-msgstr " Family: %s."
+msgstr "(locked: %s only)"
 
 msgid "FORGE_MIXED_CATEGORY"
 msgstr "Mixed categories: %s and %s"
@@ -490,13 +496,13 @@ msgid "FORGE_SUCCESS"
 msgstr "Success! %s (%s, Lv.%d)"
 
 msgid "FORGE_FAILED"
-msgstr "Forge failed (%d%%). Received: %s (%s, Lv.%d). Collect from center slot."
+msgstr "Failed! Lost %s (%s, Lv.%d)"
 
 msgid "FORGE_ITEM_READY"
-msgstr "Item ready: %s (%s, Lv.%d). Collect from center slot."
+msgstr "Ready: %s (%s, Lv.%d)"
 
 msgid "FORGE_INVENTORY_FULL"
-msgstr "Inventory full. Free space to collect the item."
+msgstr "Inventory full!"
 
 msgid "FORGE_INVENTORY_FULL_FORGE"
 msgstr "Inventory full — cannot collect result!"
@@ -595,7 +601,7 @@ msgid "TREE_NOT_ENOUGH_GOLD"
 msgstr "Not enough gold (%d required)"
 
 msgid "TREE_LEVEL_UP"
-msgstr "Level %d/%d: %s"
+msgstr "Upgraded to %s Lv.%d!"
 
 msgid "TREE_WAREHOUSE_UNLOCK"
 msgstr " Warehouse unlocked!"
@@ -636,205 +642,205 @@ msgstr "World %d"
 msgid "WORLD_LOCKED"
 msgstr "(locked)"
 
-msgid "ITEM_espada_ferro"
+msgid "ITEM_iron_sword"
 msgstr "Iron Sword"
 
-msgid "ITEM_espada_treino"
+msgid "ITEM_training_sword"
 msgstr "Training Sword"
 
-msgid "ITEM_escudo_madeira"
+msgid "ITEM_wooden_shield"
 msgstr "Wooden Shield"
 
-msgid "ITEM_elmo_guerreiro"
+msgid "ITEM_warrior_helmet"
 msgstr "Warrior Helmet"
 
-msgid "ITEM_peitoral_guerreiro"
+msgid "ITEM_warrior_chestplate"
 msgstr "Warrior Chestplate"
 
-msgid "ITEM_luvas_guerreiro"
+msgid "ITEM_warrior_gloves"
 msgstr "Warrior Gloves"
 
-msgid "ITEM_calca_guerreiro"
+msgid "ITEM_warrior_pants"
 msgstr "Warrior Pants"
 
-msgid "ITEM_botas_guerreiro"
+msgid "ITEM_warrior_boots"
 msgstr "Warrior Boots"
 
-msgid "ITEM_mascote_leao"
+msgid "ITEM_lion_pet"
 msgstr "Lion Pet"
 
-msgid "ITEM_anel_honra"
+msgid "ITEM_ring_of_honor"
 msgstr "Ring of Honor"
 
-msgid "ITEM_bracelete_guerreiro"
+msgid "ITEM_warrior_bracelet"
 msgstr "Warrior Bracelet"
 
-msgid "ITEM_cajado_arcano"
+msgid "ITEM_arcane_staff"
 msgstr "Arcane Staff"
 
-msgid "ITEM_grimorio"
+msgid "ITEM_grimoire"
 msgstr "Grimoire"
 
-msgid "ITEM_familiar"
+msgid "ITEM_arcane_familiar"
 msgstr "Arcane Familiar"
 
-msgid "ITEM_manto_mistico"
+msgid "ITEM_mystic_cloak"
 msgstr "Mystic Cloak"
 
-msgid "ITEM_tiara_arcano"
+msgid "ITEM_arcane_tiara"
 msgstr "Arcane Tiara"
 
-msgid "ITEM_luvas_mago"
+msgid "ITEM_mage_gloves"
 msgstr "Mage Gloves"
 
-msgid "ITEM_calca_mago"
+msgid "ITEM_mage_pants"
 msgstr "Mage Pants"
 
-msgid "ITEM_botas_mago"
+msgid "ITEM_mage_boots"
 msgstr "Mage Boots"
 
-msgid "ITEM_cinto_arcano"
+msgid "ITEM_arcane_belt"
 msgstr "Arcane Belt"
 
-msgid "ITEM_pingente_mana"
+msgid "ITEM_mana_pendant"
 msgstr "Mana Pendant"
 
-msgid "ITEM_arco_curto"
+msgid "ITEM_short_bow"
 msgstr "Short Bow"
 
-msgid "ITEM_aljava"
+msgid "ITEM_quiver"
 msgstr "Quiver"
 
-msgid "ITEM_capuz_couro"
+msgid "ITEM_leather_hood"
 msgstr "Leather Hood"
 
-msgid "ITEM_peitoral_arqueiro"
+msgid "ITEM_archer_chestplate"
 msgstr "Archer Chestplate"
 
-msgid "ITEM_luvas_arqueiro"
+msgid "ITEM_archer_gloves"
 msgstr "Archer Gloves"
 
-msgid "ITEM_calca_arqueiro"
+msgid "ITEM_archer_pants"
 msgstr "Archer Pants"
 
-msgid "ITEM_botas_arqueiro"
+msgid "ITEM_archer_boots"
 msgstr "Archer Boots"
 
-msgid "ITEM_falcao_companheiro"
+msgid "ITEM_companion_falcon"
 msgstr "Companion Falcon"
 
-msgid "ITEM_anel_precisao"
+msgid "ITEM_precision_ring"
 msgstr "Precision Ring"
 
-msgid "ITEM_adaga_sombria"
+msgid "ITEM_shadow_dagger"
 msgstr "Shadow Dagger"
 
-msgid "ITEM_adaga_secundaria"
+msgid "ITEM_twin_dagger"
 msgstr "Twin Dagger"
 
-msgid "ITEM_capuz_assassino"
+msgid "ITEM_assassin_hood"
 msgstr "Assassin Hood"
 
-msgid "ITEM_peitoral_sombrio"
+msgid "ITEM_shadow_chestplate"
 msgstr "Shadow Chestplate"
 
-msgid "ITEM_luvas_assassino"
+msgid "ITEM_assassin_gloves"
 msgstr "Assassin Gloves"
 
-msgid "ITEM_calca_assassino"
+msgid "ITEM_assassin_pants"
 msgstr "Assassin Pants"
 
-msgid "ITEM_botas_assassino"
+msgid "ITEM_assassin_boots"
 msgstr "Assassin Boots"
 
-msgid "ITEM_cinto_sombrio"
+msgid "ITEM_shadow_belt"
 msgstr "Shadow Belt"
 
-msgid "ITEM_bracelete_sombrio"
+msgid "ITEM_shadow_bracelet"
 msgstr "Shadow Bracelet"
 
-msgid "ITEM_maca_pesada"
+msgid "ITEM_heavy_mace"
 msgstr "Heavy Mace"
 
-msgid "ITEM_escudo_torre"
+msgid "ITEM_tower_shield"
 msgstr "Tower Shield"
 
-msgid "ITEM_peitoral_ferro"
+msgid "ITEM_iron_chestplate"
 msgstr "Iron Chestplate"
 
-msgid "ITEM_elmo_torre"
+msgid "ITEM_tower_helmet"
 msgstr "Tower Helmet"
 
-msgid "ITEM_luvas_tanque"
+msgid "ITEM_tank_gloves"
 msgstr "Tank Gloves"
 
-msgid "ITEM_calca_tanque"
+msgid "ITEM_tank_pants"
 msgstr "Tank Pants"
 
-msgid "ITEM_botas_tanque"
+msgid "ITEM_tank_boots"
 msgstr "Tank Boots"
 
-msgid "ITEM_mascote_tartaruga"
+msgid "ITEM_turtle_pet"
 msgstr "Turtle Pet"
 
-msgid "ITEM_pingente_guardiao"
+msgid "ITEM_guardian_pendant"
 msgstr "Guardian Pendant"
 
-msgid "ITEM_cajado_sagrado"
+msgid "ITEM_holy_staff"
 msgstr "Holy Staff"
 
-msgid "ITEM_tomo_luz"
+msgid "ITEM_tome_of_light"
 msgstr "Tome of Light"
 
-msgid "ITEM_manto_clerical"
+msgid "ITEM_clerical_cloak"
 msgstr "Clerical Cloak"
 
-msgid "ITEM_pingente_fe"
+msgid "ITEM_faith_pendant"
 msgstr "Faith Pendant"
 
-msgid "ITEM_tiara_sagrada"
+msgid "ITEM_sacred_tiara"
 msgstr "Sacred Tiara"
 
-msgid "ITEM_luvas_sacerdote"
+msgid "ITEM_priest_gloves"
 msgstr "Priest Gloves"
 
-msgid "ITEM_calca_sacerdote"
+msgid "ITEM_priest_pants"
 msgstr "Priest Pants"
 
-msgid "ITEM_botas_sacerdote"
+msgid "ITEM_priest_boots"
 msgstr "Priest Boots"
 
-msgid "ITEM_anel_devocao"
+msgid "ITEM_devotion_ring"
 msgstr "Devotion Ring"
 
-msgid "ITEM_luvas_tecido"
+msgid "ITEM_cloth_gloves"
 msgstr "Cloth Gloves"
 
-msgid "ITEM_calca_couro"
+msgid "ITEM_leather_pants"
 msgstr "Leather Pants"
 
-msgid "ITEM_botas_viagem"
+msgid "ITEM_travel_boots"
 msgstr "Travel Boots"
 
-msgid "ITEM_cinto_simples"
+msgid "ITEM_simple_belt"
 msgstr "Simple Belt"
 
-msgid "ITEM_anel_bruto"
+msgid "ITEM_rough_ring"
 msgstr "Rough Ring"
 
-msgid "ITEM_bracelete_ferro"
+msgid "ITEM_iron_bracelet"
 msgstr "Iron Bracelet"
 
-msgid "ITEM_capuz_viagem"
+msgid "ITEM_travel_hood"
 msgstr "Travel Hood"
 
-msgid "ITEM_peitoral_couro"
+msgid "ITEM_leather_chestplate"
 msgstr "Leather Chestplate"
 
-msgid "ITEM_pingente_simples"
+msgid "ITEM_simple_pendant"
 msgstr "Simple Pendant"
 
-msgid "ITEM_mascote_rato"
+msgid "ITEM_rat_pet"
 msgstr "Rat Pet"
 
 msgid "SKILL_instant_double_shot"
@@ -847,7 +853,7 @@ msgid "SKILL_dark_volley"
 msgstr "Dark Volley"
 
 msgid "SKILL_dark_volley_DESC"
-msgstr "Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at high speed at the strongest target."
+msgstr "Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at the strongest target."
 
 msgid "SKILL_precision_shot"
 msgstr "Precision Shot"
@@ -866,3 +872,513 @@ msgstr "Neon Vision"
 
 msgid "SKILL_neon_vision_DESC"
 msgstr "Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds."
+
+msgid "SKILL_armor_penetration"
+msgstr "Armor Penetration"
+
+msgid "SKILL_armor_penetration_DESC"
+msgstr "Basic attacks and skills ignore a portion of armored or boss enemy defense."
+
+msgid "SKILL_reflex_recoil"
+msgstr "Reflex Recoil"
+
+msgid "SKILL_reflex_recoil_DESC"
+msgstr "When HP drops below 25%, gains a temporary shield and a large movement speed boost for 3 seconds."
+
+msgid "SKILL_swift_execution"
+msgstr "Swift Execution"
+
+msgid "SKILL_swift_execution_DESC"
+msgstr "Deals 20% more damage to enemies below 30% max HP."
+
+msgid "SKILL_nimble_hands"
+msgstr "Nimble Hands"
+
+msgid "SKILL_nimble_hands_DESC"
+msgstr "Reduces cooldown of all active skills by 15%."
+
+msgid "SKILL_eagle_eye"
+msgstr "Eagle Eye"
+
+msgid "SKILL_eagle_eye_DESC"
+msgstr "Increases critical hit rate and on-screen vision range."
+
+msgid "SKILL_drawstring_tension"
+msgstr "Drawstring Tension"
+
+msgid "SKILL_drawstring_tension_DESC"
+msgstr "Reduces frontal shot animation time, increasing basic Attack Speed by 15%."
+
+msgid "SKILL_wearing_poison"
+msgstr "Wearing Poison"
+
+msgid "SKILL_wearing_poison_DESC"
+msgstr "5% chance to apply poison on basic attacks."
+
+msgid "SKILL_weak_prey"
+msgstr "Weak Prey"
+
+msgid "SKILL_weak_prey_DESC"
+msgstr "Deals 15% more damage to monsters below 25% HP."
+
+msgid "SKILL_stacking_impact"
+msgstr "Stacking Impact"
+
+msgid "SKILL_stacking_impact_DESC"
+msgstr "Each arrow hitting the same target within 2s increases next hit damage by 5% (max 25%)."
+
+msgid "SKILL_surgical_aim"
+msgstr "Surgical Aim"
+
+msgid "SKILL_surgical_aim_DESC"
+msgstr "Increases Critical Hit Rate by 30% against targets above 70% HP."
+
+msgid "SKILL_twin_execution_cut"
+msgstr "Twin Execution Cut"
+
+msgid "SKILL_twin_execution_cut_DESC"
+msgstr "An X-shaped cross slash with both daggers. Deals double damage to enemies below 30% HP."
+
+msgid "SKILL_prey_mark"
+msgstr "Prey Mark"
+
+msgid "SKILL_prey_mark_DESC"
+msgstr "Marks a target for 4 seconds. Damage dealt is stored and explodes for 30% bonus damage at the end."
+
+msgid "SKILL_quick_twin_cut"
+msgstr "Quick Twin Cut"
+
+msgid "SKILL_quick_twin_cut_DESC"
+msgstr "Two ultra-fast cross strikes to the target's chest."
+
+msgid "SKILL_awakened_sequence"
+msgstr "Awakened Sequence"
+
+msgid "SKILL_awakened_sequence_DESC"
+msgstr "Gains an immediate 60% Attack Speed surge for 4 hits or 3 seconds."
+
+msgid "SKILL_swift_decapitation"
+msgstr "Swift Decapitation"
+
+msgid "SKILL_swift_decapitation_DESC"
+msgstr "A high neck strike dealing 50% extra damage if the target is below 30% HP."
+
+msgid "SKILL_shadow_reflexes"
+msgstr "Shadow Reflexes"
+
+msgid "SKILL_shadow_reflexes_DESC"
+msgstr "Increases base Critical Hit Rate and Attack Speed."
+
+msgid "SKILL_adrenaline_surge"
+msgstr "Adrenaline Surge"
+
+msgid "SKILL_adrenaline_surge_DESC"
+msgstr "Killing an enemy restores 50% cooldown on all active skills."
+
+msgid "SKILL_venomous_vein"
+msgstr "Venomous Vein"
+
+msgid "SKILL_venomous_vein_DESC"
+msgstr "Increases critical damage by 25% against poisoned or bleeding targets."
+
+msgid "SKILL_stealth_strike"
+msgstr "Stealth Strike"
+
+msgid "SKILL_stealth_strike_DESC"
+msgstr "First hit when entering combat deals 50% additional critical damage."
+
+msgid "SKILL_lethal_execution"
+msgstr "Lethal Execution"
+
+msgid "SKILL_lethal_execution_DESC"
+msgstr "Attacks on targets below 15% max HP may instantly execute (except stage bosses)."
+
+msgid "SKILL_deep_cut"
+msgstr "Deep Cut"
+
+msgid "SKILL_deep_cut_DESC"
+msgstr "Bleeds from daggers last 1.5s longer."
+
+msgid "SKILL_weak_point_mapping"
+msgstr "Weak Point Mapping"
+
+msgid "SKILL_weak_point_mapping_DESC"
+msgstr "Ignores 20% of enemy base armor."
+
+msgid "SKILL_adrenaline"
+msgstr "Adrenaline"
+
+msgid "SKILL_adrenaline_DESC"
+msgstr "Killing an enemy resets 1 second of cooldown on all active skills."
+
+msgid "SKILL_assassin_rhythm"
+msgstr "Assassin Rhythm"
+
+msgid "SKILL_assassin_rhythm_DESC"
+msgstr "Each active skill hit adds 10% Attack Speed (stacks up to 5 times, +50% for 4s)."
+
+msgid "SKILL_light_blade"
+msgstr "Light Blade"
+
+msgid "SKILL_light_blade_DESC"
+msgstr "Increases damage by 10%."
+
+msgid "SKILL_sacred_position"
+msgstr "Sacred Position"
+
+msgid "SKILL_sacred_position_DESC"
+msgstr "Instantly restores a portion of the lowest-HP ally's health."
+
+msgid "SKILL_solar_shield"
+msgstr "Solar Shield"
+
+msgid "SKILL_solar_shield_DESC"
+msgstr "Grants a bright light shield to the most vulnerable ally, absorbing damage for 3 seconds."
+
+msgid "SKILL_divine_punishment"
+msgstr "Divine Punishment"
+
+msgid "SKILL_divine_punishment_DESC"
+msgstr "Calls a vertical beam of light on the densest enemy group, dealing elemental damage."
+
+msgid "SKILL_inviolability_aura"
+msgstr "Inviolability Aura"
+
+msgid "SKILL_inviolability_aura_DESC"
+msgstr "Creates a 1.5s dome that reduces all party damage taken by 15% and heals over time."
+
+msgid "SKILL_sacred_fervor"
+msgstr "Sacred Fervor"
+
+msgid "SKILL_sacred_fervor_DESC"
+msgstr "Raises the staff and channels a bright aura, increasing party damage by 15% for 4 seconds."
+
+msgid "SKILL_sun_touch"
+msgstr "Sun Touch"
+
+msgid "SKILL_sun_touch_DESC"
+msgstr "Increases healing power and shield effectiveness by 20%."
+
+msgid "SKILL_reactive_barrier"
+msgstr "Reactive Barrier"
+
+msgid "SKILL_reactive_barrier_DESC"
+msgstr "When HP drops below 30%, automatically gains a divine shield equal to 35% max HP (30s cooldown)."
+
+msgid "SKILL_radiant_presence"
+msgstr "Radiant Presence"
+
+msgid "SKILL_radiant_presence_DESC"
+msgstr "Nearby allies gain 10% physical and magic damage resistance."
+
+msgid "SKILL_unshakable_devotion"
+msgstr "Unshakable Devotion"
+
+msgid "SKILL_unshakable_devotion_DESC"
+msgstr "Reduces cooldown of all heal and shield skills by 15%."
+
+msgid "SKILL_divine_vigor"
+msgstr "Divine Vigor"
+
+msgid "SKILL_divine_vigor_DESC"
+msgstr "Converts overheal into a small temporary shield."
+
+msgid "SKILL_sacred_touch"
+msgstr "Sacred Touch"
+
+msgid "SKILL_sacred_touch_DESC"
+msgstr "Priest basic attacks have 15% chance to heal the most wounded ally."
+
+msgid "SKILL_critical_heal"
+msgstr "Critical Heal"
+
+msgid "SKILL_critical_heal_DESC"
+msgstr "Priest heal skills have 15% chance to critically heal (double value)."
+
+msgid "SKILL_celestial_pact"
+msgstr "Celestial Pact"
+
+msgid "SKILL_celestial_pact_DESC"
+msgstr "On death, releases a final wave that fully heals a random ally and freezes the horde for 2s."
+
+msgid "SKILL_protective_light"
+msgstr "Protective Light"
+
+msgid "SKILL_protective_light_DESC"
+msgstr "Allies healed by the Priest gain 10% bonus armor for 3 seconds."
+
+msgid "SKILL_mercy"
+msgstr "Mercy"
+
+msgid "SKILL_mercy_DESC"
+msgstr "Increases healing by 20% on allies below 50% HP."
+
+msgid "SKILL_frenzied_sequence"
+msgstr "Frenzied Sequence"
+
+msgid "SKILL_frenzied_sequence_DESC"
+msgstr "Delivers 3 fast deep consecutive slashes in under 1 second."
+
+msgid "SKILL_quick_slash"
+msgstr "Quick Slash"
+
+msgid "SKILL_quick_slash_DESC"
+msgstr "A simple fast horizontal sword strike hitting enemies ahead."
+
+msgid "SKILL_double_thrust"
+msgstr "Double Thrust"
+
+msgid "SKILL_double_thrust_DESC"
+msgstr "Two ultra-fast thrusts without moving."
+
+msgid "SKILL_heavy_blade"
+msgstr "Heavy Blade"
+
+msgid "SKILL_heavy_blade_DESC"
+msgstr "A slow 0.5s charged attack that deals double damage."
+
+msgid "SKILL_war_cry"
+msgstr "War Cry"
+
+msgid "SKILL_war_cry_DESC"
+msgstr "Raises the sword and emits a power pulse, increasing Physical Damage by 20% for 5 seconds."
+
+msgid "SKILL_blade_master"
+msgstr "Blade Master"
+
+msgid "SKILL_blade_master_DESC"
+msgstr "Increases base Physical Damage and sword slash range."
+
+msgid "SKILL_extreme_sharpening"
+msgstr "Extreme Sharpening"
+
+msgid "SKILL_extreme_sharpening_DESC"
+msgstr "Increases Critical Hit Rate and Critical Damage of sword attacks by 15%."
+
+msgid "SKILL_iron_armor"
+msgstr "Iron Armor"
+
+msgid "SKILL_iron_armor_DESC"
+msgstr "Grants 15% reduction to direct melee physical damage."
+
+msgid "SKILL_unbreakable_stance"
+msgstr "Unbreakable Stance"
+
+msgid "SKILL_unbreakable_stance_DESC"
+msgstr "Immune to stun and knockback during active skill animations."
+
+msgid "SKILL_precise_execution"
+msgstr "Precise Execution"
+
+msgid "SKILL_precise_execution_DESC"
+msgstr "Deals 20% more damage to targets below 35% max HP."
+
+msgid "SKILL_iron_will"
+msgstr "Iron Will"
+
+msgid "SKILL_iron_will_DESC"
+msgstr "Below 25% HP, gains 30% Attack Speed and 15% Lifesteal for 5 seconds (60s cooldown)."
+
+msgid "SKILL_defensive_stance"
+msgstr "Defensive Stance"
+
+msgid "SKILL_defensive_stance_DESC"
+msgstr "Gains 10% extra armor while below 50% HP."
+
+msgid "SKILL_brute_force"
+msgstr "Brute Force"
+
+msgid "SKILL_brute_force_DESC"
+msgstr "Deals 10% more damage to Elite enemies or bosses."
+
+msgid "SKILL_medium_resistance"
+msgstr "Medium Resistance"
+
+msgid "SKILL_medium_resistance_DESC"
+msgstr "Reduces all physical damage taken by 8%."
+
+msgid "SKILL_steel_muscles"
+msgstr "Steel Muscles"
+
+msgid "SKILL_steel_muscles_DESC"
+msgstr "Increases warrior max HP by 10%."
+
+msgid "SKILL_abyssal_meteor"
+msgstr "Abyssal Meteor"
+
+msgid "SKILL_abyssal_meteor_DESC"
+msgstr "Summons a magic stone from above onto the densest enemy group."
+
+msgid "SKILL_damage_portal"
+msgstr "Damage Portal"
+
+msgid "SKILL_damage_portal_DESC"
+msgstr "Fires a 1-second continuous beam from the staff."
+
+msgid "SKILL_black_fireball"
+msgstr "Black Fireball"
+
+msgid "SKILL_black_fireball_DESC"
+msgstr "Fires a large sphere that deals area damage on impact."
+
+msgid "SKILL_ice_nova"
+msgstr "Ice Nova"
+
+msgid "SKILL_ice_nova_DESC"
+msgstr "A circular ice wave that freezes everything nearby for 1s."
+
+msgid "SKILL_ice_lance"
+msgstr "Ice Lance"
+
+msgid "SKILL_ice_lance_DESC"
+msgstr "Fires a thin fast ice stake piercing up to 2 enemies in a line."
+
+msgid "SKILL_arcane_amplification"
+msgstr "Arcane Amplification"
+
+msgid "SKILL_arcane_amplification_DESC"
+msgstr "Increases base Magic Damage and staff attack range."
+
+msgid "SKILL_rune_resonance"
+msgstr "Rune Resonance"
+
+msgid "SKILL_rune_resonance_DESC"
+msgstr "Each active skill cast grants 5% cooldown reduction for 3s (stacks up to 4 times)."
+
+msgid "SKILL_magic_penetration"
+msgstr "Magic Penetration"
+
+msgid "SKILL_magic_penetration_DESC"
+msgstr "Spells ignore 25% of enemy magic resistance/armor."
+
+msgid "SKILL_critical_focus"
+msgstr "Critical Focus"
+
+msgid "SKILL_critical_focus_DESC"
+msgstr "Increases magic Critical Hit chance by 15% against enemies above 70% HP."
+
+msgid "SKILL_soul_drain"
+msgstr "Soul Drain"
+
+msgid "SKILL_soul_drain_DESC"
+msgstr "Killing an enemy with any spell instantly restores 5% max HP."
+
+msgid "SKILL_mana_flow"
+msgstr "Mana Flow"
+
+msgid "SKILL_mana_flow_DESC"
+msgstr "Every 5 spells cast, the next deals 50% more damage."
+
+msgid "SKILL_tuning"
+msgstr "Tuning"
+
+msgid "SKILL_tuning_DESC"
+msgstr "Reduces all skill cooldowns by 0.1s on a critical hit."
+
+msgid "SKILL_void_presence"
+msgstr "Void Presence"
+
+msgid "SKILL_void_presence_DESC"
+msgstr "Enemies on screen have defenses reduced by 10% passively."
+
+msgid "SKILL_open_mind"
+msgstr "Open Mind"
+
+msgid "SKILL_open_mind_DESC"
+msgstr "Increases bonus critical hit rate by 25% against immobilized or frozen targets."
+
+msgid "SKILL_elemental_symphony"
+msgstr "Elemental Symphony"
+
+msgid "SKILL_elemental_symphony_DESC"
+msgstr "Alternating spell elements increases overall damage by 5% (stacks up to 4 times)."
+
+msgid "SKILL_rune_barrier"
+msgstr "Rune Barrier"
+
+msgid "SKILL_rune_barrier_DESC"
+msgstr "Gains a magic energy shield equal to 25% max HP for 4 seconds."
+
+msgid "SKILL_dark_taunt"
+msgstr "Dark Taunt"
+
+msgid "SKILL_dark_taunt_DESC"
+msgstr "Forces all enemies to attack the Tank and converts 20% damage taken into HP during the effect."
+
+msgid "SKILL_inviolable_stance"
+msgstr "Inviolable Stance"
+
+msgid "SKILL_inviolable_stance_DESC"
+msgstr "Plants legs and uses the shield as a wall, immune to damage and crowd control for 2.5s."
+
+msgid "SKILL_total_suppression"
+msgstr "Total Suppression"
+
+msgid "SKILL_total_suppression_DESC"
+msgstr "Slams shield and mace together, dealing area damage with a metal thunder."
+
+msgid "SKILL_crushing_mill"
+msgstr "Crushing Mill"
+
+msgid "SKILL_crushing_mill_DESC"
+msgstr "Performs a fast sequence of 3 alternating mace strikes (left, right, up)."
+
+msgid "SKILL_titanium_shell"
+msgstr "Titanium Shell"
+
+msgid "SKILL_titanium_shell_DESC"
+msgstr "Grants a fixed 5% chance to fully block any attack damage."
+
+msgid "SKILL_surface_thorns"
+msgstr "Surface Thorns"
+
+msgid "SKILL_surface_thorns_DESC"
+msgstr "Reflects 20% of frontal melee physical damage taken on the shield."
+
+msgid "SKILL_unshakable"
+msgstr "Unshakable"
+
+msgid "SKILL_unshakable_DESC"
+msgstr "Fully immune to knockback from common enemies or light projectiles."
+
+msgid "SKILL_impact_absorption"
+msgstr "Impact Absorption"
+
+msgid "SKILL_impact_absorption_DESC"
+msgstr "Defeating an enemy with a shield skill instantly restores 8% max HP."
+
+msgid "SKILL_magic_alloy"
+msgstr "Magic Alloy"
+
+msgid "SKILL_magic_alloy_DESC"
+msgstr "Increases resistance to elemental damage (fire, poison, and magic)."
+
+msgid "SKILL_last_trench"
+msgstr "Last Trench"
+
+msgid "SKILL_last_trench_DESC"
+msgstr "On fatal damage, hides behind the shield and becomes invulnerable for 2 seconds (long cooldown / once per stage)."
+
+msgid "SKILL_heavy_weight"
+msgstr "Heavy Weight"
+
+msgid "SKILL_heavy_weight_DESC"
+msgstr "Mace hits have a fixed 15% chance to stun common enemies for 0.5s."
+
+msgid "SKILL_battle_inertia"
+msgstr "Battle Inertia"
+
+msgid "SKILL_battle_inertia_DESC"
+msgstr "Each mace hit grants 3% bonus armor for 4 seconds (stacks up to 5 times)."
+
+msgid "SKILL_hard_shell"
+msgstr "Hard Shell"
+
+msgid "SKILL_hard_shell_DESC"
+msgstr "Reduces damage taken from critical attacks by 20%."
+
+msgid "SKILL_vital_crush"
+msgstr "Vital Crush"
+
+msgid "SKILL_vital_crush_DESC"
+msgstr "Enemies hit by mace skills lose 10% armor for 4 seconds."

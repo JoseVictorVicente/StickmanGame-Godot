@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/skill_resource.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+skill_id = "shadow_reflexes"
+name_key = "SKILL_shadow_reflexes"
+description_key = "SKILL_shadow_reflexes_DESC"
+type = 1
+cooldown = 0
+icon_path = "res://sprites/ui/skills/assassin/shadow_reflexes.png"
+sort_order = 1
+stat_value = 0.0

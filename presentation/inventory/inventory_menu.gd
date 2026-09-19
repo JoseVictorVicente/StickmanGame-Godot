@@ -1,4 +1,4 @@
-class_name InventoryMenu
+﻿class_name InventoryMenu
 extends Control
 ## Painel flutuante de personagem / inventário.
 ## Abre acima do idle, sem cobrir o botão de 4 quadrados.
@@ -39,10 +39,10 @@ const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
 const MARGEM_TOPO_UI := 8.0
 const WINDOW_HEIGHT := 860.0
 const COMBAT_RESERVED_SPACE := 320.0
-var PERSONAGENS: Array[Dictionary] = [
-	{"nome": "Guerreiro", "classe": ItemData.RequiredClass.WARRIOR},
-	{"nome": "Mago", "classe": ItemData.RequiredClass.MAGE},
-	{"nome": "Arqueiro", "classe": ItemData.RequiredClass.ARCHER},
+var HERO_SLOTS: Array[Dictionary] = [
+	{"name": "Warrior", "hero_class": ItemData.RequiredClass.WARRIOR},
+	{"name": "Mage", "hero_class": ItemData.RequiredClass.MAGE},
+	{"name": "Archer", "hero_class": ItemData.RequiredClass.ARCHER},
 ]
 var CLASSES: Array[ClassData] = []
 
@@ -53,16 +53,16 @@ var CLASSES: Array[ClassData] = []
 @onready var settings_button: Button = %SettingsButton
 @onready var settings_panel: PanelContainer = %SettingsPanel
 @onready var close_settings_button: Button = %CloseSettingsButton
-@onready var slider_volume: HSlider = %SliderVolume
-@onready var label_volume_valor: Label = %LabelVolumeValor
-@onready var titulo_config: Label = %TituloConfig
-@onready var label_volume_titulo: Label = %LabelVolumeTitulo
+@onready var slider_volume: HSlider = %VolumeSlider
+@onready var label_volume_valor: Label = %VolumeValueLabel
+@onready var titulo_config: Label = %SettingsTitle
+@onready var label_volume_titulo: Label = %VolumeTitleLabel
 @onready var label_language_title: Label = %LabelLanguageTitle
 @onready var option_locale: OptionButton = %OptionLocale
-@onready var cabecalho: HBoxContainer = %Cabecalho
+@onready var cabecalho: HBoxContainer = %Header
 @onready var equip_left: VBoxContainer = %EquipLeft
 @onready var equip_right: VBoxContainer = %EquipRight
-@onready var painel: PanelContainer = %Painel
+@onready var painel: PanelContainer = %Panel
 @onready var character_row: HBoxContainer = %CharacterRow
 @onready var character_name_label: Label = %CharacterNameLabel
 @onready var character_level_label: Label = %CharacterLevelLabel
@@ -81,16 +81,16 @@ var CLASSES: Array[ClassData] = []
 @onready var formation_button_host: SectionVisualOffset = %FormationButtonHost
 @onready var team_ui: TeamSelectionUI = %TeamArea
 @onready var menu_area: Control = %MenuArea
-@onready var forge_panel_node: ForgePanel = %PainelForgePanel
+@onready var forge_panel_node: ForgePanel = %PanelForgePanel
 @onready var warehouse_panel_node: WarehousePanel = %WarehousePanel
 @onready var worlds_panel_node: WorldsPanel = %WorldsPanel
 @onready var formation_panel_node: FormationPanel = %FormationPanel
 @onready var skills_panel_node: SkillsPanel = %SkillsPanel
 @onready var attributes_panel_node: AttributesPanel = %AttributesPanel
 @onready var skill_tree_panel_node: SkillTreePanel = %SkillTreePanel
-@onready var botao_skills: Button = %BotaoSkills
-@onready var botao_inventario: Button = %BotaoInventario
-@onready var forge_button: Button = %BotaoForgePanel
+@onready var botao_skills: Button = %SkillsButton
+@onready var botao_inventario: Button = %InventoryButton
+@onready var forge_button: Button = %ForgePanelButton
 @onready var warehouse_button: Button = %WarehouseButton
 @onready var world_button: Button = %WorldButton
 @onready var gold_label: Label = %GoldLabel
@@ -162,7 +162,7 @@ func _ready() -> void:
 	_world_button_styles["pressed"] = world_button.get_theme_stylebox("pressed").duplicate()
 	warehouse_button.pressed.connect(_on_warehouse_button_pressed)
 	world_button.pressed.connect(_on_world_button_pressed)
-	warehouse_button.icon = load("res://sprites/ui/bau.png")
+	warehouse_button.icon = load("res://sprites/ui/chest.png")
 	warehouse_button.text = ""
 	warehouse_button.expand_icon = true
 	warehouse_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -199,12 +199,12 @@ func _ready() -> void:
 
 func _create_character_equipment() -> void:
 	for classe in CLASSES:
-		var esquerda := _create_equipment_grid("EquipEsq_%s" % classe.id, EQUIP_LEFT_TYPES)
+		var esquerda := _create_equipment_grid("EquipLeft_%s" % classe.id, EQUIP_LEFT_TYPES)
 		esquerda.visible = false
 		equip_left.add_child(esquerda)
 		_left_equipment_by_class[classe.id] = esquerda
 
-		var direita := _create_equipment_grid("EquipDir_%s" % classe.id, EQUIP_RIGHT_TYPES)
+		var direita := _create_equipment_grid("EquipRight_%s" % classe.id, EQUIP_RIGHT_TYPES)
 		direita.visible = false
 		equip_right.add_child(direita)
 		_right_equipment_by_class[classe.id] = direita
@@ -229,7 +229,7 @@ func _create_equipment_slots(grade: GridContainer, tipos: Array[ItemData.Type]) 
 		fundo.custom_minimum_size = TAMANHO_SLOT_EQUIP
 		fundo.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		fundo.add_theme_stylebox_override("panel", estilo)
-		fundo.nome_slot = tr(ItemData.equip_slot_label_key(tipo))
+		fundo.slot_label = tr(ItemData.equip_slot_label_key(tipo))
 
 		var icone := TextureRect.new()
 		icone.name = "Icone"
@@ -284,9 +284,9 @@ func _create_inventory_slots() -> void:
 
 func _create_character_selector() -> void:
 	var estilo_normal := _create_character_style(false)
-	for stage_index in PERSONAGENS.size():
+	for stage_index in HERO_SLOTS.size():
 		var botao := Button.new()
-		botao.name = "Personagem_%d" % (stage_index + 1)
+		botao.name = "Character_%d" % (stage_index + 1)
 		botao.custom_minimum_size = Vector2(58, 32)
 		botao.text = "Herói %d" % (stage_index + 1)
 		botao.add_theme_font_size_override("font_size", 11)
@@ -306,10 +306,10 @@ func select_character(stage_index: int) -> void:
 		if stage_index < 0 or stage_index >= PartyService.SLOTS or not (party.active_party[stage_index] is ClassData):
 			stage_index = party.first_occupied_slot()
 	_character_index = stage_index
-	var dados: Dictionary = PERSONAGENS[stage_index]
+	var dados: Dictionary = HERO_SLOTS[stage_index]
 	var hero_progress := _progress_for_index(stage_index)
-	character_name_label.text = str(dados["nome"])
-	character_level_label.text = tr(LocaleKeys.UI_LEVEL_SHORT) % int(hero_progress["nivel"])
+	character_name_label.text = str(dados["name"])
+	character_level_label.text = tr(LocaleKeys.UI_LEVEL_SHORT) % int(hero_progress["level"])
 	_update_xp_bar()
 	if attributes_panel_node and attributes_panel_node.is_open():
 		attributes_panel_node.update()
@@ -344,7 +344,7 @@ func current_character_index() -> int:
 
 
 func get_equipped_items(stage_index: int = -1) -> Array[ItemData]:
-	var itens: Array[ItemData] = []
+	var items: Array[ItemData] = []
 	if stage_index < 0:
 		stage_index = _character_index
 	var grades := _grids_for_slot(stage_index)
@@ -354,13 +354,13 @@ func get_equipped_items(stage_index: int = -1) -> Array[ItemData]:
 			if slot == null:
 				slot = filho.get_node_or_null("FundoSlot") as ItemSlot
 			if slot and slot.item:
-				itens.append(slot.item)
-	return itens
+				items.append(slot.item)
+	return items
 
 
-func update_displayed_level(nivel: int, xp: int = -1, xp_proximo: int = -1) -> void:
+func update_displayed_level(nivel: int, xp: int = -1, xp_next: int = -1) -> void:
 	character_level_label.text = tr(LocaleKeys.UI_LEVEL_SHORT) % nivel
-	_update_xp_bar(xp, xp_proximo)
+	_update_xp_bar(xp, xp_next)
 	_sync_party_names()
 	if attributes_panel_node and attributes_panel_node.is_open():
 		attributes_panel_node.update()
@@ -371,7 +371,7 @@ func _progress_for_index(stage_index: int) -> Dictionary:
 		var dados: Variant = query_slot_progress.call(stage_index)
 		if dados is Dictionary:
 			return dados
-	return {"nivel": 1, "xp": 0, "xp_proximo": HeroProgress.BASE_XP_PER_LEVEL}
+	return {"level": 1, "xp": 0, "xp_next": HeroProgress.BASE_XP_PER_LEVEL}
 
 
 func _configure_ui_anchor() -> void:
@@ -432,9 +432,9 @@ func _align_side_panels() -> void:
 func _apply_hero_layout() -> void:
 	var layout := layout_inventario if layout_inventario else InventoryLayout.new()
 	if hero_visual_section:
-		hero_visual_section.set_visual_offset(layout.offset_regiao_retrato)
+		hero_visual_section.set_visual_offset(layout.portrait_region_offset)
 	if formation_button_host:
-		formation_button_host.set_visual_offset(layout.offset_botao_formacao)
+		formation_button_host.set_visual_offset(layout.formation_button_offset)
 
 
 func _restore_base_panel() -> void:
@@ -466,13 +466,13 @@ func inventory_slots() -> Array[ItemSlot]:
 
 
 static func sort_slots(slots: Array[ItemSlot]) -> void:
-	var itens: Array[ItemData] = []
+	var items: Array[ItemData] = []
 	for slot in slots:
 		if slot.item != null:
-			itens.append(slot.item)
-	itens.sort_custom(ItemData.comparar_ordenacao)
+			items.append(slot.item)
+	items.sort_custom(ItemData.compare_sort)
 	for i in slots.size():
-		slots[i].set_item(itens[i] if i < itens.size() else null)
+		slots[i].set_item(items[i] if i < items.size() else null)
 
 
 static func setup_icon_button(botao: Button, caminho_icone: String, lado: int = 42) -> void:
@@ -621,8 +621,9 @@ func drag_window_from_event(event: InputEvent) -> void:
 
 func _generate_initial_item() -> void:
 	var espada := ItemData.new()
-	espada.id = "espada_madeira"
-	espada.display_name = "Espada de Madeira"
+	espada.id = "wooden_sword"
+	espada.display_name = ""
+	espada.name_key = "ITEM_wooden_sword"
 	espada.item_type = ItemData.Type.WEAPON
 	espada.rarity = ItemData.Rarity.COMMON
 	espada.item_level = ItemData.ITEM_LEVELS[0]
@@ -653,7 +654,7 @@ func _create_wooden_sword_icon() -> Texture2D:
 func _on_slot_clicked(slot: ItemSlot) -> void:
 	if _slot_selecionado != null and _slot_selecionado != slot:
 		if slot.aceita(_slot_selecionado.item) and (_slot_selecionado.aceita(slot.item) or slot.item == null):
-			if slot.aceita_qualquer or _can_use_item(_slot_selecionado.item):
+			if slot.accepts_any or _can_use_item(_slot_selecionado.item):
 				if not _can_move_to_slot(_slot_selecionado, slot):
 					return
 				_move_item(_slot_selecionado, slot)
@@ -670,7 +671,7 @@ func _on_slot_double_clicked(slot: ItemSlot) -> void:
 		return
 	if _is_forge_slot(slot):
 		return
-	if slot.aceita_qualquer:
+	if slot.accepts_any:
 		if slot.item.is_gem():
 			return
 		var destino := _current_equipment_slot(slot.item.item_type)
@@ -726,7 +727,7 @@ func _on_slot_dropped(destino: ItemSlot, _item: ItemData, origem: ItemSlot) -> v
 		return
 	if not destino.aceita(origem.item):
 		return
-	if not destino.aceita_qualquer and not _can_use_item(origem.item):
+	if not destino.accepts_any and not _can_use_item(origem.item):
 		return
 	if origem.item != null and not origem.aceita(destino.item) and destino.item != null:
 		return
@@ -756,7 +757,7 @@ func _move_item(origem: ItemSlot, destino: ItemSlot) -> void:
 			forge_panel_node.swap_reservations(origem, destino)
 			equipment_changed.emit()
 			return
-	if origem.reservado_ferraria or destino.reservado_ferraria:
+	if origem.forge_reserved or destino.forge_reserved:
 		return
 	var item_origem := origem.item
 	var item_destino := destino.item
@@ -769,14 +770,14 @@ func _can_move_to_slot(origem: ItemSlot, destino: ItemSlot) -> bool:
 	if origem == null or destino == null:
 		return false
 	if forge_panel_node == null or not forge_panel_node.is_open():
-		if origem.reservado_ferraria or destino.reservado_ferraria:
+		if origem.forge_reserved or destino.forge_reserved:
 			return false
 		return true
 	var origem_ferraria := forge_panel_node.is_forge_slot(origem)
 	var destino_ferraria := forge_panel_node.is_forge_slot(destino)
-	if origem.reservado_ferraria and not origem_ferraria:
+	if origem.forge_reserved and not origem_ferraria:
 		return false
-	if destino.reservado_ferraria:
+	if destino.forge_reserved:
 		return false
 	if destino_ferraria and not origem_ferraria:
 		if origem.item == null or destino.item != null:
@@ -794,7 +795,7 @@ func _can_move_to_slot(origem: ItemSlot, destino: ItemSlot) -> bool:
 		return true
 	if origem_ferraria and not destino_ferraria:
 		if forge_panel_node.is_pending_result(origem):
-			return destino.item == null and not destino.reservado_ferraria
+			return destino.item == null and not destino.forge_reserved
 		return true
 	return true
 
@@ -820,7 +821,7 @@ func _current_equipment_slot(tipo: ItemData.Type) -> ItemSlot:
 	for grade in _grids_for_slot(_character_index):
 		for grupo in grade.get_children():
 			var fundo := grupo.get_node_or_null("FundoSlot") as ItemSlot
-			if fundo and fundo.item_type_aceitavel == tipo:
+			if fundo and fundo.accepted_type == tipo:
 				return fundo
 	return null
 
@@ -863,7 +864,7 @@ func get_equipped_hp(stage_index: int) -> int:
 
 func current_hero_stats() -> Dictionary:
 	var stage_index := _character_index
-	var dados: Dictionary = PERSONAGENS[stage_index] if stage_index >= 0 and stage_index < PERSONAGENS.size() else {}
+	var dados: Dictionary = HERO_SLOTS[stage_index] if stage_index >= 0 and stage_index < HERO_SLOTS.size() else {}
 	var hero_progress := _progress_for_index(stage_index)
 	var classe: ClassData = get_current_class()
 	var party: PartyService = team_ui._party if team_ui else null
@@ -873,7 +874,7 @@ func current_hero_stats() -> Dictionary:
 		ataque = party.hero_damage(stage_index)
 		vida = party.hero_max_hp(stage_index)
 	elif classe:
-		var nivel := maxi(1, int(hero_progress.get("nivel", 1)))
+		var nivel := maxi(1, int(hero_progress.get("level", 1)))
 		ataque = maxi(1, int(round(float(classe.base_damage) * classe.attack_multiplier)))
 		ataque += (nivel - 1) * classe.atk_per_level
 		vida = classe.base_hp + (nivel - 1) * classe.hp_per_level
@@ -884,42 +885,42 @@ func current_hero_stats() -> Dictionary:
 	var atk_extra := 0
 	var vida_extra := 0
 	if not party:
-		atk_extra = int(bonus.get("ataque", 0))
-		vida_extra = int(bonus.get("vida", 0))
-		var pct := float(bonus.get("ataque_pct", 0.0))
+		atk_extra = int(bonus.get("attack", 0))
+		vida_extra = int(bonus.get("hp", 0))
+		var pct := float(bonus.get("attack_pct", 0.0))
 		ataque = maxi(1, int(round(float(ataque + atk_extra) * (1.0 + pct / 100.0))))
 		vida += vida_extra
 	return {
-		"ataque": ataque,
-		"vida": vida,
-		"nivel": int(hero_progress.get("nivel", 1)),
+		"attack": ataque,
+		"hp": vida,
+		"level": int(hero_progress.get("level", 1)),
 		"xp": int(hero_progress.get("xp", 0)),
-		"xp_proximo": int(hero_progress.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)),
-		"bonus_xp": float(bonus.get("bonus_xp", 0.0)),
-		"bonus_ouro": float(bonus.get("bonus_ouro", 0.0)),
-		"vel_ataque": vel + float(bonus.get("vel_ataque", 0.0)),
+		"xp_next": int(hero_progress.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)),
+		"xp_bonus": float(bonus.get("xp_bonus", 0.0)),
+		"gold_bonus": float(bonus.get("gold_bonus", 0.0)),
+		"attack_speed": vel + float(bonus.get("attack_speed", 0.0)),
 		"crit_chance": float(bonus.get("crit_chance", 0.0)),
-		"crit_dano": float(bonus.get("crit_dano", 0.0)),
-		"evasao": float(bonus.get("evasao", 0.0)),
-		"res_fisica": float(bonus.get("res_fisica", 0.0)),
-		"res_arcana": float(bonus.get("res_arcana", 0.0)),
-		"res_elemental": float(bonus.get("res_elemental", 0.0)),
+		"crit_damage": float(bonus.get("crit_damage", 0.0)),
+		"evasion": float(bonus.get("evasion", 0.0)),
+		"phys_res": float(bonus.get("phys_res", 0.0)),
+		"arcane_res": float(bonus.get("arcane_res", 0.0)),
+		"elemental_res": float(bonus.get("elemental_res", 0.0)),
 	}
 
 
-func _update_xp_bar(xp: int = -1, xp_proximo: int = -1) -> void:
+func _update_xp_bar(xp: int = -1, xp_next: int = -1) -> void:
 	if character_xp_bar == null:
 		return
 	var hero_progress := _progress_for_index(_character_index)
 	if xp < 0:
 		xp = int(hero_progress.get("xp", 0))
-	if xp_proximo <= 0:
-		xp_proximo = maxi(1, int(hero_progress.get("xp_proximo", HeroProgress.BASE_XP_PER_LEVEL)))
-	var nivel := int(hero_progress.get("nivel", 1))
-	character_xp_bar.max_value = float(xp_proximo)
-	character_xp_bar.value = clampf(float(xp), 0.0, float(xp_proximo))
+	if xp_next <= 0:
+		xp_next = maxi(1, int(hero_progress.get("xp_next", HeroProgress.BASE_XP_PER_LEVEL)))
+	var nivel := int(hero_progress.get("level", 1))
+	character_xp_bar.max_value = float(xp_next)
+	character_xp_bar.value = clampf(float(xp), 0.0, float(xp_next))
 	if character_xp_label:
-		character_xp_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [nivel, xp, xp_proximo]
+		character_xp_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [nivel, xp, xp_next]
 
 
 func setup_party(party: PartyService) -> void:
@@ -979,17 +980,17 @@ func _sync_party_names() -> void:
 	var party: PartyService = team_ui._party
 	for i in PartyService.SLOTS:
 		var classe: Variant = party.active_party[i]
-		var dados: Dictionary = PERSONAGENS[i].duplicate()
+		var dados: Dictionary = HERO_SLOTS[i].duplicate()
 		if classe is ClassData:
-			dados["nome"] = (classe as ClassData).get_localized_name()
-			dados["classe"] = (classe as ClassData).item_class
+			dados["name"] = (classe as ClassData).get_localized_name()
+			dados["hero_class"] = (classe as ClassData).item_class
 		else:
-			dados["nome"] = tr(LocaleKeys.UI_EMPTY_SLOT)
-		PERSONAGENS[i] = dados
+			dados["name"] = tr(LocaleKeys.UI_EMPTY_SLOT)
+		HERO_SLOTS[i] = dados
 		if i < _character_buttons.size():
 			var hero_progress := _progress_for_index(i)
-			_character_buttons[i].text = "%s Lv.%d" % [dados["nome"], int(hero_progress.get("nivel", 1))]
-	character_name_label.text = str(PERSONAGENS[_character_index]["nome"])
+			_character_buttons[i].text = "%s Lv.%d" % [dados["name"], int(hero_progress.get("level", 1))]
+	character_name_label.text = str(HERO_SLOTS[_character_index]["name"])
 
 
 func _update_portrait() -> void:
@@ -1070,7 +1071,7 @@ func _class_can_use(item: ItemData) -> bool:
 
 
 func _current_hero_level() -> int:
-	return int(_progress_for_index(_character_index).get("nivel", 1))
+	return int(_progress_for_index(_character_index).get("level", 1))
 
 
 func _can_use_item(item: ItemData) -> bool:
@@ -1099,7 +1100,7 @@ func apply_inventory(lista: Array) -> void:
 	for i in _inventory_slot_list.size():
 		var item: ItemData = null
 		if i < lista.size() and lista[i] is Dictionary:
-			item = ItemData.de_dicionario(lista[i])
+			item = ItemData.from_dictionary(lista[i])
 		_inventory_slot_list[i].set_item(item)
 
 
@@ -1139,7 +1140,7 @@ func serialize_equipment() -> Dictionary:
 		var lista: Array = []
 		for slot in _slots_for_class(str(id_classe)):
 			lista.append({
-				"tipo": int(slot.item_type_aceitavel),
+				"type": int(slot.accepted_type),
 				"item": slot.item.to_dictionary() if slot.item else {},
 			})
 		todos[str(id_classe)] = lista
@@ -1161,15 +1162,15 @@ func apply_equipment(todos: Variant) -> void:
 
 
 func _apply_slot_list(slots: Array[ItemSlot], lista: Array) -> void:
-	var por_tipo: Dictionary = {}
+	var by_type: Dictionary = {}
 	for entrada in lista:
 		if entrada is Dictionary:
-			por_tipo[int(entrada.get("tipo", -1))] = entrada.get("item", {})
+			by_type[int(entrada.get("type", -1))] = entrada.get("item", {})
 	for slot in slots:
 		var item: ItemData = null
-		var dados: Variant = por_tipo.get(int(slot.item_type_aceitavel), {})
+		var dados: Variant = by_type.get(int(slot.accepted_type), {})
 		if dados is Dictionary:
-			item = ItemData.de_dicionario(dados)
+			item = ItemData.from_dictionary(dados)
 		slot.set_item(item)
 
 
@@ -1589,6 +1590,8 @@ func _on_locale_changed(_locale_code: String) -> void:
 		warehouse_panel_node.refresh_locale()
 	if formation_panel_node and formation_panel_node.has_method("refresh_locale"):
 		formation_panel_node.refresh_locale()
+	if team_ui and team_ui.has_method("refresh_locale"):
+		team_ui.refresh_locale()
 	if skills_panel_node and skills_panel_node.has_method("refresh_locale"):
 		skills_panel_node.refresh_locale()
 	if attributes_panel_node and attributes_panel_node.has_method("refresh_locale"):

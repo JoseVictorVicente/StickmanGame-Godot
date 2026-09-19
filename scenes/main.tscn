@@ -1,9 +1,9 @@
 [gd_scene load_steps=15 format=3 uid="uid://k7es6xs2olod"]
 
-[ext_resource type="Script" uid="uid://dn2lrffjw45re" path="res://scenes/main.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://p1325ehcm7vm" path="res://scenes/main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://b6sat1v5h8j2d" path="res://presentation/inventory/inventory_menu.tscn" id="2_menu"]
 [ext_resource type="Script" uid="uid://c5fkhl0gp8uc6" path="res://presentation/combat/enemy_health_bar.gd" id="3_barra"]
-[ext_resource type="Script" uid="uid://cys44jv0wfx00" path="res://domains/combat/party_service.gd" id="4_party"]
+[ext_resource type="Script" uid="uid://cjps4hfckcrth" path="res://domains/combat/party_service.gd" id="4_party"]
 [ext_resource type="Script" uid="uid://b71mobneq8wgw" path="res://presentation/combat/enemy_visual.gd" id="5_inimigo"]
 [ext_resource type="Script" uid="uid://d3eb0eg6ln5cl" path="res://presentation/shared/coin_effect.gd" id="6_moedas"]
 [ext_resource type="Texture2D" path="res://sprites/environment/grass_floor.png" id="7_chao"]

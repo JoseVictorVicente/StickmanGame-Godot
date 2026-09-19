@@ -1,26 +1,26 @@
 extends Node
 ## Catálogo de ItemData e geração de drops aleatórios.
 
-var itens: Array[ItemData] = []
+var items: Array[ItemData] = []
 
 
 func _ready() -> void:
 	_populate_catalog()
 
 
-func generate_random_item(nivel_inimigo: int) -> ItemData:
+func generate_random_item(enemy_level: int) -> ItemData:
 	if randf() < 0.22:
-		return generate_random_gem(nivel_inimigo)
-	return generate_random_equipment(nivel_inimigo)
+		return generate_random_gem(enemy_level)
+	return generate_random_equipment(enemy_level)
 
 
-func generate_random_equipment(nivel_inimigo: int) -> ItemData:
-	if itens.is_empty():
+func generate_random_equipment(enemy_level: int) -> ItemData:
+	if items.is_empty():
 		_populate_catalog()
-	var modelo: ItemData = itens[randi() % itens.size()]
+	var modelo: ItemData = items[randi() % items.size()]
 	var item: ItemData = modelo.duplicate() as ItemData
-	item.rarity = _roll_rarity(nivel_inimigo)
-	item.item_level = ItemData.roll_item_level(nivel_inimigo)
+	item.rarity = _roll_rarity(enemy_level)
+	item.item_level = ItemData.roll_item_level(enemy_level)
 	var variacao := randf_range(0.9, 1.1)
 	var bonus_raridade := ItemData.multiplicador_stats(item.rarity)
 	var bonus_nivel := ItemData.item_level_multiplier(item.item_level)
@@ -31,7 +31,7 @@ func generate_random_equipment(nivel_inimigo: int) -> ItemData:
 	return item
 
 
-func generate_random_gem(nivel_inimigo: int) -> ItemData:
+func generate_random_gem(enemy_level: int) -> ItemData:
 	var atributos: Array[ItemData.GemAttribute] = [
 		ItemData.GemAttribute.ATTACK,
 		ItemData.GemAttribute.ATTACK_PCT,
@@ -46,7 +46,7 @@ func generate_random_gem(nivel_inimigo: int) -> ItemData:
 		ItemData.GemAttribute.ELEMENTAL_RES,
 	]
 	var atributo := atributos[randi() % atributos.size()]
-	var raridade := _roll_rarity(nivel_inimigo)
+	var raridade := _roll_rarity(enemy_level)
 	var item := ItemData.create_gem(atributo, raridade)
 	item.id = "%s_%d" % [item.id, Time.get_ticks_msec()]
 	item.gem_value *= randf_range(0.9, 1.1)
@@ -54,16 +54,16 @@ func generate_random_gem(nivel_inimigo: int) -> ItemData:
 	return item
 
 
-func get_by_id(id_item: String) -> ItemData:
-	for item in itens:
-		if item.id == id_item:
+func get_by_id(item_id: String) -> ItemData:
+	for item in items:
+		if item.id == item_id:
 			return item
 	return null
 
 
-func _roll_rarity(nivel_inimigo: int) -> ItemData.Rarity:
-	var nivel := maxi(1, nivel_inimigo)
-	var tier_max := clampi(int(floor(float(nivel) / 5.0)), int(ItemData.Rarity.COMMON), int(ItemData.Rarity.TRANSCENDENTAL))
+func _roll_rarity(enemy_level: int) -> ItemData.Rarity:
+	var level := maxi(1, enemy_level)
+	var tier_max := clampi(int(floor(float(level) / 5.0)), int(ItemData.Rarity.COMMON), int(ItemData.Rarity.TRANSCENDENTAL))
 	var pesos: Array[float] = []
 	pesos.resize(tier_max + 1)
 	for tier in tier_max + 1:
@@ -82,105 +82,105 @@ func _roll_rarity(nivel_inimigo: int) -> ItemData.Rarity:
 
 
 func _populate_catalog() -> void:
-	itens.clear()
+	items.clear()
 	var G := ItemData.RequiredClass.WARRIOR
 	var M := ItemData.RequiredClass.MAGE
 	var A := ItemData.RequiredClass.ARCHER
 	var S := ItemData.RequiredClass.ASSASSIN
 	var T := ItemData.RequiredClass.TANK
 	var C := ItemData.RequiredClass.PRIEST
-	# Guerreiro
-	itens.append(_create("espada_ferro", "Espada de Ferro", ItemData.Type.WEAPON, 8, 0, G))
-	itens.append(_create("espada_treino", "Espada de Treino", ItemData.Type.WEAPON, 9, 0, G))
-	itens.append(_create("escudo_madeira", "Escudo de Madeira", ItemData.Type.OFFHAND, 2, 8, G))
-	itens.append(_create("elmo_guerreiro", "Elmo do Guerreiro", ItemData.Type.HELMET, 3, 6, G))
-	itens.append(_create("peitoral_guerreiro", "Peitoral do Guerreiro", ItemData.Type.CHEST, 2, 10, G))
-	itens.append(_create("luvas_guerreiro", "Luvas do Guerreiro", ItemData.Type.GLOVES, 2, 4, G))
-	itens.append(_create("calca_guerreiro", "Calça do Guerreiro", ItemData.Type.PANTS, 2, 6, G))
-	itens.append(_create("botas_guerreiro", "Botas do Guerreiro", ItemData.Type.BOOTS, 1, 5, G))
-	itens.append(_create("mascote_leao", "Mascote Leão", ItemData.Type.PET, 3, 4, G))
-	itens.append(_create("anel_honra", "Anel de Honra", ItemData.Type.RING, 2, 2, G))
-	itens.append(_create("bracelete_guerreiro", "Bracelete do Guerreiro", ItemData.Type.BRACELET, 2, 3, G))
-	# Mago
-	itens.append(_create("cajado_arcano", "Cajado Arcano", ItemData.Type.WEAPON, 7, 0, M))
-	itens.append(_create("grimorio", "Grimório", ItemData.Type.OFFHAND, 4, 0, M))
-	itens.append(_create("familiar", "Familiar Arcano", ItemData.Type.PET, 3, 0, M))
-	itens.append(_create("manto_mistico", "Manto Místico", ItemData.Type.CHEST, 2, 8, M))
-	itens.append(_create("tiara_arcano", "Tiara Arcana", ItemData.Type.HELMET, 2, 4, M))
-	itens.append(_create("luvas_mago", "Luvas do Mago", ItemData.Type.GLOVES, 3, 2, M))
-	itens.append(_create("calca_mago", "Calça do Mago", ItemData.Type.PANTS, 2, 5, M))
-	itens.append(_create("botas_mago", "Botas do Mago", ItemData.Type.BOOTS, 1, 4, M))
-	itens.append(_create("cinto_arcano", "Cinto Arcano", ItemData.Type.BELT, 2, 3, M))
-	itens.append(_create("pingente_mana", "Pingente de Mana", ItemData.Type.PENDANT, 2, 4, M))
-	# Arqueiro
-	itens.append(_create("arco_curto", "Arco Curto", ItemData.Type.WEAPON, 7, 0, A))
-	itens.append(_create("aljava", "Aljava", ItemData.Type.OFFHAND, 3, 0, A))
-	itens.append(_create("capuz_couro", "Capuz de Couro", ItemData.Type.HELMET, 2, 4, A))
-	itens.append(_create("peitoral_arqueiro", "Peitoral do Arqueiro", ItemData.Type.CHEST, 2, 6, A))
-	itens.append(_create("luvas_arqueiro", "Luvas do Arqueiro", ItemData.Type.GLOVES, 2, 3, A))
-	itens.append(_create("calca_arqueiro", "Calça do Arqueiro", ItemData.Type.PANTS, 2, 5, A))
-	itens.append(_create("botas_arqueiro", "Botas do Arqueiro", ItemData.Type.BOOTS, 1, 4, A))
-	itens.append(_create("falcao_companheiro", "Falcão Companheiro", ItemData.Type.PET, 3, 2, A))
-	itens.append(_create("anel_precisao", "Anel de Precisão", ItemData.Type.RING, 3, 0, A))
-	# Assassino
-	itens.append(_create("adaga_sombria", "Adaga Sombria", ItemData.Type.WEAPON, 6, 0, S))
-	itens.append(_create("adaga_secundaria", "Adaga Gêmea", ItemData.Type.OFFHAND, 5, 0, S))
-	itens.append(_create("capuz_assassino", "Capuz do Assassino", ItemData.Type.HELMET, 3, 2, S))
-	itens.append(_create("peitoral_sombrio", "Peitoral Sombrio", ItemData.Type.CHEST, 2, 5, S))
-	itens.append(_create("luvas_assassino", "Luvas do Assassino", ItemData.Type.GLOVES, 3, 2, S))
-	itens.append(_create("calca_assassino", "Calça do Assassino", ItemData.Type.PANTS, 2, 4, S))
-	itens.append(_create("botas_assassino", "Botas do Assassino", ItemData.Type.BOOTS, 1, 3, S))
-	itens.append(_create("cinto_sombrio", "Cinto Sombrio", ItemData.Type.BELT, 2, 2, S))
-	itens.append(_create("bracelete_sombrio", "Bracelete Sombrio", ItemData.Type.BRACELET, 3, 1, S))
-	# Tanque
-	itens.append(_create("maca_pesada", "Maça Pesada", ItemData.Type.WEAPON, 8, 4, T))
-	itens.append(_create("escudo_torre", "Escudo Torre", ItemData.Type.OFFHAND, 1, 14, T))
-	itens.append(_create("peitoral_ferro", "Peitoral de Ferro", ItemData.Type.CHEST, 2, 16, T))
-	itens.append(_create("elmo_torre", "Elmo Torre", ItemData.Type.HELMET, 2, 10, T))
-	itens.append(_create("luvas_tanque", "Luvas do Tanque", ItemData.Type.GLOVES, 2, 6, T))
-	itens.append(_create("calca_tanque", "Calça do Tanque", ItemData.Type.PANTS, 2, 12, T))
-	itens.append(_create("botas_tanque", "Botas do Tanque", ItemData.Type.BOOTS, 1, 8, T))
-	itens.append(_create("mascote_tartaruga", "Mascote Tartaruga", ItemData.Type.PET, 1, 8, T))
-	itens.append(_create("pingente_guardiao", "Pingente do Guardião", ItemData.Type.PENDANT, 1, 6, T))
-	# Sacerdote
-	itens.append(_create("cajado_sagrado", "Cajado Sagrado", ItemData.Type.WEAPON, 5, 6, C))
-	itens.append(_create("tomo_luz", "Tomo de Luz", ItemData.Type.OFFHAND, 2, 8, C))
-	itens.append(_create("manto_clerical", "Manto Clerical", ItemData.Type.CHEST, 1, 12, C))
-	itens.append(_create("pingente_fe", "Pingente de Fé", ItemData.Type.PENDANT, 1, 5, C))
-	itens.append(_create("tiara_sagrada", "Tiara Sagrada", ItemData.Type.HELMET, 2, 6, C))
-	itens.append(_create("luvas_sacerdote", "Luvas do Sacerdote", ItemData.Type.GLOVES, 1, 5, C))
-	itens.append(_create("calca_sacerdote", "Calça do Sacerdote", ItemData.Type.PANTS, 1, 8, C))
-	itens.append(_create("botas_sacerdote", "Botas do Sacerdote", ItemData.Type.BOOTS, 1, 6, C))
-	itens.append(_create("anel_devocao", "Anel de Devotos", ItemData.Type.RING, 2, 4, C))
-	# Comuns (qualquer classe)
-	itens.append(_create("luvas_tecido", "Luvas de Tecido", ItemData.Type.GLOVES, 2, 2))
-	itens.append(_create("calca_couro", "Calça de Couro", ItemData.Type.PANTS, 2, 5))
-	itens.append(_create("botas_viagem", "Botas de Viagem", ItemData.Type.BOOTS, 1, 3))
-	itens.append(_create("cinto_simples", "Cinto Simples", ItemData.Type.BELT, 1, 2))
-	itens.append(_create("anel_bruto", "Anel Bruto", ItemData.Type.RING, 2, 0))
-	itens.append(_create("bracelete_ferro", "Bracelete de Ferro", ItemData.Type.BRACELET, 2, 1))
-	itens.append(_create("capuz_viagem", "Capuz de Viagem", ItemData.Type.HELMET, 1, 3))
-	itens.append(_create("peitoral_couro", "Peitoral de Couro", ItemData.Type.CHEST, 2, 4))
-	itens.append(_create("pingente_simples", "Pingente Simples", ItemData.Type.PENDANT, 1, 2))
-	itens.append(_create("mascote_rato", "Mascote Rato", ItemData.Type.PET, 1, 2))
-	for item in itens:
+	# Warrior
+	items.append(_create("iron_sword", ItemData.Type.WEAPON, 8, 0, G))
+	items.append(_create("training_sword", ItemData.Type.WEAPON, 9, 0, G))
+	items.append(_create("wooden_shield", ItemData.Type.OFFHAND, 2, 8, G))
+	items.append(_create("warrior_helmet", ItemData.Type.HELMET, 3, 6, G))
+	items.append(_create("warrior_chestplate", ItemData.Type.CHEST, 2, 10, G))
+	items.append(_create("warrior_gloves", ItemData.Type.GLOVES, 2, 4, G))
+	items.append(_create("warrior_pants", ItemData.Type.PANTS, 2, 6, G))
+	items.append(_create("warrior_boots", ItemData.Type.BOOTS, 1, 5, G))
+	items.append(_create("lion_pet", ItemData.Type.PET, 3, 4, G))
+	items.append(_create("ring_of_honor", ItemData.Type.RING, 2, 2, G))
+	items.append(_create("warrior_bracelet", ItemData.Type.BRACELET, 2, 3, G))
+	# Mage
+	items.append(_create("arcane_staff", ItemData.Type.WEAPON, 7, 0, M))
+	items.append(_create("grimoire", ItemData.Type.OFFHAND, 4, 0, M))
+	items.append(_create("arcane_familiar", ItemData.Type.PET, 3, 0, M))
+	items.append(_create("mystic_cloak", ItemData.Type.CHEST, 2, 8, M))
+	items.append(_create("arcane_tiara", ItemData.Type.HELMET, 2, 4, M))
+	items.append(_create("mage_gloves", ItemData.Type.GLOVES, 3, 2, M))
+	items.append(_create("mage_pants", ItemData.Type.PANTS, 2, 5, M))
+	items.append(_create("mage_boots", ItemData.Type.BOOTS, 1, 4, M))
+	items.append(_create("arcane_belt", ItemData.Type.BELT, 2, 3, M))
+	items.append(_create("mana_pendant", ItemData.Type.PENDANT, 2, 4, M))
+	# Archer
+	items.append(_create("short_bow", ItemData.Type.WEAPON, 7, 0, A))
+	items.append(_create("quiver", ItemData.Type.OFFHAND, 3, 0, A))
+	items.append(_create("leather_hood", ItemData.Type.HELMET, 2, 4, A))
+	items.append(_create("archer_chestplate", ItemData.Type.CHEST, 2, 6, A))
+	items.append(_create("archer_gloves", ItemData.Type.GLOVES, 2, 3, A))
+	items.append(_create("archer_pants", ItemData.Type.PANTS, 2, 5, A))
+	items.append(_create("archer_boots", ItemData.Type.BOOTS, 1, 4, A))
+	items.append(_create("companion_falcon", ItemData.Type.PET, 3, 2, A))
+	items.append(_create("precision_ring", ItemData.Type.RING, 3, 0, A))
+	# Assassin
+	items.append(_create("shadow_dagger", ItemData.Type.WEAPON, 6, 0, S))
+	items.append(_create("twin_dagger", ItemData.Type.OFFHAND, 5, 0, S))
+	items.append(_create("assassin_hood", ItemData.Type.HELMET, 3, 2, S))
+	items.append(_create("shadow_chestplate", ItemData.Type.CHEST, 2, 5, S))
+	items.append(_create("assassin_gloves", ItemData.Type.GLOVES, 3, 2, S))
+	items.append(_create("assassin_pants", ItemData.Type.PANTS, 2, 4, S))
+	items.append(_create("assassin_boots", ItemData.Type.BOOTS, 1, 3, S))
+	items.append(_create("shadow_belt", ItemData.Type.BELT, 2, 2, S))
+	items.append(_create("shadow_bracelet", ItemData.Type.BRACELET, 3, 1, S))
+	# Tank
+	items.append(_create("heavy_mace", ItemData.Type.WEAPON, 8, 4, T))
+	items.append(_create("tower_shield", ItemData.Type.OFFHAND, 1, 14, T))
+	items.append(_create("iron_chestplate", ItemData.Type.CHEST, 2, 16, T))
+	items.append(_create("tower_helmet", ItemData.Type.HELMET, 2, 10, T))
+	items.append(_create("tank_gloves", ItemData.Type.GLOVES, 2, 6, T))
+	items.append(_create("tank_pants", ItemData.Type.PANTS, 2, 12, T))
+	items.append(_create("tank_boots", ItemData.Type.BOOTS, 1, 8, T))
+	items.append(_create("turtle_pet", ItemData.Type.PET, 1, 8, T))
+	items.append(_create("guardian_pendant", ItemData.Type.PENDANT, 1, 6, T))
+	# Priest
+	items.append(_create("holy_staff", ItemData.Type.WEAPON, 5, 6, C))
+	items.append(_create("tome_of_light", ItemData.Type.OFFHAND, 2, 8, C))
+	items.append(_create("clerical_cloak", ItemData.Type.CHEST, 1, 12, C))
+	items.append(_create("faith_pendant", ItemData.Type.PENDANT, 1, 5, C))
+	items.append(_create("sacred_tiara", ItemData.Type.HELMET, 2, 6, C))
+	items.append(_create("priest_gloves", ItemData.Type.GLOVES, 1, 5, C))
+	items.append(_create("priest_pants", ItemData.Type.PANTS, 1, 8, C))
+	items.append(_create("priest_boots", ItemData.Type.BOOTS, 1, 6, C))
+	items.append(_create("devotion_ring", ItemData.Type.RING, 2, 4, C))
+	# Common (all classes)
+	items.append(_create("cloth_gloves", ItemData.Type.GLOVES, 2, 2))
+	items.append(_create("leather_pants", ItemData.Type.PANTS, 2, 5))
+	items.append(_create("travel_boots", ItemData.Type.BOOTS, 1, 3))
+	items.append(_create("simple_belt", ItemData.Type.BELT, 1, 2))
+	items.append(_create("rough_ring", ItemData.Type.RING, 2, 0))
+	items.append(_create("iron_bracelet", ItemData.Type.BRACELET, 2, 1))
+	items.append(_create("travel_hood", ItemData.Type.HELMET, 1, 3))
+	items.append(_create("leather_chestplate", ItemData.Type.CHEST, 2, 4))
+	items.append(_create("simple_pendant", ItemData.Type.PENDANT, 1, 2))
+	items.append(_create("rat_pet", ItemData.Type.PET, 1, 2))
+	for item in items:
 		item.icone = item.generate_icon()
+
 
 
 func _create(
 	p_id: String,
-	p_nome: String,
 	p_tipo: ItemData.Type,
-	p_dano: int,
+	p_damage: int,
 	p_hp: int,
 	p_classe: ItemData.RequiredClass = ItemData.RequiredClass.ALL
 ) -> ItemData:
 	var item := ItemData.new()
 	item.id = p_id
-	item.display_name = p_nome
+	item.display_name = ""
 	item.name_key = "ITEM_%s" % p_id
 	item.item_type = p_tipo
-	item.damage_bonus = p_dano
+	item.damage_bonus = p_damage
 	item.hp_bonus = p_hp
 	item.required_class = p_classe
 	item.rarity = ItemData.Rarity.COMMON

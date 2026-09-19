@@ -82,14 +82,14 @@ func global_bonus() -> Dictionary:
 		var no := node_by_id(int(id_no))
 		if no.is_empty():
 			continue
-		var chave := SkillTreeDefinition.bonus_key(int(no.get("tipo", 0)))
+		var chave := SkillTreeDefinition.bonus_key(int(no.get("type", 0)))
 		if chave == "":
 			continue
 		var valor := SkillTreeDefinition.bonus_value(no, nivel)
-		if chave in ["ataque", "vida"]:
+		if chave in ["attack", "hp"]:
 			total[chave] = int(total[chave]) + int(valor)
-		elif chave == "ataque_pct":
-			total["ataque_pct"] = float(total["ataque_pct"]) + valor
+		elif chave == "attack_pct":
+			total["attack_pct"] = float(total["attack_pct"]) + valor
 		else:
 			total[chave] = float(total[chave]) + valor
 	return _aplicar_caps_bonus(total)
@@ -103,7 +103,7 @@ func unlocked_warehouse_indices() -> Array[int]:
 		var no := node_by_id(int(id_no))
 		if no.is_empty():
 			continue
-		if int(no.get("tipo", -1)) != SkillTreeDefinition.BonusType.WAREHOUSE:
+		if int(no.get("type", -1)) != SkillTreeDefinition.BonusType.WAREHOUSE:
 			continue
 		saida.append(int(no.get("valor_base", no.get("valor", 0))))
 	return saida
@@ -111,16 +111,16 @@ func unlocked_warehouse_indices() -> Array[int]:
 
 static func _aplicar_caps_bonus(total: Dictionary) -> Dictionary:
 	var caps := {
-		"ataque_pct": 20.0,
-		"bonus_ouro": 30.0,
-		"bonus_xp": 40.0,
-		"vel_ataque": 45.0,
+		"attack_pct": 20.0,
+		"gold_bonus": 30.0,
+		"xp_bonus": 40.0,
+		"attack_speed": 45.0,
 		"crit_chance": 25.0,
-		"crit_dano": 60.0,
-		"evasao": 25.0,
-		"res_fisica": 35.0,
-		"res_arcana": 35.0,
-		"res_elemental": 35.0,
+		"crit_damage": 60.0,
+		"evasion": 25.0,
+		"phys_res": 35.0,
+		"arcane_res": 35.0,
+		"elemental_res": 35.0,
 	}
 	for chave in caps.keys():
 		if chave in total:

@@ -116,7 +116,7 @@ func to_dict() -> Dictionary:
 		for tipo in EQUIP_TYPES:
 			var item: ItemData = _by_character[i].get(int(tipo)) as ItemData
 			entries.append({
-				"tipo": int(tipo),
+				"type": int(tipo),
 				"item": item.to_dictionary() if item else {},
 			})
 		all[str(i)] = entries
@@ -171,12 +171,13 @@ func _apply_slot_list(character_index: int, lista: Array) -> void:
 	var by_type: Dictionary = {}
 	for entrada in lista:
 		if entrada is Dictionary:
-			by_type[int(entrada.get("tipo", -1))] = entrada.get("item", {})
+			var slot_type := int(entrada.get("type", entrada.get("tipo", -1)))
+			by_type[slot_type] = entrada.get("item", {})
 	for tipo in EQUIP_TYPES:
 		var key := int(tipo)
 		var raw: Variant = by_type.get(key, {})
 		if raw is Dictionary and not (raw as Dictionary).is_empty():
-			loadout[key] = ItemData.de_dicionario(raw)
+			loadout[key] = ItemData.from_dictionary(raw)
 		else:
 			loadout[key] = null
 
