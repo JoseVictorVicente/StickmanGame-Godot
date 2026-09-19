@@ -2,7 +2,7 @@ class_name Enemy
 extends RefCounted
 ## Idle combat enemy. Dies at zero HP and grants gold/XP rewards.
 
-var nome: String = "Inimigo"
+var display_name: String = "Enemy"
 var max_hp: int = 20
 var current_hp: int = 20
 var dano: int = 3
@@ -10,8 +10,8 @@ var gold_reward: int = 3
 var xp_reward: int = 5
 
 
-func configure(p_nome: String, p_hp: int, p_gold: int, p_xp: int, p_dano: int = 1) -> void:
-	nome = p_nome
+func configure(p_display_name: String, p_hp: int, p_gold: int, p_xp: int, p_dano: int = 1) -> void:
+	display_name = p_display_name
 	max_hp = max(1, p_hp)
 	current_hp = max_hp
 	dano = max(1, p_dano)
@@ -30,4 +30,4 @@ func is_dead() -> bool:
 
 
 func hp_text() -> String:
-	return "%s  %d / %d" % [nome, current_hp, max_hp]
+	return "%s  %d / %d" % [display_name, current_hp, max_hp]
