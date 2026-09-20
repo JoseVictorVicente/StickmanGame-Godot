@@ -91,7 +91,7 @@ Dictionary returned by `scenes/main.gd`:
 	"repeat_stage": bool,
 	"active_character_index": int,  # 0..2 in character menu
 	"progress": Dictionary,         # see below
-	"inventory": Array,             # 50 × ItemData dict or {}
+	"inventory": Array,             # 49 × ItemData dict or {} (5×10 grid, expand slot not saved)
 	"warehouse": Dictionary,        # see below
 	"equipment": Dictionary,        # per class_id
 	"party": Dictionary,            # party
@@ -148,7 +148,7 @@ Legacy: `Array` aligned with `party.classes` — still accepted in `HeroProgress
 
 ### `inventory`
 
-Array of 50 elements. Empty item = `{}`. Filled item = `ItemData.para_dicionario()`:
+Array of **49** elements (usable inventory slots; UI shows 50 with expand "+" placeholder). Empty item = `{}`. Filled item = `ItemData.to_dictionary()`:
 
 ```json
 {

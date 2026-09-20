@@ -110,7 +110,7 @@ func show_tab(stage_index: int) -> void:
 func _setup_sort_button() -> void:
 	if sort_button == null:
 		return
-	InventoryMenu.setup_icon_button(sort_button, "res://sprites/ui/sort_inventory.png")
+	InterfaceIcons.setup_icon_button(sort_button, "res://sprites/ui/sort_inventory.png")
 	sort_button.pressed.connect(_on_sort_button_pressed)
 
 

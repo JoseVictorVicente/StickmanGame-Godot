@@ -8,7 +8,11 @@ const SCENES := [
 	"res://presentation/inventory/skills_panel.tscn",
 	"res://presentation/inventory/inventory_menu.tscn",
 	"res://presentation/inventory/attributes_panel.tscn",
-	"res://presentation/inventory/hero_section.tscn",
+	"res://presentation/inventory/hero_equip_left_panel.tscn",
+	"res://presentation/inventory/hero_character_panel.tscn",
+	"res://presentation/inventory/hero_equip_right_panel.tscn",
+	"res://presentation/inventory/inventory_panel.tscn",
+	"res://presentation/inventory/settings_panel.tscn",
 	"res://presentation/inventory/skill_tree_panel.tscn",
 	"res://presentation/worlds/worlds_panel.tscn",
 ]

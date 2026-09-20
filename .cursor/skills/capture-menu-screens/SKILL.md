@@ -9,6 +9,8 @@ description: >-
 
 Run the automated capture, **read every PNG**, and report visual findings for **all ten menu screens**.
 
+Use this skill for full menu reviews (`/capture-menu-screens`). After a single-screen edit, follow [`edit-ui-screens`](../edit-ui-screens/SKILL.md) Step 3 and read only the PNG(s) for what you changed.
+
 ## Command
 
 ```powershell

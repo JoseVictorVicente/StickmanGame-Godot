@@ -1,16 +1,18 @@
 [gd_scene format=3 uid="uid://c8bottomnav1"]
 
 [ext_resource type="Script" path="res://presentation/inventory/bottom_nav.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bnc8n5u3bvfvp" path="res://sprites/ui/nav_skills.png" id="2_ext"]
-[ext_resource type="Texture2D" uid="uid://dpbh05jiuntra" path="res://sprites/ui/nav_inventory.png" id="3_ext"]
-[ext_resource type="Texture2D" uid="uid://bsehtefuj1pxn" path="res://sprites/ui/nav_forge.png" id="4_ext"]
-[ext_resource type="Texture2D" uid="uid://dw0jgemm34bg" path="res://sprites/ui/nav_world.png" id="5_ext"]
+[ext_resource type="Texture2D" uid="uid://c5o34g0lmphl5" path="res://sprites/ui/chest.png" id="2_ext"]
+[ext_resource type="Texture2D" uid="uid://bnc8n5u3bvfvp" path="res://sprites/ui/nav_skills.png" id="3_ext"]
+[ext_resource type="Texture2D" uid="uid://dpbh05jiuntra" path="res://sprites/ui/nav_inventory.png" id="4_ext"]
+[ext_resource type="Texture2D" uid="uid://bsehtefuj1pxn" path="res://sprites/ui/nav_forge.png" id="5_ext"]
+[ext_resource type="Texture2D" uid="uid://dw0jgemm34bg" path="res://sprites/ui/nav_world.png" id="6_ext"]
+[ext_resource type="Texture2D" uid="uid://cur0apo3o7e1y" path="res://sprites/ui/nav_attributes.png" id="7_ext"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 bg_color = Color(0.18, 0.14, 0.11, 1)
 border_width_left = 1
 border_width_top = 1
@@ -23,10 +25,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 bg_color = Color(0.1, 0.08, 0.07, 1)
 border_width_left = 1
 border_width_top = 1
@@ -39,10 +41,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 bg_color = Color(0.32, 0.24, 0.16, 1)
 border_width_left = 1
 border_width_top = 1
@@ -56,72 +58,93 @@ corner_radius_bottom_left = 4
 
 [node name="BottomNav" type="HBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(438, 34)
+size_flags_horizontal = 4
 size_flags_vertical = 0
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
+alignment = 1
 script = ExtResource("1_script")
+
+[node name="StorageButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+icon = ExtResource("2_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="SkillsButton" type="Button" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_constants/h_separation = 4
-theme_override_font_sizes/font_size = 11
+size_flags_vertical = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Habilidades"
-icon = ExtResource("2_ext")
-
-[node name="InventoryButton" type="Button" parent="."]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_constants/h_separation = 4
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Árvore"
 icon = ExtResource("3_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1
+
+[node name="TreeButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+icon = ExtResource("4_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1
+
+[node name="FormationButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+icon = ExtResource("7_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="ForgePanelButton" type="Button" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_constants/h_separation = 4
-theme_override_font_sizes/font_size = 11
+size_flags_vertical = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Forja"
-icon = ExtResource("4_ext")
+icon = ExtResource("5_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1
 
 [node name="WorldButton" type="Button" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
-theme_override_constants/h_separation = 4
-theme_override_font_sizes/font_size = 11
+size_flags_vertical = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon_alignment = 0
-expand_icon = true
-text = "Mundo"
-icon = ExtResource("5_ext")
+icon = ExtResource("6_ext")
+icon_alignment = 1
+vertical_icon_alignment = 1

@@ -43,16 +43,19 @@ inventory_menu.tscn
    ├─ TopSpacer
    ├─ MenuArea (HBox)
    │  ├─ WarehousePanel
-   │  ├─ Panel → Conteudo + overlays
-   │  │  └─ Conteudo (VBox)
-   │  │     ├─ HubUpper (clip) → Header + hero_section
-   │  │     └─ HubLower (clip, expand) → inventory_row + bottom_nav
+   │  ├─ HubColumn
+   │  │  ├─ HubChromeBar → Header (gold, quit, settings)
+   │  │  └─ HubBody → HubContent + OverlayStack
+   │  │     ├─ HubUpperRow → hero_equip_left + hero_character + hero_equip_right
+   │  │     ├─ InventoryPanel (scroll + 5×10 grid)
+   │  │     └─ BottomNav
+   │  │     OverlayStack: formation, skills, attributes, skill tree, settings
    │  ├─ ForgePanel
    │  └─ WorldsPanel
    └─ BottomSpacer
 ```
 
-`inventory_row.tscn` (lower band): **Formation** button → sort + 10×5 grid + warehouse. Heights come from `InventoryLayout.inventory_row_pixel_size()` (includes `formation_bar_height`, `hub_lower_inset_top`).
+`inventory_panel.tscn`: scroll + **5×10** grid. Sort lives in `hero_equip_right_panel.tscn`. Formation lives in `bottom_nav.tscn`. Heights come from `InventoryLayout.inventory_panel_size()`.
 
 ---
 
@@ -62,10 +65,10 @@ inventory_menu.tscn
 
 | Type | Location | Example |
 |------|----------|---------|
-| Hub block | Prefab instanced in `inventory_menu.tscn` | `hero_section.tscn` |
-| Full-bleed overlay | Child of hub `Panel` | `formation_panel.tscn` |
+| Hub block | Prefab instanced in `inventory_menu.tscn` | `hero_equip_left_panel.tscn`, `hero_character_panel.tscn`, etc. |
+| Full-bleed overlay | Child of `%OverlayStack` under `%HubBody` | `formation_panel.tscn` |
 | Side panel | Child of `MenuArea` | `warehouse_panel.tscn` |
-| Floating panel | Sibling on menu root | `SettingsPanel` |
+| Settings overlay | Instance in `%OverlayStack` | `settings_panel.tscn` |
 | Non-menu HUD | `presentation/combat/` or `scenes/main.tscn` | combat HUD |
 
 ### 2. Scene checklist
@@ -75,13 +78,20 @@ inventory_menu.tscn
 3. `%UniqueName` on nodes referenced from scripts.
 4. `tr(LocaleKeys.*)` for visible text; update `locales/*.po`.
 5. `configure(menu)` pattern for panels that talk to `InventoryMenu`.
-6. Signals up (`panel_open_changed`, etc.); controller in `inventory_menu.gd` wires behavior.
+6. Signals up (`panel_open_changed`, `nav_requested`, etc.); `InventoryPanelRouter` + `inventory_menu.gd` wire behavior.
 7. No economy/combat logic in the panel script.
+
+### Hub prefab edit flow
+
+1. Open prefab in isolation (`hero_equip_left_panel.tscn`, `inventory_panel.tscn`, or `bottom_nav.tscn`).
+2. Adjust containers / `%UniqueName` nodes in the 2D editor — `@tool` prefabs preview `InventoryLayout` sizes without F5.
+3. Wire new UI through prefab `configure(menu)` + signals; avoid reaching into child nodes from `inventory_menu.gd`.
+4. Run visual capture after hub changes (see below).
 
 ### 3. Layout resource (inventory slots/toolbars)
 
 - Edit `inventory_layout_default.tres` for shared sizes (`base_unit`, slot size, nav height).
-- Apply at runtime via `_apply_panel_layout()` — do not hardcode hub width on `Panel` / `MenuArea` / `LinhaInventario` in `.tscn`.
+- Apply at runtime via `_apply_panel_layout()` — do not hardcode hub width on `HubBody` / `MenuArea` / `InventoryPanel` in `.tscn`.
 
 ### 4. Register visual capture (if menu-visible)
 
@@ -94,7 +104,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
 ```
 
-Read all PNGs in `artifacts/inventory_layout/`.
+Read the PNG(s) listed in [`edit-ui-screens` Step 3](../../.cursor/skills/edit-ui-screens/SKILL.md#step-3--read-the-relevant-pngs) for the screen(s) you edited. Use `/capture-menu-screens` for a full ten-screen review.
 
 ---
 
@@ -108,7 +118,7 @@ Read all PNGs in `artifacts/inventory_layout/`.
 flowchart LR
   edit[Edit tscn/tres/gd] --> guard[run_ui_layout_check]
   guard --> capture[run_inventory_menu_visual_capture]
-  capture --> read[Agent reads 10 PNGs]
+  capture --> read[Agent reads relevant PNG(s)]
   read --> ok{Acceptable?}
   ok -->|no| edit
   ok -->|yes| done[Done]
@@ -141,9 +151,10 @@ Output: `artifacts/inventory_layout/<state_id>.png` + `manifest.json` (gitignore
 | Grid overlapping hero | `SectionVisualOffset` or manual `position`; missing `clip_contents` on hub zones |
 | Hub too narrow | `custom_minimum_size` override on `Panel`; wrong `base_unit` |
 | Overlay not full-bleed | Missing Full Rect on overlay; `panel_layout.gd` not called |
-| Skill tree black / settings grid bleed | `painel.visible = false` instead of `_set_inventory_visible()` |
+| Skill tree black / settings grid bleed | `painel.visible = false` instead of `InventoryPanelRouter.set_inventory_visible()` / `set_hub_visible()` |
 | Side panel clipped / zero height | Missing `size_flags_vertical = EXPAND_FILL`; `_sync_side_panel_heights()` not run |
-| Panel taller than combat band | Added lower-band widgets without updating `inventory_row_pixel_size()` / zone heights |
+| Panel taller than combat band | Added lower-band widgets without updating `inventory_row_pixel_size()` / zone heights; or `base_unit` raised without `fit_panel_to_viewport()` |
+| Top of `inventory_bg` clipped | Panel min height > `UiConstants.max_hub_panel_pixel_height()` — run `sync_from_base_unit()` after slot/token edits |
 | Checkerboard in panel | Transparent window without test host bg (capture only) |
 
 ### `inventory_menu.gd` encoding

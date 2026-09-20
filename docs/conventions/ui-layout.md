@@ -50,15 +50,26 @@ Menu (Control, Full Rect)
 
 ### Hub panel interior (`inventory_bg.png`)
 
-The texture has two stacked frames (hero top, inventory bottom). Inside `Panel → Conteudo`:
+The texture has two stacked frames (hero top, inventory bottom). Inside `HubBody → HubContent`:
 
 ```text
-HubUpper (clip_contents) → Header + hero_section
-HubLower (clip_contents, expand) → inventory_row + bottom_nav
+MenuArea (HBox)
+├─ WarehousePanel
+├─ HubColumn (VBox)
+│  ├─ HubChromeBar (transparent) → Header: gold + quit + settings
+│  └─ HubBody → HubContent
+│     ├─ HubUpperRow → hero_equip_left + hero_character + hero_equip_right
+│     ├─ InventoryPanel (scroll + 5×10 grid)
+│     └─ BottomNav
+│     OverlayStack (full bleed on HubBody): formation, skills, attributes, skill tree, settings
+├─ ForgePanel
+└─ WorldsPanel
 ```
 
-- Zone heights: `InventoryLayout.hub_upper_band_height()` / `hub_lower_band_height()` via `_apply_hub_zones()` in `inventory_menu.gd`.
-- Formation button: top of `inventory_row.tscn` (lower band), width aligned to grid via `inventory_grid_pixel_size().x`.
+- Zone heights: `InventoryLayout.hub_upper_row_size()` / `inventory_panel_size()` via `_apply_hub_content_heights()` in `inventory_menu.gd`.
+- **Chrome bar:** gold, quit, and settings sit in `%HubChromeBar` above `%HubBody` (transparent background); not part of `inventory_bg.png`.
+- **Viewport cap:** after changing `base_unit` or slot sizes, call `InventoryLayout.sync_from_base_unit()` — it runs `fit_panel_to_viewport()` so the panel never exceeds `UiConstants.max_hub_panel_pixel_height()` (860 − combat − top margin). Extra grid rows scroll inside `InventoryScroll` instead of growing the panel.
+- Sort button: `hero_equip_right_panel.tscn` (`%SortInventoryButton`), right-aligned under pet slot.
 - Avoid `SectionVisualOffset` in the hub; use container `separation` and layout tokens (`formation_bar_height`, `hub_lower_inset_top`).
 
 ## New UI scene checklist
@@ -90,7 +101,7 @@ Do **not** use absolute layout for the main inventory hub panel, headers, or nav
 - `layout_mode = 0` on children of `VBoxContainer` / `HBoxContainer` (editor fights runtime).
 - Scaling `Control` nodes instead of `custom_minimum_size` on slots.
 - Duplicating slot scenes in a loop at runtime when a baked prefab grid exists.
-- Fixing hub width or inventory row size in `inventory_menu.tscn` (`custom_minimum_size` on `Panel` / `MenuArea` / `LinhaInventario`) — use `InventoryLayout` + `_apply_panel_layout()` instead.
+- Fixing hub width or inventory panel size in `inventory_menu.tscn` (`custom_minimum_size` on `HubBody` / `MenuArea` / `InventoryPanel`) — use `InventoryLayout` + `_apply_panel_layout()` instead.
 
 ## CI / local audit
 
@@ -98,11 +109,11 @@ Do **not** use absolute layout for the main inventory hub panel, headers, or nav
 powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 ```
 
-`tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`worlds_panel` stage map, `hero_section` visual offset wrapper). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
+`tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`worlds_panel` stage map). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
 
 Inventory menu geometry (ten screens): `tools/run_inventory_menu_layout_audit.ps1`.
 
-Menu **visual** review for Cursor agents (`/capture-menu-screens`, ten PNG captures):
+Menu **visual** review for Cursor agents: after a single-screen edit, read only the matching PNG(s) per [`edit-ui-screens`](../../.cursor/skills/edit-ui-screens/SKILL.md) Step 3. Use `/capture-menu-screens` for all ten PNGs.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1

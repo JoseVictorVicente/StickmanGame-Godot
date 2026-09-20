@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c8invpanel1"]
+
+[ext_resource type="Script" path="res://presentation/inventory/inventory_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c8invslots01" path="res://presentation/inventory/inventory_slots_grid.tscn" id="2_ext"]
+
+[node name="InventoryPanel" type="VBoxContainer"]
+unique_name_in_owner = true
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_constants/separation = 2
+script = ExtResource("1_script")
+
+[node name="InventoryScroll" type="ScrollContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+draw_scrollbar_over_content = true
+
+[node name="InventoryGrid" parent="InventoryScroll" instance=ExtResource("2_ext")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4

@@ -108,14 +108,14 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.
 **Agent loop** after edits under `presentation/inventory/`:
 
 1. Run `tools/run_inventory_menu_visual_capture.ps1`
-2. Read all ten PNGs in `artifacts/inventory_layout/`
+2. Read the PNG(s) for the screen(s) you edited (map in [`edit-ui-screens`](../../.cursor/skills/edit-ui-screens/SKILL.md)); use `/capture-menu-screens` for all ten
 3. Evaluate layout visually (checklist below)
 4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd). For UTF-16 corruption only, use `tools/fix_inventory_menu_encoding.py` on a **clean** file — it runs `git restore` and drops uncommitted edits.
 5. Repeat until acceptable; optionally run `tools/run_inventory_menu_layout_audit.ps1`
 
 | PNG | Visual expectations |
 |-----|---------------------|
-| `hub_combat_bottom` | Hub in lower half; top ~320px clear; 10×5 grid readable; nav proportional |
+| `hub_combat_bottom` | Hub in lower half; top ~320px clear; 5×10 grid readable; nav proportional |
 | `hub_combat_top` | Hub below top combat band; no overlap into reserved zone |
 | `formation_open` | Formation overlay full-bleed on hub panel |
 | `skills_open` | Skills overlay full-bleed on hub panel |

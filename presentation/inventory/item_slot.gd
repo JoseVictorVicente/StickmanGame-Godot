@@ -198,7 +198,7 @@ func _should_open_tooltip_left(slot_rect: Rect2) -> bool:
 func _is_in_right_column() -> bool:
 	var no: Node = self
 	while no:
-		if no.name == "EquipRight" or str(no.name).begins_with("EquipRight_"):
+		if no.name in ["EquipRightColumns", "HeroEquipRightPanel", "EquipStack"]:
 			return true
 		no = no.get_parent()
 	return false

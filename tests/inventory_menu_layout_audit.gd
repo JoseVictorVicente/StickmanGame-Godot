@@ -83,7 +83,7 @@ func _spawn_menu() -> Control:
 
 
 func _run_invariants(menu: Control, state_id: String) -> void:
-	var painel := menu.get_node_or_null("%Panel") as Control
+	var painel := menu.get_node_or_null("%HubBody") as Control
 	var menu_area := menu.get_node_or_null("%MenuArea") as Control
 	var layout := LAYOUT.duplicate() as InventoryLayout
 	layout.sync_from_base_unit()
@@ -93,7 +93,9 @@ func _run_invariants(menu: Control, state_id: String) -> void:
 	if painel.visible:
 		_check_combat_band(state_id, painel, menu)
 		_check_hub_width(state_id, painel, menu_area, layout, menu)
-	var conteudo := menu.get_node_or_null("%Conteudo") as Control
+		_check_panel_viewport_fit(state_id, layout)
+		_check_hero_inventory_width(state_id, menu, layout)
+	var conteudo := menu.get_node_or_null("%HubContent") as Control
 	if conteudo != null and conteudo.visible:
 		_check_vertical_stack(menu, state_id)
 		_check_slot_sizes(menu, state_id, layout)
@@ -108,6 +110,57 @@ func _rect_in_menu(control: Control, menu: Control) -> Rect2:
 	var global_rect := control.get_global_rect()
 	var origin := menu.get_global_rect().position
 	return Rect2(global_rect.position - origin, global_rect.size)
+
+
+func _check_hero_inventory_width(state_id: String, menu: Control, layout: InventoryLayout) -> void:
+	var upper_row := menu.get_node_or_null("%HubUpperRow") as Control
+	var inv_panel := menu.get_node_or_null("%InventoryPanel") as Control
+	if upper_row == null or inv_panel == null or not upper_row.visible or not inv_panel.visible:
+		return
+	var hero_rect := _rect_in_menu(upper_row, menu)
+	var row_rect := _rect_in_menu(inv_panel, menu)
+	var target_w := layout.hub_content_pixel_width()
+	if absf(hero_rect.size.x - target_w) > TOL:
+		_record_failure(
+			state_id,
+			"HubUpperRow",
+			hero_rect,
+			"hero row width ~= inventory hub width (%.0f)" % target_w
+		)
+	if absf(row_rect.size.x - target_w) > TOL:
+		_record_failure(
+			state_id,
+			"InventoryPanel",
+			row_rect,
+			"inventory panel width ~= hub content width (%.0f)" % target_w
+		)
+	if absf(hero_rect.size.x - row_rect.size.x) > TOL:
+		_record_failure(
+			state_id,
+			"HubUpperRow/InventoryPanel",
+			Rect2(hero_rect.position, hero_rect.size + row_rect.size),
+			"hero and inventory panel share width"
+		)
+	if absf(hero_rect.position.x - row_rect.position.x) > TOL:
+		_record_failure(
+			state_id,
+			"HubUpperRow/InventoryPanel",
+			Rect2(hero_rect.position, hero_rect.size + row_rect.size),
+			"hero and inventory panel left edges align"
+		)
+
+
+func _check_panel_viewport_fit(state_id: String, layout: InventoryLayout) -> void:
+	var max_h := layout.max_hub_panel_pixel_height()
+	var column_h := layout.hub_column_pixel_height()
+	if column_h > max_h + TOL:
+		_record_failure(
+			state_id,
+			"InventoryLayout",
+			Rect2(),
+			"hub column height %.1f <= viewport max %.1f (run sync_from_base_unit / fit_panel_to_viewport)"
+			% [column_h, max_h]
+		)
 
 
 func _check_combat_band(state_id: String, painel: Control, menu: Control) -> void:
@@ -159,7 +212,7 @@ func _check_hub_width(
 
 
 func _check_vertical_stack(menu: Control, state_id: String) -> void:
-	var names: PackedStringArray = ["Header", "AreaHeroi", "LinhaInventario", "MenuInferior"]
+	var names: PackedStringArray = ["HubUpperRow", "InventoryPanel", "BottomNav"]
 	var nodes: Array[Control] = []
 	for node_name in names:
 		var node := menu.get_node_or_null("%" + node_name) as Control
@@ -204,7 +257,7 @@ func _check_slot_sizes(menu: Control, state_id: String, layout: InventoryLayout)
 
 
 func _check_nav_sizes(menu: Control, state_id: String, layout: InventoryLayout) -> void:
-	var nav := menu.get_node_or_null("%MenuInferior") as Control
+	var nav := menu.get_node_or_null("%BottomNav") as Control
 	if nav == null:
 		return
 	var btn := nav.get_node_or_null("%SkillsButton") as Control
@@ -249,14 +302,14 @@ func _check_overlay_coverage(menu: Control, state_id: String, painel: Control) -
 			overlay_rect,
 			"overlay covers >= %.0f%% of panel" % (OVERLAY_COVERAGE * 100.0)
 		)
-	var grid := menu.get_node_or_null("%LinhaInventario") as Control
+	var grid := menu.get_node_or_null("%InventoryPanel") as Control
 	if grid != null and grid.is_visible_in_tree():
 		var grid_rect := _rect_in_menu(grid, menu)
 		var overlap := _intersection_area(grid_rect, overlay_rect)
 		if overlap / maxf(_area(grid_rect), 1.0) > GRID_OVERLAP_MAX:
 			_record_failure(
 				state_id,
-				"LinhaInventario",
+				"InventoryPanel",
 				grid_rect,
 				"grid overlap with overlay <= %.0f%%" % (GRID_OVERLAP_MAX * 100.0)
 			)

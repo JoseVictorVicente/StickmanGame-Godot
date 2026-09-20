@@ -23,7 +23,6 @@ ALLOWLIST: tuple[tuple[str, str], ...] = (
     ("stage_node.tscn", "StageNameLabel"),
     ("trail_map_view.tscn", "MapBackground"),
     ("trail_map_view.tscn", "StageMap"),
-    ("hero_section.tscn", "HeroVisualSection"),
 )
 
 
@@ -67,7 +66,7 @@ def scan_file(path: Path) -> list[str]:
 
 
 WINDOW_WIDTH = 960
-HUB_NODES = ("MenuArea", "Panel", "LinhaInventario")
+HUB_NODES = ("MenuArea", "HubBody", "InventoryPanel")
 MIN_SIZE_RE = re.compile(
     r'^\s*custom_minimum_size\s*=\s*Vector2\((\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\)\s*$'
 )

@@ -2,9 +2,9 @@
 name: edit-ui-screens
 description: >-
   Create or edit Stickman Idle UI screens using container layout conventions.
-  After editing any inventory_menu screen, run visual PNG capture and read images
-  before finishing. Use for /edit-ui-screens, new panels, layout changes, or
-  editing presentation/inventory or presentation/worlds UI.
+  After editing any inventory_menu screen, run visual PNG capture and read the
+  PNG(s) for the screen(s) you changed before finishing. Use for /edit-ui-screens,
+  new panels, layout changes, or editing presentation/inventory or presentation/worlds UI.
 ---
 # Edit UI Screens (Stickman Idle)
 
@@ -23,7 +23,7 @@ description: >-
 3. Root `Control` / `PanelContainer`; nest `VBox`/`HBox`/`MarginContainer`; `%UniqueName` on script refs.
 4. Wire from parent controller (`inventory_menu.gd`) via `configure(self)` + signals — match sibling panels.
 5. If the screen is a new **menu state**, add capture support (see below).
-6. **Mandatory:** run visual capture and read PNGs before declaring done.
+6. **Mandatory:** run visual capture and read the PNG for the screen(s) you changed (see [Step 3](#step-3--read-the-relevant-pngs)).
 
 ## Editing an existing screen
 
@@ -34,33 +34,40 @@ description: >-
 | Area | Files |
 |------|--------|
 | Hub shell | `inventory_menu.tscn`, `inventory_menu.gd`, `inventory_layout_default.tres` |
-| Hub blocks | `hero_section.tscn`, `inventory_row.tscn`, `bottom_nav.tscn` |
+| Hub blocks | `hero_equip_left_panel.tscn`, `hero_character_panel.tscn`, `hero_equip_right_panel.tscn`, `inventory_panel.tscn`, `bottom_nav.tscn` |
 | Overlays | `formation_panel.*`, `skills_panel.*`, `attributes_panel.*`, `skill_tree_panel.*` |
 | Side panels | `warehouse_panel.*`, `forge_panel.*`, `worlds_panel.*` (Portals: hall → briefing → trail; mockups in `artifacts/design/`) |
-| Settings | `SettingsPanel` in `inventory_menu.tscn` |
+| Settings | `settings_panel.tscn` in `%OverlayStack` |
 | Shared | `ui_constants.gd`, `panel_layout.gd`, `window_manager.gd` |
 
 Rules:
 - Containers own child positions — no `layout_mode = 0` inside `VBox`/`HBox` (unless allowlisted).
-- Hub widths/slot sizes via `InventoryLayout` + `_apply_panel_layout()`, not hardcoded on `Panel`/`MenuArea`.
+- Hub widths/slot sizes via `InventoryLayout` + `_apply_panel_layout()`, not hardcoded on `HubBody`/`MenuArea`.
 - **Do not** use `SectionVisualOffset` or negative `position` offsets in the hub — they bleed across `inventory_bg.png` bands.
 - **`inventory_menu.gd`:** edit normally in UTF-8. **Never run** `python tools/fix_inventory_menu_encoding.py` after your edits — it runs `git restore` and wipes uncommitted changes. Use that script only for one-off UTF-16 recovery on a clean tree.
 
 ### Inventory hub zones (`inventory_bg.png`)
 
-The panel art has **two horizontal bands**. Match them in `inventory_menu.tscn`:
+The panel art has **two horizontal bands** inside `%HubBody`. Gold / quit / settings live in `%HubChromeBar` above the panel.
 
 ```text
-Conteudo (VBox)
-├─ HubUpper (VBox, clip_contents) → Header + AreaHeroi (hero_section)
-└─ HubLower (VBox, clip_contents, expand) → LinhaInventario + MenuInferior
+HubColumn (VBox)
+├─ HubChromeBar (transparent) → Header: gold + quit + settings
+└─ HubBody
+   ├─ HubContent (VBox)
+   │  ├─ HubUpperRow → hero_equip_left + hero_character + hero_equip_right
+   │  ├─ InventoryPanel
+   │  └─ BottomNav
+   └─ OverlayStack (full bleed) → formation, skills, attributes, skill tree, settings
 ```
 
-- Heights: `_apply_hub_zones()` + `InventoryLayout.hub_upper_band_height()` / `hub_lower_band_height()`.
-- **Formation button** lives in `inventory_row.tscn` (top of lower band), **not** in `hero_section.tscn`.
-- `inventory_row.tscn` is a `VBoxContainer`: `FormationStrip` → `InventoryRowBody` (sort + 10×5 grid + warehouse).
-- When moving a widget between upper/lower bands, update `inventory_row_pixel_size()` (and related layout helpers) so the zone split stays balanced — relocating overlap is not free vertical space.
-- Overlays that hide the hub: use `_set_inventory_visible(false)` (skill tree, formation, settings, etc.) — do not set `painel.visible = false` on the hub `Panel` (hides overlay children too).
+- Heights: `_apply_hub_content_heights()` + `InventoryLayout.hub_upper_row_size()` / `inventory_panel_size()`.
+- **Changing `base_unit`:** edit `inventory_layout_default.tres`, then run `sync_from_base_unit()` (via `_apply_panel_layout()` at runtime). That recalculates panel size and calls `fit_panel_to_viewport()` so the hub never exceeds the overlay band — extra inventory rows scroll instead of clipping the top border. Regenerate `inventory_slots_grid.tscn` if slot pixel size changed (`tools/generate_inventory_slots_tscn.py`). Run layout audit before visual capture.
+- **Formation** and **warehouse** nav live in `bottom_nav.tscn` (`%FormationButton`, `%StorageButton`).
+- Sort button: `hero_equip_right_panel.tscn` (`%SortInventoryButton`).
+- `inventory_panel.tscn`: scrollable **5×10** `inventory_slots_grid.tscn`.
+- When moving a widget between upper/lower bands, update `inventory_panel_size()` (and related layout helpers) so the zone split stays balanced.
+- Overlays that hide the hub: use `set_hub_visible(false)` / `InventoryPanelRouter.set_inventory_visible()` — hides `%HubContent`, not `%HubBody`.
 - Side panels: `_sync_side_panel_heights()` + `size_flags_vertical = EXPAND_FILL` on warehouse/forge/worlds.
 
 ### Step 2 — Capture (required)
@@ -77,17 +84,39 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 
 Full details: skill [`capture-menu-screens`](../capture-menu-screens/SKILL.md) (`/capture-menu-screens`).
 
-### Step 3 — Read every PNG
+### Step 3 — Read the relevant PNG(s)
 
-Read **all ten** files in `artifacts/inventory_layout/` (not just the screen you changed — side effects are common):
+The capture script still writes **all ten** PNGs to `artifacts/inventory_layout/` — that is fine. **You only need to read the PNG(s) that match what you edited.**
 
-- `hub_combat_bottom.png`, `hub_combat_top.png`
-- `formation_open.png`, `skills_open.png`, `attributes_open.png`, `skill_tree_open.png`
-- `warehouse_open.png`, `forge_open.png`, `worlds_open.png`, `settings_open.png`
+Use this map (file area → `state_id` → PNG):
+
+| You edited | Read this PNG |
+|------------|----------------|
+| Hub shell, `inventory_layout_default.tres`, `inventory_menu.gd`, `ui_constants.gd`, `panel_layout.gd`, hub prefabs (`hero_equip_*`, `hero_character_panel`, `inventory_panel`, `bottom_nav`) | `hub_combat_bottom.png` |
+| `inventory_menu.gd` / spacers / `set_below_combat` only | also `hub_combat_top.png` |
+| `formation_panel.*` | `formation_open.png` |
+| `skills_panel.*` | `skills_open.png` |
+| `attributes_panel.*` | `attributes_open.png` |
+| `skill_tree_panel.*` | `skill_tree_open.png` |
+| `warehouse_panel.*` | `warehouse_open.png` |
+| `forge_panel.*` | `forge_open.png` |
+| `worlds_panel.*` | `worlds_open.png` |
+| `settings_panel.*` | `settings_open.png` |
+
+**Rules:**
+
+- Read **only** the row(s) for your edit. Do not open the other nine unless you changed shared layout code and see a regression, or the user asks for a full menu review (`/capture-menu-screens`).
+- Hub-band edits (upper row vs inventory grid vs nav): prefer `hub_combat_bottom.png` — it shows the `inventory_bg.png` divider.
+- If you touched `InventoryPanelRouter`, `InventoryLayout.sync_from_base_unit()`, or overlay alignment, add the overlay/side PNG for the panel you wired — not the whole set.
+
+Example paths:
+
+- `artifacts/inventory_layout/hub_combat_bottom.png`
+- `artifacts/inventory_layout/formation_open.png`
 
 ### Step 4 — Fix and repeat
 
-Iterate edit → capture → read until layout is acceptable. Report findings per screen.
+Iterate edit → capture → read **the same PNG(s)** until those screens look acceptable. Mention other states only if you observed a side effect.
 
 ## Adding a new capture state
 
@@ -109,11 +138,11 @@ When a new visible menu state is introduced:
 
 ### Visual capture
 - [ ] Ran `run_inventory_menu_visual_capture.ps1`
-- [ ] Read all 10 PNGs
+- [ ] Read PNG(s) for the screen(s) edited (see Step 3 map)
 
 ### Findings
-| Screen | Status | Notes |
-|--------|--------|-------|
+| Screen (PNG) | Status | Notes |
+|--------------|--------|-------|
 | hub_combat_bottom | ok / issue | ... |
 
 ### Recommended follow-ups
@@ -124,7 +153,8 @@ When a new visible menu state is introduced:
 
 | Command | Purpose |
 |---------|---------|
-| `tools/run_inventory_menu_visual_capture.ps1` | 10 PNGs for AI visual review (display required) |
+| `tools/run_inventory_menu_visual_capture.ps1` | Writes 10 PNGs; read only the one(s) for your edit |
 | `tools/run_inventory_menu_layout_audit.ps1` | Headless geometry check |
 | `tools/run_ui_layout_check.ps1` | Forbidden `layout_mode = 0` scan |
+| `/capture-menu-screens` | Full review — read **all** ten PNGs |
 | `explorer artifacts/inventory_layout` | Open captures folder (Windows) |

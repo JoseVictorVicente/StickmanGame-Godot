@@ -1,9 +1,10 @@
 # Inventory domain
 
-- `inventory_service.gd` — 10×5 grid, `add_item`, `to_dict` / `from_dict`
+- `inventory_service.gd` — 5×10 grid (49 usable slots), `add_item`, `to_dict` / `from_dict`
 - `equipment_service.gd` — 12 equip slots × 3 character indices, `ItemData` validation
 - `warehouse_service.gd` — 8 tabs × 40 slots, unlock flags, serialize
 - `forge_service.gd` — stub: `can_improve`, `get_cost`, synthesis helpers
+- `equipment_loadout_registry.gd` — per-class equip items (serialize/deserialize)
 
 Pure `RefCounted` logic; no UI nodes. UI lives in `presentation/inventory/` (`InventoryMenu`, `ForgePanel`, `WarehousePanel`).
 

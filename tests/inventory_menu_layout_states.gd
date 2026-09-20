@@ -34,9 +34,9 @@ const SIDE_PANELS: PackedStringArray = [
 
 static func reset_menu(menu: Control) -> void:
 	menu.call("set_below_combat", false)
-	if menu.has_method("_set_inventory_visible"):
-		menu.call("_set_inventory_visible", true)
-	var conteudo := menu.get_node_or_null("%Conteudo") as Control
+	if menu.has_method("set_hub_visible"):
+		menu.call("set_hub_visible", true)
+	var conteudo := menu.get_node_or_null("%HubContent") as Control
 	if conteudo:
 		conteudo.visible = true
 	if menu.has_method("_close_settings"):
@@ -45,8 +45,8 @@ static func reset_menu(menu: Control) -> void:
 		_close_panel(menu, panel_name)
 	for panel_name in SIDE_PANELS:
 		_close_panel(menu, panel_name)
-	if menu.has_method("_align_side_panels"):
-		menu.call("_align_side_panels")
+	if menu.has_method("align_side_panels"):
+		menu.call("align_side_panels")
 
 
 static func apply_state(menu: Control, state_id: String) -> void:
@@ -66,8 +66,8 @@ static func apply_state(menu: Control, state_id: String) -> void:
 			_show_overlay(menu, "AttributesPanel")
 		"skill_tree_open":
 			menu.call("set_below_combat", false)
-			if menu.has_method("_open_skill_tree"):
-				menu.call("_open_skill_tree")
+			if menu.has_method("open_skill_tree_panel"):
+				menu.call("open_skill_tree_panel")
 			else:
 				_show_overlay(menu, "SkillTreePanel")
 		"warehouse_open":
@@ -117,8 +117,8 @@ static func instantiate_menu(host: Control, menu_scene: PackedScene) -> Control:
 static func settle(tree: SceneTree, menu: Control) -> void:
 	if menu.has_method("_apply_panel_layout"):
 		menu.call("_apply_panel_layout")
-	if menu.has_method("_align_side_panels"):
-		menu.call("_align_side_panels")
+	if menu.has_method("align_side_panels"):
+		menu.call("align_side_panels")
 	for _i in 5:
 		await tree.process_frame
 
@@ -135,28 +135,29 @@ static func _close_panel(menu: Control, panel_name: String) -> void:
 
 static func _open_side_panel(menu: Control, panel_name: String) -> void:
 	var panel := menu.get_node_or_null("%" + panel_name)
-	if menu.has_method("_close_right_panels"):
-		menu.call("_close_right_panels", panel)
+	if menu.has_method("close_right_panels"):
+		menu.call("close_right_panels", panel)
 	if panel and panel.has_method("open"):
 		panel.open()
 
 
 static func _show_overlay(menu: Control, overlay_name: String) -> void:
-	if menu.has_method("_set_inventory_visible"):
-		menu.call("_set_inventory_visible", false)
-	var conteudo := menu.get_node_or_null("%Conteudo") as Control
+	if menu.has_method("set_hub_visible"):
+		menu.call("set_hub_visible", false)
+	var conteudo := menu.get_node_or_null("%HubContent") as Control
 	if conteudo:
 		conteudo.visible = false
 	var overlay := menu.get_node_or_null("%" + overlay_name) as Control
 	if overlay:
 		overlay.show()
 		overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var painel := menu.get_node_or_null("%Panel") as PanelContainer
+	var painel := menu.get_node_or_null("%HubBody") as PanelContainer
 	if painel:
 		PanelLayout.align_overlays(
 			painel,
 			menu.get_node_or_null("%FormationPanel") as Control,
 			menu.get_node_or_null("%AttributesPanel") as Control,
 			menu.get_node_or_null("%SkillsPanel") as Control,
-			menu.get_node_or_null("%SkillTreePanel") as Control
+			menu.get_node_or_null("%SkillTreePanel") as Control,
+			menu.get_node_or_null("%OverlayStack") as Control
 		)

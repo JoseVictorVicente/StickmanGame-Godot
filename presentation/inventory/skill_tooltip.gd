@@ -172,7 +172,7 @@ static func _esta_em_coluna_esquerda(controle: Control) -> bool:
 		var nome := str(no.name)
 		if nome == "ActiveColumn" or nome == "EquippedActiveColumn":
 			return true
-		if nome.begins_with("EquipLeft_"):
+		if nome in ["EquipLeftColumns", "HeroEquipLeftPanel", "EquipGrid"]:
 			return true
 		no = no.get_parent()
 	return false
@@ -184,7 +184,7 @@ static func _is_in_right_column(controle: Control) -> bool:
 		var nome := str(no.name)
 		if nome == "PassiveColumn" or nome == "EquippedPassiveColumn":
 			return true
-		if nome.begins_with("EquipRight_"):
+		if nome in ["EquipRightColumns", "HeroEquipRightPanel", "EquipStack"]:
 			return true
 		no = no.get_parent()
 	return false
@@ -193,7 +193,7 @@ static func _is_in_right_column(controle: Control) -> bool:
 static func _get_hud_rect(controle: Control) -> Rect2:
 	var no: Node = controle
 	while no:
-		if no is Control and (no.name == "Panel" or no.name == "Menu" or no.name == "SkillsPanel"):
+		if no is Control and (no.name in ["HubBody", "Panel", "Menu", "SkillsPanel"]):
 			return (no as Control).get_global_rect()
 		no = no.get_parent()
 	return Rect2()

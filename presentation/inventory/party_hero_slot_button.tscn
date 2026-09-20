@@ -13,7 +13,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [node name="PartyHeroSlotButton" type="Button"]
-custom_minimum_size = Vector2(64, 82)
+custom_minimum_size = Vector2(36, 36)
 flat = true
 theme_override_font_sizes/font_size = 9
 theme_override_styles/normal = SubResource("StyleBoxFlat_slot")

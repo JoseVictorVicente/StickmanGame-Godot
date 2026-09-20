@@ -489,13 +489,29 @@ static func compare_sort(a: ItemData, b: ItemData) -> bool:
 		return false
 	if b == null:
 		return true
+	var cat_a := int(a.category())
+	var cat_b := int(b.category())
+	if cat_a != cat_b:
+		return cat_a < cat_b
+	if int(a.item_type) != int(b.item_type):
+		return int(a.item_type) < int(b.item_type)
 	if int(a.rarity) != int(b.rarity):
 		return int(a.rarity) > int(b.rarity)
 	var indice_a := item_level_index(a.item_level)
 	var indice_b := item_level_index(b.item_level)
 	if indice_a != indice_b:
 		return indice_a > indice_b
-	return a.display_name.nocasecmp_to(b.display_name) < 0
+	return sort_key(a).nocasecmp_to(sort_key(b)) < 0
+
+
+static func sort_key(item: ItemData) -> String:
+	if item == null:
+		return ""
+	if item.id != "":
+		return item.id
+	if item.name_key != "":
+		return item.name_key
+	return item.get_display_name()
 
 
 static func item_level_multiplier(nivel: int) -> float:

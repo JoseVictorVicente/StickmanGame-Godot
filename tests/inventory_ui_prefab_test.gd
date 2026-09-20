@@ -1,10 +1,12 @@
 extends SceneTree
-## Smoke test for inventory UI prefabs (item_slot + equipment_grid).
+## Smoke test for inventory UI prefabs (item_slot + hub panels).
 
 
 const ITEM_SLOT_SCENE := preload("res://presentation/inventory/item_slot.tscn")
-const EQUIPMENT_GRID_SCENE := preload("res://presentation/inventory/equipment_grid.tscn")
-const EQUIPMENT_GRID_LEFT_SCENE := preload("res://presentation/inventory/equipment_grid_left.tscn")
+const HERO_EQUIP_LEFT_SCENE := preload("res://presentation/inventory/hero_equip_left_panel.tscn")
+const HERO_EQUIP_RIGHT_SCENE := preload("res://presentation/inventory/hero_equip_right_panel.tscn")
+const HERO_CHARACTER_SCENE := preload("res://presentation/inventory/hero_character_panel.tscn")
+const INVENTORY_PANEL_SCENE := preload("res://presentation/inventory/inventory_panel.tscn")
 const INVENTORY_SLOTS_GRID_SCENE := preload("res://presentation/inventory/inventory_slots_grid.tscn")
 const WAREHOUSE_SLOTS_GRID_SCENE := preload("res://presentation/inventory/warehouse_slots_grid.tscn")
 const LAYOUT := preload("res://presentation/inventory/inventory_layout_default.tres")
@@ -15,7 +17,7 @@ const FORMATION_PANEL_SCENE := preload("res://presentation/inventory/formation_p
 const WAREHOUSE_PANEL_SCENE := preload("res://presentation/inventory/warehouse_panel.tscn")
 const ATTRIBUTES_PANEL_SCENE := preload("res://presentation/inventory/attributes_panel.tscn")
 const FORGE_PANEL_SCENE := preload("res://presentation/inventory/forge_panel.tscn")
-const HERO_SECTION_SCENE := preload("res://presentation/inventory/hero_section.tscn")
+const SETTINGS_PANEL_SCENE := preload("res://presentation/inventory/settings_panel.tscn")
 
 
 func _initialize() -> void:
@@ -25,24 +27,44 @@ func _initialize() -> void:
 	slot.configure()
 	assert(slot.icone_rect != null, "configure should bind Icone")
 
-	var grid := EQUIPMENT_GRID_SCENE.instantiate() as EquipmentGrid
-	assert(grid != null, "equipment_grid scene should instantiate")
-	var tipos: Array[ItemData.Type] = [ItemData.Type.WEAPON, ItemData.Type.CHEST]
-	var slots := grid.build_slots(tipos, LAYOUT)
-	assert(slots.size() == 2, "equipment grid should build one slot per type")
-	assert(slots[1].accepted_type == ItemData.Type.CHEST, "chest slot should keep type")
+	var left_panel := HERO_EQUIP_LEFT_SCENE.instantiate() as HeroEquipLeftPanel
+	assert(left_panel != null, "hero_equip_left_panel scene should instantiate")
+	root.add_child(left_panel)
+	left_panel.apply_layout(LAYOUT)
+	assert(left_panel.all_equipment_slots().size() == 7, "left equip panel should expose 7 baked slots")
+	assert(left_panel.get_node("%ActiveColumn") != null, "left panel should bake active skill column")
+	left_panel.queue_free()
 
-	var baked_left := EQUIPMENT_GRID_LEFT_SCENE.instantiate() as EquipmentGrid
-	assert(baked_left != null, "equipment_grid_left scene should instantiate")
-	assert(baked_left.get_child_count() == 7, "left equip grid should bake 7 slots")
-	var left_slots := baked_left.build_slots(EquipmentGrid.LEFT_TYPES, LAYOUT)
-	assert(left_slots.size() == 7, "build_slots should reuse baked left slots")
+	var right_panel := HERO_EQUIP_RIGHT_SCENE.instantiate() as HeroEquipRightPanel
+	assert(right_panel != null, "hero_equip_right_panel scene should instantiate")
+	root.add_child(right_panel)
+	right_panel.apply_layout(LAYOUT)
+	assert(right_panel.slots().size() == 5, "right equip panel should expose 4 jewelry + pet slots")
+	assert(right_panel.get_node("%SortInventoryButton") != null, "sort button should be baked in scene")
+	assert(right_panel.get_node("%PassiveColumn") != null, "right panel should bake passive skill column")
+	right_panel.queue_free()
+
+	var character_panel := HERO_CHARACTER_SCENE.instantiate() as HeroCharacterPanel
+	assert(character_panel != null, "hero_character_panel scene should instantiate")
+	root.add_child(character_panel)
+	assert(character_panel.get_node("%PortraitArea") != null, "character panel should bake portrait area")
+	assert(character_panel.get_node("%PartySlots") != null, "character panel should bake party slots")
+	character_panel.queue_free()
+
+	var inventory_panel := INVENTORY_PANEL_SCENE.instantiate() as InventoryPanel
+	assert(inventory_panel != null, "inventory_panel scene should instantiate")
+	root.add_child(inventory_panel)
+	inventory_panel.apply_layout(LAYOUT)
+	assert(inventory_panel.get_node("%InventoryGrid") != null, "inventory panel should bake grid")
+	inventory_panel.queue_free()
 
 	var inv_grid := INVENTORY_SLOTS_GRID_SCENE.instantiate() as InventorySlotsGrid
 	assert(inv_grid != null, "inventory_slots_grid scene should instantiate")
-	assert(inv_grid.get_child_count() == 50, "inventory grid scene should bake 50 slots")
+	var inv_built := inv_grid.ensure_slots(LAYOUT)
+	assert(inv_built.size() == 50, "inventory grid should build 5x10 display slots")
 	var inv_slots := inv_grid.slots()
-	assert(inv_slots.size() == 50, "inventory grid should expose 10x5 slots")
+	assert(inv_slots.size() == 50, "inventory grid should expose 5x10 slots")
+	assert(inv_grid.usable_slots().size() == 49, "inventory grid should expose 49 usable slots")
 
 	var wh_grid := WAREHOUSE_SLOTS_GRID_SCENE.instantiate() as WarehouseSlotsGrid
 	assert(wh_grid != null, "warehouse_slots_grid scene should instantiate")
@@ -102,16 +124,11 @@ func _initialize() -> void:
 	assert(gems_area.get_child_count() == 3, "forge gems area should bake 3 children")
 	forge_panel.queue_free()
 
-	var hero_section := HERO_SECTION_SCENE.instantiate() as HeroSection
-	assert(hero_section != null, "hero_section scene should instantiate")
-	root.add_child(hero_section)
-	var equip_left := hero_section.get_node("%EquipLeft") as VBoxContainer
-	var equip_count := 0
-	for filho in equip_left.get_children():
-		if str(filho.name).begins_with("EquipLeft_"):
-			equip_count += 1
-	assert(equip_count == 6, "hero section should bake 6 left equip grids")
-	hero_section.queue_free()
+	var settings_panel := SETTINGS_PANEL_SCENE.instantiate() as SettingsPanel
+	assert(settings_panel != null, "settings_panel scene should instantiate")
+	assert(settings_panel.close_settings_button != null, "settings panel should expose close button")
+	assert(settings_panel.option_locale != null, "settings panel should expose locale selector")
+	settings_panel.queue_free()
 
 	print("[TEST PASS] Inventory UI prefabs")
 	quit()

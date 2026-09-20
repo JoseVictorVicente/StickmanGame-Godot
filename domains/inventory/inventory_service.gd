@@ -1,10 +1,12 @@
 class_name InventoryService
 extends RefCounted
-## Grid inventory storage (10×5). Pure data — no UI nodes.
+## Grid inventory storage (5×10 display; 49 usable slots + 1 expand placeholder in UI). Pure data — no UI nodes.
 
 const COLUMNS := 10
 const ROWS := 5
-const SLOT_COUNT := COLUMNS * ROWS
+const USABLE_SLOT_COUNT := COLUMNS * ROWS - 1
+const SLOT_COUNT := USABLE_SLOT_COUNT
+const DISPLAY_SLOT_COUNT := COLUMNS * ROWS
 
 var _slots: Array = []
 

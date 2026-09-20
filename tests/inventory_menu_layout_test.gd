@@ -28,7 +28,7 @@ func _run_tests() -> void:
 	await process_frame
 	await process_frame
 
-	var painel := menu.get_node("%Panel") as Control
+	var painel := menu.get_node("%HubBody") as Control
 	var panel_rect := painel.get_global_rect()
 	var combat_top := UiConstants.WINDOW_HEIGHT - UiConstants.COMBAT_RESERVED_SPACE
 
