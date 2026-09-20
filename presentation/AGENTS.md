@@ -10,14 +10,15 @@
 
 **Canonical layout guide:** [`docs/conventions/ui-layout.md`](../docs/conventions/ui-layout.md)
 
-1. **Structure in `.tscn`** — use `VBoxContainer` / `HBoxContainer` / `GridContainer` + `custom_minimum_size`; avoid manual `layout_mode = 0` except documented exceptions (dynamic canvases, full-bleed overlays via `PanelLayout.align_overlays`).
-2. **Prefabs for repeats** — `item_slot.tscn`, `hero_equip_left_panel.tscn` / `hero_character_panel.tscn` / `hero_equip_right_panel.tscn`, `inventory_slots_grid.tscn` (5×10 baked slots), `warehouse_slots_grid.tscn` (8 tabs × 40), `forge_slots_grid.tscn`, `attribute_row.tscn` (12 rows), `party_hero_slot_button.tscn`, formation/skills slot prefabs.
-3. **Hub prefabs** — five hub panels + `bottom_nav.tscn` + `settings_panel.tscn` instanced from `inventory_menu.tscn`; edit layout in each `.tscn` (WYSIWYG). Hub panels are `@tool` and apply `InventoryLayout` in the editor.
-4. **`%UniqueName`** — mark nodes referenced from scripts; bind with `@onready var foo = %Foo`.
-5. **Layout resource** — `InventoryLayout` (`inventory_layout_default.tres`): `base_unit` scales portrait, party, equip, and **5×10** inventory grid; each hub prefab calls `apply_layout()` for its zone; shell `_apply_panel_layout()` orchestrates at runtime.
-6. **Runtime loops** — `InventorySlotsGrid.setup(connect)` wires signals to baked slots only. Equip/jewelry/pet/sort slots are baked in hub panel `.tscn` files; scripts resize via `apply_layout()` — no `add_child` / `queue_free` at runtime.
-7. **Signals up, calls down** — child widgets emit or call parent controller; domain code never references `Control` nodes.
-8. **`@tool`** — hub panels (`hero_equip_*`, `hero_character_panel`, `inventory_panel`, `bottom_nav`) and `inventory_slots_grid` preview layout in the editor; `inventory_menu.gd` stays non-`@tool`.
+1. **TSCN-first design** — layout, spacing, anchors, and `StyleBox*` chrome live in `.tscn`. Scripts: text, visibility, signals, state colors only — never `position =`, runtime `custom_minimum_size`, `reparent()`, or `StyleBoxFlat.new()` for structure. See [`ui-screens.md`](../docs/workflows/ui-screens.md#tscn-first-checklist).
+2. **Structure in `.tscn`** — use `VBoxContainer` / `HBoxContainer` / `GridContainer` + `custom_minimum_size`; avoid manual `layout_mode = 0` except documented exceptions (map UV anchors in `trail_map_view.tscn`, full-bleed overlays via `PanelLayout.align_overlays`).
+3. **Prefabs for repeats** — `item_slot.tscn`, `hero_equip_left_panel.tscn` / `hero_character_panel.tscn` / `hero_equip_right_panel.tscn`, `inventory_slots_grid.tscn` (5×10 baked slots), `warehouse_slots_grid.tscn` (8 tabs × 40), `forge_slots_grid.tscn`, `attribute_row.tscn` (12 rows), `party_hero_slot_button.tscn`, formation/skills slot prefabs.
+4. **Hub prefabs** — five hub panels + `bottom_nav.tscn` + `settings_panel.tscn` instanced from `inventory_menu.tscn`; edit layout in each `.tscn` (WYSIWYG). Hub panels are `@tool` and apply `InventoryLayout` in the editor.
+5. **`%UniqueName`** — mark nodes referenced from scripts; bind with `@onready var foo = %Foo`.
+6. **Layout resource** — `InventoryLayout` (`inventory_layout_default.tres`): `base_unit` scales portrait, party, equip, and **5×10** inventory grid; each hub prefab calls `apply_layout()` for its zone; shell `_apply_panel_layout()` orchestrates at runtime.
+7. **Runtime loops** — `InventorySlotsGrid.setup(connect)` wires signals to baked slots only. Equip/jewelry/pet/sort slots are baked in hub panel `.tscn` files; scripts resize via `apply_layout()` — no `add_child` / `queue_free` at runtime.
+8. **Signals up, calls down** — child widgets emit or call parent controller; domain code never references `Control` nodes.
+9. **`@tool`** — hub panels (`hero_equip_*`, `hero_character_panel`, `inventory_panel`, `bottom_nav`) and `inventory_slots_grid` preview layout in the editor; `inventory_menu.gd` stays non-`@tool`.
 
 ## Inventory menu architecture
 
@@ -59,13 +60,13 @@ Hub prefab public API:
 
 **Doc:** [`docs/workflows/ui-screens.md`](../docs/workflows/ui-screens.md)
 
-After any `presentation/inventory/` layout change:
+After any `presentation/inventory/` or `presentation/worlds/` layout change:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
 ```
 
-Then read the PNG(s) for the screen(s) you changed (see `/edit-ui-screens` Step 3 map). Use `/capture-menu-screens` when you need all ten screens reviewed.
+Then read the PNG(s) for the screen(s) you changed (see `/edit-ui-screens` Step 3 map). Use `/capture-menu-screens` when you need all twelve screens reviewed.
 
 ## Manual check (inventory hub)
 
@@ -73,4 +74,4 @@ Then read the PNG(s) for the screen(s) you changed (see `/edit-ui-screens` Step 
 2. Open `inventory_slots_grid.tscn` → tweak slot size/separation; confirm change propagates to menu instance.
 3. F5 → pickup, sort, drag, equip, save/load unchanged.
 4. Open each overlay `.tscn` in isolation → no parse errors in Output.
-5. Run visual capture (above) and confirm the edited screen(s) look correct in the matching PNG(s).
+5. Run visual capture (above) and confirm the edited screen(s) look correct in the matching PNG(s). Use `/capture-menu-screens` for a full twelve-screen review.

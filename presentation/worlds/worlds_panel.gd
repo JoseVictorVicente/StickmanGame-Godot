@@ -13,16 +13,18 @@ signal stage_started(world: int, stage: int, difficulty: int)
 @onready var close_button: Button = %CloseWorldsButton
 @onready var title_label: Label = %WorldsTitle
 @onready var trail_progress_label: Label = %TrailProgressLabel
-@onready var trail_difficulty_row: CenterContainer = %TrailDifficultyRow
-@onready var trail_difficulty_slot: HBoxContainer = %TrailDifficultySlot
+@onready var trail_header_details: VBoxContainer = %TrailHeaderDetails
+@onready var trail_difficulty_button: Button = %TrailDifficultyButton
 @onready var header: VBoxContainer = %WorldsHeader
 @onready var hall_view = %WorldListPanel
 @onready var briefing_view = %RealmBriefingPanel
 @onready var trail_view = %PanelStageMap
-@onready var difficulty_footer: CenterContainer = $Margem/Conteudo/RodapeDificuldade
+@onready var difficulty_footer: VBoxContainer = $Margem/Conteudo/RodapeDificuldade
 @onready var difficulty_button: Button = %DifficultyButton
-@onready var difficulty_options: VBoxContainer = %DifficultyOptions
-@onready var difficulty_menu: PanelContainer = %DifficultyMenu
+@onready var difficulty_menu_hall: PanelContainer = %DifficultyMenuHall
+@onready var difficulty_menu_trail: PanelContainer = %DifficultyMenuTrail
+@onready var difficulty_options_hall: VBoxContainer = %DifficultyOptionsHall
+@onready var difficulty_options_trail: VBoxContainer = %DifficultyOptionsTrail
 @onready var difficulty_menu_backdrop: ColorRect = %DifficultyMenuBackdrop
 
 var _menu: InventoryMenu
@@ -33,16 +35,21 @@ var _current_stage: int = 1
 var _difficulty: int = WorldProgress.Difficulty.EASY
 var _unlocked: Array[int] = [1, 1, 1]
 var _difficulty_option_buttons: Array[Button] = []
+var _option_style_normal: StyleBoxFlat
+var _option_style_active: StyleBoxFlat
+var _option_style_locked: StyleBoxFlat
 
 
 func _ready() -> void:
 	hide()
+	_cache_option_styles()
 	close_button.pressed.connect(close)
 	back_button.pressed.connect(_on_back_pressed)
 	briefing_view.enter_portal_pressed.connect(_show_trail_map)
 	hall_view.portal_pressed.connect(_on_portal_pressed)
 	trail_view.stage_pressed.connect(_on_stage_pressed)
 	difficulty_button.pressed.connect(_toggle_difficulty_menu)
+	trail_difficulty_button.pressed.connect(_toggle_difficulty_menu)
 	difficulty_menu_backdrop.gui_input.connect(_on_difficulty_backdrop_gui_input)
 	header.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
@@ -118,15 +125,31 @@ func close() -> void:
 	panel_open_changed.emit(false)
 
 
+func _cache_option_styles() -> void:
+	var sample := difficulty_options_hall.get_node("DifficultyOptionHall_0") as Button
+	_option_style_normal = sample.get_theme_stylebox("normal") as StyleBoxFlat
+	_option_style_active = _option_style_normal.duplicate() as StyleBoxFlat
+	_option_style_active.bg_color = Color(0.28, 0.2, 0.12, 1)
+	_option_style_active.border_width_left = 3
+	_option_style_active.border_width_top = 3
+	_option_style_active.border_width_right = 3
+	_option_style_active.border_width_bottom = 3
+	_option_style_active.border_color = Color(0.95, 0.78, 0.32, 1)
+	_option_style_locked = sample.get_theme_stylebox("disabled") as StyleBoxFlat
+
+
 func _wire_difficulty_options() -> void:
 	_difficulty_option_buttons.clear()
-	for i in WorldProgress.Difficulty.size():
-		var button := difficulty_options.get_node_or_null("DifficultyOption_%d" % i) as Button
-		assert(button != null, "difficulty menu should bake option %d" % i)
-		if not button.get_meta(&"wired", false):
-			button.pressed.connect(_choose_difficulty.bind(i))
-			button.set_meta(&"wired", true)
-		_difficulty_option_buttons.append(button)
+	for options in [difficulty_options_hall, difficulty_options_trail]:
+		for i in WorldProgress.Difficulty.size():
+			var suffix := "Hall" if options == difficulty_options_hall else "Trail"
+			var button := options.get_node_or_null("DifficultyOption%s_%d" % [suffix, i]) as Button
+			assert(button != null, "difficulty menu should bake option %s %d" % [suffix, i])
+			if not button.get_meta(&"wired", false):
+				button.pressed.connect(_choose_difficulty.bind(i))
+				button.set_meta(&"wired", true)
+			if options == difficulty_options_hall:
+				_difficulty_option_buttons.append(button)
 	_update_difficulty_options()
 
 
@@ -135,12 +158,11 @@ func _show_portal_hall() -> void:
 	_close_difficulty_menu()
 	back_button.hide()
 	trail_progress_label.hide()
-	trail_difficulty_row.hide()
+	trail_header_details.hide()
 	title_label.text = tr(LocaleKeys.PORTALS_TITLE).to_upper()
 	hall_view.show()
 	briefing_view.hide()
 	trail_view.hide()
-	_place_difficulty_button(false)
 	difficulty_footer.show()
 	_refresh_hall()
 
@@ -153,18 +175,13 @@ func _show_realm_briefing(world: int) -> void:
 	_close_difficulty_menu()
 	back_button.show()
 	trail_progress_label.hide()
-	trail_difficulty_row.hide()
+	trail_header_details.hide()
 	hall_view.hide()
 	trail_view.hide()
 	briefing_view.show()
 	difficulty_footer.hide()
 	title_label.text = WorldCatalog.dimension_name(_world_menu_open)
-	briefing_view.bind_briefing(
-		_world_menu_open,
-		int(size.y),
-		int(header.size.y),
-		int(briefing_view.enter_portal_button.custom_minimum_size.y)
-	)
+	briefing_view.bind_briefing(_world_menu_open)
 
 
 func _show_trail_map() -> void:
@@ -175,8 +192,7 @@ func _show_trail_map() -> void:
 	briefing_view.hide()
 	trail_view.show()
 	difficulty_footer.hide()
-	trail_difficulty_row.show()
-	_place_difficulty_button(true)
+	trail_header_details.show()
 	_refresh_trail()
 
 
@@ -210,12 +226,7 @@ func _refresh_active_view(previous_world: int) -> void:
 			else:
 				_refresh_trail()
 		PanelView.REALM_BRIEFING:
-			briefing_view.bind_briefing(
-				_world_menu_open,
-				int(size.y),
-				int(header.size.y),
-				int(briefing_view.enter_portal_button.custom_minimum_size.y)
-			)
+			briefing_view.bind_briefing(_world_menu_open)
 		_:
 			_refresh_hall()
 
@@ -258,59 +269,31 @@ func _refresh_locale() -> void:
 			_refresh_hall()
 		PanelView.REALM_BRIEFING:
 			title_label.text = WorldCatalog.dimension_name(_world_menu_open)
-			briefing_view.bind_briefing(
-				_world_menu_open,
-				int(size.y),
-				int(header.size.y),
-				int(briefing_view.enter_portal_button.custom_minimum_size.y)
-			)
+			briefing_view.bind_briefing(_world_menu_open)
 		PanelView.TRAIL_MAP:
 			_refresh_trail()
 
 
-func _place_difficulty_button(in_header: bool) -> void:
-	var parent: Node = trail_difficulty_slot if in_header else difficulty_footer
-	if difficulty_button.get_parent() != parent:
-		difficulty_button.reparent(parent)
-	difficulty_button.custom_minimum_size = Vector2(108, 0)
+func _active_difficulty_menu() -> PanelContainer:
+	if _panel_view == PanelView.TRAIL_MAP:
+		return difficulty_menu_trail
+	return difficulty_menu_hall
 
 
 func _toggle_difficulty_menu() -> void:
-	if difficulty_menu.visible:
+	var menu := _active_difficulty_menu()
+	if menu.visible:
 		_close_difficulty_menu()
 		return
 	_update_difficulty_options()
 	difficulty_menu_backdrop.show()
-	difficulty_menu.show()
-	call_deferred("_position_difficulty_menu")
+	menu.show()
 
 
 func _close_difficulty_menu() -> void:
-	difficulty_menu.hide()
+	difficulty_menu_hall.hide()
+	difficulty_menu_trail.hide()
 	difficulty_menu_backdrop.hide()
-
-
-func _position_difficulty_menu() -> void:
-	if not difficulty_menu.visible:
-		return
-	difficulty_menu.reset_size()
-	var width := difficulty_button.size.x
-	var item_height := difficulty_button.size.y
-	for button in _difficulty_option_buttons:
-		button.custom_minimum_size = Vector2(width - 4.0, item_height)
-	difficulty_menu.reset_size()
-	var menu_size := Vector2(width, difficulty_menu.get_combined_minimum_size().y)
-	difficulty_menu.size = menu_size
-	var layer := difficulty_menu.get_parent() as Control
-	var button_rect := difficulty_button.get_global_rect()
-	var local_end := button_rect.end - layer.get_global_rect().position
-	var pos := Vector2(
-		local_end.x - difficulty_menu.size.x,
-		local_end.y - difficulty_button.size.y - 4.0 - difficulty_menu.size.y
-	)
-	pos.x = clampf(pos.x, 0.0, maxf(0.0, layer.size.x - difficulty_menu.size.x))
-	pos.y = clampf(pos.y, 0.0, maxf(0.0, layer.size.y - difficulty_menu.size.y))
-	difficulty_menu.position = pos
 
 
 func _on_difficulty_backdrop_gui_input(event: InputEvent) -> void:
@@ -332,20 +315,45 @@ func _choose_difficulty(value: int) -> void:
 
 
 func _update_difficulty_button() -> void:
-	difficulty_button.text = WorldProgress.difficulty_name(_difficulty)
-	_style_button(difficulty_button, true)
+	var label := WorldProgress.difficulty_name(_difficulty)
+	difficulty_button.text = label
+	trail_difficulty_button.text = label
 	_update_difficulty_options()
 
 
 func _update_difficulty_options() -> void:
-	for i in _difficulty_option_buttons.size():
-		var unlocked := WorldProgress.is_difficulty_unlocked(i, _unlocked)
-		var text: String = WorldProgress.difficulty_name(i)
-		if not unlocked:
-			text += " 🔒"
-		_difficulty_option_buttons[i].text = text
-		_difficulty_option_buttons[i].disabled = not unlocked
-		_style_button(_difficulty_option_buttons[i], i == _difficulty, not unlocked, true)
+	for options in [difficulty_options_hall, difficulty_options_trail]:
+		for i in WorldProgress.Difficulty.size():
+			var suffix := "Hall" if options == difficulty_options_hall else "Trail"
+			var button := options.get_node_or_null("DifficultyOption%s_%d" % [suffix, i]) as Button
+			if button == null:
+				continue
+			var unlocked := WorldProgress.is_difficulty_unlocked(i, _unlocked)
+			var text: String = WorldProgress.difficulty_name(i)
+			if not unlocked:
+				text += " 🔒"
+			button.text = text
+			button.disabled = not unlocked
+			_apply_option_style(button, i == _difficulty, not unlocked)
+
+
+func _apply_option_style(button: Button, active: bool, locked: bool) -> void:
+	if locked:
+		button.add_theme_color_override("font_color", Color(0.52, 0.46, 0.38, 1))
+		button.add_theme_stylebox_override("normal", _option_style_locked)
+		button.add_theme_stylebox_override("hover", _option_style_locked)
+		button.add_theme_stylebox_override("pressed", _option_style_locked)
+		button.add_theme_stylebox_override("disabled", _option_style_locked)
+	elif active:
+		button.add_theme_color_override("font_color", Color(1, 0.92, 0.72, 1))
+		button.add_theme_stylebox_override("normal", _option_style_active)
+		button.add_theme_stylebox_override("hover", _option_style_active)
+		button.add_theme_stylebox_override("pressed", _option_style_active)
+	else:
+		button.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
+		button.add_theme_stylebox_override("normal", _option_style_normal)
+		button.add_theme_stylebox_override("hover", _option_style_normal)
+		button.add_theme_stylebox_override("pressed", _option_style_normal)
 
 
 func _is_stage_unlocked(world: int, stage: int) -> bool:
@@ -369,33 +377,6 @@ func _completed_stages_in_dimension(world: int) -> int:
 func _is_dimension_fully_saved(world: int) -> bool:
 	var boss_index := WorldProgress.stage_index(world, WorldProgress.STAGES_PER_WORLD)
 	return _unlocked[_difficulty] > boss_index
-
-
-func _style_button(button: Button, active: bool = false, locked: bool = false, compact: bool = false) -> void:
-	var style := StyleBoxFlat.new()
-	var margin := 6 if compact else 10
-	style.content_margin_left = margin
-	style.content_margin_top = 6 if compact else 8
-	style.content_margin_right = margin
-	style.content_margin_bottom = 6 if compact else 8
-	style.set_corner_radius_all(5 if not compact else 4)
-	style.set_border_width_all(3 if active and not compact else 2)
-	if locked:
-		style.bg_color = Color(0.1, 0.08, 0.07, 1)
-		style.border_color = Color(0.34, 0.28, 0.2, 1)
-		button.add_theme_color_override("font_color", Color(0.52, 0.46, 0.38, 1))
-	elif active:
-		style.bg_color = Color(0.28, 0.2, 0.12, 1)
-		style.border_color = Color(0.95, 0.78, 0.32, 1)
-		button.add_theme_color_override("font_color", Color(1, 0.92, 0.72, 1))
-	else:
-		style.bg_color = Color(0.14, 0.11, 0.08, 1)
-		style.border_color = Color(0.72, 0.58, 0.3, 1)
-		button.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
-	button.add_theme_stylebox_override("normal", style)
-	button.add_theme_stylebox_override("hover", style)
-	button.add_theme_stylebox_override("pressed", style)
-	button.add_theme_stylebox_override("disabled", style)
 
 
 func _on_locale_changed(_locale_code: String) -> void:

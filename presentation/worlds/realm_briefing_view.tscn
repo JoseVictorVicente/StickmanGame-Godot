@@ -43,14 +43,15 @@ script = ExtResource("1_brief")
 
 [node name="BriefingArtFrame" type="PanelContainer" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.42
 theme_override_styles/panel = SubResource("StyleBoxFlat_art_frame")
 
 [node name="BriefingBanner" type="TextureRect" parent="BriefingArtFrame"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 112)
+size_flags_vertical = 3
 expand_mode = 1
 stretch_mode = 5
 
@@ -58,6 +59,7 @@ stretch_mode = 5
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
 theme_override_constants/separation = 4
 
 [node name="BriefingTitle" type="Label" parent="BriefingBody"]

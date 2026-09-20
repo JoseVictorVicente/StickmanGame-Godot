@@ -16,13 +16,9 @@ LAYOUT_ZERO_RE = re.compile(r"^\s*layout_mode\s*=\s*0\s*$")
 
 # (file glob fragment, parent path substring that must appear above the node in the block)
 ALLOWLIST: tuple[tuple[str, str], ...] = (
-    ("worlds_panel.tscn", "StageMap"),
-    ("worlds_panel.tscn", "DifficultyMenu"),
-    ("stage_node.tscn", "StageAnchor"),
-    ("stage_node.tscn", "StageButton"),
-    ("stage_node.tscn", "StageNameLabel"),
-    ("trail_map_view.tscn", "MapBackground"),
+    ("trail_map_view.tscn", "MapLayer"),
     ("trail_map_view.tscn", "StageMap"),
+    ("stage_node.tscn", "StageNumber"),
 )
 
 

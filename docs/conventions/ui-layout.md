@@ -7,10 +7,11 @@ Godot UI should express **relationships between widgets** (stack, row, grid, mar
 ## Core rules
 
 1. **Containers own child positions** — if a node is inside a `Container`, do not set `position` or fight layout with manual offsets.
-2. **Anchors for screen shells only** — root HUD nodes use Full Rect; internal layout uses `VBoxContainer` / `HBoxContainer` / `GridContainer`.
-3. **`custom_minimum_size` + size flags** — prefer these over fixed `offset_*` for slot sizes and toolbars.
-4. **`InventoryLayout` / `.tres`** — scale repeated slot grids; do not scatter magic numbers in scripts.
-5. **WYSIWYG in editor** — open the `.tscn` and confirm layout without F5 when possible.
+2. **TSCN-first design** — spacing, anchors, `custom_minimum_size`, and `StyleBox*` chrome belong in `.tscn`. UI scripts bind text/visibility/state only; they must not call `position =`, `custom_minimum_size =`, `reparent()`, or `StyleBoxFlat.new()` for layout. Popups stack in a `VBox` above their trigger button when possible.
+3. **Anchors for screen shells only** — root HUD nodes use Full Rect; internal layout uses `VBoxContainer` / `HBoxContainer` / `GridContainer`.
+4. **`custom_minimum_size` + size flags** — prefer these over fixed `offset_*` for slot sizes and toolbars.
+5. **`InventoryLayout` / `.tres`** — scale repeated slot grids; do not scatter magic numbers in scripts.
+6. **WYSIWYG in editor** — open the `.tscn` and confirm layout without F5 when possible.
 
 Shared overlay numbers live in [`presentation/shared/ui_constants.gd`](../../presentation/shared/ui_constants.gd) (`WINDOW_HEIGHT`, `COMBAT_RESERVED_SPACE`, etc.).
 
@@ -26,7 +27,7 @@ Shared overlay numbers live in [`presentation/shared/ui_constants.gd`](../../pre
 | **Overlay stack** | `VBoxContainer` + Expand spacers + central band | Desktop overlay (menu vs combat) | `inventory_menu.tscn` → `OverlayVBox` |
 | **Sidecar row** | `HBoxContainer` + center block + side panels | Warehouse / forge / worlds beside hub | `MenuArea` in `inventory_menu.tscn` |
 | **Full-bleed swap** | `PanelContainer` hub + overlay children (Full Rect) | Replace hub content in place | Formation, Skills, Attributes, Skill tree |
-| **Dynamic canvas** | Manual positions in script | Radial maps, node graphs | `worlds_panel`, `skill_tree_map` |
+| **Dynamic canvas** | Anchors / graph positions **baked in `.tscn`** | Node graphs, map UV points | `trail_map_view.tscn`, `skill_tree_map` |
 | **Layout resource** | `InventoryLayout` `.tres` | Token scaling for slot UIs | `inventory_layout_default.tres` |
 
 ## Inventory hub (overlay)
@@ -86,10 +87,10 @@ MenuArea (HBox)
 
 | Case | Reason |
 |------|--------|
-| `worlds_panel` stage map | Nodes placed on a circle in code |
+| `worlds_panel` trail map | Stage anchors use UV anchors in `trail_map_view.tscn`; `AspectRatioContainer` fits the map art |
 | `skill_tree_map` | Graph node positions |
 | `forge_panel` gem grid centering | Runtime alignment inside a fixed slot |
-| Context popups (e.g. filter menu) | Floating above a control |
+| Context popups (e.g. filter menu) | Floating above a control — prefer **VBox stack** in `.tscn` first |
 | `WindowManager` | OS window position, click-through polygon |
 | `SectionVisualOffset` | Small visual nudge; parent still owns layout space |
 
@@ -102,6 +103,8 @@ Do **not** use absolute layout for the main inventory hub panel, headers, or nav
 - Scaling `Control` nodes instead of `custom_minimum_size` on slots.
 - Duplicating slot scenes in a loop at runtime when a baked prefab grid exists.
 - Fixing hub width or inventory panel size in `inventory_menu.tscn` (`custom_minimum_size` on `HubBody` / `MenuArea` / `InventoryPanel`) — use `InventoryLayout` + `_apply_panel_layout()` instead.
+- Setting `position`, `custom_minimum_size`, or `reparent()` in UI `.gd` files for structure (use `.tscn` — see **TSCN-first** in [`ui-screens.md`](../workflows/ui-screens.md)).
+- Creating `StyleBoxFlat.new()` in panel scripts for chrome (bake StyleBoxes in `.tscn`).
 
 ## CI / local audit
 
@@ -109,7 +112,7 @@ Do **not** use absolute layout for the main inventory hub panel, headers, or nav
 powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 ```
 
-`tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`worlds_panel` stage map). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
+`tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`trail_map_view` map layer, `stage_node` stage number). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
 
 Inventory menu geometry (ten screens): `tools/run_inventory_menu_layout_audit.ps1`.
 

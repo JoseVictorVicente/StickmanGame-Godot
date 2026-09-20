@@ -7,7 +7,9 @@ description: >-
 ---
 # Capture Menu Screens (Stickman Idle)
 
-Run the automated capture, **read every PNG**, and report visual findings for **all ten menu screens**.
+Run the automated capture, **read every PNG**, and report visual findings for **all twelve menu screens**.
+
+**Layout rule:** if capture reveals layout issues, fix structure in `.tscn` first (see `/edit-ui-screens` → TSCN-first design) — not with `position` / `custom_minimum_size` in `.gd`.
 
 Use this skill for full menu reviews (`/capture-menu-screens`). After a single-screen edit, follow [`edit-ui-screens`](../edit-ui-screens/SKILL.md) Step 3 and read only the PNG(s) for what you changed.
 
@@ -29,7 +31,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 
 1. Run the visual capture command above.
 2. Confirm `INVENTORY_MENU_VISUAL_CAPTURE_OK` in output.
-3. **Read all ten PNGs** with the Read tool:
+3. **Read all twelve PNGs** with the Read tool:
    - `artifacts/inventory_layout/hub_combat_bottom.png`
    - `artifacts/inventory_layout/hub_combat_top.png`
    - `artifacts/inventory_layout/formation_open.png`
@@ -39,6 +41,8 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
    - `artifacts/inventory_layout/warehouse_open.png`
    - `artifacts/inventory_layout/forge_open.png`
    - `artifacts/inventory_layout/worlds_open.png`
+   - `artifacts/inventory_layout/worlds_briefing_open.png`
+   - `artifacts/inventory_layout/worlds_trail_open.png`
    - `artifacts/inventory_layout/settings_open.png`
 4. Summarize issues per screen using the checklist below.
 5. To open the folder locally:
@@ -46,7 +50,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
    explorer artifacts/inventory_layout
    ```
 
-## Visual checklist (10 screens)
+## Visual checklist (12 screens)
 
 | PNG | Expect |
 |-----|--------|
@@ -67,7 +71,7 @@ Flag: grid overlapping hero/divider, Formation straddling the band line, hub too
 
 ## After layout fixes
 
-Scope: `presentation/inventory/`, `presentation/worlds/worlds_panel.*`, `inventory_layout_default.tres`.
+Scope: `presentation/inventory/`, `presentation/worlds/`, `inventory_layout_default.tres`. Layout edits → `.tscn` first (`/edit-ui-screens`).
 
 - Re-run this skill to verify PNGs.
 - **Do not** run `tools/fix_inventory_menu_encoding.py` after layout edits — it `git restore`s `inventory_menu.gd` and drops your changes.

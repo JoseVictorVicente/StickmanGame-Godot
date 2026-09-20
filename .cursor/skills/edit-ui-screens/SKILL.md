@@ -16,6 +16,36 @@ description: >-
 - Player strings: `tr(LocaleKeys.*)` + `locales/*.po`.
 - Do not bulk-edit `sprites/` without explicit user request.
 
+## TSCN-first design (mandatory)
+
+**The scene file is the designer.** Scripts wire data and state — they do not lay out the screen.
+
+| Do in `.tscn` | OK in script |
+|---------------|--------------|
+| `VBox` / `HBox` / `MarginContainer` / `GridContainer` structure | `text`, `visible`, `disabled` |
+| `theme_override_constants/separation`, margins, size flags | Signals, `tr()`, bind callbacks |
+| `custom_minimum_size`, anchors, `%UniqueName` | State colors (`modulate`, `font_color`) |
+| `StyleBoxFlat` / `StyleBoxTexture` on nodes | Toggle baked child panels/menus |
+| Popups stacked **above** their button in a `VBox` | Read game data into labels |
+
+**Never in UI scripts (layout anti-patterns):**
+
+- `node.position = …`, `offset_* = …`, `reparent()` to fix layout
+- `custom_minimum_size = …` / `size = …` at runtime for structure
+- `StyleBoxFlat.new()` to define panel/button chrome (bake in `.tscn`; script may **swap** pre-baked style refs for state)
+- Floating menus positioned with `get_global_rect()` math — bake menu + button in one stack instead
+
+**Agent plan** (follow in order on every UI task):
+
+1. **Design in `.tscn`** — open the scene in Godot mentally: containers, separation, baked StyleBoxes.
+2. **Script audit** — grep the panel `.gd` for `position`, `custom_minimum_size`, `reparent`, `StyleBoxFlat.new()`; move layout hits to `.tscn`.
+3. **Edit** — prefab/scene first; script only for data/state.
+4. **Guard** — `tools/run_ui_layout_check.ps1` + `tools/run_inventory_menu_layout_audit.ps1`.
+5. **Capture** — `tools/run_inventory_menu_visual_capture.ps1`; read **all 12** PNGs.
+6. **Docs** — if you add a new layout exception, update [`ui-layout.md`](../../docs/conventions/ui-layout.md) + `tools/check_ui_layout.py` `ALLOWLIST`.
+
+Reference implementation: `presentation/worlds/worlds_panel.tscn` (header stacks, inline difficulty menus), `trail_map_view.tscn` (`AspectRatioContainer` + UV anchors on `MapLayer`).
+
 ## Creating a new screen
 
 1. Pick a layout pattern from [`ui-layout.md`](../../docs/conventions/ui-layout.md) (form column, sidecar, full-bleed overlay, grid prefab).
@@ -41,7 +71,9 @@ description: >-
 | Shared | `ui_constants.gd`, `panel_layout.gd`, `window_manager.gd` |
 
 Rules:
+- **TSCN-first** — see [TSCN-first design](#tscn-first-design-mandatory) below; structure and StyleBoxes live in `.tscn`, not in `.gd`.
 - Containers own child positions — no `layout_mode = 0` inside `VBox`/`HBox` (unless allowlisted).
+- **Stack related widgets in `VBox`/`HBox`** — use `theme_override_constants/separation` (e.g. **20px** title row → meta block, **8px** inside meta) instead of manual `position` / `offset_*` / reparenting controls at runtime.
 - Hub widths/slot sizes via `InventoryLayout` + `_apply_panel_layout()`, not hardcoded on `HubBody`/`MenuArea`.
 - **Do not** use `SectionVisualOffset` or negative `position` offsets in the hub — they bleed across `inventory_bg.png` bands.
 - **`inventory_menu.gd`:** edit normally in UTF-8. **Never run** `python tools/fix_inventory_menu_encoding.py` after your edits — it runs `git restore` and wipes uncommitted changes. Use that script only for one-off UTF-16 recovery on a clean tree.
@@ -70,6 +102,28 @@ HubColumn (VBox)
 - Overlays that hide the hub: use `set_hub_visible(false)` / `InventoryPanelRouter.set_inventory_visible()` — hides `%HubContent`, not `%HubBody`.
 - Side panels: `_sync_side_panel_heights()` + `size_flags_vertical = EXPAND_FILL` on warehouse/forge/worlds.
 
+### Worlds / Portais (`presentation/worlds/`)
+
+Shell: `FundoPainel` + `Margem` (`UiConstants` margins) + `Conteudo` VBox — same pattern as warehouse.
+
+**Header (hall / briefing / trail):** stack in `WorldsHeader` (VBox), no absolute coords:
+
+```text
+WorldsHeader (VBox, separation = 20)
+├─ HeaderRow (HBox) — back, title banner, close
+└─ TrailHeaderDetails (VBox, separation = 8) — trail only
+   ├─ TrailProgressLabel
+   └─ TrailDifficultyRow → TrailDifficultyButton
+RodapeDificuldade — hall only (%DifficultyButton)
+```
+
+- **20px** between title row and trail meta block (`WorldsHeader.separation`).
+- **8px** between progress label and difficulty button (`TrailHeaderDetails.separation`).
+- Do **not** `reparent()` the difficulty button or position the difficulty menu in script — bake **two** stacks in `worlds_panel.tscn` (hall footer + trail header), each with menu panel above the button in a `VBox`.
+- **Trail map canvas** (`trail_map_view.tscn`): bake stage UV anchors on `MapLayer`; use `AspectRatioContainer` + `TextureRect` for the map art. Inside each anchor, center a `StageColumn` VBox (circle + label). Scripts bind data/state only — no `position` / `custom_minimum_size` at runtime.
+
+Mockups: `artifacts/design/portals_mockup_*.png`. After edits, capture must include `worlds_open`, `worlds_briefing_open`, `worlds_trail_open`.
+
 ### Step 2 — Capture (required)
 
 ```powershell
@@ -86,7 +140,7 @@ Full details: skill [`capture-menu-screens`](../capture-menu-screens/SKILL.md) (
 
 ### Step 3 — Read the relevant PNG(s)
 
-The capture script still writes **all ten** PNGs to `artifacts/inventory_layout/` — that is fine. **You only need to read the PNG(s) that match what you edited.**
+The capture script still writes **all twelve** PNGs to `artifacts/inventory_layout/` — that is fine. **You only need to read the PNG(s) that match what you edited.**
 
 Use this map (file area → `state_id` → PNG):
 
@@ -100,19 +154,21 @@ Use this map (file area → `state_id` → PNG):
 | `skill_tree_panel.*` | `skill_tree_open.png` |
 | `warehouse_panel.*` | `warehouse_open.png` |
 | `forge_panel.*` | `forge_open.png` |
-| `worlds_panel.*` | `worlds_open.png` |
+| `worlds_panel.*` (hall) | `worlds_open.png` |
+| `realm_briefing_view.*` / briefing flow | `worlds_briefing_open.png` |
+| `trail_map_view.*` / trail flow | `worlds_trail_open.png` |
 | `settings_panel.*` | `settings_open.png` |
 
 **Rules:**
 
-- Read **only** the row(s) for your edit. Do not open the other nine unless you changed shared layout code and see a regression, or the user asks for a full menu review (`/capture-menu-screens`).
+- Read **only** the row(s) for your edit. Do not open the other PNGs unless you changed shared layout code and see a regression, or the user asks for a full menu review (`/capture-menu-screens`).
 - Hub-band edits (upper row vs inventory grid vs nav): prefer `hub_combat_bottom.png` — it shows the `inventory_bg.png` divider.
 - If you touched `InventoryPanelRouter`, `InventoryLayout.sync_from_base_unit()`, or overlay alignment, add the overlay/side PNG for the panel you wired — not the whole set.
 
 Example paths:
 
 - `artifacts/inventory_layout/hub_combat_bottom.png`
-- `artifacts/inventory_layout/formation_open.png`
+- `artifacts/inventory_layout/worlds_trail_open.png`
 
 ### Step 4 — Fix and repeat
 
@@ -138,7 +194,7 @@ When a new visible menu state is introduced:
 
 ### Visual capture
 - [ ] Ran `run_inventory_menu_visual_capture.ps1`
-- [ ] Read PNG(s) for the screen(s) edited (see Step 3 map)
+- [ ] Read PNG(s) for the screen(s) edited (see Step 3 map); use `/capture-menu-screens` for all twelve when needed
 
 ### Findings
 | Screen (PNG) | Status | Notes |
