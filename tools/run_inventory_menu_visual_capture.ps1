@@ -47,8 +47,12 @@ $stateIds = @(
     "hub_combat_top",
     "formation_open",
     "skills_open",
+    "attributes_open",
+    "skill_tree_open",
     "warehouse_open",
-    "forge_open"
+    "forge_open",
+    "worlds_open",
+    "settings_open"
 )
 foreach ($stateId in $stateIds) {
     $png = Join-Path $artifactDir "$stateId.png"

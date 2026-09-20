@@ -89,14 +89,16 @@ func _run_invariants(menu: Control, state_id: String) -> void:
 	if painel == null or menu_area == null:
 		_record_failure(state_id, "Panel/MenuArea", Rect2(), "hub nodes should exist")
 		return
-	_check_combat_band(state_id, painel, menu)
-	_check_hub_width(state_id, painel, menu_area, layout, menu)
+	if painel.visible:
+		_check_combat_band(state_id, painel, menu)
+		_check_hub_width(state_id, painel, menu_area, layout, menu)
 	var conteudo := menu.get_node_or_null("%Conteudo") as Control
 	if conteudo != null and conteudo.visible:
 		_check_vertical_stack(menu, state_id)
 		_check_slot_sizes(menu, state_id, layout)
 		_check_nav_sizes(menu, state_id, layout)
 	_check_overlay_coverage(menu, state_id, painel)
+	_check_screen_visible(menu, state_id)
 
 
 func _rect_in_menu(control: Control, menu: Control) -> Rect2:
@@ -223,6 +225,8 @@ func _check_overlay_coverage(menu: Control, state_id: String, painel: Control) -
 			overlay_name = "FormationPanel"
 		"skills_open":
 			overlay_name = "SkillsPanel"
+		"attributes_open":
+			overlay_name = "AttributesPanel"
 		_:
 			return
 	var overlay := menu.get_node_or_null("%" + overlay_name) as Control
@@ -253,6 +257,22 @@ func _check_overlay_coverage(menu: Control, state_id: String, painel: Control) -
 				grid_rect,
 				"grid overlap with overlay <= %.0f%%" % (GRID_OVERLAP_MAX * 100.0)
 			)
+
+
+func _check_screen_visible(menu: Control, state_id: String) -> void:
+	var panel_name := ""
+	match state_id:
+		"skill_tree_open":
+			panel_name = "SkillTreePanel"
+		"worlds_open":
+			panel_name = "WorldsPanel"
+		"settings_open":
+			panel_name = "SettingsPanel"
+		_:
+			return
+	var panel := menu.get_node_or_null("%" + panel_name) as Control
+	if panel == null or not panel.visible:
+		_record_failure(state_id, panel_name, Rect2(), "%s should be visible" % panel_name)
 
 
 func _record_failure(state_id: String, node_name: String, rect: Rect2, expected: String) -> void:

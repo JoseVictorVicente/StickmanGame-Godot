@@ -85,9 +85,11 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 
 Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): six menu states (hub top/bottom, formation, skills, warehouse, forge) with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
 
-### Inventory hub visual layout review (Cursor)
+### Menu screens visual review (Cursor)
 
-Captures six PNG screenshots at 960×860 for AI visual review. **Requires display** — do not pass `--headless` (rendering is disabled headless).
+Captures **ten** PNG screenshots (all `inventory_menu` screens) at 960×860 for AI visual review. **Requires display** — do not pass `--headless` (rendering is disabled headless).
+
+Cursor skill: `/capture-menu-screens` (`.cursor/skills/capture-menu-screens/SKILL.md`).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
@@ -104,7 +106,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.
 **Agent loop** after edits under `presentation/inventory/`:
 
 1. Run `tools/run_inventory_menu_visual_capture.ps1`
-2. Read the six PNGs in `artifacts/inventory_layout/`
+2. Read all ten PNGs in `artifacts/inventory_layout/`
 3. Evaluate layout visually (checklist below)
 4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd) — if `inventory_menu.gd` encoding breaks, apply patches via `tools/fix_inventory_menu_encoding.py`
 5. Repeat until acceptable; optionally run `tools/run_inventory_menu_layout_audit.ps1`
@@ -115,14 +117,17 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.
 | `hub_combat_top` | Hub below top combat band; no overlap into reserved zone |
 | `formation_open` | Formation overlay full-bleed on hub panel |
 | `skills_open` | Skills overlay full-bleed on hub panel |
-| `warehouse_open` | Warehouse panel visible; frame margins ok |
-| `forge_open` | Forge panel visible; slots aligned |
+| `attributes_open` | Attributes overlay full-bleed; stat rows readable |
+| `skill_tree_open` | Skill tree replaces hub; map visible |
+| `warehouse_open` | Warehouse side panel visible; tabs and grid readable |
+| `forge_open` | Forge side panel visible; slots aligned |
+| `worlds_open` | Worlds side panel visible; stage map readable |
+| `settings_open` | Settings panel top-right; volume and locale controls |
 
 Shared state setup: [`tests/inventory_menu_layout_states.gd`](../tests/inventory_menu_layout_states.gd).
 
 ## What not to test (initially)
 
-- Visual combat timers (flaky)
 - Visual combat timers (flaky)
 - Procedural icon generation
 

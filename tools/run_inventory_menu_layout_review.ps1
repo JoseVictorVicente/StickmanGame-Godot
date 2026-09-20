@@ -15,9 +15,10 @@ Write-Host "==> Visual capture (display required)"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ""
-Write-Host "Agent checklist — read artifacts/inventory_layout/*.png:"
-Write-Host "  hub_combat_bottom: hub in lower half, top ~320px clear, 10x5 grid readable"
-Write-Host "  hub_combat_top: hub below top combat band"
-Write-Host "  formation_open / skills_open: overlay full-bleed on panel"
-Write-Host "  warehouse_open / forge_open: side panels visible, margins ok"
+Write-Host "Agent checklist — read artifacts/inventory_layout/*.png (10 screens):"
+Write-Host "  hub_combat_bottom / hub_combat_top: combat band + hub placement"
+Write-Host "  formation_open / skills_open / attributes_open: overlay full-bleed"
+Write-Host "  skill_tree_open: skill tree replaces hub"
+Write-Host "  warehouse_open / forge_open / worlds_open: side panels visible"
+Write-Host "  settings_open: settings panel top-right"
 exit $exitCode

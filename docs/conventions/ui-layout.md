@@ -87,9 +87,9 @@ powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 
 `tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`worlds_panel` stage map, `hero_section` visual offset wrapper). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
 
-Inventory hub geometry (six states): `tools/run_inventory_menu_layout_audit.ps1`.
+Inventory menu geometry (ten screens): `tools/run_inventory_menu_layout_audit.ps1`.
 
-Inventory hub **visual** review for Cursor agents (six PNG captures, replaces manual F5 for layout iteration):
+Menu **visual** review for Cursor agents (`/capture-menu-screens`, ten PNG captures):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
