@@ -31,9 +31,8 @@ const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BRACELET,
 	ItemData.Type.PET,
 ]
-const MARGEM_TOPO_UI := 8.0
-const WINDOW_HEIGHT := 860.0
-const COMBAT_RESERVED_SPACE := 320.0
+const MARGEM_TOPO_UI := UiConstants.UI_TOP_MARGIN
+const COMBAT_RESERVED_SPACE := UiConstants.COMBAT_RESERVED_SPACE
 var HERO_SLOTS: Array[Dictionary] = [
 	{"name": "Warrior", "hero_class": ItemData.RequiredClass.WARRIOR},
 	{"name": "Mage", "hero_class": ItemData.RequiredClass.MAGE},
@@ -54,7 +53,11 @@ var CLASSES: Array[ClassData] = []
 @onready var option_locale: OptionButton = %OptionLocale
 @onready var cabecalho: HBoxContainer = %Header
 @onready var painel: PanelContainer = %Panel
-@onready var menu_area: Control = %MenuArea
+@onready var conteudo: VBoxContainer = %Conteudo
+@onready var menu_area: HBoxContainer = %MenuArea
+@onready var overlay_vbox: VBoxContainer = %OverlayVBox
+@onready var top_spacer: Control = %TopSpacer
+@onready var bottom_spacer: Control = %BottomSpacer
 @onready var forge_panel_node: ForgePanel = %PanelForgePanel
 @onready var warehouse_panel_node: WarehousePanel = %WarehousePanel
 @onready var worlds_panel_node: WorldsPanel = %WorldsPanel
@@ -62,7 +65,6 @@ var CLASSES: Array[ClassData] = []
 @onready var skills_panel_node: SkillsPanel = %SkillsPanel
 @onready var attributes_panel_node: AttributesPanel = %AttributesPanel
 @onready var skill_tree_panel_node: SkillTreePanel = %SkillTreePanel
-@onready var center_anchor: Control = %CenterAnchor
 @onready var area_heroi: HeroSection = %AreaHeroi
 @onready var linha_inventario: InventoryRow = %LinhaInventario
 @onready var menu_inferior: BottomNav = %MenuInferior
@@ -190,7 +192,6 @@ func _ready() -> void:
 		_align_gold_spacer()
 	call_deferred("_align_gold_spacer")
 	_restore_base_panel()
-	call_deferred("set_below_combat", _menus_abaixo)
 	call_deferred("_align_side_panels")
 
 
@@ -272,12 +273,13 @@ func _setup_inventory_slots() -> void:
 
 func _apply_panel_layout() -> void:
 	var layout := _layout()
-	if menu_area:
-		menu_area.custom_minimum_size = layout.panel_min_size
-	if center_anchor:
-		center_anchor.custom_minimum_size = layout.panel_min_size + Vector2(20, 12)
 	if painel:
-		painel.custom_minimum_size = layout.panel_min_size
+		var hub_w := maxf(layout.panel_min_size.x, layout.inventory_row_pixel_size().x + 24.0)
+		painel.custom_minimum_size = Vector2(hub_w, layout.panel_min_size.y)
+	if linha_inventario:
+		linha_inventario.custom_minimum_size = layout.inventory_row_pixel_size()
+	if menu_inferior:
+		menu_inferior.custom_minimum_size.y = layout.bottom_bar_height
 	if not Engine.is_editor_hint():
 		if area_heroi:
 			area_heroi.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -410,22 +412,25 @@ func _progress_for_index(stage_index: int) -> Dictionary:
 	return {"level": 1, "xp": 0, "xp_next": HeroProgress.BASE_XP_PER_LEVEL}
 
 
-func _configure_ui_anchor() -> void:
-	center_anchor.set_anchors_preset(Control.PRESET_TOP_WIDE, false)
-	center_anchor.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	center_anchor.grow_vertical = Control.GROW_DIRECTION_BEGIN
-
-
 func set_below_combat(abaixo: bool) -> void:
 	_menus_abaixo = abaixo
-	_configure_ui_anchor()
-	if abaixo:
-		center_anchor.offset_top = COMBAT_RESERVED_SPACE
-		center_anchor.offset_bottom = WINDOW_HEIGHT - MARGEM_TOPO_UI
-	else:
-		center_anchor.offset_top = MARGEM_TOPO_UI
-		center_anchor.offset_bottom = WINDOW_HEIGHT - COMBAT_RESERVED_SPACE
+	_apply_combat_spacers()
 	_align_side_panels()
+
+
+func _apply_combat_spacers() -> void:
+	if top_spacer == null or bottom_spacer == null:
+		return
+	if _menus_abaixo:
+		top_spacer.custom_minimum_size = Vector2(0, COMBAT_RESERVED_SPACE)
+		top_spacer.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		bottom_spacer.custom_minimum_size = Vector2.ZERO
+		bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	else:
+		top_spacer.custom_minimum_size = Vector2.ZERO
+		top_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bottom_spacer.custom_minimum_size = Vector2(0, COMBAT_RESERVED_SPACE)
+		bottom_spacer.size_flags_vertical = Control.SIZE_SHRINK_END
 
 
 func get_clickable_rects() -> Array[Rect2]:
@@ -454,12 +459,18 @@ func get_clickable_rects() -> Array[Rect2]:
 
 
 func width_for_window() -> int:
-	return PanelLayout.window_width(painel, warehouse_panel_node, forge_panel_node, worlds_panel_node, formation_panel_node)
+	return PanelLayout.window_width(menu_area)
 
 
 func _align_side_panels() -> void:
 	_restore_base_panel()
-	PanelLayout.align_panel(painel, menu_area, warehouse_panel_node, forge_panel_node, worlds_panel_node, _menus_abaixo, formation_panel_node, attributes_panel_node, skills_panel_node, skill_tree_panel_node)
+	PanelLayout.align_overlays(
+		painel,
+		formation_panel_node,
+		attributes_panel_node,
+		skills_panel_node,
+		skill_tree_panel_node
+	)
 	_apply_panel_layout()
 	_align_settings()
 	menu_width_changed.emit()
@@ -475,18 +486,15 @@ func _restore_base_panel() -> void:
 
 
 func _set_inventory_visible(visivel: bool) -> void:
-	if painel == null:
+	if conteudo == null or painel == null:
 		return
 	_restore_base_panel()
-	if visivel:
-		painel.visible = true
-		return
-	var tam := painel.size
-	if tam.y < 1.0:
-		tam = painel.get_combined_minimum_size()
-		tam.x = maxf(tam.x, painel.custom_minimum_size.x)
-	painel.visible = false
-	painel.size = tam
+	if not visivel:
+		var tam := painel.get_combined_minimum_size()
+		tam.x = maxf(tam.x, _layout().panel_min_size.x)
+		tam.y = maxf(tam.y, painel.custom_minimum_size.y)
+		painel.custom_minimum_size = tam
+	conteudo.visible = visivel
 
 
 func inventory_slots() -> Array[ItemSlot]:

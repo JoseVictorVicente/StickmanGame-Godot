@@ -426,4 +426,3 @@ func apply_from_save(data: Dictionary) -> void:
 	_update_repeat_visual()
 	recalculate_attributes()
 	_update_hud()
-

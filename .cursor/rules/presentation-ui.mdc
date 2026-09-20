@@ -34,8 +34,15 @@ Applies to `presentation/` (shared, combat, inventory, worlds).
 - Test with Embed Game **disabled**
 - Coordinate width changes with `window_manager.ajustar_largura`
 
+## Layout
+
+- **Containers first** — `VBoxContainer` / `HBoxContainer` / `GridContainer`; `separation` and spacers instead of manual `offset_*`.
+- **No hardcoded menu band heights** — use `OverlayVBox` + `UiConstants.COMBAT_RESERVED_SPACE`.
+- Absolute position only for dynamic canvases, popups, and `WindowManager` — see `docs/conventions/ui-layout.md`.
+
 ## Docs
 
+- `docs/conventions/ui-layout.md`
 - `docs/architecture/overlay-desktop.md`
 - `docs/conventions/i18n.md`
-- `presentation/AGENTS.md` (when present)
+- `presentation/AGENTS.md`

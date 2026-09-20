@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8attribrow1"]
+[gd_scene format=3 uid="uid://c8attribrow1"]
 
 [ext_resource type="Script" path="res://presentation/inventory/attribute_row.gd" id="1_row"]
 

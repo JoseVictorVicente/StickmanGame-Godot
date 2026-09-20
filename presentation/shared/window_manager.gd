@@ -2,14 +2,14 @@ class_name WindowManager
 extends Node
 ## Janela transparente, arraste, âncoras do stage_panel e click-through.
 
-const LARGURA := 960
-const ALTURA := 860
+const LARGURA := UiConstants.WINDOW_WIDTH
+const ALTURA := UiConstants.WINDOW_HEIGHT
 const STAGE_TOP_MARGIN := 8
 const STAGE_HEIGHT := 124
 const PALCO_BASE_JANELA := 108
 const PANEL_HEIGHT := 100
 const BUTTON_SIZE := 80
-const INVENTORY_PANEL_WIDTH := 580
+const INVENTORY_PANEL_WIDTH := 580  # nominal hub width; actual width comes from MenuRow
 
 var stage_panel: Control
 var battle_panel: PanelContainer

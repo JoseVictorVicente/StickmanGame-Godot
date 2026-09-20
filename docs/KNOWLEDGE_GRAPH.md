@@ -39,6 +39,10 @@
 - `docs/conventions/i18n.md`
 - `locales/pt_BR.po`, `locales/en.po`
 
+### UI layout
+- `docs/conventions/ui-layout.md` — container patterns, overlay hub, allowed absolute layout
+- `presentation/shared/ui_constants.gd` — window and combat band sizes
+
 ### Assisted logging (Cursor / CI)
 - `docs/workflows/assisted-logging.md` — how it works, commands, rules for devs
 - `docs/architecture/event-catalog.md` — event schema and full catalog
@@ -52,6 +56,7 @@
 | Task | Path |
 |------|------|
 | Onboarding | README → AGENTS → overview → naming |
+| New UI screen | `docs/conventions/ui-layout.md` → `presentation/AGENTS.md` |
 | Combat bug | combat.md → domains/combat/ → save-format if progression involved |
 | New skill | workflows/add-skill.md → data/skills/ |
 | New item | workflows/add-item.md → platform/item_database |

@@ -47,6 +47,7 @@ Scenes: `presentation/inventory/*.tscn`, skills in `data/skills/`, entry point `
 ### UI panels
 
 - Root `Control` with anchors for overlay.
+- Internal layout via containers — see [`ui-layout.md`](ui-layout.md).
 - Sub-panels (ForgePanel, Warehouse) as hidden children (`hide()` by default).
 - Unique names (`%NodeName`) for script binds.
 
@@ -122,7 +123,8 @@ Godot 4 generates `*.uid` — commit with the asset. Do not edit manually.
 
 ## New UI scene checklist
 
-1. Script in `presentation/<area>/`.
-2. Text via `tr()` (see [`i18n.md`](i18n.md)).
-3. Signals to domain — no gold/combat logic in UI beyond emitting signals.
-4. Test with menu open/closed and click-through.
+1. Pick a layout pattern from [`ui-layout.md`](ui-layout.md).
+2. Script in `presentation/<area>/`.
+3. Text via `tr()` (see [`i18n.md`](i18n.md)).
+4. Signals to domain — no gold/combat logic in UI beyond emitting signals.
+5. Test with menu open/closed and click-through.

@@ -1,3 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Generated layout review captures (local agent loop)
+artifacts/inventory_layout/*.png
+artifacts/inventory_layout/manifest.json

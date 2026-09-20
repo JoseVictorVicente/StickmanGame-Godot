@@ -49,8 +49,12 @@ const GEMS_ARROW_WIDTH := 32.0
 @onready var gems_explanation_label: Label = %GemsExplanationLabel
 @onready var dismantle_value_label: Label = %DismantleValueLabel
 @onready var cabecalho: HBoxContainer = %ForgeHeader
-@onready var forge_body: Control = %ForgeBody
-@onready var title_label: Label = $Conteudo/ForgeHeader/BannerTitulo/Titulo
+@onready var forge_body: VBoxContainer = %ForgeBody
+@onready var forge_canvas: Control = %ForgeCanvas
+@onready var synthesis_grid_host: CenterContainer = %SynthesisGridHost
+@onready var dismantle_grid_host: CenterContainer = %DismantleGridHost
+@onready var gems_grid_host: CenterContainer = %GemsGridHost
+@onready var title_label: Label = $Margem/Conteudo/ForgeHeader/BannerTitulo/Titulo
 
 var _menu: InventoryMenu
 var _slots: Array[ItemSlot] = []
@@ -96,8 +100,8 @@ func _ready() -> void:
 	_update_dismantle()
 	visibility_changed.connect(_on_visibility_changed)
 	resized.connect(_align_forge_background)
-	if forge_body:
-		forge_body.resized.connect(_align_forge_background)
+	if forge_canvas:
+		forge_canvas.resized.connect(_align_forge_background)
 	if synthesis_panel:
 		synthesis_panel.resized.connect(_align_forge_background)
 	if dismantle_panel:
@@ -455,10 +459,19 @@ func _on_visibility_changed() -> void:
 
 
 func _update_forge_background() -> void:
-	synthesis_grid.visible = _aba == Aba.SINTESE
-	dismantle_grid.visible = _aba == Aba.DESMONTAR
+	var sintese := _aba == Aba.SINTESE
+	var desmontar := _aba == Aba.DESMONTAR
+	var joias := _aba == Aba.JOIAS
+	if synthesis_grid_host:
+		synthesis_grid_host.visible = sintese
+	if dismantle_grid_host:
+		dismantle_grid_host.visible = desmontar
+	if gems_grid_host:
+		gems_grid_host.visible = joias
+	synthesis_grid.visible = sintese
+	dismantle_grid.visible = desmontar
 	if gems_area:
-		gems_area.visible = _aba == Aba.JOIAS
+		gems_area.visible = joias
 	call_deferred("_align_forge_background")
 
 
@@ -484,18 +497,13 @@ func _current_tab_panel() -> VBoxContainer:
 
 
 func _align_forge_background() -> void:
-	if forge_body == null:
+	if forge_canvas == null:
 		return
-	var painel := _current_tab_panel()
-	if painel and painel.visible:
-		var altura_controles := painel.get_combined_minimum_size().y
-		if altura_controles > 0.0:
-			painel.offset_top = -altura_controles
-	var alvo := _grid_area_rect()
+	var alvo := _canvas_inner_rect()
 	if alvo.size.x < 1.0 or alvo.size.y < 1.0:
 		return
 	if _aba == Aba.JOIAS:
-		_align_jewelry_area(alvo)
+		_align_jewelry_slots(alvo)
 		return
 	var grade := _current_tab_grid()
 	if grade == null:
@@ -510,29 +518,20 @@ func _align_forge_background() -> void:
 	for slot in _current_tab_slots():
 		slot.custom_minimum_size = slot_size
 	grade.reset_size()
-	var tam_grade := grade.get_combined_minimum_size()
-	if tam_grade.x < 1.0 or tam_grade.y < 1.0:
-		return
-	grade.position = alvo.position + (alvo.size - tam_grade) * 0.5
-	grade.size = tam_grade
 
 
-func _grid_area_rect() -> Rect2:
-	var tam := forge_body.size
+func _canvas_inner_rect() -> Rect2:
+	var tam := forge_canvas.size
 	if tam.x < 1.0 or tam.y < 1.0:
 		return Rect2()
-	var painel := _current_tab_panel()
-	var altura_baixo := 0.0
-	if painel and painel.visible:
-		altura_baixo = painel.get_combined_minimum_size().y
-	var area := Rect2(Vector2.ZERO, Vector2(tam.x, maxf(1.0, tam.y - altura_baixo)))
+	var area := Rect2(Vector2.ZERO, tam)
 	var inset := area.size * GRADE_MARGEM
 	area.position += inset
 	area.size -= inset * 2.0
 	return area
 
 
-func _align_jewelry_area(alvo: Rect2) -> void:
+func _align_jewelry_slots(alvo: Rect2) -> void:
 	if gems_area == null or slot_joia_alvo == null or slot_joia_gema == null:
 		return
 	var separacao := float(gems_area.get_theme_constant("separation"))
@@ -543,11 +542,6 @@ func _align_jewelry_area(alvo: Rect2) -> void:
 	slot_joia_alvo.custom_minimum_size = tamanho_slot
 	slot_joia_gema.custom_minimum_size = tamanho_slot
 	gems_area.reset_size()
-	var tam_area := gems_area.get_combined_minimum_size()
-	if tam_area.x < 1.0 or tam_area.y < 1.0:
-		return
-	gems_area.position = alvo.position + (alvo.size - tam_area) * 0.5
-	gems_area.size = tam_area
 	var seta := gems_area.get_node_or_null("SetaImbuir")
 	if seta:
 		seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, lado)
@@ -930,7 +924,24 @@ func _style_warehouse_toggle(ligado: bool) -> void:
 	knob.border_color = Color(0.72, 0.58, 0.28, 1)
 	knob.set_border_width_all(1)
 	toggle_knob.add_theme_stylebox_override("panel", knob)
-	toggle_knob.position = Vector2(25, 3) if ligado else Vector2(3, 3)
+	_apply_toggle_knob_position(ligado)
+
+
+func _apply_toggle_knob_position(ligado: bool) -> void:
+	if toggle_knob == null:
+		return
+	if ligado:
+		toggle_knob.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		toggle_knob.offset_left = -23.0
+		toggle_knob.offset_top = 3.0
+		toggle_knob.offset_right = -3.0
+		toggle_knob.offset_bottom = 23.0
+	else:
+		toggle_knob.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		toggle_knob.offset_left = 3.0
+		toggle_knob.offset_top = 3.0
+		toggle_knob.offset_right = 23.0
+		toggle_knob.offset_bottom = 23.0
 
 
 func _setup_level_info_button() -> void:

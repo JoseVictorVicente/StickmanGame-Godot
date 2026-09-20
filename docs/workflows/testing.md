@@ -69,9 +69,60 @@ func test_xp_level_up():
 
 Requires Godot on the runner or a container with GL Compatibility.
 
+## UI layout audit (available now)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
+```
+
+Catches forbidden `layout_mode = 0` in `presentation/` scenes. See [`conventions/ui-layout.md`](../conventions/ui-layout.md).
+
+### Inventory hub geometry audit
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1
+```
+
+Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): six menu states (hub top/bottom, formation, skills, warehouse, forge) with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
+
+### Inventory hub visual layout review (Cursor)
+
+Captures six PNG screenshots at 960×860 for AI visual review. **Requires display** — do not pass `--headless` (rendering is disabled headless).
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+```
+
+Output: `artifacts/inventory_layout/<state_id>.png` plus `manifest.json`.
+
+Full review (geometry + visual):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.ps1
+```
+
+**Agent loop** after edits under `presentation/inventory/`:
+
+1. Run `tools/run_inventory_menu_visual_capture.ps1`
+2. Read the six PNGs in `artifacts/inventory_layout/`
+3. Evaluate layout visually (checklist below)
+4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd) — if `inventory_menu.gd` encoding breaks, apply patches via `tools/fix_inventory_menu_encoding.py`
+5. Repeat until acceptable; optionally run `tools/run_inventory_menu_layout_audit.ps1`
+
+| PNG | Visual expectations |
+|-----|---------------------|
+| `hub_combat_bottom` | Hub in lower half; top ~320px clear; 10×5 grid readable; nav proportional |
+| `hub_combat_top` | Hub below top combat band; no overlap into reserved zone |
+| `formation_open` | Formation overlay full-bleed on hub panel |
+| `skills_open` | Skills overlay full-bleed on hub panel |
+| `warehouse_open` | Warehouse panel visible; frame margins ok |
+| `forge_open` | Forge panel visible; slots aligned |
+
+Shared state setup: [`tests/inventory_menu_layout_states.gd`](../tests/inventory_menu_layout_states.gd).
+
 ## What not to test (initially)
 
-- Rendering, window transparency
+- Visual combat timers (flaky)
 - Visual combat timers (flaky)
 - Procedural icon generation
 

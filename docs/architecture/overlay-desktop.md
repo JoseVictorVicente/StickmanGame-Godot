@@ -69,7 +69,20 @@ Uses `obter_rects_menu()` for inventory clickable rectangles.
 | `ancorar_combate_no_topo(no_topo)` | Menu opens downward vs upward |
 | `aplicar_direcao_do_menu()` | Chooses direction based on screen position |
 
-Main constants: `LARGURA=960`, `ALTURA=860`, `PALCO_ALTURA=124`, `LARGURA_PAINEL_INVENTARIO=580`.
+Main constants: [`ui_constants.gd`](../../presentation/shared/ui_constants.gd) (`WINDOW_WIDTH=960`, `WINDOW_HEIGHT=860`, `COMBAT_RESERVED_SPACE=320`). `WindowManager` also uses `PALCO_ALTURA=124` for combat anchors.
+
+### Inventory menu band
+
+`InventoryMenu` uses a vertical container shell (not fixed `offset_bottom` on a top band):
+
+```text
+OverlayVBox
+├─ TopSpacer      (Expand, or fixed combat reserve when combat is on top)
+├─ MenuArea       (HBox: warehouse | Panel hub | forge/worlds)
+└─ BottomSpacer   (fixed combat reserve when combat is at bottom, else Expand)
+```
+
+`set_below_combat()` flips which spacer expands vs reserves `COMBAT_RESERVED_SPACE`. Window width follows `MenuArea.get_combined_minimum_size()`.
 
 ## Main scene
 

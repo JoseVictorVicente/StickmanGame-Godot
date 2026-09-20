@@ -20,7 +20,7 @@ const WAREHOUSE_GRID_SCENE := preload("res://presentation/inventory/warehouse_sl
 @onready var warehouse_grid: GridContainer = %WarehouseGrid
 @onready var status_label: Label = %WarehouseStatusLabel
 @onready var sort_button: Button = %SortWarehouseButton
-@onready var title_label: Label = $Conteudo/WarehouseHeader/BannerTitulo/Titulo
+@onready var title_label: Label = $Margem/Conteudo/WarehouseHeader/BannerTitulo/Titulo
 
 var _menu: InventoryMenu
 var _slots_por_aba: Array = []

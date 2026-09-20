@@ -96,31 +96,36 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
 
-[node name="Conteudo" type="VBoxContainer" parent="."]
+[node name="Margem" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 21.0
-offset_top = 19.0
-offset_right = -19.0
-offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 21
+theme_override_constants/margin_top = 19
+theme_override_constants/margin_right = 19
+theme_override_constants/margin_bottom = 20
+
+[node name="Conteudo" type="VBoxContainer" parent="Margem"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 clip_contents = true
 theme_override_constants/separation = 8
 
-[node name="WarehouseHeader" type="HBoxContainer" parent="Conteudo"]
+[node name="WarehouseHeader" type="HBoxContainer" parent="Margem/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Conteudo/WarehouseHeader"]
+[node name="BannerTitulo" type="PanelContainer" parent="Margem/Conteudo/WarehouseHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Conteudo/WarehouseHeader/BannerTitulo"]
+[node name="Titulo" type="Label" parent="Margem/Conteudo/WarehouseHeader/BannerTitulo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
@@ -128,7 +133,7 @@ text = "ARMAZÉM"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CloseWarehouseButton" type="Button" parent="Conteudo/WarehouseHeader"]
+[node name="CloseWarehouseButton" type="Button" parent="Margem/Conteudo/WarehouseHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -140,14 +145,14 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="TabRow" type="GridContainer" parent="Conteudo"]
+[node name="TabRow" type="GridContainer" parent="Margem/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 4
 
-[node name="Tab_1" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_1" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -156,7 +161,7 @@ theme_override_font_sizes/font_size = 12
 text = "1"
 disabled = false
 
-[node name="Tab_2" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_2" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -165,7 +170,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_3" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_3" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -174,7 +179,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_4" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_4" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -183,7 +188,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_5" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_5" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -192,7 +197,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_6" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_6" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -201,7 +206,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_7" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_7" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -210,7 +215,7 @@ theme_override_font_sizes/font_size = 12
 text = "🔒"
 disabled = true
 
-[node name="Tab_8" type="Button" parent="Conteudo/TabRow"]
+[node name="Tab_8" type="Button" parent="Margem/Conteudo/TabRow"]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -220,7 +225,7 @@ text = "🔒"
 disabled = true
 
 
-[node name="WarehouseGrid" type="GridContainer" parent="Conteudo"]
+[node name="WarehouseGrid" type="GridContainer" parent="Margem/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -229,50 +234,50 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 1
 
-[node name="GradeAba_0" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_0" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = true
 layout_mode = 2
 
-[node name="GradeAba_1" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_1" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_2" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_2" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_3" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_3" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_4" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_4" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_5" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_5" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_6" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_6" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_7" parent="Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_7" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
 visible = false
 layout_mode = 2
 
 
-[node name="RodapeArmazem" type="HBoxContainer" parent="Conteudo"]
+[node name="RodapeArmazem" type="HBoxContainer" parent="Margem/Conteudo"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SortWarehouseButton" type="Button" parent="Conteudo/RodapeArmazem"]
+[node name="SortWarehouseButton" type="Button" parent="Margem/Conteudo/RodapeArmazem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 tooltip_text = "Organizar página"
 
-[node name="WarehouseStatusLabel" type="Label" parent="Conteudo/RodapeArmazem"]
+[node name="WarehouseStatusLabel" type="Label" parent="Margem/Conteudo/RodapeArmazem"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
