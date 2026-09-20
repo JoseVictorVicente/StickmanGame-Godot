@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://c8herocar01"]
+
+[ext_resource type="Script" path="res://presentation/inventory/hero_carousel_portrait.gd" id="1_script"]
+
+[node name="HeroCarouselPortrait" type="TextureButton"]
+custom_minimum_size = Vector2(56, 56)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+focus_mode = 0
+ignore_texture_size = true
+stretch_mode = 6
+texture_filter = 0
+script = ExtResource("1_script")

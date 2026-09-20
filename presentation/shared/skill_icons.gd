@@ -105,12 +105,65 @@ static func apply_to_texture_button(
 	skill: SkillResource,
 	tamanho_slot: Vector2
 ) -> void:
+	apply_framed_texture_button(botao, skill, tamanho_slot, skill == null)
+
+
+## Slot icon with metallic frame on every skill type (active + passive).
+static func get_framed_slot_icon(skill: SkillResource = null, lado: int = 64) -> Texture2D:
+	var ordem := skill.sort_order if skill else 0
+	var chave := "framed_slot:v2:%s:%d:%d" % [skill.skill_id if skill else "empty", ordem, lado]
+	if _cache.has(chave):
+		return _cache[chave] as Texture2D
+	var fonte: Texture2D
+	if skill == null:
+		fonte = _get_active_frame_texture()
+	elif _has_icon_file(skill):
+		var interna := load(skill.icon_path) as Texture2D
+		if interna != null:
+			if skill.icon_inner_only:
+				fonte = _composite_inner_with_frame(interna)
+			else:
+				fonte = _composite_inner_with_frame(_normalize_texture(interna))
+		else:
+			fonte = _composite_inner_with_frame(_create_number_inner_texture(skill))
+	else:
+		fonte = _composite_inner_with_frame(_create_number_inner_texture(skill))
+	if fonte == null:
+		fonte = _get_active_frame_texture()
+	var pronta := _texture_for_slot(fonte, lado)
+	_cache[chave] = pronta
+	return pronta
+
+
+## Portrait or arbitrary texture inside the metallic active-skill frame.
+static func get_framed_texture_icon(inner: Texture2D, lado: int = 64) -> Texture2D:
+	var tex_id := inner.get_instance_id() if inner != null else 0
+	var chave := "framed_tex:v1:%d:%d" % [tex_id, lado]
+	if _cache.has(chave):
+		return _cache[chave] as Texture2D
+	var fonte: Texture2D
+	if inner == null:
+		fonte = _get_active_frame_texture()
+	else:
+		fonte = _composite_inner_with_frame(_normalize_texture(inner))
+	if fonte == null:
+		fonte = _get_active_frame_texture()
+	var pronta := _texture_for_slot(fonte, lado)
+	_cache[chave] = pronta
+	return pronta
+
+
+static func apply_framed_hero_portrait(
+	botao: TextureButton,
+	hero_texture: Texture2D,
+	tamanho_slot: Vector2,
+	dimmed: bool = false
+) -> void:
 	if botao == null:
 		return
 	var lado := slot_width(tamanho_slot)
-	var textura := get_active_slot_icon(skill, lado)
+	var textura := get_framed_texture_icon(hero_texture, lado)
 	botao.custom_minimum_size = tamanho_slot
-	botao.size = tamanho_slot
 	botao.ignore_texture_size = true
 	botao.stretch_mode = TextureButton.STRETCH_SCALE
 	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -118,8 +171,33 @@ static func apply_to_texture_button(
 	botao.texture_hover = textura
 	botao.texture_pressed = textura
 	botao.texture_disabled = textura
-	botao.disabled = skill == null
-	botao.mouse_filter = Control.MOUSE_FILTER_STOP if skill else Control.MOUSE_FILTER_IGNORE
+	botao.disabled = hero_texture == null
+	botao.mouse_filter = Control.MOUSE_FILTER_STOP if hero_texture != null else Control.MOUSE_FILTER_IGNORE
+	botao.focus_mode = Control.FOCUS_NONE
+	botao.modulate = Color(1, 1, 1, 0.6) if dimmed else Color.WHITE
+
+
+static func apply_framed_texture_button(
+	botao: TextureButton,
+	skill: SkillResource,
+	tamanho_slot: Vector2,
+	desabilitar_quando_vazio: bool = false
+) -> void:
+	if botao == null:
+		return
+	var lado := slot_width(tamanho_slot)
+	var textura := get_framed_slot_icon(skill, lado)
+	botao.custom_minimum_size = tamanho_slot
+	botao.ignore_texture_size = true
+	botao.stretch_mode = TextureButton.STRETCH_SCALE
+	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	botao.texture_normal = textura
+	botao.texture_hover = textura
+	botao.texture_pressed = textura
+	botao.texture_disabled = textura
+	botao.disabled = desabilitar_quando_vazio and skill == null
+	botao.mouse_filter = Control.MOUSE_FILTER_STOP
+	botao.focus_mode = Control.FOCUS_NONE
 
 
 static func _texture_for_slot(textura: Texture2D, lado: int) -> Texture2D:

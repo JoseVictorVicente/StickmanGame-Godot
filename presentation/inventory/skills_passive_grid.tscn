@@ -5,57 +5,57 @@
 
 [node name="PassiveGrid" type="GridContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
 columns = 5
 script = ExtResource("1_grid")
 
 [node name="PassiveSkillSlot_01" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_02" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_03" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_04" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_05" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_06" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_07" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_08" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_09" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
 [node name="PassiveSkillSlot_10" parent="." instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true

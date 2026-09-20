@@ -81,8 +81,9 @@ func _initialize() -> void:
 
 	var active_skills_grid := SKILLS_ACTIVE_GRID_SCENE.instantiate() as SkillsActiveGrid
 	assert(active_skills_grid != null, "skills_active_grid scene should instantiate")
-	assert(active_skills_grid.get_child_count() == 6, "active skills grid should bake 6 slots")
-	assert(active_skills_grid.active_slots().size() == 6, "active skills grid should expose 6 slots")
+	assert(active_skills_grid.get_child_count() == 3, "active skills grid should bake 3 rows")
+	assert(active_skills_grid.type_slots().size() == 3, "active skills grid should expose 3 type slots")
+	assert(active_skills_grid.active_slots().size() == 15, "active skills grid should expose 15 skill slots")
 
 	var passive_skills_grid := SKILLS_PASSIVE_GRID_SCENE.instantiate() as SkillsPassiveGrid
 	assert(passive_skills_grid != null, "skills_passive_grid scene should instantiate")

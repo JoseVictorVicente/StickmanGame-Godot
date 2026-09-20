@@ -1,18 +1,18 @@
 class_name SkillsPassiveGrid
 extends GridContainer
-## Grade de skills passivas disponíveis (pool bakeado).
+## Passive skill inventory: 2 rows x 5 columns (10 slots), baked in .tscn.
 
 const SLOT_SCENE := preload("res://presentation/inventory/skill_slot_passive.tscn")
 const MAX_SLOTS := 10
 const COLUMNS := 5
-const DEFAULT_SLOT_SIZE := Vector2(64, 64)
+const DEFAULT_SLOT_SIZE := Vector2(48, 48)
 
 
-func passive_slots() -> Array[Button]:
+func passive_slots() -> Array[TextureButton]:
 	return _collect_slots()
 
 
-func setup(connect_slot: Callable) -> Array[Button]:
+func setup(connect_slot: Callable) -> Array[TextureButton]:
 	var lista := passive_slots()
 	if lista.is_empty():
 		lista = ensure_slots()
@@ -21,7 +21,7 @@ func setup(connect_slot: Callable) -> Array[Button]:
 	return lista
 
 
-func ensure_slots(slot_size: Vector2 = DEFAULT_SLOT_SIZE) -> Array[Button]:
+func ensure_slots(slot_size: Vector2 = DEFAULT_SLOT_SIZE) -> Array[TextureButton]:
 	if get_child_count() == MAX_SLOTS and _children_are_slots():
 		_apply_layout(slot_size)
 		return _collect_slots()
@@ -29,16 +29,16 @@ func ensure_slots(slot_size: Vector2 = DEFAULT_SLOT_SIZE) -> Array[Button]:
 	_clear_children()
 	_apply_layout(slot_size)
 
-	var criados: Array[Button] = []
+	var criados: Array[TextureButton] = []
 	for indice in MAX_SLOTS:
-		var slot := SLOT_SCENE.instantiate() as Button
+		var slot := SLOT_SCENE.instantiate() as TextureButton
 		slot.name = "PassiveSkillSlot_%02d" % (indice + 1)
 		add_child(slot)
 		criados.append(slot)
 	return criados
 
 
-func _connect_slot_once(slot: Button, connect_slot: Callable) -> void:
+func _connect_slot_once(slot: TextureButton, connect_slot: Callable) -> void:
 	if slot.get_meta(&"passive_skill_wired", false):
 		return
 	if connect_slot.is_valid():
@@ -49,25 +49,23 @@ func _connect_slot_once(slot: Button, connect_slot: Callable) -> void:
 func _apply_layout(slot_size: Vector2) -> void:
 	columns = COLUMNS
 	for filho in get_children():
-		if filho is Button:
-			(filho as Button).custom_minimum_size = slot_size
-			(filho as Button).focus_mode = Control.FOCUS_NONE
-			(filho as Button).add_theme_font_size_override("font_size", 9)
-			(filho as Button).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if filho is TextureButton:
+			(filho as TextureButton).custom_minimum_size = slot_size
+			(filho as TextureButton).focus_mode = Control.FOCUS_NONE
 
 
 func _children_are_slots() -> bool:
 	for filho in get_children():
-		if not filho is Button:
+		if not filho is TextureButton:
 			return false
-	return get_child_count() > 0
+	return get_child_count() == MAX_SLOTS
 
 
-func _collect_slots() -> Array[Button]:
-	var lista: Array[Button] = []
+func _collect_slots() -> Array[TextureButton]:
+	var lista: Array[TextureButton] = []
 	for filho in get_children():
-		if filho is Button:
-			lista.append(filho as Button)
+		if filho is TextureButton:
+			lista.append(filho as TextureButton)
 	return lista
 
 

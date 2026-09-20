@@ -387,6 +387,18 @@ msgstr ""
 msgid "SKILLS_AVAILABLE"
 msgstr ""
 
+msgid "SKILLS_ULTIMATE"
+msgstr ""
+
+msgid "SKILLS_ROW_ATTACK"
+msgstr ""
+
+msgid "SKILLS_ROW_DEFENSE"
+msgstr ""
+
+msgid "SKILLS_ROW_SUPPORT"
+msgstr ""
+
 msgid "ATTR_TITLE"
 msgstr ""
 

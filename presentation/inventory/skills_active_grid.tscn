@@ -2,40 +2,130 @@
 
 [ext_resource type="Script" path="res://presentation/inventory/skills_active_grid.gd" id="1_grid"]
 [ext_resource type="PackedScene" path="res://presentation/inventory/skill_slot_active.tscn" id="2_slot"]
+[ext_resource type="PackedScene" path="res://presentation/inventory/skill_type_slot.tscn" id="3_type"]
 
-[node name="ActiveGrid" type="GridContainer"]
+[node name="ActiveGrid" type="VBoxContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 5
+theme_override_constants/separation = 8
+alignment = 1
 script = ExtResource("1_grid")
 
-[node name="ActiveSkillSlot_01" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveRow_01" type="HBoxContainer" parent="."]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="TypeSlot_01" parent="ActiveRow_01" instance=ExtResource("3_type")]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+
+[node name="SkillsRow_01" type="HBoxContainer" parent="ActiveRow_01"]
+layout_mode = 2
+custom_minimum_size = Vector2(264, 48)
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ActiveSkillSlot_01" parent="ActiveRow_01/SkillsRow_01" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
-[node name="ActiveSkillSlot_02" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveSkillSlot_02" parent="ActiveRow_01/SkillsRow_01" instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
-[node name="ActiveSkillSlot_03" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveSkillSlot_03" parent="ActiveRow_01/SkillsRow_01" instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
-[node name="ActiveSkillSlot_04" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveSkillSlot_04" parent="ActiveRow_01/SkillsRow_01" instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
-[node name="ActiveSkillSlot_05" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveSkillSlot_05" parent="ActiveRow_01/SkillsRow_01" instance=ExtResource("2_slot")]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 disabled = true
 
-[node name="ActiveSkillSlot_06" parent="." instance=ExtResource("2_slot")]
+[node name="ActiveRow_02" type="HBoxContainer" parent="."]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="TypeSlot_02" parent="ActiveRow_02" instance=ExtResource("3_type")]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+
+[node name="SkillsRow_02" type="HBoxContainer" parent="ActiveRow_02"]
+layout_mode = 2
+custom_minimum_size = Vector2(264, 48)
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ActiveSkillSlot_06" parent="ActiveRow_02/SkillsRow_02" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_07" parent="ActiveRow_02/SkillsRow_02" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_08" parent="ActiveRow_02/SkillsRow_02" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_09" parent="ActiveRow_02/SkillsRow_02" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_10" parent="ActiveRow_02/SkillsRow_02" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveRow_03" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="TypeSlot_03" parent="ActiveRow_03" instance=ExtResource("3_type")]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+
+[node name="SkillsRow_03" type="HBoxContainer" parent="ActiveRow_03"]
+layout_mode = 2
+custom_minimum_size = Vector2(264, 48)
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ActiveSkillSlot_11" parent="ActiveRow_03/SkillsRow_03" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_12" parent="ActiveRow_03/SkillsRow_03" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_13" parent="ActiveRow_03/SkillsRow_03" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_14" parent="ActiveRow_03/SkillsRow_03" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+disabled = true
+
+[node name="ActiveSkillSlot_15" parent="ActiveRow_03/SkillsRow_03" instance=ExtResource("2_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
 disabled = true

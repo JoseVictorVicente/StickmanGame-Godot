@@ -384,6 +384,18 @@ msgstr "Passivas"
 msgid "SKILLS_AVAILABLE"
 msgstr "Disponíveis"
 
+msgid "SKILLS_ULTIMATE"
+msgstr "Ultimate"
+
+msgid "SKILLS_ROW_ATTACK"
+msgstr "Ataque"
+
+msgid "SKILLS_ROW_DEFENSE"
+msgstr "Defesa"
+
+msgid "SKILLS_ROW_SUPPORT"
+msgstr "Suporte"
+
 msgid "ATTR_TITLE"
 msgstr "Atributos"
 

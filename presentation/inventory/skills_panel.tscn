@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://presentation/inventory/skills_panel.gd" id="1_skills"]
 [ext_resource type="Texture2D" uid="uid://bfundopainel01" path="res://sprites/ui/panel_bg.png" id="2_fundo_painel"]
-
 [ext_resource type="PackedScene" path="res://presentation/inventory/skills_active_grid.tscn" id="20_active_grid"]
 [ext_resource type="PackedScene" path="res://presentation/inventory/skills_passive_grid.tscn" id="21_passive_grid"]
-[ext_resource type="PackedScene" uid="uid://c8partybtn01" path="res://presentation/inventory/party_hero_slot_button.tscn" id="22_hero_btn"]
+[ext_resource type="PackedScene" path="res://presentation/inventory/skill_slot_active.tscn" id="22_slot"]
+[ext_resource type="PackedScene" path="res://presentation/inventory/hero_carousel_portrait.tscn" id="23_hero_portrait"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_painel"]
 content_margin_left = 21.0
@@ -82,33 +82,21 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skills"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0.08, 0.07, 0.06, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_skill"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_passive_banner"]
+content_margin_left = 16.0
+content_margin_top = 4.0
+content_margin_right = 16.0
+content_margin_bottom = 4.0
 bg_color = Color(0.06, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
 border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_separador"]
 color = Color(0.55, 0.44, 0.26, 0.7)
@@ -158,204 +146,183 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="TituloHeroi" type="Label" parent="Conteudo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 12
-text = "Herói selecionado"
-horizontal_alignment = 1
-
-[node name="HeroSkillSlots" type="HBoxContainer" parent="Conteudo"]
+[node name="HeroCarousel" type="HBoxContainer" parent="Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 alignment = 1
-[node name="HeroSkillSlot0" parent="Conteudo/HeroSkillSlots" instance=ExtResource("22_hero_btn")]
+
+[node name="PrevHeroButton" type="Button" parent="Conteudo/HeroCarousel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 56)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = "<"
+
+[node name="PrevHeroPortrait" parent="Conteudo/HeroCarousel" instance=ExtResource("23_hero_portrait")]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(72, 82)
-visible = false
+custom_minimum_size = Vector2(56, 56)
 
-[node name="HeroSkillSlot1" parent="Conteudo/HeroSkillSlots" instance=ExtResource("22_hero_btn")]
+[node name="CenterHeroPortrait" parent="Conteudo/HeroCarousel" instance=ExtResource("23_hero_portrait")]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(72, 82)
-visible = false
+custom_minimum_size = Vector2(88, 88)
 
-[node name="HeroSkillSlot2" parent="Conteudo/HeroSkillSlots" instance=ExtResource("22_hero_btn")]
+[node name="NextHeroPortrait" parent="Conteudo/HeroCarousel" instance=ExtResource("23_hero_portrait")]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(72, 82)
-visible = false
+custom_minimum_size = Vector2(56, 56)
 
-
-
-[node name="HeroSkillsLabel" type="Label" parent="Conteudo"]
+[node name="NextHeroButton" type="Button" parent="Conteudo/HeroCarousel"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 56)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.92, 0.7, 1)
-theme_override_font_sizes/font_size = 16
-text = "—"
-horizontal_alignment = 1
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+text = ">"
 
-[node name="SkillsPanelCorpo" type="PanelContainer" parent="Conteudo"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_skills")
-
-[node name="RolagemSkills" type="ScrollContainer" parent="Conteudo/SkillsPanelCorpo"]
+[node name="SkillsScroll" type="ScrollContainer" parent="Conteudo"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ConteudoSkills" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills"]
+[node name="ConteudoSkills" type="VBoxContainer" parent="Conteudo/SkillsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 
-[node name="EquippedSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="ActiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="LinhaEquipadas" type="HBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="ColunaEquipAtivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="TituloEquipAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 11
-text = "Ativas"
-horizontal_alignment = 1
-
-[node name="CentralEquipAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="EquippedActiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas"]
+[node name="TituloAtivas" type="Label" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="EquippedActiveSlot0" type="Button" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas/EquippedActiveGrid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 64)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-text = "+"
-autowrap_mode = 3
-
-[node name="EquippedActiveSlot1" type="Button" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipAtivas/CentralEquipAtivas/EquippedActiveGrid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 64)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-text = "+"
-autowrap_mode = 3
-
-[node name="ColunaEquipPassivas" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="TituloEquipPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 11
-text = "Passivas"
-horizontal_alignment = 1
-
-[node name="CentralEquipPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="EquippedPassiveGrid" type="GridContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="EquippedPassiveSlot0" type="Button" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas/EquippedPassiveGrid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 64)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-text = "+"
-autowrap_mode = 3
-
-[node name="EquippedPassiveSlot1" type="Button" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/EquippedSection/LinhaEquipadas/ColunaEquipPassivas/CentralEquipPassivas/EquippedPassiveGrid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 64)
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-text = "+"
-autowrap_mode = 3
-
-[node name="SeparadorSkills" type="HSeparator" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
-layout_mode = 2
-theme_override_styles/separator = SubResource("StyleBoxLine_separador")
-
-[node name="TituloDisponiveis" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
-theme_override_font_sizes/font_size = 12
-text = "Habilidades Disponíveis"
+theme_override_font_sizes/font_size = 13
+text = "ATIVAS"
 horizontal_alignment = 1
 
-[node name="ActiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="EquippedActiveBlock" type="VBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="TituloAtivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection"]
+[node name="EquippedActiveLabelsRow" type="HBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 11
-text = "Ativas"
-horizontal_alignment = 1
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="CentralAtivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection"]
+[node name="LabelPad0" type="Control" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveLabelsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(52, 14)
+
+[node name="LabelPad1" type="Control" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveLabelsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(52, 14)
+
+[node name="UltimateLabelWrap" type="Control" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveLabelsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(52, 14)
+
+[node name="UltimateLabel" type="Label" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveLabelsRow/UltimateLabelWrap"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
+theme_override_font_sizes/font_size = 9
+text = "ULTIMATE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EquippedActiveSlotsRow" type="HBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="EquippedActiveSlot0" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveSlotsRow" instance=ExtResource("22_slot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(52, 52)
+
+[node name="EquippedActiveSlot1" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveSlotsRow" instance=ExtResource("22_slot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(52, 52)
+
+[node name="EquippedUltimateSlot" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/EquippedActiveBlock/EquippedActiveSlotsRow" instance=ExtResource("22_slot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(52, 52)
+disabled = true
+
+[node name="CentralAtivas" type="CenterContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ActiveGrid" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/ActiveSkillsSection/CentralAtivas" instance=ExtResource("20_active_grid")]
+[node name="ActiveGrid" parent="Conteudo/SkillsScroll/ConteudoSkills/ActiveSkillsSection/CentralAtivas" instance=ExtResource("20_active_grid")]
 unique_name_in_owner = true
 layout_mode = 2
 
-
-[node name="SeparadorPassivas" type="HSeparator" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="SeparadorPassivas" type="HSeparator" parent="Conteudo/SkillsScroll/ConteudoSkills"]
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_separador")
 
-[node name="PassiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills"]
+[node name="PassiveSkillsSection" type="VBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TituloPassivas" type="Label" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection"]
+[node name="PassiveBanner" type="PanelContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_passive_banner")
+
+[node name="TituloPassivas" type="Label" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection/PassiveBanner"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 11
-text = "Passivas"
+theme_override_font_sizes/font_size = 12
+text = "PASSIVAS"
 horizontal_alignment = 1
 
-[node name="CentralPassivas" type="CenterContainer" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection"]
+[node name="EquippedPassiveRow" type="HBoxContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="EquippedPassiveSlot0" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection/EquippedPassiveRow" instance=ExtResource("22_slot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(52, 52)
+
+[node name="EquippedPassiveSlot1" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection/EquippedPassiveRow" instance=ExtResource("22_slot")]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(52, 52)
+
+[node name="CentralPassivas" type="CenterContainer" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PassiveGrid" parent="Conteudo/SkillsPanelCorpo/RolagemSkills/ConteudoSkills/PassiveSkillsSection/CentralPassivas" instance=ExtResource("21_passive_grid")]
+[node name="PassiveGrid" parent="Conteudo/SkillsScroll/ConteudoSkills/PassiveSkillsSection/CentralPassivas" instance=ExtResource("21_passive_grid")]
 unique_name_in_owner = true
 layout_mode = 2
