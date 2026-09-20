@@ -84,8 +84,8 @@ Dictionary returned by `scenes/main.gd`:
 {
 	"gold": int,
 	"wave": int,                    # current enemy level index
-	"world": int,                   # 1..5
-	"stage": int,                   # 1..9
+	"world": int,                   # 1..5 — dimension catalog ID (see glossary below)
+	"stage": int,                   # 1..9 — trail milestone within dimension
 	"difficulty": int,              # 0=Easy, 1=Hard, 2=Hell
 	"unlocked_stages": Array[int],  # [easy, hard, hell] — max unlocked index
 	"repeat_stage": bool,
@@ -232,6 +232,19 @@ Empty slot = `""`. Skill IDs match `SkillResource.skill_id` filenames under `dat
 | Close inventory | `SaveSystem.salvar()` |
 | `precisa_salvar` (combat) | `SaveSystem.salvar()` |
 | `WM_CLOSE_REQUEST` | save + quit |
+
+## Glossary — portals saga (no schema change)
+
+Save keys are unchanged. Player-facing **dimension names** come from `WorldCatalog` + i18n, not from the save file.
+
+| Save field | Meaning | Player-facing term |
+|------------|---------|-------------------|
+| `world` | Integer 1..5 — dimension catalog ID | Portal / dimension name (e.g. Emerald Grove) |
+| `stage` | Integer 1..9 — milestone on the trail | Named milestone; stage 9 = Demon King |
+| `difficulty` | 0 / 1 / 2 | Safe / Marked / Cursed Trail |
+| `unlocked_stages[d]` | Max linear index unlocked on trail `d` | Progress toward next portal |
+
+Narrative canon: [`portals-saga.md`](portals-saga.md). UI: `WorldsPanel` (Portals button).
 
 ## Rules for changing save
 

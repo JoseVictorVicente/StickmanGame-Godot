@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8worldshead01"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.42, 0.14, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.58, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="WorldsHeader" type="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="WorldsBackButton" type="Button" parent="HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "←"
+flat = true
+
+[node name="TitleBanner" type="PanelContainer" parent="HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
+
+[node name="WorldsTitle" type="Label" parent="HeaderRow/TitleBanner"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 12
+text = "PORTAIS"
+horizontal_alignment = 1
+
+[node name="CloseWorldsButton" type="Button" parent="HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 28)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 10
+text = "Fechar"
+flat = true
+
+[node name="TrailProgressLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.74, 0.52, 1)
+theme_override_font_sizes/font_size = 10
+text = "Etapa 1 de 9"
+horizontal_alignment = 1
+
+[node name="TrailDifficultyRow" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="TrailDifficultySlot" type="HBoxContainer" parent="TrailDifficultyRow"]
+unique_name_in_owner = true
+layout_mode = 2

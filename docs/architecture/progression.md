@@ -6,6 +6,8 @@ Progression covers **worlds/stages**, **per-hero level**, **global skill tree**,
 
 ## Worlds and stages (`WorldProgress`)
 
+Player-facing **portals / dimensions** use names from `WorldCatalog` (`data/world_catalog.gd`). Narrative: [`portals-saga.md`](portals-saga.md).
+
 | Constant | Value |
 |----------|-------|
 | `TOTAL_MUNDOS` | 5 |
@@ -27,7 +29,7 @@ Progression covers **worlds/stages**, **per-hero level**, **global skill tree**,
 
 - `fases_liberadas: Array[int]` — one int per difficulty = highest **unlocked** stage (index of next playable).
 - Difficulty N+1 requires full completion (`PROGRESSO_COMPLETO`) of the previous one.
-- Selection UI: `presentation/worlds/worlds_panel.gd` emits `fase_iniciada(world, stage, difficulty)` → `CombatController.iniciar_fase`.
+- Selection UI: `presentation/worlds/worlds_panel.gd` emits `stage_started(world, stage, difficulty)` → `CombatController.start_stage`.
 
 ### Repeat stage
 

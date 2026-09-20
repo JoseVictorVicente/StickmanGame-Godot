@@ -1671,7 +1671,7 @@ func _update_localized_texts() -> void:
 	if forge_button:
 		forge_button.text = tr(LocaleKeys.UI_FORGE)
 	if world_button:
-		world_button.text = tr(LocaleKeys.UI_WORLD)
+		world_button.text = tr(LocaleKeys.UI_PORTALS)
 	if gold_label and query_gold.is_valid():
 		gold_label.text = tr(LocaleKeys.UI_GOLD_FORMAT) % get_current_gold()
 	if option_locale:

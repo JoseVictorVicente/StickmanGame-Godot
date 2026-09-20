@@ -56,7 +56,9 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 | `skill_tree_open` | Skill tree replaces hub; map and gold label visible |
 | `warehouse_open` | Warehouse side panel visible; tabs and grid readable |
 | `forge_open` | Forge side panel visible; slots aligned |
-| `worlds_open` | Worlds side panel visible; stage map readable |
+| `worlds_open` | **Portal hall** side panel: 5 cards stacked; progress **inside** active card; locks centered; `Trilha Segura` footer **centered** — compare [`portals_mockup_1_hall.png`](../../artifacts/design/portals_mockup_1_hall.png) |
+| `worlds_briefing_open` | Briefing view: banner ~35–45% panel (not black); lore → boss → CTA without overlap — compare [`portals_mockup_2_briefing.png`](../../artifacts/design/portals_mockup_2_briefing.png) |
+| `worlds_trail_open` | Trail map: placeholder map visible; stage header + **difficulty in header row**; 9 nodes inside 300px panel — compare [`portals_mockup_3_trail.png`](../../artifacts/design/portals_mockup_3_trail.png) |
 | `settings_open` | Settings panel top-right; volume and locale controls visible |
 
 Flag: grid overlapping hero/divider, Formation straddling the band line, hub too narrow, collapsed overlays, clipped side panels, settings off-screen, skill tree black screen.

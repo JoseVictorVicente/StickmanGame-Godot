@@ -45,17 +45,23 @@ msgstr "Inferno concluído!"
 msgid "COMBAT_WORLD_UNLOCKED"
 msgstr "Mundo %d liberado!"
 
+msgid "COMBAT_PORTAL_UNLOCKED"
+msgstr "Portal estabilizado: %s"
+
+msgid "COMBAT_REALM_SAVED"
+msgstr "%s caiu. A chama de %s acende de novo."
+
 msgid "COMBAT_MISS"
-msgstr ""
+msgstr "Errou!"
 
 msgid "DIFFICULTY_EASY"
-msgstr "Fácil"
+msgstr "Trilha Segura"
 
 msgid "DIFFICULTY_HARD"
-msgstr "Difícil"
+msgstr "Trilha Marcada"
 
 msgid "DIFFICULTY_HELL"
-msgstr "Inferno"
+msgstr "Trilha Maldita"
 
 msgid "SETTINGS_TITLE"
 msgstr "Configurações"
@@ -98,15 +104,6 @@ msgstr "Todas as classes"
 
 msgid "UI_EMPTY_SLOT"
 msgstr "Vazio"
-
-msgid "START_TITLE"
-msgstr "Stickman Idle"
-
-msgid "START_SUBTITLE"
-msgstr "RPG idle no desktop"
-
-msgid "BTN_PLAY"
-msgstr "Jogar"
 
 msgid "BTN_CLOSE"
 msgstr "Fechar"
@@ -161,6 +158,9 @@ msgstr "Forja"
 
 msgid "UI_WORLD"
 msgstr "Mundo"
+
+msgid "UI_PORTALS"
+msgstr "Portais"
 
 msgid "UI_INVENTORY"
 msgstr "Inventário"
@@ -574,10 +574,10 @@ msgid "FORGE_JEWELRY_IMBUE"
 msgstr "Imbuir %s em %s?"
 
 msgid "FORGE_COST"
-msgstr ""
+msgstr "Custo: %d ouro"
 
 msgid "FORGE_NOT_ENOUGH_GOLD"
-msgstr ""
+msgstr "Ouro insuficiente"
 
 msgid "FORGE_LEVEL_HINT_EMPTY"
 msgstr "Coloque itens para ver as chances de nível."
@@ -654,755 +654,251 @@ msgstr "Nível máximo atingido"
 msgid "WORLDS_TITLE"
 msgstr "Mundos"
 
+msgid "PORTALS_TITLE"
+msgstr "Portais"
+
+msgid "PORTALS_SUBTITLE"
+msgstr "Aurion confia a vocês as dimensões que ainda podem ser salvas."
+
+msgid "PORTAL_LOCKED"
+msgstr "(selado)"
+
+msgid "PORTAL_SAVED"
+msgstr "(libertada)"
+
+msgid "PORTAL_PROGRESS_FORMAT"
+msgstr "%d / %d"
+
+msgid "TRAIL_PROGRESS_FORMAT"
+msgstr "Etapa %d de %d"
+
+msgid "DIMENSION_DECAYED_PREFIX"
+msgstr "Dimensão decaída — %s"
+
+msgid "BTN_ENTER_PORTAL"
+msgstr "Atravessar portal"
+
+msgid "STAGE_DEMON_KING"
+msgstr "Rei Demônio"
+
+msgid "SAGA_DIVINITY_NAME"
+msgstr "Aurion"
+
+msgid "SAGA_HOME_WORLD"
+msgstr "Santuário de Lumen"
+
 msgid "WORLD_N"
 msgstr "Mundo %d"
 
 msgid "WORLD_LOCKED"
 msgstr "(bloqueado)"
 
-msgid "ITEM_iron_sword"
-msgstr "Espada de Ferro"
+msgid "DIMENSION_1_NAME"
+msgstr "Bosque Esmeralda"
 
-msgid "ITEM_training_sword"
-msgstr "Espada de Treino"
+msgid "DIMENSION_1_DEMON_KING"
+msgstr "Morgrath, Senhor das Raízes Podres"
 
-msgid "ITEM_wooden_shield"
-msgstr "Escudo de Madeira"
+msgid "DIMENSION_1_BRIEFING"
+msgstr "Outrora um mundo de colheitas e risadas. Hoje a floresta adormece."
 
-msgid "ITEM_warrior_helmet"
-msgstr "Elmo do Guerreiro"
+msgid "DIMENSION_1_STAGE_1"
+msgstr "Entrada Corrompida"
 
-msgid "ITEM_warrior_chestplate"
-msgstr "Peitoral do Guerreiro"
+msgid "DIMENSION_1_STAGE_2"
+msgstr "Clareira Silenciosa"
 
-msgid "ITEM_warrior_gloves"
-msgstr "Luvas do Guerreiro"
+msgid "DIMENSION_1_STAGE_3"
+msgstr "Poço Seco"
 
-msgid "ITEM_warrior_pants"
-msgstr "CalÃ§a do Guerreiro"
+msgid "DIMENSION_1_STAGE_4"
+msgstr "Estrada Quebrada"
 
-msgid "ITEM_warrior_boots"
-msgstr "Botas do Guerreiro"
+msgid "DIMENSION_1_STAGE_5"
+msgstr "Refúgio Abandonado"
 
-msgid "ITEM_lion_pet"
-msgstr "Mascote LeÃ£o"
+msgid "DIMENSION_1_STAGE_6"
+msgstr "Raízes Negras"
 
-msgid "ITEM_ring_of_honor"
-msgstr "Anel de Honra"
+msgid "DIMENSION_1_STAGE_7"
+msgstr "Santuário Esquecido"
 
-msgid "ITEM_warrior_bracelet"
-msgstr "Bracelete do Guerreiro"
+msgid "DIMENSION_1_STAGE_8"
+msgstr "Antesala do Trono"
 
-msgid "ITEM_arcane_staff"
-msgstr "Cajado Arcano"
+msgid "DIMENSION_1_STAGE_9"
+msgstr "Morgrath"
 
-msgid "ITEM_grimoire"
-msgstr "GrimÃ³rio"
+msgid "DIMENSION_2_NAME"
+msgstr "Bosque Corrompido"
 
-msgid "ITEM_arcane_familiar"
-msgstr "Familiar Arcano"
+msgid "DIMENSION_2_DEMON_KING"
+msgstr "Vex'hal, Sombra dos Ecos"
 
-msgid "ITEM_mystic_cloak"
-msgstr "Manto MÃ­stico"
+msgid "DIMENSION_2_BRIEFING"
+msgstr "Um reino espelho onde vozes de entes queridos ainda sussurram."
 
-msgid "ITEM_arcane_tiara"
-msgstr "Tiara Arcana"
+msgid "DIMENSION_2_STAGE_1"
+msgstr "Portão do Eco"
 
-msgid "ITEM_mage_gloves"
-msgstr "Luvas do Mago"
+msgid "DIMENSION_2_STAGE_2"
+msgstr "Trilha Oca"
 
-msgid "ITEM_mage_pants"
-msgstr "CalÃ§a do Mago"
+msgid "DIMENSION_2_STAGE_3"
+msgstr "Pedras Sussurrantes"
 
-msgid "ITEM_mage_boots"
-msgstr "Botas do Mago"
+msgid "DIMENSION_2_STAGE_4"
+msgstr "Cruzamento Perdido"
 
-msgid "ITEM_arcane_belt"
-msgstr "Cinto Arcano"
+msgid "DIMENSION_2_STAGE_5"
+msgstr "Acampamento do Véu"
 
-msgid "ITEM_mana_pendant"
-msgstr "Pingente de Mana"
+msgid "DIMENSION_2_STAGE_6"
+msgstr "Mata Sombria"
 
-msgid "ITEM_short_bow"
-msgstr "Arco Curto"
+msgid "DIMENSION_2_STAGE_7"
+msgstr "Sino Silenciado"
 
-msgid "ITEM_quiver"
-msgstr "Aljava"
+msgid "DIMENSION_2_STAGE_8"
+msgstr "Salão do Trono Eco"
 
-msgid "ITEM_leather_hood"
-msgstr "Capuz de Couro"
+msgid "DIMENSION_2_STAGE_9"
+msgstr "Vex'hal"
 
-msgid "ITEM_archer_chestplate"
-msgstr "Peitoral do Arqueiro"
+msgid "DIMENSION_3_NAME"
+msgstr "Areias Perdidas"
 
-msgid "ITEM_archer_gloves"
-msgstr "Luvas do Arqueiro"
+msgid "DIMENSION_3_DEMON_KING"
+msgstr "Khar-Ra, Faraó das Tempestades"
 
-msgid "ITEM_archer_pants"
-msgstr "CalÃ§a do Arqueiro"
+msgid "DIMENSION_3_BRIEFING"
+msgstr "Caravanas sumiram e poços secaram sob céus ardentes."
 
-msgid "ITEM_archer_boots"
-msgstr "Botas do Arqueiro"
+msgid "DIMENSION_3_STAGE_1"
+msgstr "Portão da Duna"
 
-msgid "ITEM_companion_falcon"
-msgstr "FalcÃ£o Companheiro"
+msgid "DIMENSION_3_STAGE_2"
+msgstr "Travessia do Sal"
 
-msgid "ITEM_precision_ring"
-msgstr "Anel de PrecisÃ£o"
+msgid "DIMENSION_3_STAGE_3"
+msgstr "Oásis Enterrado"
 
-msgid "ITEM_shadow_dagger"
-msgstr "Adaga Sombria"
+msgid "DIMENSION_3_STAGE_4"
+msgstr "Crista da Tempestade"
 
-msgid "ITEM_twin_dagger"
-msgstr "Adaga GÃªmea"
+msgid "DIMENSION_3_STAGE_5"
+msgstr "Ossos da Caravana"
 
-msgid "ITEM_assassin_hood"
-msgstr "Capuz do Assassino"
+msgid "DIMENSION_3_STAGE_6"
+msgstr "Vale de Vidro"
 
-msgid "ITEM_shadow_chestplate"
-msgstr "Peitoral Sombrio"
+msgid "DIMENSION_3_STAGE_7"
+msgstr "Templo do Sol"
 
-msgid "ITEM_assassin_gloves"
-msgstr "Luvas do Assassino"
+msgid "DIMENSION_3_STAGE_8"
+msgstr "Trono de Areia"
 
-msgid "ITEM_assassin_pants"
-msgstr "CalÃ§a do Assassino"
+msgid "DIMENSION_3_STAGE_9"
+msgstr "Khar-Ra"
 
-msgid "ITEM_assassin_boots"
-msgstr "Botas do Assassino"
+msgid "DIMENSION_4_NAME"
+msgstr "Picos Gelados"
 
-msgid "ITEM_shadow_belt"
-msgstr "Cinto Sombrio"
+msgid "DIMENSION_4_DEMON_KING"
+msgstr "Ymiron, Coração de Gelo"
 
-msgid "ITEM_shadow_bracelet"
-msgstr "Bracelete Sombrio"
+msgid "DIMENSION_4_BRIEFING"
+msgstr "Aldeias congeladas no tempo enquanto sinos não tocam mais."
 
-msgid "ITEM_heavy_mace"
-msgstr "MaÃ§a Pesada"
+msgid "DIMENSION_4_STAGE_1"
+msgstr "Portão de Gelo"
 
-msgid "ITEM_tower_shield"
-msgstr "Escudo Torre"
+msgid "DIMENSION_4_STAGE_2"
+msgstr "Passagem Silenciosa"
 
-msgid "ITEM_iron_chestplate"
-msgstr "Peitoral de Ferro"
+msgid "DIMENSION_4_STAGE_3"
+msgstr "Ponte de Gelo"
 
-msgid "ITEM_tower_helmet"
-msgstr "Elmo Torre"
+msgid "DIMENSION_4_STAGE_4"
+msgstr "Aldeia Congelada"
 
-msgid "ITEM_tank_gloves"
-msgstr "Luvas do Tanque"
+msgid "DIMENSION_4_STAGE_5"
+msgstr "Mina de Cristal"
 
-msgid "ITEM_tank_pants"
-msgstr "CalÃ§a do Tanque"
+msgid "DIMENSION_4_STAGE_6"
+msgstr "Crista Uivante"
 
-msgid "ITEM_tank_boots"
-msgstr "Botas do Tanque"
+msgid "DIMENSION_4_STAGE_7"
+msgstr "Santuário dos Sinos"
 
-msgid "ITEM_turtle_pet"
-msgstr "Mascote Tartaruga"
+msgid "DIMENSION_4_STAGE_8"
+msgstr "Trono de Gelo"
 
-msgid "ITEM_guardian_pendant"
-msgstr "Pingente do GuardiÃ£o"
+msgid "DIMENSION_4_STAGE_9"
+msgstr "Ymiron"
 
-msgid "ITEM_holy_staff"
-msgstr "Cajado Sagrado"
+msgid "DIMENSION_5_NAME"
+msgstr "Forja do Abismo"
 
-msgid "ITEM_tome_of_light"
-msgstr "Tomo de Luz"
+msgid "DIMENSION_5_DEMON_KING"
+msgstr "Azrak, Senhor da Forja Profana"
 
-msgid "ITEM_clerical_cloak"
-msgstr "Manto Clerical"
+msgid "DIMENSION_5_BRIEFING"
+msgstr "Forjas que outrora moldavam luz agora escravizam ferreiros."
 
-msgid "ITEM_faith_pendant"
-msgstr "Pingente de FÃ©"
+msgid "DIMENSION_5_STAGE_1"
+msgstr "Portão de Cinzas"
 
-msgid "ITEM_sacred_tiara"
-msgstr "Tiara Sagrada"
+msgid "DIMENSION_5_STAGE_2"
+msgstr "Estrada de Escória"
 
-msgid "ITEM_priest_gloves"
-msgstr "Luvas do Sacerdote"
+msgid "DIMENSION_5_STAGE_3"
+msgstr "Poço de Brasa"
 
-msgid "ITEM_priest_pants"
-msgstr "CalÃ§a do Sacerdote"
+msgid "DIMENSION_5_STAGE_4"
+msgstr "Pátio das Correntes"
 
-msgid "ITEM_priest_boots"
-msgstr "Botas do Sacerdote"
+msgid "DIMENSION_5_STAGE_5"
+msgstr "Ponte Fundida"
 
-msgid "ITEM_devotion_ring"
-msgstr "Anel de Devotos"
+msgid "DIMENSION_5_STAGE_6"
+msgstr "Bigorna Amaldiçoada"
 
-msgid "ITEM_cloth_gloves"
-msgstr "Luvas de Tecido"
+msgid "DIMENSION_5_STAGE_7"
+msgstr "Salão de Obsidiana"
 
-msgid "ITEM_leather_pants"
-msgstr "CalÃ§a de Couro"
+msgid "DIMENSION_5_STAGE_8"
+msgstr "Antesala da Forja"
 
-msgid "ITEM_travel_boots"
-msgstr "Botas de Viagem"
-
-msgid "ITEM_simple_belt"
-msgstr "Cinto Simples"
-
-msgid "ITEM_rough_ring"
-msgstr "Anel Bruto"
-
-msgid "ITEM_iron_bracelet"
-msgstr "Bracelete de Ferro"
-
-msgid "ITEM_travel_hood"
-msgstr "Capuz de Viagem"
-
-msgid "ITEM_leather_chestplate"
-msgstr "Peitoral de Couro"
-
-msgid "ITEM_simple_pendant"
-msgstr "Pingente Simples"
-
-msgid "ITEM_rat_pet"
-msgstr "Mascote Rato"
+msgid "DIMENSION_5_STAGE_9"
+msgstr "Azrak"
 
 msgid "SKILL_instant_double_shot"
-msgstr "Tiro Duplo Instantaneo"
+msgstr "Tiro Duplo Instantâneo"
 
 msgid "SKILL_instant_double_shot_DESC"
-msgstr "Dois tiros instantaneos, ambos criticos garantidos."
+msgstr "Executa dois disparos rapidos consecutivos com 200% de dano critico."
 
 msgid "SKILL_dark_volley"
 msgstr "Voleio Sombrio"
 
 msgid "SKILL_dark_volley_DESC"
-msgstr "Volley sombrio dispara 5 flechas a 40% de dano cada."
+msgstr "Entra em postura de foco por 2 segundos e dispara uma rajada de 10 flechas energizadas em alta velocidade direto no alvo mais forte."
 
 msgid "SKILL_precision_shot"
-msgstr "Tiro de Precisao"
+msgstr "Tiro de Precisão"
 
 msgid "SKILL_precision_shot_DESC"
-msgstr "Tiro de precisao: 50% dano bonus, critico garantido, 30% pen de armadura."
+msgstr "Um disparo carregado de 0.4s que garante acerto critico e ignora 30% da armadura."
 
 msgid "SKILL_hunter_stance"
-msgstr "Postura do Cacador"
+msgstr "Postura do Caçador"
 
 msgid "SKILL_hunter_stance_DESC"
-msgstr "Postura do cacador: +30% Velocidade de Ataque e +10% dano por 3,5 segundos."
+msgstr "A Arqueira finca levemente os pes no chao e ganha um surto de 30% de Velocidade de Ataque e 10% de Dano Fisico por 3.5 segundos."
 
 msgid "SKILL_neon_vision"
-msgstr "Visao Neon"
+msgstr "Visão Neon"
 
 msgid "SKILL_neon_vision_DESC"
-msgstr "Visao neon concede 30% de Chance Critica por 4 segundos."
-
-msgid "SKILL_armor_penetration"
-msgstr "Penetracao de Armadura"
-
-msgid "SKILL_armor_penetration_DESC"
-msgstr "Flechas ignoram parte da armadura inimiga, aumentando o dano em 8%."
-
-msgid "SKILL_reflex_recoil"
-msgstr "Recuo Reflexo"
-
-msgid "SKILL_reflex_recoil_DESC"
-msgstr "Reflexos rapidos concedem 5% de Evasao."
-
-msgid "SKILL_swift_execution"
-msgstr "Execucao Acelerada"
-
-msgid "SKILL_swift_execution_DESC"
-msgstr "Golpes rapidos causam 6% a mais de dano."
-
-msgid "SKILL_nimble_hands"
-msgstr "Maos Ageis"
-
-msgid "SKILL_nimble_hands_DESC"
-msgstr "Reduz o cooldown de todas as skills ativas em 15%."
-
-msgid "SKILL_eagle_eye"
-msgstr "Olho de Aguia"
-
-msgid "SKILL_eagle_eye_DESC"
-msgstr "Visao de aguia concede 6% de Chance Critica."
-
-msgid "SKILL_drawstring_tension"
-msgstr "Cordeiro Esticado"
-
-msgid "SKILL_drawstring_tension_DESC"
-msgstr "Corda tensa aumenta a Velocidade de Ataque em 12%."
-
-msgid "SKILL_wearing_poison"
-msgstr "Veneno Desgastante"
-
-msgid "SKILL_wearing_poison_DESC"
-msgstr "Flechas envenenadas adicionam 4 de dano fixo."
-
-msgid "SKILL_weak_prey"
-msgstr "Caca aos Fracos"
-
-msgid "SKILL_weak_prey_DESC"
-msgstr "Instinto de cacador adiciona 5% de dano."
-
-msgid "SKILL_stacking_impact"
-msgstr "Impacto Acumulativo"
-
-msgid "SKILL_stacking_impact_DESC"
-msgstr "Cada impacto fica mais forte, adicionando 7% de dano."
-
-msgid "SKILL_surgical_aim"
-msgstr "Mira Cirurgica"
-
-msgid "SKILL_surgical_aim_DESC"
-msgstr "Mira precisa concede 8% de Chance Critica."
-
-msgid "SKILL_twin_execution_cut"
-msgstr "Corte Duplo Executor"
-
-msgid "SKILL_twin_execution_cut_DESC"
-msgstr "Corte em cruz atingindo duas vezes com dano total."
-
-msgid "SKILL_prey_mark"
-msgstr "Marca da Presa"
-
-msgid "SKILL_prey_mark_DESC"
-msgstr "Presa marcada recebe 30% de dano burst bonus."
-
-msgid "SKILL_quick_twin_cut"
-msgstr "Corte Duplo Rapido"
-
-msgid "SKILL_quick_twin_cut_DESC"
-msgstr "Dois golpes cruzados ultra-rapidos."
-
-msgid "SKILL_awakened_sequence"
-msgstr "Sequencia Desperta"
-
-msgid "SKILL_awakened_sequence_DESC"
-msgstr "Ritmo despertado concede 60% de Velocidade de Ataque por 3 segundos."
-
-msgid "SKILL_swift_decapitation"
-msgstr "Decaptacao Celerada"
-
-msgid "SKILL_swift_decapitation_DESC"
-msgstr "Golpe no pescoco causando 50% de dano bonus."
-
-msgid "SKILL_shadow_reflexes"
-msgstr "Reflexos Sombrios"
-
-msgid "SKILL_shadow_reflexes_DESC"
-msgstr "Reflexos sombrios concedem 5% de Chance Critica."
-
-msgid "SKILL_adrenaline_surge"
-msgstr "Impulso de Adrenalina"
-
-msgid "SKILL_adrenaline_surge_DESC"
-msgstr "Surto de adrenalina aumenta a Velocidade de Ataque em 8%. Matar inimigo reduz 0,5s de cooldown."
-
-msgid "SKILL_venomous_vein"
-msgstr "Veia Venenosa"
-
-msgid "SKILL_venomous_vein_DESC"
-msgstr "Golpes venenosos adicionam 12% de Dano Critico."
-
-msgid "SKILL_stealth_strike"
-msgstr "Ataque Furtivo"
-
-msgid "SKILL_stealth_strike_DESC"
-msgstr "Golpes furtivos adicionam 10% de Dano Critico."
-
-msgid "SKILL_lethal_execution"
-msgstr "Lethal Execution"
-
-msgid "SKILL_lethal_execution_DESC"
-msgstr "Execucao letal adiciona 8% de dano."
-
-msgid "SKILL_deep_cut"
-msgstr "Corte Profundo"
-
-msgid "SKILL_deep_cut_DESC"
-msgstr "Cortes profundos adicionam 4 de dano fixo."
-
-msgid "SKILL_weak_point_mapping"
-msgstr "Mapeamento de Pontos Frais"
-
-msgid "SKILL_weak_point_mapping_DESC"
-msgstr "Conhecimento de pontos fracos adiciona 8% de dano."
-
-msgid "SKILL_adrenaline"
-msgstr "Adrenalina"
-
-msgid "SKILL_adrenaline_DESC"
-msgstr "Adrenalina aumenta a Velocidade de Ataque em 5%. Matar inimigo reduz 1s de cooldown."
-
-msgid "SKILL_assassin_rhythm"
-msgstr "Ritmo Assassino"
-
-msgid "SKILL_assassin_rhythm_DESC"
-msgstr "Ritmo do assassino aumenta a Velocidade de Ataque em 10%."
-
-msgid "SKILL_light_blade"
-msgstr "Lamina Leve"
-
-msgid "SKILL_light_blade_DESC"
-msgstr "Lamina leve adiciona 10% de dano."
-
-msgid "SKILL_sacred_position"
-msgstr "Posicao Sagrada"
-
-msgid "SKILL_sacred_position_DESC"
-msgstr "Restaura 15% do HP maximo do aliado com menos vida."
-
-msgid "SKILL_solar_shield"
-msgstr "Escudo Solar"
-
-msgid "SKILL_solar_shield_DESC"
-msgstr "Luz solar restaura 12% do HP maximo do aliado com menos vida."
-
-msgid "SKILL_divine_punishment"
-msgstr "Punicao Divina"
-
-msgid "SKILL_divine_punishment_DESC"
-msgstr "Feixe divino causando 50% de dano bonus."
-
-msgid "SKILL_inviolability_aura"
-msgstr "Aura de Inviolabilidade"
-
-msgid "SKILL_inviolability_aura_DESC"
-msgstr "Cura grupo em 8% HP max e concede 15% Resistencia Fisica por 1,5s."
-
-msgid "SKILL_sacred_fervor"
-msgstr "Fervor Sagrado"
-
-msgid "SKILL_sacred_fervor_DESC"
-msgstr "Fervor sagrado concede 15% de dano a todos os aliados por 4 segundos."
-
-msgid "SKILL_sun_touch"
-msgstr "Toque do Sol"
-
-msgid "SKILL_sun_touch_DESC"
-msgstr "Vitalidade solar aumenta o HP maximo em 35."
-
-msgid "SKILL_reactive_barrier"
-msgstr "Barreira Reativa"
-
-msgid "SKILL_reactive_barrier_DESC"
-msgstr "Barreira reativa aumenta o HP maximo em 40."
-
-msgid "SKILL_radiant_presence"
-msgstr "Presenca Iluminada"
-
-msgid "SKILL_radiant_presence_DESC"
-msgstr "Presenca radiante concede 8% de Resistencia Elemental."
-
-msgid "SKILL_unshakable_devotion"
-msgstr "Devocao Inabalavel"
-
-msgid "SKILL_unshakable_devotion_DESC"
-msgstr "Devocao inabalavel reduz cooldowns de skills em 10%."
-
-msgid "SKILL_divine_vigor"
-msgstr "Vigor Divino"
-
-msgid "SKILL_divine_vigor_DESC"
-msgstr "Vigor divino aumenta o HP maximo em 25."
-
-msgid "SKILL_sacred_touch"
-msgstr "Toque Sagrado"
-
-msgid "SKILL_sacred_touch_DESC"
-msgstr "Toque sagrado aumenta o HP maximo em 25."
-
-msgid "SKILL_critical_heal"
-msgstr "Cura Critica"
-
-msgid "SKILL_critical_heal_DESC"
-msgstr "Oracao critica concede 5% de Chance Critica."
-
-msgid "SKILL_celestial_pact"
-msgstr "Pacto Celestial"
-
-msgid "SKILL_celestial_pact_DESC"
-msgstr "Pacto celestial aumenta o HP maximo em 50."
-
-msgid "SKILL_protective_light"
-msgstr "Luz Protetora"
-
-msgid "SKILL_protective_light_DESC"
-msgstr "Luz protetora concede 10% de Resistencia Fisica."
-
-msgid "SKILL_mercy"
-msgstr "Misericordia"
-
-msgid "SKILL_mercy_DESC"
-msgstr "Misericordia aumenta o HP maximo em 35."
-
-msgid "SKILL_frenzied_sequence"
-msgstr "Sequencia Frenetica"
-
-msgid "SKILL_frenzied_sequence_DESC"
-msgstr "Tres golpes rapidos de espada causando dano total cada."
-
-msgid "SKILL_quick_slash"
-msgstr "Corte Rapido"
-
-msgid "SKILL_quick_slash_DESC"
-msgstr "Corte horizontal rapido causando dano padrao."
-
-msgid "SKILL_double_thrust"
-msgstr "Perfuracao Dupla"
-
-msgid "SKILL_double_thrust_DESC"
-msgstr "Dois thrusts ultra-rapidos, cada um com dano total."
-
-msgid "SKILL_heavy_blade"
-msgstr "Lamina Pesada"
-
-msgid "SKILL_heavy_blade_DESC"
-msgstr "Golpe pesado lento causando dano dobrado."
-
-msgid "SKILL_war_cry"
-msgstr "Grito de Guerra"
-
-msgid "SKILL_war_cry_DESC"
-msgstr "Grito de guerra aumenta Dano Fisico em 20% por 5 segundos."
-
-msgid "SKILL_blade_master"
-msgstr "Mestre das Laminas"
-
-msgid "SKILL_blade_master_DESC"
-msgstr "Mestre da lamina adiciona 8 de Dano Fisico fixo."
-
-msgid "SKILL_extreme_sharpening"
-msgstr "Afiacao Extrema"
-
-msgid "SKILL_extreme_sharpening_DESC"
-msgstr "Fio afiado concede 6% de Chance Critica."
-
-msgid "SKILL_iron_armor"
-msgstr "Armadura de Ferro"
-
-msgid "SKILL_iron_armor_DESC"
-msgstr "Placas de ferro reduzem dano fisico recebido em 10%."
-
-msgid "SKILL_unbreakable_stance"
-msgstr "Postura Inquebravel"
-
-msgid "SKILL_unbreakable_stance_DESC"
-msgstr "Postura inquebravel concede 8% de Resistencia Fisica."
-
-msgid "SKILL_precise_execution"
-msgstr "Execucao Precisa"
-
-msgid "SKILL_precise_execution_DESC"
-msgstr "Golpes precisos causam 8% a mais de dano."
-
-msgid "SKILL_iron_will"
-msgstr "Vontade de Ferro"
-
-msgid "SKILL_iron_will_DESC"
-msgstr "Vontade de ferro aumenta a Velocidade de Ataque em 10%."
-
-msgid "SKILL_defensive_stance"
-msgstr "Postura de Defesa"
-
-msgid "SKILL_defensive_stance_DESC"
-msgstr "Postura defensiva concede 8% de Resistencia Fisica."
-
-msgid "SKILL_brute_force"
-msgstr "Forca Bruta"
-
-msgid "SKILL_brute_force_DESC"
-msgstr "Forca bruta adiciona 7% de dano."
-
-msgid "SKILL_medium_resistance"
-msgstr "Resistencia Media"
-
-msgid "SKILL_medium_resistance_DESC"
-msgstr "Armadura media reduz dano fisico recebido em 8%."
-
-msgid "SKILL_steel_muscles"
-msgstr "Musculos de Aco"
-
-msgid "SKILL_steel_muscles_DESC"
-msgstr "Musculos de aco aumentam o HP maximo em 10%."
-
-msgid "SKILL_abyssal_meteor"
-msgstr "Meteoro Abissal"
-
-msgid "SKILL_abyssal_meteor_DESC"
-msgstr "Meteoro abissal causa dano dobrado."
-
-msgid "SKILL_damage_portal"
-msgstr "Portal de Dano"
-
-msgid "SKILL_damage_portal_DESC"
-msgstr "Portal de dano dispara 5 hits magicos a 40% de dano cada."
-
-msgid "SKILL_black_fireball"
-msgstr "Bola de Fogo Negra"
-
-msgid "SKILL_black_fireball_DESC"
-msgstr "Bola de fogo negra causa 50% de dano bonus em area."
-
-msgid "SKILL_ice_nova"
-msgstr "Nova de Gelo"
-
-msgid "SKILL_ice_nova_DESC"
-msgstr "Onda de gelo causa 20% de dano bonus."
-
-msgid "SKILL_ice_lance"
-msgstr "Lanca de Gelo"
-
-msgid "SKILL_ice_lance_DESC"
-msgstr "Lanca de gelo perfura duas vezes com dano total cada."
-
-msgid "SKILL_arcane_heal"
-msgstr "Cura Arcana"
-
-msgid "SKILL_arcane_heal_DESC"
-msgstr "Cura arcana restaura 20% do HP maximo de todo o grupo."
-
-msgid "SKILL_arcane_amplification"
-msgstr "Amplificacao Arcana"
-
-msgid "SKILL_arcane_amplification_DESC"
-msgstr "Amplificacao arcana adiciona 6 de Dano Magico fixo."
-
-msgid "SKILL_rune_resonance"
-msgstr "Ressoar de Runas"
-
-msgid "SKILL_rune_resonance_DESC"
-msgstr "Cada skill ativa lancada concede 5% de reducao de cooldown por 3s (ate 4 stacks)."
-
-msgid "SKILL_magic_penetration"
-msgstr "Penetracao Magica"
-
-msgid "SKILL_magic_penetration_DESC"
-msgstr "Penetracao magica adiciona 8% de dano de feitico."
-
-msgid "SKILL_critical_focus"
-msgstr "Foco Critico"
-
-msgid "SKILL_critical_focus_DESC"
-msgstr "Foco critico concede 8% de Chance Critica magica."
-
-msgid "SKILL_soul_drain"
-msgstr "Dreno de Alma"
-
-msgid "SKILL_soul_drain_DESC"
-msgstr "Dreno de alma aumenta o HP maximo em 30."
-
-msgid "SKILL_mana_flow"
-msgstr "Fluxo de Mana"
-
-msgid "SKILL_mana_flow_DESC"
-msgstr "Fluxo de mana adiciona 7% de dano de feitico."
-
-msgid "SKILL_tuning"
-msgstr "Sintonizacao"
-
-msgid "SKILL_tuning_DESC"
-msgstr "Sintonia arcana aumenta a velocidade de conjuracao em 5%."
-
-msgid "SKILL_void_presence"
-msgstr "Presenca do Vazio"
-
-msgid "SKILL_void_presence_DESC"
-msgstr "Presenca do vazio adiciona 6% de dano de feitico."
-
-msgid "SKILL_open_mind"
-msgstr "Mente Aberta"
-
-msgid "SKILL_open_mind_DESC"
-msgstr "Mente aberta concede 7% de Chance Critica."
-
-msgid "SKILL_elemental_symphony"
-msgstr "Sinfonia Elementar"
-
-msgid "SKILL_elemental_symphony_DESC"
-msgstr "Sinfonia elemental adiciona 8% de dano de feitico."
-
-msgid "SKILL_rune_barrier"
-msgstr "Barreira de Runas"
-
-msgid "SKILL_rune_barrier_DESC"
-msgstr "Barreira de runas aumenta HP maximo em 25% por 4 segundos."
-
-msgid "SKILL_dark_taunt"
-msgstr "Provocacao Sombria"
-
-msgid "SKILL_dark_taunt_DESC"
-msgstr "Provocacao sombria sustenta o tank, restaurando 15% do HP maximo."
-
-msgid "SKILL_inviolable_stance"
-msgstr "Postura Inviolavel"
-
-msgid "SKILL_inviolable_stance_DESC"
-msgstr "Postura inviolavel concede 100% de Resistencia Fisica por 2,5 segundos."
-
-msgid "SKILL_total_suppression"
-msgstr "Supressao Total"
-
-msgid "SKILL_total_suppression_DESC"
-msgstr "Golpe de escudo causando 30% de dano bonus em area."
-
-msgid "SKILL_crushing_mill"
-msgstr "Moinho Esmagador"
-
-msgid "SKILL_crushing_mill_DESC"
-msgstr "Tres golpes rapidos de maca a 90% de dano cada."
-
-msgid "SKILL_titanium_shell"
-msgstr "Casca de Titanio"
-
-msgid "SKILL_titanium_shell_DESC"
-msgstr "Casco de titanio concede 5% de Evasao."
-
-msgid "SKILL_surface_thorns"
-msgstr "Espinhos da Superficie"
-
-msgid "SKILL_surface_thorns_DESC"
-msgstr "Placas espinhosas adicionam 5 de dano fixo."
-
-msgid "SKILL_unshakable"
-msgstr "Inabalavel"
-
-msgid "SKILL_unshakable_DESC"
-msgstr "Corpo inabalavel concede 6% de Resistencia Fisica."
-
-msgid "SKILL_impact_absorption"
-msgstr "Absorcao no Impacto"
-
-msgid "SKILL_impact_absorption_DESC"
-msgstr "Absorcao de impacto aumenta o HP maximo em 35."
-
-msgid "SKILL_magic_alloy"
-msgstr "Liga Magica"
-
-msgid "SKILL_magic_alloy_DESC"
-msgstr "Liga magica concede 8% de Resistencia Elemental."
-
-msgid "SKILL_last_trench"
-msgstr "Ultima Trincheira"
-
-msgid "SKILL_last_trench_DESC"
-msgstr "Trincheira final aumenta o HP maximo em 45."
-
-msgid "SKILL_heavy_weight"
-msgstr "Peso Pesado"
-
-msgid "SKILL_heavy_weight_DESC"
-msgstr "Maça pesada adiciona 5 de dano fixo."
-
-msgid "SKILL_battle_inertia"
-msgstr "Inercia de Batalha"
-
-msgid "SKILL_battle_inertia_DESC"
-msgstr "Inercia de batalha concede 6% de Resistencia Fisica."
-
-msgid "SKILL_hard_shell"
-msgstr "Casca Dura"
-
-msgid "SKILL_hard_shell_DESC"
-msgstr "Casco duro concede 10% de Resistencia Fisica."
-
-msgid "SKILL_vital_crush"
-msgstr "Esmagamento Vital"
-
-msgid "SKILL_vital_crush_DESC"
-msgstr "Esmagamento vital adiciona 7% de dano de maça."
+msgstr "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."

@@ -11,6 +11,7 @@ sprites/
 ├── projectiles/          # combat VFX (arrows, etc.)
 └── ui/
 	├── skill_tree/       # skill-tree node icons (attack, health, gold, …)
+	├── worlds/           # portal briefing + trail placeholders (briefing_dim_*.png, trail_dim_*.png)
 	└── skills/           # per-class skill icons (<class_id>/)
 		├── warrior/
 		├── mage/
@@ -30,7 +31,7 @@ Folder and file names use **English**. UI equipment icons use English slugs (`he
 | `data/skills/**/*.tres` | `icon_path` per skill |
 | `presentation/shared/tree_icons.gd` | Skill-tree stat icons |
 | `presentation/shared/skill_icons.gd` | Skill button icons |
-| `presentation/worlds/` | World map textures |
+| `presentation/worlds/` | Fallen-dimension map textures; portal UI spec in `artifacts/design/` |
 | `presentation/combat/` | Spritesheets, projectiles |
 | `scenes/main.tscn` | Combat floor texture |
 

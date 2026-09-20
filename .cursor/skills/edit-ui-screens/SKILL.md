@@ -36,7 +36,7 @@ description: >-
 | Hub shell | `inventory_menu.tscn`, `inventory_menu.gd`, `inventory_layout_default.tres` |
 | Hub blocks | `hero_section.tscn`, `inventory_row.tscn`, `bottom_nav.tscn` |
 | Overlays | `formation_panel.*`, `skills_panel.*`, `attributes_panel.*`, `skill_tree_panel.*` |
-| Side panels | `warehouse_panel.*`, `forge_panel.*`, `worlds_panel.*` |
+| Side panels | `warehouse_panel.*`, `forge_panel.*`, `worlds_panel.*` (Portals: hall → briefing → trail; mockups in `artifacts/design/`) |
 | Settings | `SettingsPanel` in `inventory_menu.tscn` |
 | Shared | `ui_constants.gd`, `panel_layout.gd`, `window_manager.gd` |
 

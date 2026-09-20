@@ -16,7 +16,7 @@ The inventory groups equipment per class, item grid, forge (craft), warehouse (e
 | Party | `TeamSelectionUI` | Up to 3 active classes (`PartyService`) |
 | Forge | `ForgePanel` | Synthesis, dismantle, gems |
 | Warehouse | `WarehousePanel` | Paginated storage |
-| Worlds | `WorldsPanel` | Stage selection |
+| Worlds | `WorldsPanel` | Portal saga: hall → briefing → trail map |
 | Skill tree | `SkillTreePanel` | Gold upgrades |
 | Skills | `SkillsPanel` | Skill view/equip |
 
@@ -88,7 +88,7 @@ Legacy `Array` format (3 fixed entries) still supported in `aplicar_equipamentos
 |--------|------|
 | `hero_section.tscn` | Equip columns, portrait, XP, party row, skill menu slots |
 | `inventory_row.tscn` | Sort button, `inventory_slots_grid.tscn`, warehouse chest |
-| `bottom_nav.tscn` | Skills / inventory / forge / world buttons |
+| `bottom_nav.tscn` | Skills / inventory / forge / **Portais** buttons |
 
 All six classes use baked `equipment_grid_left.tscn` / `equipment_grid_right.tscn` pairs inside `hero_section.tscn` (`EquipLeft_*` / `EquipRight_*`); runtime only toggles visibility and calls `build_slots()`. No editor mock/preview layer — WYSIWYG in the Godot 2D view.
 
@@ -124,9 +124,10 @@ Three tabs:
 
 - **Baked UI:** 12 `attribute_row.tscn` instances in `attributes_panel.tscn`; `attributes_panel.gd` calls `AttributeRow.set_values()` on refresh.
 
-## WorldsPanel
+## WorldsPanel (Portals)
 
-- **Baked UI:** 5 world buttons, 3 difficulty buttons, 9 stage anchors in `worlds_panel.tscn`; `worlds_panel.gd` wires clicks and updates labels/highlights only.
+- **Baked UI:** portal hall (5 cards + progress), briefing panel, trail map (9 stage anchors) in `worlds_panel.tscn`; `worlds_panel.gd` drives three views and labels from `WorldCatalog`.
+- **Narrative canon:** [`portals-saga.md`](portals-saga.md)
 
 Optional toggle to consume warehouse items in synthesis.
 

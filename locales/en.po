@@ -45,17 +45,23 @@ msgstr "Hell completed!"
 msgid "COMBAT_WORLD_UNLOCKED"
 msgstr "World %d unlocked!"
 
+msgid "COMBAT_PORTAL_UNLOCKED"
+msgstr "Portal stabilized: %s"
+
+msgid "COMBAT_REALM_SAVED"
+msgstr "%s fell. The flame of %s burns again."
+
 msgid "COMBAT_MISS"
-msgstr ""
+msgstr "Miss!"
 
 msgid "DIFFICULTY_EASY"
-msgstr "Easy"
+msgstr "Safe Trail"
 
 msgid "DIFFICULTY_HARD"
-msgstr "Hard"
+msgstr "Marked Trail"
 
 msgid "DIFFICULTY_HELL"
-msgstr "Hell"
+msgstr "Cursed Trail"
 
 msgid "SETTINGS_TITLE"
 msgstr "Settings"
@@ -98,15 +104,6 @@ msgstr "All Classes"
 
 msgid "UI_EMPTY_SLOT"
 msgstr "Empty"
-
-msgid "START_TITLE"
-msgstr "Stickman Idle"
-
-msgid "START_SUBTITLE"
-msgstr "Desktop idle RPG"
-
-msgid "BTN_PLAY"
-msgstr "Play"
 
 msgid "BTN_CLOSE"
 msgstr "Close"
@@ -161,6 +158,9 @@ msgstr "Forge"
 
 msgid "UI_WORLD"
 msgstr "World"
+
+msgid "UI_PORTALS"
+msgstr "Portals"
 
 msgid "UI_INVENTORY"
 msgstr "Inventory"
@@ -574,10 +574,10 @@ msgid "FORGE_JEWELRY_IMBUE"
 msgstr "Imbue %s into %s?"
 
 msgid "FORGE_COST"
-msgstr ""
+msgstr "Cost: %d gold"
 
 msgid "FORGE_NOT_ENOUGH_GOLD"
-msgstr ""
+msgstr "Not enough gold"
 
 msgid "FORGE_LEVEL_HINT_EMPTY"
 msgstr "Place items to see level chances."
@@ -654,755 +654,251 @@ msgstr "Max level reached"
 msgid "WORLDS_TITLE"
 msgstr "Worlds"
 
+msgid "PORTALS_TITLE"
+msgstr "Portals"
+
+msgid "PORTALS_SUBTITLE"
+msgstr "Aurion trusts you with the dimensions that can still be saved."
+
+msgid "PORTAL_LOCKED"
+msgstr "(sealed)"
+
+msgid "PORTAL_SAVED"
+msgstr "(saved)"
+
+msgid "PORTAL_PROGRESS_FORMAT"
+msgstr "%d / %d"
+
+msgid "TRAIL_PROGRESS_FORMAT"
+msgstr "Stage %d of %d"
+
+msgid "DIMENSION_DECAYED_PREFIX"
+msgstr "Fallen dimension — %s"
+
+msgid "BTN_ENTER_PORTAL"
+msgstr "Cross portal"
+
+msgid "STAGE_DEMON_KING"
+msgstr "Demon King"
+
+msgid "SAGA_DIVINITY_NAME"
+msgstr "Aurion"
+
+msgid "SAGA_HOME_WORLD"
+msgstr "Sanctuary of Lumen"
+
 msgid "WORLD_N"
 msgstr "World %d"
 
 msgid "WORLD_LOCKED"
 msgstr "(locked)"
 
-msgid "ITEM_iron_sword"
-msgstr "Iron Sword"
+msgid "DIMENSION_1_NAME"
+msgstr "Emerald Grove"
 
-msgid "ITEM_training_sword"
-msgstr "Training Sword"
+msgid "DIMENSION_1_DEMON_KING"
+msgstr "Morgrath, Lord of Rotten Roots"
 
-msgid "ITEM_wooden_shield"
-msgstr "Wooden Shield"
+msgid "DIMENSION_1_BRIEFING"
+msgstr "Once a world of harvests and laughter. Today the forest sleeps."
 
-msgid "ITEM_warrior_helmet"
-msgstr "Warrior Helmet"
+msgid "DIMENSION_1_STAGE_1"
+msgstr "Corrupted Entry"
 
-msgid "ITEM_warrior_chestplate"
-msgstr "Warrior Chestplate"
+msgid "DIMENSION_1_STAGE_2"
+msgstr "Silent Glade"
 
-msgid "ITEM_warrior_gloves"
-msgstr "Warrior Gloves"
+msgid "DIMENSION_1_STAGE_3"
+msgstr "Dry Well"
 
-msgid "ITEM_warrior_pants"
-msgstr "Warrior Pants"
+msgid "DIMENSION_1_STAGE_4"
+msgstr "Broken Road"
 
-msgid "ITEM_warrior_boots"
-msgstr "Warrior Boots"
+msgid "DIMENSION_1_STAGE_5"
+msgstr "Abandoned Refuge"
 
-msgid "ITEM_lion_pet"
-msgstr "Lion Pet"
+msgid "DIMENSION_1_STAGE_6"
+msgstr "Black Roots"
 
-msgid "ITEM_ring_of_honor"
-msgstr "Ring of Honor"
+msgid "DIMENSION_1_STAGE_7"
+msgstr "Forgotten Shrine"
 
-msgid "ITEM_warrior_bracelet"
-msgstr "Warrior Bracelet"
+msgid "DIMENSION_1_STAGE_8"
+msgstr "Throne Antechamber"
 
-msgid "ITEM_arcane_staff"
-msgstr "Arcane Staff"
+msgid "DIMENSION_1_STAGE_9"
+msgstr "Morgrath"
 
-msgid "ITEM_grimoire"
-msgstr "Grimoire"
+msgid "DIMENSION_2_NAME"
+msgstr "Corrupted Grove"
 
-msgid "ITEM_arcane_familiar"
-msgstr "Arcane Familiar"
+msgid "DIMENSION_2_DEMON_KING"
+msgstr "Vex'hal, Shadow of Echoes"
 
-msgid "ITEM_mystic_cloak"
-msgstr "Mystic Cloak"
+msgid "DIMENSION_2_BRIEFING"
+msgstr "A mirror-realm where voices of the lost still whisper."
 
-msgid "ITEM_arcane_tiara"
-msgstr "Arcane Tiara"
+msgid "DIMENSION_2_STAGE_1"
+msgstr "Echo Gate"
 
-msgid "ITEM_mage_gloves"
-msgstr "Mage Gloves"
+msgid "DIMENSION_2_STAGE_2"
+msgstr "Hollow Path"
 
-msgid "ITEM_mage_pants"
-msgstr "Mage Pants"
+msgid "DIMENSION_2_STAGE_3"
+msgstr "Whispering Stones"
 
-msgid "ITEM_mage_boots"
-msgstr "Mage Boots"
+msgid "DIMENSION_2_STAGE_4"
+msgstr "Lost Crossing"
 
-msgid "ITEM_arcane_belt"
-msgstr "Arcane Belt"
+msgid "DIMENSION_2_STAGE_5"
+msgstr "Veil Camp"
 
-msgid "ITEM_mana_pendant"
-msgstr "Mana Pendant"
+msgid "DIMENSION_2_STAGE_6"
+msgstr "Shadow Thicket"
 
-msgid "ITEM_short_bow"
-msgstr "Short Bow"
+msgid "DIMENSION_2_STAGE_7"
+msgstr "Muted Bell"
 
-msgid "ITEM_quiver"
-msgstr "Quiver"
+msgid "DIMENSION_2_STAGE_8"
+msgstr "Echo Throne Hall"
 
-msgid "ITEM_leather_hood"
-msgstr "Leather Hood"
+msgid "DIMENSION_2_STAGE_9"
+msgstr "Vex'hal"
 
-msgid "ITEM_archer_chestplate"
-msgstr "Archer Chestplate"
+msgid "DIMENSION_3_NAME"
+msgstr "Lost Sands"
 
-msgid "ITEM_archer_gloves"
-msgstr "Archer Gloves"
+msgid "DIMENSION_3_DEMON_KING"
+msgstr "Khar-Ra, Pharaoh of Storms"
 
-msgid "ITEM_archer_pants"
-msgstr "Archer Pants"
+msgid "DIMENSION_3_BRIEFING"
+msgstr "Caravans vanished and wells ran dry under burning skies."
 
-msgid "ITEM_archer_boots"
-msgstr "Archer Boots"
+msgid "DIMENSION_3_STAGE_1"
+msgstr "Dune Gate"
 
-msgid "ITEM_companion_falcon"
-msgstr "Companion Falcon"
+msgid "DIMENSION_3_STAGE_2"
+msgstr "Salt Crossing"
 
-msgid "ITEM_precision_ring"
-msgstr "Precision Ring"
+msgid "DIMENSION_3_STAGE_3"
+msgstr "Buried Oasis"
 
-msgid "ITEM_shadow_dagger"
-msgstr "Shadow Dagger"
+msgid "DIMENSION_3_STAGE_4"
+msgstr "Storm Ridge"
 
-msgid "ITEM_twin_dagger"
-msgstr "Twin Dagger"
+msgid "DIMENSION_3_STAGE_5"
+msgstr "Caravan Bones"
 
-msgid "ITEM_assassin_hood"
-msgstr "Assassin Hood"
+msgid "DIMENSION_3_STAGE_6"
+msgstr "Glass Valley"
 
-msgid "ITEM_shadow_chestplate"
-msgstr "Shadow Chestplate"
+msgid "DIMENSION_3_STAGE_7"
+msgstr "Sun Temple"
 
-msgid "ITEM_assassin_gloves"
-msgstr "Assassin Gloves"
+msgid "DIMENSION_3_STAGE_8"
+msgstr "Sand Throne"
 
-msgid "ITEM_assassin_pants"
-msgstr "Assassin Pants"
+msgid "DIMENSION_3_STAGE_9"
+msgstr "Khar-Ra"
 
-msgid "ITEM_assassin_boots"
-msgstr "Assassin Boots"
+msgid "DIMENSION_4_NAME"
+msgstr "Frozen Peaks"
 
-msgid "ITEM_shadow_belt"
-msgstr "Shadow Belt"
+msgid "DIMENSION_4_DEMON_KING"
+msgstr "Ymiron, Heart of Ice"
 
-msgid "ITEM_shadow_bracelet"
-msgstr "Shadow Bracelet"
+msgid "DIMENSION_4_BRIEFING"
+msgstr "Villages frozen in time while bells no longer ring."
 
-msgid "ITEM_heavy_mace"
-msgstr "Heavy Mace"
+msgid "DIMENSION_4_STAGE_1"
+msgstr "Frost Gate"
 
-msgid "ITEM_tower_shield"
-msgstr "Tower Shield"
+msgid "DIMENSION_4_STAGE_2"
+msgstr "Silent Pass"
 
-msgid "ITEM_iron_chestplate"
-msgstr "Iron Chestplate"
+msgid "DIMENSION_4_STAGE_3"
+msgstr "Ice Bridge"
 
-msgid "ITEM_tower_helmet"
-msgstr "Tower Helmet"
+msgid "DIMENSION_4_STAGE_4"
+msgstr "Frozen Hamlet"
 
-msgid "ITEM_tank_gloves"
-msgstr "Tank Gloves"
+msgid "DIMENSION_4_STAGE_5"
+msgstr "Crystal Mine"
 
-msgid "ITEM_tank_pants"
-msgstr "Tank Pants"
+msgid "DIMENSION_4_STAGE_6"
+msgstr "Howling Ridge"
 
-msgid "ITEM_tank_boots"
-msgstr "Tank Boots"
+msgid "DIMENSION_4_STAGE_7"
+msgstr "Bell Shrine"
 
-msgid "ITEM_turtle_pet"
-msgstr "Turtle Pet"
+msgid "DIMENSION_4_STAGE_8"
+msgstr "Throne of Frost"
 
-msgid "ITEM_guardian_pendant"
-msgstr "Guardian Pendant"
+msgid "DIMENSION_4_STAGE_9"
+msgstr "Ymiron"
 
-msgid "ITEM_holy_staff"
-msgstr "Holy Staff"
+msgid "DIMENSION_5_NAME"
+msgstr "Abyssal Forge"
 
-msgid "ITEM_tome_of_light"
-msgstr "Tome of Light"
+msgid "DIMENSION_5_DEMON_KING"
+msgstr "Azrak, Lord of the Profane Forge"
 
-msgid "ITEM_clerical_cloak"
-msgstr "Clerical Cloak"
+msgid "DIMENSION_5_BRIEFING"
+msgstr "Forges that once shaped light now chain smiths to darkness."
 
-msgid "ITEM_faith_pendant"
-msgstr "Faith Pendant"
+msgid "DIMENSION_5_STAGE_1"
+msgstr "Ash Gate"
 
-msgid "ITEM_sacred_tiara"
-msgstr "Sacred Tiara"
+msgid "DIMENSION_5_STAGE_2"
+msgstr "Slag Road"
 
-msgid "ITEM_priest_gloves"
-msgstr "Priest Gloves"
+msgid "DIMENSION_5_STAGE_3"
+msgstr "Cinder Pit"
 
-msgid "ITEM_priest_pants"
-msgstr "Priest Pants"
+msgid "DIMENSION_5_STAGE_4"
+msgstr "Chain Yard"
 
-msgid "ITEM_priest_boots"
-msgstr "Priest Boots"
+msgid "DIMENSION_5_STAGE_5"
+msgstr "Molten Bridge"
 
-msgid "ITEM_devotion_ring"
-msgstr "Devotion Ring"
+msgid "DIMENSION_5_STAGE_6"
+msgstr "Cursed Anvil"
 
-msgid "ITEM_cloth_gloves"
-msgstr "Cloth Gloves"
+msgid "DIMENSION_5_STAGE_7"
+msgstr "Obsidian Hall"
 
-msgid "ITEM_leather_pants"
-msgstr "Leather Pants"
+msgid "DIMENSION_5_STAGE_8"
+msgstr "Forge Antechamber"
 
-msgid "ITEM_travel_boots"
-msgstr "Travel Boots"
-
-msgid "ITEM_simple_belt"
-msgstr "Simple Belt"
-
-msgid "ITEM_rough_ring"
-msgstr "Rough Ring"
-
-msgid "ITEM_iron_bracelet"
-msgstr "Iron Bracelet"
-
-msgid "ITEM_travel_hood"
-msgstr "Travel Hood"
-
-msgid "ITEM_leather_chestplate"
-msgstr "Leather Chestplate"
-
-msgid "ITEM_simple_pendant"
-msgstr "Simple Pendant"
-
-msgid "ITEM_rat_pet"
-msgstr "Rat Pet"
+msgid "DIMENSION_5_STAGE_9"
+msgstr "Azrak"
 
 msgid "SKILL_instant_double_shot"
 msgstr "Instant Double Shot"
 
 msgid "SKILL_instant_double_shot_DESC"
-msgstr "Two instant shots, both guaranteed critical hits."
+msgstr "Fires two rapid consecutive shots with 200% critical damage."
 
 msgid "SKILL_dark_volley"
 msgstr "Dark Volley"
 
 msgid "SKILL_dark_volley_DESC"
-msgstr "Dark volley fires 5 arrows at 40% damage each."
+msgstr "Enters focus stance for 2 seconds and fires a burst of 10 energized arrows at high speed at the strongest target."
 
 msgid "SKILL_precision_shot"
 msgstr "Precision Shot"
 
 msgid "SKILL_precision_shot_DESC"
-msgstr "Precision shot: 50% bonus damage, guaranteed crit, 30% armor pen."
+msgstr "A 0.4s charged shot that guarantees a critical hit and ignores 30% armor."
 
 msgid "SKILL_hunter_stance"
 msgstr "Hunter Stance"
 
 msgid "SKILL_hunter_stance_DESC"
-msgstr "Hunter stance: +30% Attack Speed and +10% damage for 3.5 seconds."
+msgstr "Plants feet lightly and gains 30% Attack Speed and 10% Physical Damage for 3.5 seconds."
 
 msgid "SKILL_neon_vision"
 msgstr "Neon Vision"
 
 msgid "SKILL_neon_vision_DESC"
-msgstr "Neon vision grants 30% Critical Chance for 4 seconds."
-
-msgid "SKILL_armor_penetration"
-msgstr "Armor Penetration"
-
-msgid "SKILL_armor_penetration_DESC"
-msgstr "Arrows ignore part of enemy armor, increasing damage by 8%."
-
-msgid "SKILL_reflex_recoil"
-msgstr "Reflex Recoil"
-
-msgid "SKILL_reflex_recoil_DESC"
-msgstr "Quick reflexes grant 5% Evasion."
-
-msgid "SKILL_swift_execution"
-msgstr "Swift Execution"
-
-msgid "SKILL_swift_execution_DESC"
-msgstr "Swift strikes deal 6% more damage."
-
-msgid "SKILL_nimble_hands"
-msgstr "Nimble Hands"
-
-msgid "SKILL_nimble_hands_DESC"
-msgstr "Reduces cooldown of all active skills by 15%."
-
-msgid "SKILL_eagle_eye"
-msgstr "Eagle Eye"
-
-msgid "SKILL_eagle_eye_DESC"
-msgstr "Eagle vision grants 6% Critical Chance."
-
-msgid "SKILL_drawstring_tension"
-msgstr "Drawstring Tension"
-
-msgid "SKILL_drawstring_tension_DESC"
-msgstr "Tensed bowstring increases Attack Speed by 12%."
-
-msgid "SKILL_wearing_poison"
-msgstr "Wearing Poison"
-
-msgid "SKILL_wearing_poison_DESC"
-msgstr "Poisoned arrows add 4 flat damage."
-
-msgid "SKILL_weak_prey"
-msgstr "Weak Prey"
-
-msgid "SKILL_weak_prey_DESC"
-msgstr "Hunter instinct adds 5% damage."
-
-msgid "SKILL_stacking_impact"
-msgstr "Stacking Impact"
-
-msgid "SKILL_stacking_impact_DESC"
-msgstr "Each impact lands harder, adding 7% damage."
-
-msgid "SKILL_surgical_aim"
-msgstr "Surgical Aim"
-
-msgid "SKILL_surgical_aim_DESC"
-msgstr "Precise aim grants 8% Critical Chance."
-
-msgid "SKILL_twin_execution_cut"
-msgstr "Twin Execution Cut"
-
-msgid "SKILL_twin_execution_cut_DESC"
-msgstr "Cross slash hitting twice for full damage."
-
-msgid "SKILL_prey_mark"
-msgstr "Prey Mark"
-
-msgid "SKILL_prey_mark_DESC"
-msgstr "Marked prey takes 30% bonus burst damage."
-
-msgid "SKILL_quick_twin_cut"
-msgstr "Quick Twin Cut"
-
-msgid "SKILL_quick_twin_cut_DESC"
-msgstr "Two ultra-fast cross strikes."
-
-msgid "SKILL_awakened_sequence"
-msgstr "Awakened Sequence"
-
-msgid "SKILL_awakened_sequence_DESC"
-msgstr "Awakened rhythm grants 60% Attack Speed for 3 seconds."
-
-msgid "SKILL_swift_decapitation"
-msgstr "Swift Decapitation"
-
-msgid "SKILL_swift_decapitation_DESC"
-msgstr "Neck strike dealing 50% bonus damage."
-
-msgid "SKILL_shadow_reflexes"
-msgstr "Shadow Reflexes"
-
-msgid "SKILL_shadow_reflexes_DESC"
-msgstr "Shadow reflexes grant 5% Critical Chance."
-
-msgid "SKILL_adrenaline_surge"
-msgstr "Adrenaline Surge"
-
-msgid "SKILL_adrenaline_surge_DESC"
-msgstr "Adrenaline surge increases Attack Speed by 8%. Killing an enemy resets 0.5s of skill cooldown."
-
-msgid "SKILL_venomous_vein"
-msgstr "Venomous Vein"
-
-msgid "SKILL_venomous_vein_DESC"
-msgstr "Venomous strikes add 12% Critical Damage."
-
-msgid "SKILL_stealth_strike"
-msgstr "Stealth Strike"
-
-msgid "SKILL_stealth_strike_DESC"
-msgstr "Stealth strikes add 10% Critical Damage."
-
-msgid "SKILL_lethal_execution"
-msgstr "Lethal Execution"
-
-msgid "SKILL_lethal_execution_DESC"
-msgstr "Lethal execution adds 8% damage."
-
-msgid "SKILL_deep_cut"
-msgstr "Deep Cut"
-
-msgid "SKILL_deep_cut_DESC"
-msgstr "Deep cuts add 4 flat damage."
-
-msgid "SKILL_weak_point_mapping"
-msgstr "Weak Point Mapping"
-
-msgid "SKILL_weak_point_mapping_DESC"
-msgstr "Weak point knowledge adds 8% damage."
-
-msgid "SKILL_adrenaline"
-msgstr "Adrenaline"
-
-msgid "SKILL_adrenaline_DESC"
-msgstr "Adrenaline rush increases Attack Speed by 5%. Killing an enemy resets 1s of skill cooldown."
-
-msgid "SKILL_assassin_rhythm"
-msgstr "Assassin Rhythm"
-
-msgid "SKILL_assassin_rhythm_DESC"
-msgstr "Assassin rhythm increases Attack Speed by 10%."
-
-msgid "SKILL_light_blade"
-msgstr "Light Blade"
-
-msgid "SKILL_light_blade_DESC"
-msgstr "Light blade adds 10% damage."
-
-msgid "SKILL_sacred_position"
-msgstr "Sacred Position"
-
-msgid "SKILL_sacred_position_DESC"
-msgstr "Restores 15% max HP to the lowest-HP ally."
-
-msgid "SKILL_solar_shield"
-msgstr "Solar Shield"
-
-msgid "SKILL_solar_shield_DESC"
-msgstr "Solar light restores 12% max HP to the lowest-HP ally."
-
-msgid "SKILL_divine_punishment"
-msgstr "Divine Punishment"
-
-msgid "SKILL_divine_punishment_DESC"
-msgstr "Divine beam dealing 50% bonus damage."
-
-msgid "SKILL_inviolability_aura"
-msgstr "Inviolability Aura"
-
-msgid "SKILL_inviolability_aura_DESC"
-msgstr "Heals party for 8% max HP and grants 15% Physical Resistance for 1.5s."
-
-msgid "SKILL_sacred_fervor"
-msgstr "Sacred Fervor"
-
-msgid "SKILL_sacred_fervor_DESC"
-msgstr "Sacred fervor grants all allies 15% damage for 4 seconds."
-
-msgid "SKILL_sun_touch"
-msgstr "Sun Touch"
-
-msgid "SKILL_sun_touch_DESC"
-msgstr "Solar vitality increases max HP by 35."
-
-msgid "SKILL_reactive_barrier"
-msgstr "Reactive Barrier"
-
-msgid "SKILL_reactive_barrier_DESC"
-msgstr "Reactive barrier increases max HP by 40."
-
-msgid "SKILL_radiant_presence"
-msgstr "Radiant Presence"
-
-msgid "SKILL_radiant_presence_DESC"
-msgstr "Radiant presence grants 8% Elemental Resistance."
-
-msgid "SKILL_unshakable_devotion"
-msgstr "Unshakable Devotion"
-
-msgid "SKILL_unshakable_devotion_DESC"
-msgstr "Unshakable devotion reduces skill cooldowns by 10%."
-
-msgid "SKILL_divine_vigor"
-msgstr "Divine Vigor"
-
-msgid "SKILL_divine_vigor_DESC"
-msgstr "Divine vigor increases max HP by 25."
-
-msgid "SKILL_sacred_touch"
-msgstr "Sacred Touch"
-
-msgid "SKILL_sacred_touch_DESC"
-msgstr "Sacred touch increases max HP by 25."
-
-msgid "SKILL_critical_heal"
-msgstr "Critical Heal"
-
-msgid "SKILL_critical_heal_DESC"
-msgstr "Critical prayer grants 5% Critical Chance."
-
-msgid "SKILL_celestial_pact"
-msgstr "Celestial Pact"
-
-msgid "SKILL_celestial_pact_DESC"
-msgstr "Celestial pact increases max HP by 50."
-
-msgid "SKILL_protective_light"
-msgstr "Protective Light"
-
-msgid "SKILL_protective_light_DESC"
-msgstr "Protective light grants 10% Physical Resistance."
-
-msgid "SKILL_mercy"
-msgstr "Mercy"
-
-msgid "SKILL_mercy_DESC"
-msgstr "Mercy increases max HP by 35."
-
-msgid "SKILL_frenzied_sequence"
-msgstr "Frenzied Sequence"
-
-msgid "SKILL_frenzied_sequence_DESC"
-msgstr "Three rapid sword strikes dealing full damage each."
-
-msgid "SKILL_quick_slash"
-msgstr "Quick Slash"
-
-msgid "SKILL_quick_slash_DESC"
-msgstr "A fast horizontal slash dealing standard damage."
-
-msgid "SKILL_double_thrust"
-msgstr "Double Thrust"
-
-msgid "SKILL_double_thrust_DESC"
-msgstr "Two ultra-fast thrusts, each dealing full damage."
-
-msgid "SKILL_heavy_blade"
-msgstr "Heavy Blade"
-
-msgid "SKILL_heavy_blade_DESC"
-msgstr "A slow heavy strike dealing double damage."
-
-msgid "SKILL_war_cry"
-msgstr "War Cry"
-
-msgid "SKILL_war_cry_DESC"
-msgstr "War cry boosts Physical Damage by 20% for 5 seconds."
-
-msgid "SKILL_blade_master"
-msgstr "Blade Master"
-
-msgid "SKILL_blade_master_DESC"
-msgstr "Master of the blade adds 8 flat Physical Damage."
-
-msgid "SKILL_extreme_sharpening"
-msgstr "Extreme Sharpening"
-
-msgid "SKILL_extreme_sharpening_DESC"
-msgstr "Razor edge grants 6% Critical Chance."
-
-msgid "SKILL_iron_armor"
-msgstr "Iron Armor"
-
-msgid "SKILL_iron_armor_DESC"
-msgstr "Iron plating reduces physical damage taken by 10%."
-
-msgid "SKILL_unbreakable_stance"
-msgstr "Unbreakable Stance"
-
-msgid "SKILL_unbreakable_stance_DESC"
-msgstr "Unbreakable stance grants 8% Physical Resistance."
-
-msgid "SKILL_precise_execution"
-msgstr "Precise Execution"
-
-msgid "SKILL_precise_execution_DESC"
-msgstr "Precise strikes deal 8% more damage."
-
-msgid "SKILL_iron_will"
-msgstr "Iron Will"
-
-msgid "SKILL_iron_will_DESC"
-msgstr "Iron will increases Attack Speed by 10%."
-
-msgid "SKILL_defensive_stance"
-msgstr "Defensive Stance"
-
-msgid "SKILL_defensive_stance_DESC"
-msgstr "Defensive stance grants 8% Physical Resistance."
-
-msgid "SKILL_brute_force"
-msgstr "Brute Force"
-
-msgid "SKILL_brute_force_DESC"
-msgstr "Brute strength adds 7% damage."
-
-msgid "SKILL_medium_resistance"
-msgstr "Medium Resistance"
-
-msgid "SKILL_medium_resistance_DESC"
-msgstr "Medium armor reduces physical damage taken by 8%."
-
-msgid "SKILL_steel_muscles"
-msgstr "Steel Muscles"
-
-msgid "SKILL_steel_muscles_DESC"
-msgstr "Steel muscles increase max HP by 10%."
-
-msgid "SKILL_abyssal_meteor"
-msgstr "Abyssal Meteor"
-
-msgid "SKILL_abyssal_meteor_DESC"
-msgstr "Abyssal meteor deals double damage."
-
-msgid "SKILL_damage_portal"
-msgstr "Damage Portal"
-
-msgid "SKILL_damage_portal_DESC"
-msgstr "Damage portal fires 5 magical hits at 40% damage each."
-
-msgid "SKILL_black_fireball"
-msgstr "Black Fireball"
-
-msgid "SKILL_black_fireball_DESC"
-msgstr "Black fireball deals 50% bonus area damage."
-
-msgid "SKILL_ice_nova"
-msgstr "Ice Nova"
-
-msgid "SKILL_ice_nova_DESC"
-msgstr "Ice nova wave deals 20% bonus damage."
-
-msgid "SKILL_ice_lance"
-msgstr "Ice Lance"
-
-msgid "SKILL_ice_lance_DESC"
-msgstr "Ice lance pierces twice for full damage each."
-
-msgid "SKILL_arcane_heal"
-msgstr "Arcane Heal"
-
-msgid "SKILL_arcane_heal_DESC"
-msgstr "Arcane heal restores 20% max HP to the entire party."
-
-msgid "SKILL_arcane_amplification"
-msgstr "Arcane Amplification"
-
-msgid "SKILL_arcane_amplification_DESC"
-msgstr "Arcane amplification adds 6 Magic Damage."
-
-msgid "SKILL_rune_resonance"
-msgstr "Rune Resonance"
-
-msgid "SKILL_rune_resonance_DESC"
-msgstr "Each active skill cast grants 5% cooldown reduction for 3s (stacks up to 4 times)."
-
-msgid "SKILL_magic_penetration"
-msgstr "Magic Penetration"
-
-msgid "SKILL_magic_penetration_DESC"
-msgstr "Magic penetration adds 8% spell damage."
-
-msgid "SKILL_critical_focus"
-msgstr "Critical Focus"
-
-msgid "SKILL_critical_focus_DESC"
-msgstr "Critical focus grants 8% magic Critical Chance."
-
-msgid "SKILL_soul_drain"
-msgstr "Soul Drain"
-
-msgid "SKILL_soul_drain_DESC"
-msgstr "Soul drain increases max HP by 30."
-
-msgid "SKILL_mana_flow"
-msgstr "Mana Flow"
-
-msgid "SKILL_mana_flow_DESC"
-msgstr "Mana flow adds 7% spell damage."
-
-msgid "SKILL_tuning"
-msgstr "Tuning"
-
-msgid "SKILL_tuning_DESC"
-msgstr "Arcane tuning increases cast speed by 5%."
-
-msgid "SKILL_void_presence"
-msgstr "Void Presence"
-
-msgid "SKILL_void_presence_DESC"
-msgstr "Void presence adds 6% spell damage."
-
-msgid "SKILL_open_mind"
-msgstr "Open Mind"
-
-msgid "SKILL_open_mind_DESC"
-msgstr "Open mind grants 7% Critical Chance."
-
-msgid "SKILL_elemental_symphony"
-msgstr "Elemental Symphony"
-
-msgid "SKILL_elemental_symphony_DESC"
-msgstr "Elemental symphony adds 8% spell damage."
-
-msgid "SKILL_rune_barrier"
-msgstr "Rune Barrier"
-
-msgid "SKILL_rune_barrier_DESC"
-msgstr "Rune barrier increases max HP by 25% for 4 seconds."
-
-msgid "SKILL_dark_taunt"
-msgstr "Dark Taunt"
-
-msgid "SKILL_dark_taunt_DESC"
-msgstr "Dark taunt sustains the tank, restoring 15% max HP."
-
-msgid "SKILL_inviolable_stance"
-msgstr "Inviolable Stance"
-
-msgid "SKILL_inviolable_stance_DESC"
-msgstr "Inviolable stance grants 100% Physical Resistance for 2.5 seconds."
-
-msgid "SKILL_total_suppression"
-msgstr "Total Suppression"
-
-msgid "SKILL_total_suppression_DESC"
-msgstr "Shield slam dealing 30% bonus area damage."
-
-msgid "SKILL_crushing_mill"
-msgstr "Crushing Mill"
-
-msgid "SKILL_crushing_mill_DESC"
-msgstr "Three fast mace strikes at 90% damage each."
-
-msgid "SKILL_titanium_shell"
-msgstr "Titanium Shell"
-
-msgid "SKILL_titanium_shell_DESC"
-msgstr "Titanium shell grants 5% Evasion."
-
-msgid "SKILL_surface_thorns"
-msgstr "Surface Thorns"
-
-msgid "SKILL_surface_thorns_DESC"
-msgstr "Thorned plating adds 5 flat damage."
-
-msgid "SKILL_unshakable"
-msgstr "Unshakable"
-
-msgid "SKILL_unshakable_DESC"
-msgstr "Unshakable body grants 6% Physical Resistance."
-
-msgid "SKILL_impact_absorption"
-msgstr "Impact Absorption"
-
-msgid "SKILL_impact_absorption_DESC"
-msgstr "Impact absorption increases max HP by 35."
-
-msgid "SKILL_magic_alloy"
-msgstr "Magic Alloy"
-
-msgid "SKILL_magic_alloy_DESC"
-msgstr "Magic alloy grants 8% Elemental Resistance."
-
-msgid "SKILL_last_trench"
-msgstr "Last Trench"
-
-msgid "SKILL_last_trench_DESC"
-msgstr "Last trench resolve increases max HP by 45."
-
-msgid "SKILL_heavy_weight"
-msgstr "Heavy Weight"
-
-msgid "SKILL_heavy_weight_DESC"
-msgstr "Heavy mace adds 5 flat damage."
-
-msgid "SKILL_battle_inertia"
-msgstr "Battle Inertia"
-
-msgid "SKILL_battle_inertia_DESC"
-msgstr "Battle inertia grants 6% Physical Resistance."
-
-msgid "SKILL_hard_shell"
-msgstr "Hard Shell"
-
-msgid "SKILL_hard_shell_DESC"
-msgstr "Hard shell grants 10% Physical Resistance."
-
-msgid "SKILL_vital_crush"
-msgstr "Vital Crush"
-
-msgid "SKILL_vital_crush_DESC"
-msgstr "Vital crush adds 7% mace skill damage."
+msgstr "Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds."

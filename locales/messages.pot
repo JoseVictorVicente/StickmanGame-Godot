@@ -1,4 +1,4 @@
-# Translation template â€” Stickman Idle
+# Translation template — Stickman Idle
 # Copy new msgid entries to locales/pt_BR.po and locales/en.po
 # Godot loads .po files listed in project.godot [internationalization]
 
@@ -46,6 +46,12 @@ msgid "COMBAT_HELL_COMPLETED"
 msgstr ""
 
 msgid "COMBAT_WORLD_UNLOCKED"
+msgstr ""
+
+msgid "COMBAT_PORTAL_UNLOCKED"
+msgstr ""
+
+msgid "COMBAT_REALM_SAVED"
 msgstr ""
 
 msgid "COMBAT_MISS"
@@ -154,6 +160,9 @@ msgid "UI_FORGE"
 msgstr ""
 
 msgid "UI_WORLD"
+msgstr ""
+
+msgid "UI_PORTALS"
 msgstr ""
 
 msgid "UI_INVENTORY"
@@ -648,211 +657,223 @@ msgstr ""
 msgid "WORLDS_TITLE"
 msgstr ""
 
+msgid "PORTALS_TITLE"
+msgstr ""
+
+msgid "PORTALS_SUBTITLE"
+msgstr ""
+
+msgid "PORTAL_LOCKED"
+msgstr ""
+
+msgid "PORTAL_SAVED"
+msgstr ""
+
+msgid "PORTAL_PROGRESS_FORMAT"
+msgstr ""
+
+msgid "TRAIL_PROGRESS_FORMAT"
+msgstr ""
+
+msgid "DIMENSION_DECAYED_PREFIX"
+msgstr ""
+
+msgid "BTN_ENTER_PORTAL"
+msgstr ""
+
+msgid "STAGE_DEMON_KING"
+msgstr ""
+
+msgid "SAGA_DIVINITY_NAME"
+msgstr ""
+
+msgid "SAGA_HOME_WORLD"
+msgstr ""
+
 msgid "WORLD_N"
 msgstr ""
 
 msgid "WORLD_LOCKED"
 msgstr ""
 
-msgid "ITEM_iron_sword"
+msgid "DIMENSION_1_NAME"
 msgstr ""
 
-msgid "ITEM_training_sword"
+msgid "DIMENSION_1_DEMON_KING"
 msgstr ""
 
-msgid "ITEM_wooden_shield"
+msgid "DIMENSION_1_BRIEFING"
 msgstr ""
 
-msgid "ITEM_warrior_helmet"
+msgid "DIMENSION_1_STAGE_1"
 msgstr ""
 
-msgid "ITEM_warrior_chestplate"
+msgid "DIMENSION_1_STAGE_2"
 msgstr ""
 
-msgid "ITEM_warrior_gloves"
+msgid "DIMENSION_1_STAGE_3"
 msgstr ""
 
-msgid "ITEM_warrior_pants"
+msgid "DIMENSION_1_STAGE_4"
 msgstr ""
 
-msgid "ITEM_warrior_boots"
+msgid "DIMENSION_1_STAGE_5"
 msgstr ""
 
-msgid "ITEM_lion_pet"
+msgid "DIMENSION_1_STAGE_6"
 msgstr ""
 
-msgid "ITEM_ring_of_honor"
+msgid "DIMENSION_1_STAGE_7"
 msgstr ""
 
-msgid "ITEM_warrior_bracelet"
+msgid "DIMENSION_1_STAGE_8"
 msgstr ""
 
-msgid "ITEM_arcane_staff"
+msgid "DIMENSION_1_STAGE_9"
 msgstr ""
 
-msgid "ITEM_grimoire"
+msgid "DIMENSION_2_NAME"
 msgstr ""
 
-msgid "ITEM_arcane_familiar"
+msgid "DIMENSION_2_DEMON_KING"
 msgstr ""
 
-msgid "ITEM_mystic_cloak"
+msgid "DIMENSION_2_BRIEFING"
 msgstr ""
 
-msgid "ITEM_arcane_tiara"
+msgid "DIMENSION_2_STAGE_1"
 msgstr ""
 
-msgid "ITEM_mage_gloves"
+msgid "DIMENSION_2_STAGE_2"
 msgstr ""
 
-msgid "ITEM_mage_pants"
+msgid "DIMENSION_2_STAGE_3"
 msgstr ""
 
-msgid "ITEM_mage_boots"
+msgid "DIMENSION_2_STAGE_4"
 msgstr ""
 
-msgid "ITEM_arcane_belt"
+msgid "DIMENSION_2_STAGE_5"
 msgstr ""
 
-msgid "ITEM_mana_pendant"
+msgid "DIMENSION_2_STAGE_6"
 msgstr ""
 
-msgid "ITEM_short_bow"
+msgid "DIMENSION_2_STAGE_7"
 msgstr ""
 
-msgid "ITEM_quiver"
+msgid "DIMENSION_2_STAGE_8"
 msgstr ""
 
-msgid "ITEM_leather_hood"
+msgid "DIMENSION_2_STAGE_9"
 msgstr ""
 
-msgid "ITEM_archer_chestplate"
+msgid "DIMENSION_3_NAME"
 msgstr ""
 
-msgid "ITEM_archer_gloves"
+msgid "DIMENSION_3_DEMON_KING"
 msgstr ""
 
-msgid "ITEM_archer_pants"
+msgid "DIMENSION_3_BRIEFING"
 msgstr ""
 
-msgid "ITEM_archer_boots"
+msgid "DIMENSION_3_STAGE_1"
 msgstr ""
 
-msgid "ITEM_companion_falcon"
+msgid "DIMENSION_3_STAGE_2"
 msgstr ""
 
-msgid "ITEM_precision_ring"
+msgid "DIMENSION_3_STAGE_3"
 msgstr ""
 
-msgid "ITEM_shadow_dagger"
+msgid "DIMENSION_3_STAGE_4"
 msgstr ""
 
-msgid "ITEM_twin_dagger"
+msgid "DIMENSION_3_STAGE_5"
 msgstr ""
 
-msgid "ITEM_assassin_hood"
+msgid "DIMENSION_3_STAGE_6"
 msgstr ""
 
-msgid "ITEM_shadow_chestplate"
+msgid "DIMENSION_3_STAGE_7"
 msgstr ""
 
-msgid "ITEM_assassin_gloves"
+msgid "DIMENSION_3_STAGE_8"
 msgstr ""
 
-msgid "ITEM_assassin_pants"
+msgid "DIMENSION_3_STAGE_9"
 msgstr ""
 
-msgid "ITEM_assassin_boots"
+msgid "DIMENSION_4_NAME"
 msgstr ""
 
-msgid "ITEM_shadow_belt"
+msgid "DIMENSION_4_DEMON_KING"
 msgstr ""
 
-msgid "ITEM_shadow_bracelet"
+msgid "DIMENSION_4_BRIEFING"
 msgstr ""
 
-msgid "ITEM_heavy_mace"
+msgid "DIMENSION_4_STAGE_1"
 msgstr ""
 
-msgid "ITEM_tower_shield"
+msgid "DIMENSION_4_STAGE_2"
 msgstr ""
 
-msgid "ITEM_iron_chestplate"
+msgid "DIMENSION_4_STAGE_3"
 msgstr ""
 
-msgid "ITEM_tower_helmet"
+msgid "DIMENSION_4_STAGE_4"
 msgstr ""
 
-msgid "ITEM_tank_gloves"
+msgid "DIMENSION_4_STAGE_5"
 msgstr ""
 
-msgid "ITEM_tank_pants"
+msgid "DIMENSION_4_STAGE_6"
 msgstr ""
 
-msgid "ITEM_tank_boots"
+msgid "DIMENSION_4_STAGE_7"
 msgstr ""
 
-msgid "ITEM_turtle_pet"
+msgid "DIMENSION_4_STAGE_8"
 msgstr ""
 
-msgid "ITEM_guardian_pendant"
+msgid "DIMENSION_4_STAGE_9"
 msgstr ""
 
-msgid "ITEM_holy_staff"
+msgid "DIMENSION_5_NAME"
 msgstr ""
 
-msgid "ITEM_tome_of_light"
+msgid "DIMENSION_5_DEMON_KING"
 msgstr ""
 
-msgid "ITEM_clerical_cloak"
+msgid "DIMENSION_5_BRIEFING"
 msgstr ""
 
-msgid "ITEM_faith_pendant"
+msgid "DIMENSION_5_STAGE_1"
 msgstr ""
 
-msgid "ITEM_sacred_tiara"
+msgid "DIMENSION_5_STAGE_2"
 msgstr ""
 
-msgid "ITEM_priest_gloves"
+msgid "DIMENSION_5_STAGE_3"
 msgstr ""
 
-msgid "ITEM_priest_pants"
+msgid "DIMENSION_5_STAGE_4"
 msgstr ""
 
-msgid "ITEM_priest_boots"
+msgid "DIMENSION_5_STAGE_5"
 msgstr ""
 
-msgid "ITEM_devotion_ring"
+msgid "DIMENSION_5_STAGE_6"
 msgstr ""
 
-msgid "ITEM_cloth_gloves"
+msgid "DIMENSION_5_STAGE_7"
 msgstr ""
 
-msgid "ITEM_leather_pants"
+msgid "DIMENSION_5_STAGE_8"
 msgstr ""
 
-msgid "ITEM_travel_boots"
-msgstr ""
-
-msgid "ITEM_simple_belt"
-msgstr ""
-
-msgid "ITEM_rough_ring"
-msgstr ""
-
-msgid "ITEM_iron_bracelet"
-msgstr ""
-
-msgid "ITEM_travel_hood"
-msgstr ""
-
-msgid "ITEM_leather_chestplate"
-msgstr ""
-
-msgid "ITEM_simple_pendant"
-msgstr ""
-
-msgid "ITEM_rat_pet"
+msgid "DIMENSION_5_STAGE_9"
 msgstr ""
 
 msgid "SKILL_instant_double_shot"
@@ -883,520 +904,4 @@ msgid "SKILL_neon_vision"
 msgstr ""
 
 msgid "SKILL_neon_vision_DESC"
-msgstr ""
-
-msgid "SKILL_armor_penetration"
-msgstr ""
-
-msgid "SKILL_armor_penetration_DESC"
-msgstr ""
-
-msgid "SKILL_reflex_recoil"
-msgstr ""
-
-msgid "SKILL_reflex_recoil_DESC"
-msgstr ""
-
-msgid "SKILL_swift_execution"
-msgstr ""
-
-msgid "SKILL_swift_execution_DESC"
-msgstr ""
-
-msgid "SKILL_nimble_hands"
-msgstr ""
-
-msgid "SKILL_nimble_hands_DESC"
-msgstr ""
-
-msgid "SKILL_eagle_eye"
-msgstr ""
-
-msgid "SKILL_eagle_eye_DESC"
-msgstr ""
-
-msgid "SKILL_drawstring_tension"
-msgstr ""
-
-msgid "SKILL_drawstring_tension_DESC"
-msgstr ""
-
-msgid "SKILL_wearing_poison"
-msgstr ""
-
-msgid "SKILL_wearing_poison_DESC"
-msgstr ""
-
-msgid "SKILL_weak_prey"
-msgstr ""
-
-msgid "SKILL_weak_prey_DESC"
-msgstr ""
-
-msgid "SKILL_stacking_impact"
-msgstr ""
-
-msgid "SKILL_stacking_impact_DESC"
-msgstr ""
-
-msgid "SKILL_surgical_aim"
-msgstr ""
-
-msgid "SKILL_surgical_aim_DESC"
-msgstr ""
-
-msgid "SKILL_twin_execution_cut"
-msgstr ""
-
-msgid "SKILL_twin_execution_cut_DESC"
-msgstr ""
-
-msgid "SKILL_prey_mark"
-msgstr ""
-
-msgid "SKILL_prey_mark_DESC"
-msgstr ""
-
-msgid "SKILL_quick_twin_cut"
-msgstr ""
-
-msgid "SKILL_quick_twin_cut_DESC"
-msgstr ""
-
-msgid "SKILL_awakened_sequence"
-msgstr ""
-
-msgid "SKILL_awakened_sequence_DESC"
-msgstr ""
-
-msgid "SKILL_swift_decapitation"
-msgstr ""
-
-msgid "SKILL_swift_decapitation_DESC"
-msgstr ""
-
-msgid "SKILL_shadow_reflexes"
-msgstr ""
-
-msgid "SKILL_shadow_reflexes_DESC"
-msgstr ""
-
-msgid "SKILL_adrenaline_surge"
-msgstr ""
-
-msgid "SKILL_adrenaline_surge_DESC"
-msgstr ""
-
-msgid "SKILL_venomous_vein"
-msgstr ""
-
-msgid "SKILL_venomous_vein_DESC"
-msgstr ""
-
-msgid "SKILL_stealth_strike"
-msgstr ""
-
-msgid "SKILL_stealth_strike_DESC"
-msgstr ""
-
-msgid "SKILL_lethal_execution"
-msgstr ""
-
-msgid "SKILL_lethal_execution_DESC"
-msgstr ""
-
-msgid "SKILL_deep_cut"
-msgstr ""
-
-msgid "SKILL_deep_cut_DESC"
-msgstr ""
-
-msgid "SKILL_weak_point_mapping"
-msgstr ""
-
-msgid "SKILL_weak_point_mapping_DESC"
-msgstr ""
-
-msgid "SKILL_adrenaline"
-msgstr ""
-
-msgid "SKILL_adrenaline_DESC"
-msgstr ""
-
-msgid "SKILL_assassin_rhythm"
-msgstr ""
-
-msgid "SKILL_assassin_rhythm_DESC"
-msgstr ""
-
-msgid "SKILL_light_blade"
-msgstr ""
-
-msgid "SKILL_light_blade_DESC"
-msgstr ""
-
-msgid "SKILL_sacred_position"
-msgstr ""
-
-msgid "SKILL_sacred_position_DESC"
-msgstr ""
-
-msgid "SKILL_solar_shield"
-msgstr ""
-
-msgid "SKILL_solar_shield_DESC"
-msgstr ""
-
-msgid "SKILL_divine_punishment"
-msgstr ""
-
-msgid "SKILL_divine_punishment_DESC"
-msgstr ""
-
-msgid "SKILL_inviolability_aura"
-msgstr ""
-
-msgid "SKILL_inviolability_aura_DESC"
-msgstr ""
-
-msgid "SKILL_sacred_fervor"
-msgstr ""
-
-msgid "SKILL_sacred_fervor_DESC"
-msgstr ""
-
-msgid "SKILL_sun_touch"
-msgstr ""
-
-msgid "SKILL_sun_touch_DESC"
-msgstr ""
-
-msgid "SKILL_reactive_barrier"
-msgstr ""
-
-msgid "SKILL_reactive_barrier_DESC"
-msgstr ""
-
-msgid "SKILL_radiant_presence"
-msgstr ""
-
-msgid "SKILL_radiant_presence_DESC"
-msgstr ""
-
-msgid "SKILL_unshakable_devotion"
-msgstr ""
-
-msgid "SKILL_unshakable_devotion_DESC"
-msgstr ""
-
-msgid "SKILL_divine_vigor"
-msgstr ""
-
-msgid "SKILL_divine_vigor_DESC"
-msgstr ""
-
-msgid "SKILL_sacred_touch"
-msgstr ""
-
-msgid "SKILL_sacred_touch_DESC"
-msgstr ""
-
-msgid "SKILL_critical_heal"
-msgstr ""
-
-msgid "SKILL_critical_heal_DESC"
-msgstr ""
-
-msgid "SKILL_celestial_pact"
-msgstr ""
-
-msgid "SKILL_celestial_pact_DESC"
-msgstr ""
-
-msgid "SKILL_protective_light"
-msgstr ""
-
-msgid "SKILL_protective_light_DESC"
-msgstr ""
-
-msgid "SKILL_mercy"
-msgstr ""
-
-msgid "SKILL_mercy_DESC"
-msgstr ""
-
-msgid "SKILL_frenzied_sequence"
-msgstr ""
-
-msgid "SKILL_frenzied_sequence_DESC"
-msgstr ""
-
-msgid "SKILL_quick_slash"
-msgstr ""
-
-msgid "SKILL_quick_slash_DESC"
-msgstr ""
-
-msgid "SKILL_double_thrust"
-msgstr ""
-
-msgid "SKILL_double_thrust_DESC"
-msgstr ""
-
-msgid "SKILL_heavy_blade"
-msgstr ""
-
-msgid "SKILL_heavy_blade_DESC"
-msgstr ""
-
-msgid "SKILL_war_cry"
-msgstr ""
-
-msgid "SKILL_war_cry_DESC"
-msgstr ""
-
-msgid "SKILL_blade_master"
-msgstr ""
-
-msgid "SKILL_blade_master_DESC"
-msgstr ""
-
-msgid "SKILL_extreme_sharpening"
-msgstr ""
-
-msgid "SKILL_extreme_sharpening_DESC"
-msgstr ""
-
-msgid "SKILL_iron_armor"
-msgstr ""
-
-msgid "SKILL_iron_armor_DESC"
-msgstr ""
-
-msgid "SKILL_unbreakable_stance"
-msgstr ""
-
-msgid "SKILL_unbreakable_stance_DESC"
-msgstr ""
-
-msgid "SKILL_precise_execution"
-msgstr ""
-
-msgid "SKILL_precise_execution_DESC"
-msgstr ""
-
-msgid "SKILL_iron_will"
-msgstr ""
-
-msgid "SKILL_iron_will_DESC"
-msgstr ""
-
-msgid "SKILL_defensive_stance"
-msgstr ""
-
-msgid "SKILL_defensive_stance_DESC"
-msgstr ""
-
-msgid "SKILL_brute_force"
-msgstr ""
-
-msgid "SKILL_brute_force_DESC"
-msgstr ""
-
-msgid "SKILL_medium_resistance"
-msgstr ""
-
-msgid "SKILL_medium_resistance_DESC"
-msgstr ""
-
-msgid "SKILL_steel_muscles"
-msgstr ""
-
-msgid "SKILL_steel_muscles_DESC"
-msgstr ""
-
-msgid "SKILL_abyssal_meteor"
-msgstr ""
-
-msgid "SKILL_abyssal_meteor_DESC"
-msgstr ""
-
-msgid "SKILL_damage_portal"
-msgstr ""
-
-msgid "SKILL_damage_portal_DESC"
-msgstr ""
-
-msgid "SKILL_black_fireball"
-msgstr ""
-
-msgid "SKILL_black_fireball_DESC"
-msgstr ""
-
-msgid "SKILL_ice_nova"
-msgstr ""
-
-msgid "SKILL_ice_nova_DESC"
-msgstr ""
-
-msgid "SKILL_ice_lance"
-msgstr ""
-
-msgid "SKILL_ice_lance_DESC"
-msgstr ""
-
-msgid "SKILL_arcane_heal"
-msgstr ""
-
-msgid "SKILL_arcane_heal_DESC"
-msgstr ""
-
-msgid "SKILL_arcane_amplification"
-msgstr ""
-
-msgid "SKILL_arcane_amplification_DESC"
-msgstr ""
-
-msgid "SKILL_rune_resonance"
-msgstr ""
-
-msgid "SKILL_rune_resonance_DESC"
-msgstr ""
-
-msgid "SKILL_magic_penetration"
-msgstr ""
-
-msgid "SKILL_magic_penetration_DESC"
-msgstr ""
-
-msgid "SKILL_critical_focus"
-msgstr ""
-
-msgid "SKILL_critical_focus_DESC"
-msgstr ""
-
-msgid "SKILL_soul_drain"
-msgstr ""
-
-msgid "SKILL_soul_drain_DESC"
-msgstr ""
-
-msgid "SKILL_mana_flow"
-msgstr ""
-
-msgid "SKILL_mana_flow_DESC"
-msgstr ""
-
-msgid "SKILL_tuning"
-msgstr ""
-
-msgid "SKILL_tuning_DESC"
-msgstr ""
-
-msgid "SKILL_void_presence"
-msgstr ""
-
-msgid "SKILL_void_presence_DESC"
-msgstr ""
-
-msgid "SKILL_open_mind"
-msgstr ""
-
-msgid "SKILL_open_mind_DESC"
-msgstr ""
-
-msgid "SKILL_elemental_symphony"
-msgstr ""
-
-msgid "SKILL_elemental_symphony_DESC"
-msgstr ""
-
-msgid "SKILL_rune_barrier"
-msgstr ""
-
-msgid "SKILL_rune_barrier_DESC"
-msgstr ""
-
-msgid "SKILL_dark_taunt"
-msgstr ""
-
-msgid "SKILL_dark_taunt_DESC"
-msgstr ""
-
-msgid "SKILL_inviolable_stance"
-msgstr ""
-
-msgid "SKILL_inviolable_stance_DESC"
-msgstr ""
-
-msgid "SKILL_total_suppression"
-msgstr ""
-
-msgid "SKILL_total_suppression_DESC"
-msgstr ""
-
-msgid "SKILL_crushing_mill"
-msgstr ""
-
-msgid "SKILL_crushing_mill_DESC"
-msgstr ""
-
-msgid "SKILL_titanium_shell"
-msgstr ""
-
-msgid "SKILL_titanium_shell_DESC"
-msgstr ""
-
-msgid "SKILL_surface_thorns"
-msgstr ""
-
-msgid "SKILL_surface_thorns_DESC"
-msgstr ""
-
-msgid "SKILL_unshakable"
-msgstr ""
-
-msgid "SKILL_unshakable_DESC"
-msgstr ""
-
-msgid "SKILL_impact_absorption"
-msgstr ""
-
-msgid "SKILL_impact_absorption_DESC"
-msgstr ""
-
-msgid "SKILL_magic_alloy"
-msgstr ""
-
-msgid "SKILL_magic_alloy_DESC"
-msgstr ""
-
-msgid "SKILL_last_trench"
-msgstr ""
-
-msgid "SKILL_last_trench_DESC"
-msgstr ""
-
-msgid "SKILL_heavy_weight"
-msgstr ""
-
-msgid "SKILL_heavy_weight_DESC"
-msgstr ""
-
-msgid "SKILL_battle_inertia"
-msgstr ""
-
-msgid "SKILL_battle_inertia_DESC"
-msgstr ""
-
-msgid "SKILL_hard_shell"
-msgstr ""
-
-msgid "SKILL_hard_shell_DESC"
-msgstr ""
-
-msgid "SKILL_vital_crush"
-msgstr ""
-
-msgid "SKILL_vital_crush_DESC"
 msgstr ""

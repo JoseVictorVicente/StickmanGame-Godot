@@ -18,8 +18,9 @@
 
 ### Progression
 - `docs/architecture/progression.md`
+- `docs/architecture/portals-saga.md` (narrative + WorldsPanel flow)
 - `domains/progression/`
-- `data/` (world curves)
+- `data/world_catalog.gd`, `WorldProgress`
 
 ### Inventory & meta
 - `docs/architecture/inventory.md`

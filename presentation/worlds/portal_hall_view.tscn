@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8portalhall01"]
+
+[ext_resource type="Script" uid="uid://c8phallgd001" path="res://presentation/worlds/portal_hall_view.gd" id="1_hall"]
+[ext_resource type="PackedScene" uid="uid://c8portalcard01" path="res://presentation/worlds/portal_card.tscn" id="2_card"]
+
+[node name="WorldListPanel" type="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+script = ExtResource("1_hall")
+
+[node name="PortalSubtitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.74, 0.52, 1)
+theme_override_font_sizes/font_size = 10
+text = "Aurion"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="WorldList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="PortalCard_1" parent="WorldList" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="PortalCard_2" parent="WorldList" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="PortalCard_3" parent="WorldList" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="PortalCard_4" parent="WorldList" instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="PortalCard_5" parent="WorldList" instance=ExtResource("2_card")]
+layout_mode = 2

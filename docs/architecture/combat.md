@@ -85,15 +85,15 @@ sequenceDiagram
 
 ### Enemy generation
 
-`WorldProgress.stats_inimigo(world, stage, difficulty)` returns HP, damage, gold, XP, and `nivel` (global stage index). Boss = stage 9 of each world (`CHEFE_VIDA`, `CHEFE_DANO` multipliers).
+`WorldProgress.enemy_stats(world, stage, difficulty)` returns HP, damage, gold, XP, and `level` (global stage index). Boss = stage 9 of each dimension (Demon King; `BOSS_HP_MULT`, `BOSS_DAMAGE_MULT`).
 
 ### Stage advance
 
-After a kill, `_avancar_fase()`:
+After a kill, `_advance_stage()`:
 
-1. Updates `fases_liberadas[difficulty]` via `WorldProgress.aplicar_conclusao`.
-2. If `repetir_fase == false`, advances with `WorldProgress.proximo`.
-3. Emits world/difficulty unlock toasts.
+1. Updates `unlocked_stages[difficulty]` via `WorldProgress.apply_stage_completion`.
+2. If `repeat_stage == false`, advances with `WorldProgress.next_stage`.
+3. Emits toasts: `COMBAT_REALM_SAVED` (boss), `COMBAT_PORTAL_UNLOCKED` (new dimension), `COMBAT_DIFFICULTY_UNLOCKED` (new trail). See [`portals-saga.md`](portals-saga.md).
 
 ## Drops (`DropManager`)
 

@@ -3,7 +3,7 @@
 - UI emits commands; never mutates `GameState` directly
 - All visible strings via `tr(LocaleKeys.*)` and `locales/*.po`
 - `shared/` — window manager, icons, coin VFX
-- `worlds/` — world map UI
+- `worlds/` — **Portals UI** (`WorldsPanel`: hall → briefing → trail). Canon: `docs/architecture/portals-saga.md`, data: `data/world_catalog.gd`
 - `inventory/` — inventory panels
 
 ## UI scene checklist

@@ -52,6 +52,8 @@ $stateIds = @(
     "warehouse_open",
     "forge_open",
     "worlds_open",
+    "worlds_briefing_open",
+    "worlds_trail_open",
     "settings_open"
 )
 foreach ($stateId in $stateIds) {

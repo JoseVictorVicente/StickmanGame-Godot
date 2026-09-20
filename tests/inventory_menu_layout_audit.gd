@@ -8,6 +8,7 @@ const LayoutStates := preload("res://tests/inventory_menu_layout_states.gd")
 
 const TEST_HOST_GROUP := "inventory_layout_test_host"
 const TOL := 12.0
+const WORLDS_TOL := 2.0
 const OVERLAY_COVERAGE := 0.85
 const GRID_OVERLAP_MAX := 0.05
 
@@ -100,6 +101,7 @@ func _run_invariants(menu: Control, state_id: String) -> void:
 	_check_overlay_coverage(menu, state_id, painel)
 	_check_screen_visible(menu, state_id)
 	_check_side_panel_visible(menu, state_id, painel)
+	_check_worlds_panel_invariants(menu, state_id)
 
 
 func _rect_in_menu(control: Control, menu: Control) -> Rect2:
@@ -265,7 +267,7 @@ func _check_screen_visible(menu: Control, state_id: String) -> void:
 	match state_id:
 		"skill_tree_open":
 			panel_name = "SkillTreePanel"
-		"worlds_open":
+		"worlds_open", "worlds_briefing_open", "worlds_trail_open":
 			panel_name = "WorldsPanel"
 		"settings_open":
 			panel_name = "SettingsPanel"
@@ -286,7 +288,7 @@ func _check_side_panel_visible(menu: Control, state_id: String, painel: Control)
 			panel_name = "WarehousePanel"
 		"forge_open":
 			panel_name = "PanelForgePanel"
-		"worlds_open":
+		"worlds_open", "worlds_briefing_open", "worlds_trail_open":
 			panel_name = "WorldsPanel"
 		_:
 			return
@@ -312,6 +314,134 @@ func _check_side_panel_visible(menu: Control, state_id: String, painel: Control)
 		var menu_end := menu_rect.position.x + menu_rect.size.x
 		if panel_rect.position.x < menu_rect.position.x - TOL or panel_end > menu_end + TOL:
 			_record_failure(state_id, panel_name, panel_rect, "side panel should stay inside MenuArea")
+
+
+func _check_worlds_panel_invariants(menu: Control, state_id: String) -> void:
+	if state_id not in ["worlds_open", "worlds_briefing_open", "worlds_trail_open"]:
+		return
+	var worlds := menu.get_node_or_null("%WorldsPanel") as Control
+	if worlds == null or not worlds.is_visible_in_tree():
+		return
+	var panel_rect := _rect_in_menu(worlds, menu)
+	if panel_rect.size.x < 200.0:
+		return
+	match state_id:
+		"worlds_open":
+			_check_worlds_hall_invariants(state_id, worlds, panel_rect, menu)
+		"worlds_briefing_open":
+			_check_worlds_briefing_invariants(state_id, worlds, panel_rect, menu)
+		"worlds_trail_open":
+			_check_worlds_trail_invariants(state_id, worlds, panel_rect, menu)
+
+
+func _check_worlds_hall_invariants(state_id: String, worlds: Control, panel_rect: Rect2, menu: Control) -> void:
+	var list_panel := worlds.get_node_or_null("%WorldListPanel") as Control
+	var footer := worlds.get_node_or_null("Margem/Conteudo/RodapeDificuldade") as Control
+	var difficulty := worlds.get_node_or_null("%DifficultyButton") as Control
+	if list_panel == null or not list_panel.is_visible_in_tree():
+		_record_failure(state_id, "WorldListPanel", panel_rect, "hall list should be visible")
+		return
+	var cards: Array[Control] = []
+	for i in WorldProgress.TOTAL_WORLDS:
+		var card := list_panel.get_node_or_null("WorldList/PortalCard_%d" % (i + 1)) as Control
+		if card and card.is_visible_in_tree():
+			cards.append(card)
+	if cards.size() < WorldProgress.TOTAL_WORLDS:
+		_record_failure(state_id, "PortalCards", panel_rect, "hall should show 5 portal cards")
+	for j in range(cards.size()):
+		for k in range(j + 1, cards.size()):
+			var overlap := _intersection_area(_rect_in_menu(cards[j], menu), _rect_in_menu(cards[k], menu))
+			if overlap > WORLDS_TOL:
+				_record_failure(state_id, "PortalCard overlap", _rect_in_menu(cards[j], menu), "portal cards should not overlap")
+	if footer == null or not footer.is_visible_in_tree():
+		_record_failure(state_id, "RodapeDificuldade", panel_rect, "hall footer should be visible")
+	elif difficulty != null:
+		var diff_rect := _rect_in_menu(difficulty, menu)
+		if diff_rect.end.y > panel_rect.end.y + WORLDS_TOL:
+			_record_failure(state_id, "DifficultyButton", diff_rect, "difficulty button should stay inside WorldsPanel")
+
+
+func _check_worlds_briefing_invariants(state_id: String, worlds: Control, panel_rect: Rect2, menu: Control) -> void:
+	var briefing := worlds.get_node_or_null("%RealmBriefingPanel") as Control
+	if briefing == null or not briefing.is_visible_in_tree():
+		_record_failure(state_id, "RealmBriefingPanel", panel_rect, "briefing panel should be visible")
+		return
+	var banner := briefing.get_node_or_null("%BriefingBanner") as Control
+	var art_frame := briefing.get_node_or_null("%BriefingArtFrame") as Control
+	var enter_btn := briefing.get_node_or_null("%EnterPortalButton") as Control
+	var demon := briefing.get_node_or_null("%BriefingDemonKing") as Control
+	var frame_rect := _rect_in_menu(art_frame, menu) if art_frame else Rect2()
+	if frame_rect.size.y < 80.0:
+		_record_failure(state_id, "BriefingArtFrame", frame_rect, "briefing banner height >= 80")
+	if banner != null:
+		var banner_rect := _rect_in_menu(banner, menu)
+		if _area(banner_rect) <= 1.0:
+			_record_failure(state_id, "BriefingBanner", banner_rect, "briefing banner area > 0")
+	var layout_nodes: Array[Control] = []
+	for node_name in ["BriefingArtFrame", "BriefingBody", "BriefingFooterSpacer", "BriefingDemonKing", "EnterPortalButton"]:
+		var node := briefing.get_node_or_null(node_name) as Control
+		if node != null and node.is_visible_in_tree() and node.name != "BriefingFooterSpacer":
+			if node.size.y >= 1.0 or node.name == "BriefingArtFrame":
+				layout_nodes.append(node)
+	_check_worlds_no_overlap(state_id, layout_nodes, menu, panel_rect)
+	if enter_btn != null:
+		var enter_rect := _rect_in_menu(enter_btn, menu)
+		if enter_rect.end.y > panel_rect.end.y + WORLDS_TOL:
+			_record_failure(state_id, "EnterPortalButton", enter_rect, "enter portal button should stay inside WorldsPanel")
+	if demon != null and enter_btn != null:
+		var overlap := _intersection_area(_rect_in_menu(demon, menu), _rect_in_menu(enter_btn, menu))
+		if overlap > WORLDS_TOL:
+			_record_failure(state_id, "BriefingDemonKing", _rect_in_menu(demon, menu), "boss label should not overlap CTA")
+
+
+func _check_worlds_trail_invariants(state_id: String, worlds: Control, panel_rect: Rect2, menu: Control) -> void:
+	var map_panel := worlds.get_node_or_null("%PanelStageMap") as Control
+	var trail_difficulty_row := worlds.get_node_or_null("%TrailDifficultyRow") as Control
+	var difficulty := worlds.get_node_or_null("%DifficultyButton") as Control
+	var progress := worlds.get_node_or_null("%TrailProgressLabel") as Control
+	if map_panel == null or not map_panel.is_visible_in_tree():
+		_record_failure(state_id, "PanelStageMap", panel_rect, "trail map should be visible")
+		return
+	if progress == null or not progress.is_visible_in_tree():
+		_record_failure(state_id, "TrailProgressLabel", panel_rect, "trail progress label should be visible")
+	if trail_difficulty_row == null or not trail_difficulty_row.is_visible_in_tree():
+		_record_failure(state_id, "TrailDifficultyRow", panel_rect, "trail difficulty row should be visible in header")
+	var stage_map := map_panel.get_node_or_null("%StageMap") as Control if map_panel else null
+	if stage_map != null:
+		for i in WorldProgress.STAGES_PER_WORLD:
+			var ancora := stage_map.get_node_or_null("StageAnchor_%d" % (i + 1)) as Control
+			if ancora == null or not ancora.is_visible_in_tree():
+				continue
+			var stage_rect := _rect_in_menu(ancora, menu)
+			if stage_rect.size.y < 1.0:
+				continue
+			if stage_rect.position.x < panel_rect.position.x - WORLDS_TOL:
+				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
+			if stage_rect.end.x > panel_rect.end.x + WORLDS_TOL:
+				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
+			if stage_rect.position.y < panel_rect.position.y - WORLDS_TOL:
+				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
+			if stage_rect.end.y > panel_rect.end.y + WORLDS_TOL:
+				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
+	if difficulty != null:
+		var diff_rect := _rect_in_menu(difficulty, menu)
+		if diff_rect.end.y > panel_rect.end.y + WORLDS_TOL:
+			_record_failure(state_id, "DifficultyButton", diff_rect, "difficulty button should stay inside WorldsPanel")
+
+
+func _check_worlds_no_overlap(state_id: String, nodes: Array[Control], menu: Control, panel_rect: Rect2) -> void:
+	for j in range(nodes.size()):
+		for k in range(j + 1, nodes.size()):
+			var a := _rect_in_menu(nodes[j], menu)
+			var b := _rect_in_menu(nodes[k], menu)
+			var overlap := _intersection_area(a, b)
+			if overlap > WORLDS_TOL:
+				_record_failure(
+					state_id,
+					"%s -> %s" % [nodes[j].name, nodes[k].name],
+					a,
+					"worlds panel children should not overlap"
+				)
 
 
 func _record_failure(state_id: String, node_name: String, rect: Rect2, expected: String) -> void:

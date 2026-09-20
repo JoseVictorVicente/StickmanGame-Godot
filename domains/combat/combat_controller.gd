@@ -15,6 +15,7 @@ signal enemy_hit(damage: int, current: int, max_hp: int)
 signal enemy_died
 
 const ENEMY_ATTACK_INTERVAL := 1.35
+const WorldCatalog := preload("res://data/world_catalog.gd")
 
 var world: int = 1
 var stage: int = 1
@@ -269,8 +270,9 @@ func _resolve_defeat() -> void:
 
 func _advance_stage() -> void:
 	var progresso_antes := unlocked_stages[difficulty]
-	unlocked_stages[difficulty] = WorldProgress.apply_stage_completion(progresso_antes, world, stage)
 	var mundo_anterior := world
+	var fase_anterior := stage
+	unlocked_stages[difficulty] = WorldProgress.apply_stage_completion(progresso_antes, world, stage)
 	if not repeat_stage:
 		var next_stage := WorldProgress.next_stage(world, stage)
 		world = next_stage.x
@@ -281,12 +283,19 @@ func _advance_stage() -> void:
 			notice.emit(tr(LocaleKeys.COMBAT_DIFFICULTY_UNLOCKED) % WorldProgress.difficulty_name(difficulty + 1))
 		else:
 			notice.emit(tr(LocaleKeys.COMBAT_HELL_COMPLETED))
+	elif WorldCatalog.is_boss_stage(fase_anterior) and not repeat_stage:
+		notice.emit(
+			tr(LocaleKeys.COMBAT_REALM_SAVED) % [
+				WorldCatalog.demon_king_name(mundo_anterior),
+				WorldCatalog.dimension_name(mundo_anterior),
+			]
+		)
 	elif not repeat_stage and world > mundo_anterior:
-		notice.emit(tr(LocaleKeys.COMBAT_WORLD_UNLOCKED) % world)
+		notice.emit(tr(LocaleKeys.COMBAT_PORTAL_UNLOCKED) % WorldCatalog.dimension_name(world))
 	elif repeat_stage:
-		var seguinte := WorldProgress.next_stage(mundo_anterior, stage)
+		var seguinte := WorldProgress.next_stage(mundo_anterior, fase_anterior)
 		if seguinte.x > mundo_anterior and progresso_antes < WorldProgress.stage_index(seguinte.x, 1):
-			notice.emit(tr(LocaleKeys.COMBAT_WORLD_UNLOCKED) % seguinte.x)
+			notice.emit(tr(LocaleKeys.COMBAT_PORTAL_UNLOCKED) % WorldCatalog.dimension_name(seguinte.x))
 
 
 func _apply_xp(amount: int) -> void:

@@ -53,11 +53,13 @@ Estimated time: 5–10 minutes.
 - [ ] Gold decreases; bonus reflects (e.g. +attack → DPS)
 - [ ] Node without prerequisite blocked
 
-## 7. Worlds
+## 7. Portais
 
-- [ ] Open world map
-- [ ] Start different stage (if unlocked)
-- [ ] Enemy stats match stage
+- [ ] Open **Portais** side panel (portal hall + subtitle)
+- [ ] Select dimension → briefing → cross portal → trail map
+- [ ] Named milestones visible; stage 9 = Demon King
+- [ ] Start stage (if unlocked); enemy stats match stage
+- [ ] Defeat boss → `COMBAT_REALM_SAVED` toast with dimension name
 
 ## 8. Forge / warehouse (if touched)
 

@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8trailmap01"]
+
+[ext_resource type="Script" uid="uid://c8ptrailgd001" path="res://presentation/worlds/trail_map_view.gd" id="1_trail"]
+[ext_resource type="Script" uid="uid://c8mapafas001" path="res://presentation/worlds/stage_map.gd" id="2_mapa"]
+[ext_resource type="PackedScene" uid="uid://c8stagenode01" path="res://presentation/worlds/stage_node.tscn" id="3_stage"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mapa"]
+
+[node name="PanelStageMap" type="Control"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+script = ExtResource("1_trail")
+
+[node name="MapBackground" type="TextureRect" parent="."]
+unique_name_in_owner = true
+z_index = -1
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StageMap" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mapa")
+script = ExtResource("2_mapa")
+
+[node name="StageAnchor_1" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_2" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_3" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_4" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_5" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_6" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_7" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_8" parent="StageMap" instance=ExtResource("3_stage")]
+
+[node name="StageAnchor_9" parent="StageMap" instance=ExtResource("3_stage")]

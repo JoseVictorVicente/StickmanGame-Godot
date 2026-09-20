@@ -13,6 +13,8 @@ const STATE_IDS: PackedStringArray = [
 	"warehouse_open",
 	"forge_open",
 	"worlds_open",
+	"worlds_briefing_open",
+	"worlds_trail_open",
 	"settings_open",
 ]
 
@@ -77,6 +79,18 @@ static func apply_state(menu: Control, state_id: String) -> void:
 		"worlds_open":
 			menu.call("set_below_combat", false)
 			_open_side_panel(menu, "WorldsPanel")
+		"worlds_briefing_open":
+			menu.call("set_below_combat", false)
+			_open_side_panel(menu, "WorldsPanel")
+			var worlds_briefing := menu.get_node_or_null("%WorldsPanel")
+			if worlds_briefing and worlds_briefing.has_method("preview_briefing"):
+				worlds_briefing.preview_briefing(1)
+		"worlds_trail_open":
+			menu.call("set_below_combat", false)
+			_open_side_panel(menu, "WorldsPanel")
+			var worlds_trail := menu.get_node_or_null("%WorldsPanel")
+			if worlds_trail and worlds_trail.has_method("preview_trail"):
+				worlds_trail.preview_trail(1)
 		"settings_open":
 			menu.call("set_below_combat", false)
 			if menu.has_method("_open_settings"):

@@ -32,7 +32,7 @@ All ten states are captured at **960×860** for review.
 | `skill_tree_open` | Skill tree (hub hidden) | Replaces hub content |
 | `warehouse_open` | Warehouse side panel | MenuArea sidecar |
 | `forge_open` | Forge side panel | MenuArea sidecar |
-| `worlds_open` | World map side panel | MenuArea sidecar |
+| `worlds_open` | Portal hall (Sala de Portais) side panel | MenuArea sidecar |
 | `settings_open` | Settings popup | Anchored top-right |
 
 Hub structure:

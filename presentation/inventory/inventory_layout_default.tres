@@ -4,26 +4,5 @@
 
 [resource]
 script = ExtResource("1_layout")
-base_unit = 36
-panel_min_size = Vector2(600, 560)
-spacing_tight = 4
-spacing_normal = 6
-bottom_bar_height = 34
-formation_bar_height = 28
-hub_lower_inset_top = 4
-chrome_button_size = 40
-warehouse_button_min_width = 72.0
-font_nav = 11
-font_label = 12
-font_gold = 13
-nav_icon_max_width = 16
-inventory_slot_size = Vector2(36, 36)
-equip_slot_size = Vector2(36, 36)
-character_slot_size = Vector2(36, 36)
-portrait_min_size = Vector2(99, 99)
-skill_menu_slot_size = Vector2(40, 40)
-party_hero_slot_size = Vector2(58, 72)
-panel_min_width = 600.0
 portrait_region_offset = Vector2(0, 0)
 formation_button_offset = Vector2(0, 0)
-portrait_controls_spacing = 2.0

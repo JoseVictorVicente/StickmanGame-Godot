@@ -18,6 +18,11 @@ LAYOUT_ZERO_RE = re.compile(r"^\s*layout_mode\s*=\s*0\s*$")
 ALLOWLIST: tuple[tuple[str, str], ...] = (
     ("worlds_panel.tscn", "StageMap"),
     ("worlds_panel.tscn", "DifficultyMenu"),
+    ("stage_node.tscn", "StageAnchor"),
+    ("stage_node.tscn", "StageButton"),
+    ("stage_node.tscn", "StageNameLabel"),
+    ("trail_map_view.tscn", "MapBackground"),
+    ("trail_map_view.tscn", "StageMap"),
     ("hero_section.tscn", "HeroVisualSection"),
 )
 

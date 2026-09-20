@@ -11,7 +11,7 @@ Stickman Idle is a 2D idle RPG in Godot 4.7 with a transparent desktop overlay w
 | Combat (visual) | `presentation/combat/` |
 | Inventory (rules) | `domains/inventory/` |
 | Inventory (UI) | `presentation/inventory/` |
-| Worlds (UI) | `presentation/worlds/` |
+| Portals (dimensions UI) | `presentation/worlds/` + [`portals-saga.md`](architecture/portals-saga.md) |
 | Data | `data/` (`data/skills/` for skills) |
 | Autoloads | `platform/` |
 | Overlay window | `presentation/shared/window_manager.gd` |
