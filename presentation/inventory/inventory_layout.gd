@@ -34,8 +34,8 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var portrait_region_offset: Vector2 = Vector2(0, -12)
 @export var formation_button_offset: Vector2 = Vector2(0, -14)
 @export var portrait_controls_spacing: float = 2.0
-@export var portrait_height_extra: int = 10
-@export var portrait_width_extra: int = 10
+@export var portrait_height_extra: int = 30
+@export var portrait_width_extra: int = 30
 @export var pet_slot_width_scale: float = 0.88
 @export var pet_slot_height_slot_units: float = 1.55
 
@@ -66,6 +66,8 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var portrait_min_size: Vector2 = Vector2(99, 99)
 @export var skill_menu_slot_size: Vector2 = Vector2(42, 42)
 @export var party_hero_slot_size: Vector2 = Vector2(42, 42)
+@export var party_hero_slot_width_scale: float = 1.20
+@export var party_hero_slot_height_scale: float = 1.20
 
 
 static func duplicate_synced(source: InventoryLayout) -> InventoryLayout:
@@ -84,9 +86,11 @@ func sync_from_base_unit() -> void:
 	equip_slot_size = Vector2.ONE * u
 	character_slot_size = Vector2.ONE * u
 	skill_menu_slot_size = Vector2.ONE * u
-	party_hero_slot_size = Vector2.ONE * u
+	party_hero_slot_size = party_hero_slot_pixel_size()
 	portrait_min_size = portrait_pixel_size()
 	chrome_button_size = int(round(float(u) * 1.1))
+	bottom_bar_height = int(round(float(u) * 1.28))
+	nav_icon_max_width = int(round(float(u) * 0.42))
 	warehouse_button_min_width = float(int(round(float(u) * 2.0)))
 	inventory_grid_columns = INVENTORY_COLUMNS
 	inventory_grid_rows = INVENTORY_ROWS
@@ -94,6 +98,14 @@ func sync_from_base_unit() -> void:
 	panel_min_width = panel_pixel_width()
 	panel_min_size.x = panel_min_width
 	panel_min_size.y = panel_pixel_height()
+
+
+func party_hero_slot_pixel_size() -> Vector2:
+	var u := float(maxi(1, base_unit))
+	return Vector2(
+		u * party_hero_slot_width_scale + 5.0,
+		u * party_hero_slot_height_scale + 5.0
+	)
 
 
 func equip_block_pixel_size(cols: int, rows: int) -> Vector2:
@@ -118,7 +130,7 @@ func hero_equip_left_panel_size() -> Vector2:
 	var equip := equip_block_pixel_size(2, 4)
 	return Vector2(
 		hero_equip_left_core_width() + hero_row_leading_slack(),
-		maxf(equip.y, equip_block_pixel_size(1, 2).y)
+		maxf(equip.y, equip_block_pixel_size(1, 3).y)
 	)
 
 
@@ -253,7 +265,7 @@ func max_hub_panel_pixel_height() -> float:
 
 
 func hub_lower_nav_gap() -> float:
-	return float(spacing_tight)
+	return float(max(2, spacing_tight - 2))
 
 
 func hub_lower_fixed_height() -> float:

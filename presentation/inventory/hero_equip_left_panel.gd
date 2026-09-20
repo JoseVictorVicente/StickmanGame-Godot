@@ -1,7 +1,7 @@
 @tool
 class_name HeroEquipLeftPanel
 extends HBoxContainer
-## Left hub panel: baked equip grid (7 slots) + two active skill slots.
+## Left hub panel: baked equip grid (7 slots) + ultimate + two active skill slots.
 
 signal skill_slot_pressed(slot_type: SkillResource.Type, slot_index: int)
 
@@ -31,6 +31,7 @@ const SLOT_TYPES: Array[ItemData.Type] = [
 
 @onready var equip_grid: GridContainer = %EquipGrid
 @onready var active_column: VBoxContainer = %ActiveColumn
+@onready var slot_ultimate: Button = %SlotSkillMenuUltimate
 @onready var slot_ativa_0: Button = %SlotSkillMenuAtiva0
 @onready var slot_ativa_1: Button = %SlotSkillMenuAtiva1
 
@@ -64,7 +65,7 @@ func apply_layout(layout: InventoryLayout = null) -> void:
 		equip_grid.add_theme_constant_override("v_separation", tokens.equip_grid_v_separation)
 	_configure_equip_slots(tokens)
 	_apply_skill_column(active_column, tokens)
-	for botao_skill in [slot_ativa_0, slot_ativa_1]:
+	for botao_skill in [slot_ativa_0, slot_ativa_1, slot_ultimate]:
 		if botao_skill:
 			botao_skill.custom_minimum_size = tokens.equip_slot_size
 
@@ -150,7 +151,7 @@ func _apply_skill_column(col: VBoxContainer, layout: InventoryLayout) -> void:
 		return
 	col.custom_minimum_size = Vector2(
 		layout.equip_slot_size.x,
-		layout.equip_block_pixel_size(1, 2).y
+		layout.equip_block_pixel_size(1, 3).y
 	)
 	col.add_theme_constant_override("separation", layout.equip_grid_v_separation)
 

@@ -99,7 +99,7 @@ func _sync_party_slot_buttons() -> void:
 			if botao:
 				botao.visible = false
 		return
-	var tamanho := layout_resource.party_hero_slot_size if layout_resource else Vector2(64, 82)
+	var tamanho := layout_resource.party_hero_slot_size if layout_resource else Vector2(42, 42)
 	for i in PartyService.SLOTS:
 		var botao := _party_slot_nodes[i]
 		if botao == null:
@@ -111,17 +111,16 @@ func _sync_party_slot_buttons() -> void:
 		var dados := classe as ClassData
 		botao.visible = true
 		botao.custom_minimum_size = tamanho
-		botao.text = dados.display_name
-		botao.tooltip_text = dados.display_name
+		botao.text = ""
+		botao.tooltip_text = dados.get_localized_name()
 		botao.flat = true
 		botao.icon = dados.character_sprite
 		botao.expand_icon = true
 		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.add_theme_constant_override("icon_max_width", 52)
-		botao.add_theme_font_size_override("font_size", 9)
+		botao.add_theme_constant_override("icon_max_width", int(round(tamanho.x * 0.92)))
 		_botoes_slot.append(botao)
 		_indices_slot.append(i)
 
@@ -142,6 +141,3 @@ func _paint_slots() -> void:
 			estilo.set_border_width_all(1)
 		botao.add_theme_stylebox_override("normal", estilo)
 		botao.add_theme_stylebox_override("hover", estilo)
-		var classe: Variant = _party.active_party[slot] if _party else null
-		if classe is ClassData:
-			botao.add_theme_color_override("font_color", (classe as ClassData).color.lightened(0.35))

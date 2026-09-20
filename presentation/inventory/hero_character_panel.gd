@@ -1,7 +1,7 @@
 @tool
 class_name HeroCharacterPanel
 extends VBoxContainer
-## Center hub panel: portrait, XP, ultimate, attributes, party row.
+## Center hub panel: portrait, XP, attributes, party row.
 
 signal attributes_requested
 

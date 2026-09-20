@@ -126,7 +126,10 @@ func _build_slots() -> void:
 		if classe is ClassData:
 			var dados := classe as ClassData
 			botao.icon = dados.character_sprite
-			botao.text = dados.get_localized_name()
+			botao.text = ""
+			botao.tooltip_text = dados.get_localized_name()
+			botao.expand_icon = true
+			botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 			botao.disabled = false
 		else:
 			botao.icon = null
@@ -157,13 +160,13 @@ func _refresh_hero_grid() -> void:
 			botao.visible = false
 			continue
 		botao.visible = true
-		botao.text = classe.get_localized_name()
+		botao.text = ""
 		botao.tooltip_text = classe.get_localized_name()
 		botao.icon = classe.character_sprite
 		botao.expand_icon = true
 		botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		botao.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		botao.add_theme_constant_override("icon_max_width", 56)
 		botao.add_theme_font_size_override("font_size", 10)

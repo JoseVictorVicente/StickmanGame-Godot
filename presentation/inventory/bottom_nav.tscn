@@ -9,10 +9,10 @@
 [ext_resource type="Texture2D" uid="uid://cur0apo3o7e1y" path="res://sprites/ui/nav_attributes.png" id="7_ext"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
 bg_color = Color(0.18, 0.14, 0.11, 1)
 border_width_left = 1
 border_width_top = 1
@@ -25,10 +25,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
 bg_color = Color(0.1, 0.08, 0.07, 1)
 border_width_left = 1
 border_width_top = 1
@@ -41,10 +41,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
 bg_color = Color(0.32, 0.24, 0.16, 1)
 border_width_left = 1
 border_width_top = 1

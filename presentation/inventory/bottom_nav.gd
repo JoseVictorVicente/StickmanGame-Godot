@@ -35,9 +35,11 @@ func apply_layout(layout: InventoryLayout = null) -> void:
 	if tokens == null:
 		return
 	var grid_w := tokens.inventory_grid_pixel_size().x
-	custom_minimum_size = Vector2(grid_w, tokens.bottom_bar_height)
+	var bar_h := float(tokens.bottom_bar_height)
+	custom_minimum_size = Vector2(grid_w, bar_h)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	size_flags_vertical = Control.SIZE_SHRINK_END
+	alignment = BoxContainer.ALIGNMENT_END
 	for botao in _nav_buttons():
 		_style_nav_button(botao, tokens)
 
@@ -117,11 +119,11 @@ func _nav_buttons() -> Array[Button]:
 func _style_nav_button(botao: Button, tokens: InventoryLayout) -> void:
 	if botao == null:
 		return
-	var side := float(tokens.bottom_bar_height)
+	var bar_h := float(tokens.bottom_bar_height)
 	botao.text = ""
-	botao.custom_minimum_size = Vector2(side, side)
+	botao.custom_minimum_size = Vector2(0, bar_h)
 	botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	botao.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	botao.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	botao.expand_icon = false
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
