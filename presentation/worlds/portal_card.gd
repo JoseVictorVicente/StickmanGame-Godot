@@ -4,6 +4,24 @@ extends PanelContainer
 @onready var world_button: Button = %WorldButton
 @onready var portal_progress: Label = %PortalProgress
 
+var _style_normal: StyleBoxFlat
+var _style_active: StyleBoxFlat
+var _style_locked: StyleBoxFlat
+
+
+func _ready() -> void:
+	_style_normal = get_theme_stylebox("panel") as StyleBoxFlat
+	_style_active = _style_normal.duplicate() as StyleBoxFlat
+	_style_active.bg_color = Color(0.28, 0.2, 0.12, 1)
+	_style_active.border_width_left = 3
+	_style_active.border_width_top = 3
+	_style_active.border_width_right = 3
+	_style_active.border_width_bottom = 3
+	_style_active.border_color = Color(0.95, 0.78, 0.32, 1)
+	_style_locked = _style_normal.duplicate() as StyleBoxFlat
+	_style_locked.bg_color = Color(0.1, 0.08, 0.07, 1)
+	_style_locked.border_color = Color(0.34, 0.28, 0.2, 1)
+
 
 func apply_state(
 	nome: String,
@@ -18,24 +36,12 @@ func apply_state(
 		portal_progress.show()
 	else:
 		portal_progress.hide()
-	var cor_botao := Color(0.52, 0.46, 0.38, 1) if bloqueado else Color(0.95, 0.88, 0.7, 1)
-	if not bloqueado and ativo:
-		cor_botao = Color(1, 0.92, 0.72, 1)
-	world_button.add_theme_color_override("font_color", cor_botao)
-	var estilo := StyleBoxFlat.new()
-	estilo.content_margin_left = 8
-	estilo.content_margin_top = 4
-	estilo.content_margin_right = 8
-	estilo.content_margin_bottom = 4
-	estilo.set_corner_radius_all(5)
-	estilo.set_border_width_all(3 if ativo else 2)
 	if bloqueado:
-		estilo.bg_color = Color(0.1, 0.08, 0.07, 1)
-		estilo.border_color = Color(0.34, 0.28, 0.2, 1)
+		world_button.add_theme_color_override("font_color", Color(0.52, 0.46, 0.38, 1))
+		add_theme_stylebox_override("panel", _style_locked)
 	elif ativo:
-		estilo.bg_color = Color(0.28, 0.2, 0.12, 1)
-		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+		world_button.add_theme_color_override("font_color", Color(1, 0.92, 0.72, 1))
+		add_theme_stylebox_override("panel", _style_active)
 	else:
-		estilo.bg_color = Color(0.14, 0.11, 0.08, 1)
-		estilo.border_color = Color(0.72, 0.58, 0.3, 1)
-	add_theme_stylebox_override("panel", estilo)
+		world_button.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
+		add_theme_stylebox_override("panel", _style_normal)

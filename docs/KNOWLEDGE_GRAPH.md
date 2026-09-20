@@ -41,7 +41,7 @@
 - `locales/pt_BR.po`, `locales/en.po`
 
 ### UI layout
-- `docs/conventions/ui-layout.md` — container patterns, overlay hub, allowed absolute layout
+- `docs/conventions/ui-layout.md` — TSCN-first design, container patterns, overlay hub, allowed exceptions
 - `docs/workflows/ui-screens.md` — create/edit screens, mandatory visual capture loop
 - `presentation/shared/ui_constants.gd` — window and combat band sizes
 - `.cursor/skills/edit-ui-screens/` — agent skill for UI screen work (`/edit-ui-screens`)

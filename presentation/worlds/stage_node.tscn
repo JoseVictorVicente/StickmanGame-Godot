@@ -1,21 +1,30 @@
 [gd_scene load_steps=1 format=3 uid="uid://c8stagenode01"]
 
 [node name="StageAnchor" type="Control"]
-layout_mode = 0
+layout_mode = 2
 mouse_filter = 2
 
-[node name="StageButton" type="TextureButton" parent="."]
-layout_mode = 0
+[node name="CenterWrap" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageColumn" type="VBoxContainer" parent="CenterWrap"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="StageButton" type="TextureButton" parent="CenterWrap/StageColumn"]
+layout_mode = 2
 custom_minimum_size = Vector2(34, 34)
-offset_left = -17.0
-offset_top = -17.0
-offset_right = 17.0
-offset_bottom = 17.0
+size_flags_horizontal = 4
 focus_mode = 0
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="StageNumber" type="Label" parent="StageButton"]
+[node name="StageNumber" type="Label" parent="CenterWrap/StageColumn/StageButton"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -37,12 +46,10 @@ text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StageNameLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = -32.0
-offset_top = 20.0
-offset_right = 32.0
-offset_bottom = 36.0
+[node name="StageNameLabel" type="Label" parent="CenterWrap/StageColumn"]
+layout_mode = 2
+custom_minimum_size = Vector2(72, 0)
+size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
 theme_override_font_sizes/font_size = 8

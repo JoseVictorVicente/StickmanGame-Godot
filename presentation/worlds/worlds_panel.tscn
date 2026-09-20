@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c8mundos0001"]
+[gd_scene load_steps=12 format=3 uid="uid://c8mundos0001"]
 
 [ext_resource type="Script" uid="uid://c8painmun001" path="res://presentation/worlds/worlds_panel.gd" id="1_mundos"]
 [ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo"]
@@ -44,6 +44,70 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_active"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.28, 0.2, 0.12, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_option"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.14, 0.11, 0.08, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.58, 0.3, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_option_active"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.28, 0.2, 0.12, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_option_locked"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.08, 0.07, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.34, 0.28, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu"]
 content_margin_left = 4.0
@@ -103,7 +167,7 @@ theme_override_constants/separation = 8
 [node name="WorldsHeader" type="VBoxContainer" parent="Margem/Conteudo"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 20
 
 [node name="HeaderRow" type="HBoxContainer" parent="Margem/Conteudo/WorldsHeader"]
 layout_mode = 2
@@ -140,23 +204,88 @@ theme_override_font_sizes/font_size = 10
 text = "Fechar"
 flat = true
 
-[node name="TrailProgressLabel" type="Label" parent="Margem/Conteudo/WorldsHeader"]
+[node name="TrailHeaderDetails" type="VBoxContainer" parent="Margem/Conteudo/WorldsHeader"]
 unique_name_in_owner = true
 visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TrailProgressLabel" type="Label" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.52, 1)
 theme_override_font_sizes/font_size = 10
 text = "Etapa 1 de 9"
 horizontal_alignment = 1
 
-[node name="TrailDifficultyRow" type="CenterContainer" parent="Margem/Conteudo/WorldsHeader"]
+[node name="TrailDifficultyRow" type="VBoxContainer" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DifficultyMenuTrail" type="PanelContainer" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu")
 
-[node name="TrailDifficultySlot" type="HBoxContainer" parent="Margem/Conteudo/WorldsHeader/TrailDifficultyRow"]
+[node name="DifficultyOptionsTrail" type="VBoxContainer" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow/DifficultyMenuTrail"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="DifficultyOptionTrail_0" type="Button" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow/DifficultyMenuTrail/DifficultyOptionsTrail"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Segura"
+flat = true
+
+[node name="DifficultyOptionTrail_1" type="Button" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow/DifficultyMenuTrail/DifficultyOptionsTrail"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Perigosa"
+flat = true
+
+[node name="DifficultyOptionTrail_2" type="Button" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow/DifficultyMenuTrail/DifficultyOptionsTrail"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Infernal"
+flat = true
+
+[node name="TrailDifficultyButton" type="Button" parent="Margem/Conteudo/WorldsHeader/TrailHeaderDetails/TrailDifficultyRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_active")
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_active")
+text = "Trilha Segura"
 
 [node name="ViewStack" type="VBoxContainer" parent="Margem/Conteudo"]
 unique_name_in_owner = true
@@ -178,19 +307,72 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="RodapeDificuldade" type="CenterContainer" parent="Margem/Conteudo"]
+[node name="RodapeDificuldade" type="VBoxContainer" parent="Margem/Conteudo"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DifficultyMenuHall" type="PanelContainer" parent="Margem/Conteudo/RodapeDificuldade"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu")
+
+[node name="DifficultyOptionsHall" type="VBoxContainer" parent="Margem/Conteudo/RodapeDificuldade/DifficultyMenuHall"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="DifficultyOptionHall_0" type="Button" parent="Margem/Conteudo/RodapeDificuldade/DifficultyMenuHall/DifficultyOptionsHall"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Segura"
+flat = true
+
+[node name="DifficultyOptionHall_1" type="Button" parent="Margem/Conteudo/RodapeDificuldade/DifficultyMenuHall/DifficultyOptionsHall"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Perigosa"
+flat = true
+
+[node name="DifficultyOptionHall_2" type="Button" parent="Margem/Conteudo/RodapeDificuldade/DifficultyMenuHall/DifficultyOptionsHall"]
+layout_mode = 2
+custom_minimum_size = Vector2(108, 28)
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 10
+theme_override_styles/disabled = SubResource("StyleBoxFlat_option_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_option")
+theme_override_styles/normal = SubResource("StyleBoxFlat_option")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_option")
+text = "Trilha Infernal"
+flat = true
 
 [node name="DifficultyButton" type="Button" parent="Margem/Conteudo/RodapeDificuldade"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 0)
 layout_mode = 2
+size_flags_horizontal = 4
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
 theme_override_font_sizes/font_size = 10
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_active")
+theme_override_styles/normal = SubResource("StyleBoxFlat_botao_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_active")
 text = "Trilha Segura"
 
 [node name="DifficultyMenuBackdrop" type="ColorRect" parent="."]
@@ -204,38 +386,3 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
 color = Color(0, 0, 0, 0.35)
-
-[node name="DifficultyMenu" type="PanelContainer" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_right = 108.0
-offset_bottom = 96.0
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_menu")
-
-[node name="DifficultyOptions" type="VBoxContainer" parent="DifficultyMenu"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="DifficultyOption_0" type="Button" parent="DifficultyMenu/DifficultyOptions"]
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 10
-text = "Trilha Segura"
-flat = true
-
-[node name="DifficultyOption_1" type="Button" parent="DifficultyMenu/DifficultyOptions"]
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 10
-text = "Trilha Perigosa"
-flat = true
-
-[node name="DifficultyOption_2" type="Button" parent="DifficultyMenu/DifficultyOptions"]
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 10
-text = "Trilha Infernal"
-flat = true

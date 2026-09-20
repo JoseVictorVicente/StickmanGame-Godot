@@ -1,7 +1,8 @@
 class_name WorldCatalog
 extends RefCounted
 ## Narrative catalog for portal dimensions. Maps world_id to lore keys and map art.
-## Briefing/trail placeholders: sprites/ui/worlds/briefing_dim_*.png, trail_dim_*.png
+## Briefing banners: sprites/ui/worlds/briefing_dim_*.png
+## Trail backgrounds: sprites/environment/* (themed per dimension; see portals-saga.md)
 
 
 const _BRIEFING_TEXTURES: PackedStringArray = [
@@ -13,11 +14,11 @@ const _BRIEFING_TEXTURES: PackedStringArray = [
 ]
 
 const _TRAIL_TEXTURES: PackedStringArray = [
-	"res://sprites/ui/worlds/trail_dim_1.png",
-	"res://sprites/ui/worlds/trail_dim_2.png",
-	"res://sprites/ui/worlds/trail_dim_3.png",
-	"res://sprites/ui/worlds/trail_dim_4.png",
-	"res://sprites/ui/worlds/trail_dim_5.png",
+	"res://sprites/environment/forest_map_clean.png",
+	"res://sprites/environment/forest_map_dark.jpg",
+	"res://sprites/environment/desert_map.jpg",
+	"res://sprites/environment/snow_map.jpg",
+	"res://sprites/environment/volcanic_map.jpg",
 ]
 
 const _DIMENSION_NAME_KEYS: PackedStringArray = [
@@ -96,16 +97,17 @@ static func map_texture(world_id: int) -> Texture2D:
 
 static func _load_cached_texture(world_id: int, caminho: String, cache: Dictionary) -> Texture2D:
 	var id := clampi(world_id, 1, dimension_count())
-	if cache.has(id):
-		return cache[id]
+	var cache_key := "%d|%s" % [id, caminho]
+	if cache.has(cache_key):
+		return cache[cache_key]
 	if caminho == "" or not ResourceLoader.exists(caminho):
 		push_warning("WorldCatalog: missing texture at %s (world %d)" % [caminho, id])
-		cache[id] = null
+		cache[cache_key] = null
 		return null
 	var tex := load(caminho) as Texture2D
 	if tex == null:
 		push_warning("WorldCatalog: failed to load texture at %s (world %d)" % [caminho, id])
-	cache[id] = tex
+	cache[cache_key] = tex
 	return tex
 
 

@@ -10,11 +10,32 @@ Guide for agents and developers working on `presentation/` screens, especially t
 
 ## Principles
 
-1. **Containers, not pixels** — `VBoxContainer`, `HBoxContainer`, `MarginContainer`, `GridContainer` express layout; parents own child positions.
-2. **Prefabs for repetition** — slot grids, nav bars, attribute rows are baked `.tscn` prefabs, not runtime loops.
-3. **Tokens, not magic numbers** — `InventoryLayout` (`inventory_layout_default.tres`) + `UiConstants` for window/combat bands.
-4. **WYSIWYG in editor** — open `.tscn` and confirm structure before F5 when possible.
-5. **Visual proof** — after layout edits, automated PNG capture + agent review replaces guessing from rects alone.
+1. **TSCN-first design** — layout, spacing, anchors, and visual chrome (`StyleBox*`) are authored in `.tscn`. Scripts set text, visibility, and state — not structure. See [TSCN-first checklist](#tscn-first-checklist) below.
+2. **Containers, not pixels** — `VBoxContainer`, `HBoxContainer`, `MarginContainer`, `GridContainer` express layout; parents own child positions.
+3. **Prefabs for repetition** — slot grids, nav bars, attribute rows are baked `.tscn` prefabs, not runtime loops.
+4. **Tokens, not magic numbers** — `InventoryLayout` (`inventory_layout_default.tres`) + `UiConstants` for window/combat bands.
+5. **WYSIWYG in editor** — open `.tscn` and confirm structure before F5 when possible.
+6. **Visual proof** — after layout edits, automated PNG capture + agent review replaces guessing from rects alone.
+
+---
+
+## TSCN-first checklist
+
+Use this on **every** UI create/edit task (agents: follow before marking done):
+
+| Step | Action |
+|------|--------|
+| 1 | Edit `.tscn` first — containers, `separation`, size flags, StyleBoxes |
+| 2 | Grep panel `.gd` for `position`, `custom_minimum_size`, `reparent`, `StyleBoxFlat.new()` — remove layout uses |
+| 3 | Popups/dropdowns: stack menu **above** button in a `VBox` (see `worlds_panel.tscn`), not `position` in script |
+| 4 | Run `run_ui_layout_check.ps1` + `run_inventory_menu_layout_audit.ps1` |
+| 5 | Run visual capture; read all 10 PNGs |
+
+**Script may:** `text`, `visible`, `disabled`, signals, `tr()`, state tints, swap **pre-baked** style references.
+
+**Script must not:** set layout geometry or create StyleBoxes for structure at runtime.
+
+**Reference:** `presentation/worlds/` — Portals panel rebuilt with this rule (`/edit-ui-screens` skill has full Worlds section).
 
 ---
 
@@ -33,6 +54,8 @@ All ten states are captured at **960×860** for review.
 | `warehouse_open` | Warehouse side panel | MenuArea sidecar |
 | `forge_open` | Forge side panel | MenuArea sidecar |
 | `worlds_open` | Portal hall (Sala de Portais) side panel | MenuArea sidecar |
+| `worlds_briefing_open` | Dimension briefing before trail | MenuArea sidecar |
+| `worlds_trail_open` | Trail map + header meta (20px / 8px stacks) | MenuArea sidecar |
 | `settings_open` | Settings popup | Anchored top-right |
 
 Hub structure:
@@ -178,7 +201,9 @@ When a new menu-visible state must appear in screenshots:
 
 ## Allowed exceptions (absolute layout)
 
-Documented in [`ui-layout.md`](../conventions/ui-layout.md): worlds stage map, skill tree graph, forge gem centering, `WindowManager`, `SectionVisualOffset`. Extend `ALLOWLIST` in `tools/check_ui_layout.py` for new exceptions.
+Documented in [`ui-layout.md`](../conventions/ui-layout.md): trail map **UV anchors baked in `trail_map_view.tscn`** (not set in script), skill tree graph, forge gem centering, `WindowManager`, `SectionVisualOffset`. Extend `ALLOWLIST` in `tools/check_ui_layout.py` for new exceptions.
+
+**Not an exception:** positioning widgets, menus, or banners in `.gd` — move to `.tscn` instead.
 
 ---
 

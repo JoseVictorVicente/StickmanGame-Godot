@@ -13,14 +13,6 @@ size_flags_vertical = 3
 clip_contents = true
 script = ExtResource("1_trail")
 
-[node name="MapBackground" type="TextureRect" parent="."]
-unique_name_in_owner = true
-z_index = -1
-layout_mode = 0
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
 [node name="StageMap" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
@@ -33,20 +25,151 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mapa")
 script = ExtResource("2_mapa")
 
-[node name="StageAnchor_1" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="MapAspect" type="AspectRatioContainer" parent="StageMap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+ratio = 0.5714286
+stretch_mode = 3
 
-[node name="StageAnchor_2" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="MapLayer" type="Control" parent="StageMap/MapAspect"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
 
-[node name="StageAnchor_3" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="MapBackground" type="TextureRect" parent="StageMap/MapAspect/MapLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
 
-[node name="StageAnchor_4" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_1" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.49
+anchor_top = 0.89
+anchor_right = 0.49
+anchor_bottom = 0.89
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="StageAnchor_5" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_2" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.53
+anchor_top = 0.79
+anchor_right = 0.53
+anchor_bottom = 0.79
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="StageAnchor_6" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_3" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.54
+anchor_top = 0.69
+anchor_right = 0.54
+anchor_bottom = 0.69
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="StageAnchor_7" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_4" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.53
+anchor_top = 0.59
+anchor_right = 0.53
+anchor_bottom = 0.59
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="StageAnchor_8" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_5" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.51
+anchor_top = 0.49
+anchor_right = 0.51
+anchor_bottom = 0.49
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="StageAnchor_9" parent="StageMap" instance=ExtResource("3_stage")]
+[node name="StageAnchor_6" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.51
+anchor_top = 0.39
+anchor_right = 0.51
+anchor_bottom = 0.39
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageAnchor_7" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.29
+anchor_right = 0.5
+anchor_bottom = 0.29
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageAnchor_8" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.49
+anchor_top = 0.18
+anchor_right = 0.49
+anchor_bottom = 0.18
+offset_left = -44.0
+offset_top = -28.0
+offset_right = 44.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageAnchor_9" parent="StageMap/MapAspect/MapLayer" instance=ExtResource("3_stage")]
+layout_mode = 1
+anchor_left = 0.49
+anchor_top = 0.08
+anchor_right = 0.49
+anchor_bottom = 0.08
+offset_left = -48.0
+offset_top = -32.0
+offset_right = 48.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageButton" parent="StageMap/MapAspect/MapLayer/StageAnchor_9/CenterWrap/StageColumn"]
+custom_minimum_size = Vector2(48, 48)
