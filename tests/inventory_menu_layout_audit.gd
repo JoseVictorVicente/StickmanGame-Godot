@@ -99,6 +99,7 @@ func _run_invariants(menu: Control, state_id: String) -> void:
 		_check_nav_sizes(menu, state_id, layout)
 	_check_overlay_coverage(menu, state_id, painel)
 	_check_screen_visible(menu, state_id)
+	_check_side_panel_visible(menu, state_id, painel)
 
 
 func _rect_in_menu(control: Control, menu: Control) -> Rect2:
@@ -271,8 +272,46 @@ func _check_screen_visible(menu: Control, state_id: String) -> void:
 		_:
 			return
 	var panel := menu.get_node_or_null("%" + panel_name) as Control
-	if panel == null or not panel.visible:
-		_record_failure(state_id, panel_name, Rect2(), "%s should be visible" % panel_name)
+	if panel == null or not panel.is_visible_in_tree():
+		_record_failure(state_id, panel_name, Rect2(), "%s should be visible in tree" % panel_name)
+		return
+	if state_id == "skill_tree_open" and _area(_rect_in_menu(panel, menu)) <= 1.0:
+		_record_failure(state_id, panel_name, _rect_in_menu(panel, menu), "skill tree panel should have area > 0")
+
+
+func _check_side_panel_visible(menu: Control, state_id: String, painel: Control) -> void:
+	var panel_name := ""
+	match state_id:
+		"warehouse_open":
+			panel_name = "WarehousePanel"
+		"forge_open":
+			panel_name = "PanelForgePanel"
+		"worlds_open":
+			panel_name = "WorldsPanel"
+		_:
+			return
+	var panel := menu.get_node_or_null("%" + panel_name) as Control
+	if panel == null or not panel.is_visible_in_tree():
+		_record_failure(state_id, panel_name, Rect2(), "%s should be visible in tree" % panel_name)
+		return
+	var panel_rect := _rect_in_menu(panel, menu)
+	if panel_rect.size.x < 200.0:
+		_record_failure(state_id, panel_name, panel_rect, "side panel width >= 200")
+	if painel != null:
+		var hub_rect := _rect_in_menu(painel, menu)
+		if hub_rect.size.y > 1.0 and panel_rect.size.y < hub_rect.size.y * 0.8:
+			_record_failure(
+				state_id,
+				panel_name,
+				panel_rect,
+				"side panel height >= 80%% of hub (%.0f)" % hub_rect.size.y
+			)
+	var menu_rect := _rect_in_menu(menu.get_node_or_null("%MenuArea") as Control, menu)
+	if menu_rect.size.x > 1.0:
+		var panel_end := panel_rect.position.x + panel_rect.size.x
+		var menu_end := menu_rect.position.x + menu_rect.size.x
+		if panel_rect.position.x < menu_rect.position.x - TOL or panel_end > menu_end + TOL:
+			_record_failure(state_id, panel_name, panel_rect, "side panel should stay inside MenuArea")
 
 
 func _record_failure(state_id: String, node_name: String, rect: Rect2, expected: String) -> void:

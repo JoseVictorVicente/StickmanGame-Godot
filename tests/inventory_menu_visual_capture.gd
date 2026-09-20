@@ -64,6 +64,10 @@ func _run_capture() -> void:
 		LayoutStates.reset_menu(menu)
 		LayoutStates.apply_state(menu, state_id)
 		await LayoutStates.settle(self, menu)
+		var capture_w := UiConstants.WINDOW_WIDTH
+		if menu.has_method("width_for_window"):
+			capture_w = maxi(UiConstants.WINDOW_WIDTH, int(menu.call("width_for_window")))
+		_resize_capture_host(host, capture_w)
 		for _i in 3:
 			await process_frame
 		_test_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
@@ -103,6 +107,16 @@ func _run_capture() -> void:
 	for entry in manifest["states"]:
 		print("png: %s" % entry["path"])
 	quit(0)
+
+
+func _resize_capture_host(host: Control, width: int) -> void:
+	var size := Vector2(width, UiConstants.WINDOW_HEIGHT)
+	_test_viewport.size = Vector2i(size)
+	host.custom_minimum_size = size
+	host.size = size
+	for child in host.get_children():
+		if child is Control:
+			(child as Control).size = size
 
 
 func _create_host() -> Control:

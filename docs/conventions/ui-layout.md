@@ -2,7 +2,7 @@
 
 Godot UI should express **relationships between widgets** (stack, row, grid, margin) instead of manual pixel placement. This matches common practice in Android (`ConstraintLayout` / `LinearLayout`) and in Godot’s own editor UI.
 
-**Required reading for inventory work:** [`presentation/AGENTS.md`](../../presentation/AGENTS.md), [`docs/architecture/overlay-desktop.md`](../architecture/overlay-desktop.md).
+**Required reading for inventory work:** [`workflows/ui-screens.md`](../workflows/ui-screens.md), [`presentation/AGENTS.md`](../../presentation/AGENTS.md), [`architecture/overlay-desktop.md`](../architecture/overlay-desktop.md).
 
 ## Core rules
 
@@ -95,7 +95,7 @@ Menu **visual** review for Cursor agents (`/capture-menu-screens`, ten PNG captu
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
 ```
 
-See [`workflows/testing.md`](../workflows/testing.md#inventory-hub-visual-layout-review-cursor).
+See [`workflows/ui-screens.md`](../workflows/ui-screens.md) and [`workflows/testing.md`](../workflows/testing.md#menu-screens-visual-review-cursor).
 
 ## References
 

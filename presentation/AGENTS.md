@@ -31,9 +31,24 @@
 - Full-bleed swaps (formation, skills, attributes, skill tree): hub `Panel` (`PanelContainer`) + [`panel_layout.gd`](inventory/panel_layout.gd) `align_overlays`.
 - Overlay constants: [`ui_constants.gd`](shared/ui_constants.gd); `set_below_combat()` toggles spacers, not fixed window offsets.
 
+## Create / edit screens (agents)
+
+**Skill:** `/edit-ui-screens` — full workflow including **mandatory visual capture** after layout edits.
+
+**Doc:** [`docs/workflows/ui-screens.md`](../docs/workflows/ui-screens.md)
+
+After any `presentation/inventory/` layout change:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+```
+
+Then read all ten PNGs in `artifacts/inventory_layout/`. See `/capture-menu-screens`.
+
 ## Manual check (inventory hub)
 
 1. Open `inventory_menu.tscn` → hero section, **50-slot grid**, sort button, chest, bottom nav visible without F5.
 2. Open `inventory_slots_grid.tscn` → tweak slot size/separation; confirm change propagates to menu instance.
 3. F5 → pickup, sort, drag, equip, save/load unchanged.
 4. Open each overlay `.tscn` in isolation → no parse errors in Output.
+5. Run visual capture (above) and confirm all ten screens look correct.

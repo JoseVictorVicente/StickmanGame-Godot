@@ -12,6 +12,8 @@ const INVENTORY_ROWS := 5
 @export var spacing_tight: int = 4
 @export var spacing_normal: int = 6
 @export var bottom_bar_height: int = 34
+@export var formation_bar_height: int = 28
+@export var hub_lower_inset_top: int = 4
 @export var chrome_button_size: int = 40
 @export var warehouse_button_min_width: float = 72.0
 
@@ -81,10 +83,29 @@ func inventory_grid_pixel_size() -> Vector2:
 func inventory_row_pixel_size() -> Vector2:
 	var grid := inventory_grid_pixel_size()
 	var chrome := float(chrome_button_size)
+	var grid_band_h := maxf(grid.y, chrome)
+	var row_h := (
+		float(hub_lower_inset_top)
+		+ float(formation_bar_height)
+		+ float(spacing_tight)
+		+ grid_band_h
+	)
 	return Vector2(
 		grid.x + chrome + warehouse_button_min_width + spacing_normal * 2.0,
-		maxf(grid.y, chrome),
+		row_h,
 	)
+
+
+func hub_inner_height() -> float:
+	return panel_min_size.y - float(UiConstants.PANEL_TEXTURE_MARGIN_TOP + UiConstants.PANEL_TEXTURE_MARGIN_BOTTOM)
+
+
+func hub_lower_band_height() -> float:
+	return inventory_row_pixel_size().y + float(bottom_bar_height) + float(spacing_normal) * 2.0
+
+
+func hub_upper_band_height() -> float:
+	return maxf(hero_band_min_height() + float(spacing_normal) * 2.0, hub_inner_height() - hub_lower_band_height())
 
 
 func hero_band_min_height() -> float:

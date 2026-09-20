@@ -41,7 +41,10 @@
 
 ### UI layout
 - `docs/conventions/ui-layout.md` — container patterns, overlay hub, allowed absolute layout
+- `docs/workflows/ui-screens.md` — create/edit screens, mandatory visual capture loop
 - `presentation/shared/ui_constants.gd` — window and combat band sizes
+- `.cursor/skills/edit-ui-screens/` — agent skill for UI screen work (`/edit-ui-screens`)
+- `.cursor/skills/capture-menu-screens/` — PNG capture + visual review (`/capture-menu-screens`)
 
 ### Assisted logging (Cursor / CI)
 - `docs/workflows/assisted-logging.md` — how it works, commands, rules for devs
@@ -56,7 +59,7 @@
 | Task | Path |
 |------|------|
 | Onboarding | README → AGENTS → overview → naming |
-| New UI screen | `docs/conventions/ui-layout.md` → `presentation/AGENTS.md` |
+| New / edit UI screen | `docs/workflows/ui-screens.md` → `ui-layout.md` → `presentation/AGENTS.md` |
 | Combat bug | combat.md → domains/combat/ → save-format if progression involved |
 | New skill | workflows/add-skill.md → data/skills/ |
 | New item | workflows/add-item.md → platform/item_database |

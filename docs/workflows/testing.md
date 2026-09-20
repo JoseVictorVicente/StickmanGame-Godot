@@ -83,7 +83,9 @@ Catches forbidden `layout_mode = 0` in `presentation/` scenes. See [`conventions
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1
 ```
 
-Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): six menu states (hub top/bottom, formation, skills, warehouse, forge) with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
+Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): ten menu states with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
+
+Full create/edit workflow: [`ui-screens.md`](ui-screens.md). Cursor skill: `/edit-ui-screens`.
 
 ### Menu screens visual review (Cursor)
 

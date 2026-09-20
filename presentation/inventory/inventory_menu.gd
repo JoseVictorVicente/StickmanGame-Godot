@@ -54,6 +54,8 @@ var CLASSES: Array[ClassData] = []
 @onready var cabecalho: HBoxContainer = %Header
 @onready var painel: PanelContainer = %Panel
 @onready var conteudo: VBoxContainer = %Conteudo
+@onready var hub_upper: VBoxContainer = %HubUpper
+@onready var hub_lower: VBoxContainer = %HubLower
 @onready var menu_area: HBoxContainer = %MenuArea
 @onready var overlay_vbox: VBoxContainer = %OverlayVBox
 @onready var top_spacer: Control = %TopSpacer
@@ -90,6 +92,7 @@ var character_xp_bar: ProgressBar
 var character_xp_label: Label
 var character_attributes_button: Button
 var team_ui: TeamSelectionUI
+var formation_button: Button
 var botao_skills: Button
 var botao_inventario: Button
 var forge_button: Button
@@ -178,6 +181,8 @@ func _ready() -> void:
 		botao_skills.pressed.connect(_on_skills_button_pressed)
 	if character_attributes_button:
 		character_attributes_button.pressed.connect(_on_attributes_button_pressed)
+	if formation_button and not formation_button.pressed.is_connected(_on_formation_requested):
+		formation_button.pressed.connect(_on_formation_requested)
 	if attributes_panel_node:
 		attributes_panel_node.configure(self)
 		if not attributes_panel_node.panel_open_changed.is_connected(_on_attributes_visibility_changed):
@@ -205,6 +210,7 @@ func _bind_hub_references() -> void:
 	inventory_slots_grid = linha_inventario.inventory_grid
 	sort_inventory_button = linha_inventario.sort_button
 	warehouse_button = linha_inventario.warehouse_button
+	formation_button = linha_inventario.formation_button
 	botao_skills = menu_inferior.skills_button
 	botao_inventario = menu_inferior.inventory_button
 	forge_button = menu_inferior.forge_button
@@ -276,13 +282,14 @@ func _apply_panel_layout() -> void:
 	if painel:
 		var hub_w := maxf(layout.panel_min_size.x, layout.inventory_row_pixel_size().x + 24.0)
 		painel.custom_minimum_size = Vector2(hub_w, layout.panel_min_size.y)
+	if conteudo:
+		conteudo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_apply_hub_zones(layout)
 	if linha_inventario:
 		linha_inventario.custom_minimum_size = layout.inventory_row_pixel_size()
 	if menu_inferior:
 		menu_inferior.custom_minimum_size.y = layout.bottom_bar_height
 	if not Engine.is_editor_hint():
-		if area_heroi:
-			area_heroi.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		if linha_inventario:
 			linha_inventario.visible = true
 			linha_inventario.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -311,8 +318,23 @@ func _apply_panel_layout() -> void:
 				party_slot.custom_minimum_size = layout.party_hero_slot_size
 	if team_ui:
 		team_ui.layout_resource = layout
+	if formation_button:
+		var grid_w := layout.inventory_grid_pixel_size().x
+		formation_button.custom_minimum_size = Vector2(grid_w, float(layout.formation_bar_height))
 	if area_heroi:
 		area_heroi.apply_layout_offsets(layout)
+		area_heroi.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+
+
+func _apply_hub_zones(layout: InventoryLayout) -> void:
+	if hub_upper == null or hub_lower == null:
+		return
+	hub_upper.custom_minimum_size.y = layout.hub_upper_band_height()
+	hub_upper.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	hub_lower.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hub_lower.clip_contents = true
+	if menu_inferior:
+		menu_inferior.size_flags_vertical = Control.SIZE_SHRINK_END
 
 
 func _connect_item_slot(slot: ItemSlot) -> void:
@@ -472,8 +494,18 @@ func _align_side_panels() -> void:
 		skill_tree_panel_node
 	)
 	_apply_panel_layout()
+	_sync_side_panel_heights()
 	_align_settings()
 	menu_width_changed.emit()
+
+
+func _sync_side_panel_heights() -> void:
+	if painel == null:
+		return
+	var hub_h := painel.get_combined_minimum_size().y
+	for lateral in [warehouse_panel_node, forge_panel_node, worlds_panel_node]:
+		if lateral:
+			lateral.custom_minimum_size.y = hub_h
 
 
 func _restore_base_panel() -> void:
@@ -946,8 +978,6 @@ func setup_party(party: PartyService) -> void:
 		team_ui.slot_selected.connect(select_character)
 	if not team_ui.class_assigned.is_connected(_on_class_assigned):
 		team_ui.class_assigned.connect(_on_class_assigned)
-	if not team_ui.formation_requested.is_connected(_on_formation_requested):
-		team_ui.formation_requested.connect(_on_formation_requested)
 	if formation_panel_node:
 		formation_panel_node.configure(self, party)
 		if not formation_panel_node.slot_selected.is_connected(select_character):
@@ -1386,8 +1416,7 @@ func _open_skill_tree() -> void:
 
 
 func _on_skill_tree_visibility_changed(aberta: bool) -> void:
-	if painel:
-		painel.visible = not aberta
+	_set_inventory_visible(not aberta)
 	_align_side_panels()
 	call_deferred("_align_side_panels")
 
@@ -1521,6 +1550,7 @@ func _open_settings() -> void:
 	_sync_locale_selector()
 	_update_localized_texts()
 	settings_panel.show()
+	_set_inventory_visible(false)
 	_align_settings()
 	menu_width_changed.emit()
 
@@ -1528,6 +1558,7 @@ func _open_settings() -> void:
 func _close_settings() -> void:
 	if settings_panel:
 		settings_panel.hide()
+	_set_inventory_visible(true)
 	menu_width_changed.emit()
 
 
@@ -1629,6 +1660,8 @@ func _update_localized_texts() -> void:
 		close_settings_button.text = tr(LocaleKeys.BTN_CLOSE)
 	if character_attributes_button:
 		character_attributes_button.text = tr(LocaleKeys.BTN_ATTRIBUTES)
+	if formation_button:
+		formation_button.text = tr(LocaleKeys.BTN_FORMATION)
 	if sort_inventory_button:
 		sort_inventory_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
 	if botao_skills:

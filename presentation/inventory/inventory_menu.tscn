@@ -164,26 +164,32 @@ alignment = 1
 [node name="WarehousePanel" parent="OverlayVBox/MenuArea" unique_id=869499035 instance=ExtResource("4_armazem")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 3
 
 [node name="Panel" type="PanelContainer" parent="OverlayVBox/MenuArea" unique_id=1558539591]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 3
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_inventario")
 
 [node name="Conteudo" type="VBoxContainer" parent="OverlayVBox/MenuArea/Panel" unique_id=1412527505]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 0
 
-[node name="Header" type="HBoxContainer" parent="OverlayVBox/MenuArea/Panel/Conteudo" unique_id=2033969880]
+[node name="HubUpper" type="VBoxContainer" parent="OverlayVBox/MenuArea/Panel/Conteudo"]
+unique_name_in_owner = true
+layout_mode = 2
+clip_contents = true
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper" unique_id=2033969880]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="QuitGameButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/Header" unique_id=3407743]
+[node name="QuitGameButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper/Header" unique_id=3407743]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 36)
 layout_mode = 2
@@ -195,11 +201,11 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "Sair do jogo"
 
-[node name="EspacoCabecalho" type="Control" parent="OverlayVBox/MenuArea/Panel/Conteudo/Header" unique_id=1178665627]
+[node name="EspacoCabecalho" type="Control" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper/Header" unique_id=1178665627]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SettingsButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/Header" unique_id=457922351]
+[node name="SettingsButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper/Header" unique_id=457922351]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -213,7 +219,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 icon_alignment = 1
 expand_icon = true
 
-[node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/Header" unique_id=1094479521]
+[node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper/Header" unique_id=1094479521]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(36, 36)
@@ -226,13 +232,22 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="AreaHeroi" parent="OverlayVBox/MenuArea/Panel/Conteudo" unique_id=1860272191 instance=ExtResource("18_hero")]
+[node name="AreaHeroi" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubUpper" unique_id=1860272191 instance=ExtResource("18_hero")]
 
-[node name="LinhaInventario" parent="OverlayVBox/MenuArea/Panel/Conteudo" unique_id=295454722 instance=ExtResource("19_row")]
+[node name="HubLower" type="VBoxContainer" parent="OverlayVBox/MenuArea/Panel/Conteudo"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+theme_override_constants/separation = 6
 
-[node name="MenuInferior" parent="OverlayVBox/MenuArea/Panel/Conteudo" unique_id=612910520 instance=ExtResource("20_nav")]
+[node name="LinhaInventario" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubLower" unique_id=295454722 instance=ExtResource("19_row")]
 layout_mode = 2
+size_flags_vertical = 4
+
+[node name="MenuInferior" parent="OverlayVBox/MenuArea/Panel/Conteudo/HubLower" unique_id=612910520 instance=ExtResource("20_nav")]
+layout_mode = 2
+size_flags_vertical = 8
 
 [node name="FormationPanel" parent="OverlayVBox/MenuArea/Panel" unique_id=1172027351 instance=ExtResource("6_formacao")]
 unique_name_in_owner = true
@@ -357,13 +372,14 @@ unique_name_in_owner = true
 layout_mode = 2
 
 [node name="PanelForgePanel" parent="OverlayVBox/MenuArea" unique_id=1190074333 instance=ExtResource("3_ferraria")]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 3
 
 [node name="WorldsPanel" parent="OverlayVBox/MenuArea" unique_id=291614899 instance=ExtResource("5_mundos")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 3
 
 [node name="BottomSpacer" type="Control" parent="OverlayVBox" unique_id=1927773558]
 unique_name_in_owner = true

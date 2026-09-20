@@ -4,7 +4,6 @@ extends VBoxContainer
 
 signal slot_selected(stage_index: int)
 signal class_assigned(slot: int, classe: ClassData)
-signal formation_requested
 
 var layout_resource: InventoryLayout
 var _party: PartyService
@@ -14,7 +13,6 @@ var _indices_slot: Array[int] = []
 
 @onready var party_slots: HBoxContainer = %PartySlots
 @onready var grade_classes: GridContainer = %GradeClasses
-@onready var formation_button: Button = %FormationButton
 @onready var party_title: Label = $PartyTitle
 @onready var classes_title: Label = $ClassesTitle
 @onready var _party_slot_nodes: Array[Button] = [%PartySlot0, %PartySlot1, %PartySlot2]
@@ -46,8 +44,6 @@ func configure(party: PartyService, slot_inicial: int = 0) -> void:
 		classes_title.visible = false
 	if party_title:
 		party_title.visible = false
-	if formation_button and not formation_button.pressed.is_connected(_on_formation_pressed):
-		formation_button.pressed.connect(_on_formation_pressed)
 	_update_localized_texts()
 	update()
 	if not _party.party_changed.is_connected(update):
@@ -70,18 +66,13 @@ func update() -> void:
 	_paint_slots()
 
 
-func _on_formation_pressed() -> void:
-	formation_requested.emit()
-
-
 func refresh_locale() -> void:
 	_update_localized_texts()
 	update()
 
 
 func _update_localized_texts() -> void:
-	if formation_button:
-		formation_button.text = tr(LocaleKeys.BTN_FORMATION)
+	pass
 
 
 func _on_locale_changed(_locale_code: String) -> void:

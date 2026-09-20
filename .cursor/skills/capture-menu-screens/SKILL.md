@@ -85,6 +85,8 @@ Scope: `presentation/inventory/`, `presentation/worlds/worlds_panel.*`, `invento
 
 ## References
 
+- Create/edit workflow: [`edit-ui-screens`](../edit-ui-screens/SKILL.md) (`/edit-ui-screens`)
+- Doc: [`docs/workflows/ui-screens.md`](../../docs/workflows/ui-screens.md)
 - States: `tests/inventory_menu_layout_states.gd` (`STATE_IDS`)
 - Capture: `tests/inventory_menu_visual_capture.gd`
 - Manifest: `artifacts/inventory_layout/manifest.json`
