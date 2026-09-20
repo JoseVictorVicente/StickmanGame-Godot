@@ -44,10 +44,15 @@ inventory_menu.tscn
    ├─ MenuArea (HBox)
    │  ├─ WarehousePanel
    │  ├─ Panel → Conteudo + overlays
+   │  │  └─ Conteudo (VBox)
+   │  │     ├─ HubUpper (clip) → Header + hero_section
+   │  │     └─ HubLower (clip, expand) → inventory_row + bottom_nav
    │  ├─ ForgePanel
    │  └─ WorldsPanel
    └─ BottomSpacer
 ```
+
+`inventory_row.tscn` (lower band): **Formation** button → sort + 10×5 grid + warehouse. Heights come from `InventoryLayout.inventory_row_pixel_size()` (includes `formation_bar_height`, `hub_lower_inset_top`).
 
 ---
 
@@ -131,19 +136,21 @@ Output: `artifacts/inventory_layout/<state_id>.png` + `manifest.json` (gitignore
 
 | Issue | Often caused by |
 |-------|-----------------|
-| Grid overlapping hero/formation | Wrong vertical stack; `layout_mode = 0`; missing container |
+| Grid crossing `inventory_bg` divider | Widget in wrong band (`HubUpper` vs `HubLower`); Formation still in `hero_section` |
+| Formation on the band line | Formation not in `inventory_row`; missing `hub_lower` / layout token update |
+| Grid overlapping hero | `SectionVisualOffset` or manual `position`; missing `clip_contents` on hub zones |
 | Hub too narrow | `custom_minimum_size` override on `Panel`; wrong `base_unit` |
 | Overlay not full-bleed | Missing Full Rect on overlay; `panel_layout.gd` not called |
-| Side panel clipped | `MenuArea` width; `_align_side_panels` not run |
+| Skill tree black / settings grid bleed | `painel.visible = false` instead of `_set_inventory_visible()` |
+| Side panel clipped / zero height | Missing `size_flags_vertical = EXPAND_FILL`; `_sync_side_panel_heights()` not run |
+| Panel taller than combat band | Added lower-band widgets without updating `inventory_row_pixel_size()` / zone heights |
 | Checkerboard in panel | Transparent window without test host bg (capture only) |
 
 ### `inventory_menu.gd` encoding
 
-This file may revert to UTF-16 in some editors. **Do not patch with Cursor StrReplace.**
+This file may revert to UTF-16 in some editors. Edit in UTF-8 when possible.
 
-```powershell
-python tools/fix_inventory_menu_encoding.py
-```
+**Warning:** `tools/fix_inventory_menu_encoding.py` runs `git restore` on `inventory_menu.gd` before patching — it **discards uncommitted edits**. Use only for UTF-16 recovery on a clean file, never as a post-edit step.
 
 ---
 

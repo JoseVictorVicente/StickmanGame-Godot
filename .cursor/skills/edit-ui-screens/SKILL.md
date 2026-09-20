@@ -43,7 +43,25 @@ description: >-
 Rules:
 - Containers own child positions — no `layout_mode = 0` inside `VBox`/`HBox` (unless allowlisted).
 - Hub widths/slot sizes via `InventoryLayout` + `_apply_panel_layout()`, not hardcoded on `Panel`/`MenuArea`.
-- **`inventory_menu.gd`:** patch with `python tools/fix_inventory_menu_encoding.py` — do not use editor StrReplace (UTF-16 corruption).
+- **Do not** use `SectionVisualOffset` or negative `position` offsets in the hub — they bleed across `inventory_bg.png` bands.
+- **`inventory_menu.gd`:** edit normally in UTF-8. **Never run** `python tools/fix_inventory_menu_encoding.py` after your edits — it runs `git restore` and wipes uncommitted changes. Use that script only for one-off UTF-16 recovery on a clean tree.
+
+### Inventory hub zones (`inventory_bg.png`)
+
+The panel art has **two horizontal bands**. Match them in `inventory_menu.tscn`:
+
+```text
+Conteudo (VBox)
+├─ HubUpper (VBox, clip_contents) → Header + AreaHeroi (hero_section)
+└─ HubLower (VBox, clip_contents, expand) → LinhaInventario + MenuInferior
+```
+
+- Heights: `_apply_hub_zones()` + `InventoryLayout.hub_upper_band_height()` / `hub_lower_band_height()`.
+- **Formation button** lives in `inventory_row.tscn` (top of lower band), **not** in `hero_section.tscn`.
+- `inventory_row.tscn` is a `VBoxContainer`: `FormationStrip` → `InventoryRowBody` (sort + 10×5 grid + warehouse).
+- When moving a widget between upper/lower bands, update `inventory_row_pixel_size()` (and related layout helpers) so the zone split stays balanced — relocating overlap is not free vertical space.
+- Overlays that hide the hub: use `_set_inventory_visible(false)` (skill tree, formation, settings, etc.) — do not set `painel.visible = false` on the hub `Panel` (hides overlay children too).
+- Side panels: `_sync_side_panel_heights()` + `size_flags_vertical = EXPAND_FILL` on warehouse/forge/worlds.
 
 ### Step 2 — Capture (required)
 
@@ -51,7 +69,7 @@ Rules:
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
 ```
 
-Optional headless pre-check:
+Run headless audit **before** capture (catches panel height / stack regressions):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1

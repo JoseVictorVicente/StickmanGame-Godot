@@ -23,10 +23,11 @@
 
 - Shell: `OverlayVBox` (`TopSpacer` + `MenuArea` HBox + `BottomSpacer`) — see [`ui-layout.md`](../docs/conventions/ui-layout.md).
 - Main panel: [`inventory_menu.tscn`](inventory/inventory_menu.tscn) + [`inventory_menu.gd`](inventory/inventory_menu.gd) (controller).
-- Hub blocks: `AreaHeroi` → `hero_section.tscn`, `LinhaInventario` → `inventory_row.tscn`, `MenuInferior` → `bottom_nav.tscn`.
+- Hub zones: `HubUpper` (header + `hero_section.tscn`) and `HubLower` (`inventory_row.tscn` + `bottom_nav.tscn`); both use `clip_contents`. Heights from `_apply_hub_zones()` + `InventoryLayout`.
+- `inventory_row.tscn`: `VBox` with **Formation** strip above the 10×5 grid row; wired from `inventory_menu.gd` (not `hero_section`).
 - Equipment: six class pairs (`EquipLeft_*` / `EquipRight_*`) baked in `hero_section.tscn`; runtime toggles `visible` only.
 - Party row: three `party_hero_slot_button.tscn` under `TeamArea/%PartySlots`; `TeamSelectionUI` updates state only.
-- Visual offsets: `HeroSection.apply_layout_offsets()` applies `portrait_region_offset` and `formation_button_offset` from `InventoryLayout`.
+- Hub visibility for overlays: `_set_inventory_visible()` — do not hide the hub `Panel` directly.
 - Side panels (warehouse, forge, worlds): children of `MenuArea` (`HBoxContainer`); width from `MenuArea.get_combined_minimum_size()`.
 - Full-bleed swaps (formation, skills, attributes, skill tree): hub `Panel` (`PanelContainer`) + [`panel_layout.gd`](inventory/panel_layout.gd) `align_overlays`.
 - Overlay constants: [`ui_constants.gd`](shared/ui_constants.gd); `set_below_combat()` toggles spacers, not fixed window offsets.

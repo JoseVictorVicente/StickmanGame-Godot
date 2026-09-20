@@ -48,6 +48,19 @@ Menu (Control, Full Rect)
 - Horizontal width: `MenuArea.get_combined_minimum_size()` → `WindowManager.adjust_width`.
 - [`panel_layout.gd`](../../presentation/inventory/panel_layout.gd) aligns full-bleed overlays on the hub `Panel` — not side panels.
 
+### Hub panel interior (`inventory_bg.png`)
+
+The texture has two stacked frames (hero top, inventory bottom). Inside `Panel → Conteudo`:
+
+```text
+HubUpper (clip_contents) → Header + hero_section
+HubLower (clip_contents, expand) → inventory_row + bottom_nav
+```
+
+- Zone heights: `InventoryLayout.hub_upper_band_height()` / `hub_lower_band_height()` via `_apply_hub_zones()` in `inventory_menu.gd`.
+- Formation button: top of `inventory_row.tscn` (lower band), width aligned to grid via `inventory_grid_pixel_size().x`.
+- Avoid `SectionVisualOffset` in the hub; use container `separation` and layout tokens (`formation_bar_height`, `hub_lower_inset_top`).
+
 ## New UI scene checklist
 
 1. Pick a pattern from the table above.

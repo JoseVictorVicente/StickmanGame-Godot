@@ -48,7 +48,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 
 | PNG | Expect |
 |-----|--------|
-| `hub_combat_bottom` | Hub in lower half; top ~320px clear; 10×5 grid readable; nav proportional |
+| `hub_combat_bottom` | Hub in lower half; top ~320px clear; **Formation inside lower band** above grid; grid does not cross the horizontal divider; nav at bottom of lower band |
 | `hub_combat_top` | Hub below top combat band; no overlap into reserved zone |
 | `formation_open` | Formation overlay full-bleed on hub panel |
 | `skills_open` | Skills overlay full-bleed on hub panel |
@@ -59,14 +59,14 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.p
 | `worlds_open` | Worlds side panel visible; stage map readable |
 | `settings_open` | Settings panel top-right; volume and locale controls visible |
 
-Flag: grid overlapping hero area, hub too narrow, collapsed overlays, clipped side panels, settings off-screen.
+Flag: grid overlapping hero/divider, Formation straddling the band line, hub too narrow, collapsed overlays, clipped side panels, settings off-screen, skill tree black screen.
 
 ## After layout fixes
 
 Scope: `presentation/inventory/`, `presentation/worlds/worlds_panel.*`, `inventory_layout_default.tres`.
 
 - Re-run this skill to verify PNGs.
-- `inventory_menu.gd` patches: use `tools/fix_inventory_menu_encoding.py` only.
+- **Do not** run `tools/fix_inventory_menu_encoding.py` after layout edits — it `git restore`s `inventory_menu.gd` and drops your changes.
 - Docs: `docs/workflows/testing.md`, `docs/conventions/ui-layout.md`.
 
 ## Output format

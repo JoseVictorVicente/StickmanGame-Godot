@@ -110,7 +110,7 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.
 1. Run `tools/run_inventory_menu_visual_capture.ps1`
 2. Read all ten PNGs in `artifacts/inventory_layout/`
 3. Evaluate layout visually (checklist below)
-4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd) — if `inventory_menu.gd` encoding breaks, apply patches via `tools/fix_inventory_menu_encoding.py`
+4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd). For UTF-16 corruption only, use `tools/fix_inventory_menu_encoding.py` on a **clean** file — it runs `git restore` and drops uncommitted edits.
 5. Repeat until acceptable; optionally run `tools/run_inventory_menu_layout_audit.ps1`
 
 | PNG | Visual expectations |
