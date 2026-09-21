@@ -344,24 +344,18 @@ func setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> 
 	botao.icon = InterfaceIcons.bar_icon(chave)
 	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	botao.text = ""
-	botao.expand_icon = false
+	botao.flat = true
+	botao.expand_icon = true
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
-	botao.add_theme_constant_override("icon_max_width", 18)
+	var layout := get_layout()
+	var icon_w := layout.nav_icon_max_width if layout else 18
+	if chave == "world" and layout:
+		icon_w = layout.nav_world_icon_pixel_width()
+	botao.add_theme_constant_override("icon_max_width", icon_w)
 	if not destacado:
 		return
-	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.24, 0.18, 0.1, 1)
-	estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-	estilo.set_border_width_all(2)
-	estilo.set_corner_radius_all(4)
-	estilo.content_margin_left = 8
-	estilo.content_margin_right = 8
-	estilo.content_margin_top = 6
-	estilo.content_margin_bottom = 6
-	botao.add_theme_stylebox_override("normal", estilo)
-	botao.add_theme_stylebox_override("hover", estilo)
-	botao.add_theme_stylebox_override("pressed", estilo)
+	botao.modulate = Color(1.0, 0.92, 0.72, 1.0)
 
 
 func _apply_panel_layout() -> void:
@@ -385,7 +379,7 @@ func _apply_panel_layout() -> void:
 	if not Engine.is_editor_hint():
 		if inventory_panel:
 			inventory_panel.visible = true
-			inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		if bottom_nav:
 			bottom_nav.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			bottom_nav.size_flags_vertical = Control.SIZE_SHRINK_END
@@ -403,11 +397,12 @@ func _apply_panel_layout() -> void:
 
 
 func _apply_hub_content_heights(layout: InventoryLayout) -> void:
+	var band_w := layout.hub_content_pixel_width()
+	var upper_h := layout.hub_upper_band_height()
+	var grid_h := layout.hub_grid_band_height()
+	var nav_h := layout.hub_nav_band_height()
 	if hub_upper_row:
-		hub_upper_row.custom_minimum_size = Vector2(
-			layout.hub_content_pixel_width(),
-			layout.hub_upper_row_size().y
-		)
+		hub_upper_row.custom_minimum_size = Vector2(band_w, upper_h)
 		hub_upper_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		hub_upper_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	for spacer in [hub_row_spacer_left, hub_row_spacer_right]:
@@ -415,8 +410,10 @@ func _apply_hub_content_heights(layout: InventoryLayout) -> void:
 			spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if inventory_panel:
-		inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		inventory_panel.custom_minimum_size = Vector2(band_w, grid_h)
+		inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	if bottom_nav:
+		bottom_nav.custom_minimum_size = Vector2(band_w, nav_h)
 		bottom_nav.size_flags_vertical = Control.SIZE_SHRINK_END
 
 

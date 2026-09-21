@@ -30,11 +30,13 @@ func apply_layout(layout: InventoryLayout = null) -> void:
 	if tokens == null:
 		return
 	var grid_size := tokens.inventory_grid_pixel_size()
-	var visible_h := minf(grid_size.y, tokens.inventory_scroll_max_height)
+	var visible_h := tokens.inventory_scroll_viewport_height()
 	custom_minimum_size = tokens.inventory_panel_size()
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	if inventory_scroll:
 		inventory_scroll.custom_minimum_size = Vector2(grid_size.x, visible_h)
+		inventory_scroll.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 
 
 func _resolve_layout(layout: InventoryLayout) -> InventoryLayout:

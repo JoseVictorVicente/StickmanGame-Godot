@@ -43,6 +43,32 @@ static func bar_icon(nome: String) -> Texture2D:
 	return _load_texture("nav_%s.png" % nome)
 
 
+static func nav_world_frames() -> SpriteFrames:
+	var chave := "nav_world_frames"
+	if _cache.has(chave):
+		return _cache[chave] as SpriteFrames
+	var sf := SpriteFrames.new()
+	const ANIM := "default"
+	if not sf.has_animation(ANIM):
+		sf.add_animation(ANIM)
+	sf.set_animation_loop(ANIM, true)
+	const FRAME_COUNT := 9
+	for i in FRAME_COUNT:
+		var caminho := PASTA + "nav_world/frame_%02d.png" % i
+		if not ResourceLoader.exists(caminho):
+			continue
+		var tex := load(caminho) as Texture2D
+		if tex:
+			sf.add_frame(ANIM, tex)
+	if sf.get_frame_count(ANIM) == 0:
+		var fallback := bar_icon("world")
+		if fallback:
+			sf.add_frame(ANIM, fallback)
+	sf.set_animation_speed(ANIM, 1000.0 / 150.0)
+	_cache[chave] = sf
+	return sf
+
+
 static func setup_icon_button(botao: Button, caminho_icone: String, lado: int = 42) -> void:
 	if botao == null:
 		return

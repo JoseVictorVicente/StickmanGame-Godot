@@ -1,4 +1,4 @@
-﻿@tool
+@tool
 class_name InventoryLayout
 extends Resource
 ## Proporções e offsets do painel de inventário. Ajuste `base_unit` no .tres para escalar a UI.
@@ -20,7 +20,8 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var sort_button_scale: float = 1.5
 @export var hub_lower_inset_top: int = 4
 @export var hub_lower_inset_bottom: int = 0
-@export var inventory_scroll_max_height: float = 264.0
+## Visible scroll viewport height in px. 0 = fill the grid band. Does not move bottom nav.
+@export var inventory_scroll_max_height: float = 0.0
 @export var chrome_button_size: int = 40
 @export var warehouse_button_min_width: float = 72.0
 
@@ -29,6 +30,7 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var font_label: int = 12
 @export var font_gold: int = 13
 @export var nav_icon_max_width: int = 16
+@export var nav_world_icon_scale: float = 1.4
 
 @export_group("Character column")
 @export var portrait_region_offset: Vector2 = Vector2(0, -12)
@@ -69,6 +71,8 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var party_hero_slot_width_scale: float = 1.20
 @export var party_hero_slot_height_scale: float = 1.20
 
+var _hub_inner_height_override: float = -1.0
+
 
 static func duplicate_synced(source: InventoryLayout) -> InventoryLayout:
 	if source == null:
@@ -90,7 +94,7 @@ func sync_from_base_unit() -> void:
 	portrait_min_size = portrait_pixel_size()
 	chrome_button_size = int(round(float(u) * 1.1))
 	bottom_bar_height = int(round(float(u) * 1.28))
-	nav_icon_max_width = int(round(float(u) * 0.42))
+	nav_icon_max_width = int(round(float(u) * 0.80))
 	warehouse_button_min_width = float(int(round(float(u) * 2.0)))
 	inventory_grid_columns = INVENTORY_COLUMNS
 	inventory_grid_rows = INVENTORY_ROWS
@@ -106,6 +110,10 @@ func party_hero_slot_pixel_size() -> Vector2:
 		u * party_hero_slot_width_scale + 5.0,
 		u * party_hero_slot_height_scale + 5.0
 	)
+
+
+func nav_world_icon_pixel_width() -> int:
+	return int(round(float(nav_icon_max_width) * nav_world_icon_scale))
 
 
 func equip_block_pixel_size(cols: int, rows: int) -> Vector2:
@@ -147,7 +155,7 @@ func hub_upper_row_size() -> Vector2:
 
 
 func inventory_panel_size() -> Vector2:
-	return inventory_row_pixel_size()
+	return Vector2(hub_content_pixel_width(), hub_grid_band_height())
 
 
 func hub_body_height() -> float:
@@ -244,10 +252,7 @@ func inventory_grid_pixel_size() -> Vector2:
 
 
 func inventory_row_pixel_size() -> Vector2:
-	var grid := inventory_grid_pixel_size()
-	var grid_band_h := minf(grid.y, inventory_scroll_max_height)
-	var row_h := float(hub_lower_inset_top) + grid_band_h
-	return Vector2(grid.x, row_h)
+	return inventory_panel_size()
 
 
 func hub_content_pixel_width() -> float:
@@ -265,32 +270,56 @@ func max_hub_panel_pixel_height() -> float:
 
 
 func hub_lower_nav_gap() -> float:
-	return float(max(2, spacing_tight - 2))
+	return 0.0
+
+
+func _compute_hub_inner_height() -> float:
+	var w := hub_content_pixel_width()
+	var h_from_art := w * UiConstants.inventory_bg_inner_aspect()
+	var h_from_hero := hero_band_min_height() / UiConstants.INVENTORY_BG_UPPER_BAND_RATIO
+	var h_from_grid := inventory_grid_pixel_size().y / UiConstants.INVENTORY_BG_GRID_BAND_RATIO
+	var h_from_nav := float(bottom_bar_height) / UiConstants.INVENTORY_BG_NAV_BAND_RATIO
+	return maxf(h_from_art, maxf(h_from_hero, maxf(h_from_grid, h_from_nav)))
+
+
+func hub_inner_height() -> float:
+	if _hub_inner_height_override > 0.0:
+		return _hub_inner_height_override
+	return _compute_hub_inner_height()
+
+
+func hub_upper_band_height() -> float:
+	return hub_inner_height() * UiConstants.INVENTORY_BG_UPPER_BAND_RATIO
+
+
+func hub_grid_band_height() -> float:
+	return hub_inner_height() * UiConstants.INVENTORY_BG_GRID_BAND_RATIO
+
+
+## Scroll viewport inside the grid band; hub band ratios stay fixed for bottom nav alignment.
+func inventory_scroll_viewport_height() -> float:
+	var grid_h := inventory_grid_pixel_size().y
+	var band_h := hub_grid_band_height()
+	var cap := minf(grid_h, band_h)
+	if inventory_scroll_max_height <= 0.0:
+		return cap
+	return clampf(inventory_scroll_max_height, inventory_slot_size.y, cap)
+
+
+func hub_nav_band_height() -> float:
+	return hub_inner_height() * UiConstants.INVENTORY_BG_NAV_BAND_RATIO
 
 
 func hub_lower_fixed_height() -> float:
-	return (
-		float(hub_lower_inset_top)
-		+ float(bottom_bar_height)
-		+ hub_lower_nav_gap()
-		+ float(hub_lower_inset_bottom)
-	)
+	return hub_grid_band_height() + hub_nav_band_height()
 
 
 func hub_lower_band_height() -> float:
-	return inventory_row_pixel_size().y + float(bottom_bar_height) + hub_lower_nav_gap() + float(hub_lower_inset_bottom)
+	return hub_grid_band_height() + hub_nav_band_height()
 
 
 func hub_chrome_bar_height() -> float:
 	return HUB_HEADER_BAND_HEIGHT + float(spacing_tight)
-
-
-func hub_upper_band_height() -> float:
-	return float(spacing_normal) + hero_band_min_height() + float(spacing_normal)
-
-
-func hub_inner_height() -> float:
-	return hub_upper_band_height() + hub_lower_band_height()
 
 
 func panel_pixel_height() -> float:
@@ -306,28 +335,38 @@ func hub_column_pixel_height() -> float:
 ## Keeps the hub column (chrome bar + panel) inside the overlay band above combat.
 ## Shrinks visible grid rows via `inventory_scroll_max_height` when slot sizes grow.
 func fit_panel_to_viewport() -> bool:
+	_hub_inner_height_override = -1.0
+	var grid_h := inventory_grid_pixel_size().y
+	var computed_inner := _compute_hub_inner_height()
 	var max_h := max_hub_panel_pixel_height()
-	var full_grid_h := inventory_grid_pixel_size().y
-	var desired_scroll := minf(full_grid_h, inventory_scroll_max_height)
-	inventory_scroll_max_height = desired_scroll
-	if hub_column_pixel_height() <= max_h + 0.5:
-		return false
-	var max_panel_h := max_h - hub_chrome_bar_height()
 	var margins := float(
 		UiConstants.PANEL_TEXTURE_MARGIN_TOP + UiConstants.PANEL_TEXTURE_MARGIN_BOTTOM
 	)
-	var max_inner := max_panel_h - margins
-	var max_grid_band := max_inner - hub_upper_band_height() - hub_lower_fixed_height()
+	var max_inner := max_h - hub_chrome_bar_height() - margins
+	if computed_inner <= max_inner + 0.5:
+		_clamp_inventory_scroll_max_height(hub_grid_band_height())
+		return inventory_scroll_viewport_height() < grid_h - 0.5
+	_hub_inner_height_override = max_inner
+	var grid_band := hub_grid_band_height()
 	var min_row_h := inventory_slot_size.y
-	if max_grid_band < min_row_h - 0.5:
+	if grid_band < min_row_h - 0.5:
 		push_warning(
 			"InventoryLayout: base_unit=%d exceeds overlay viewport; reduce base_unit or window layout."
 			% base_unit
 		)
-		inventory_scroll_max_height = minf(desired_scroll, min_row_h)
+		inventory_scroll_max_height = min_row_h
 		return true
-	inventory_scroll_max_height = clampf(max_grid_band, min_row_h, desired_scroll)
-	return inventory_scroll_max_height < desired_scroll - 0.5
+	_clamp_inventory_scroll_max_height(grid_band)
+	return inventory_scroll_viewport_height() < grid_h - 0.5
+
+
+func _clamp_inventory_scroll_max_height(band_cap: float) -> void:
+	var grid_h := inventory_grid_pixel_size().y
+	var cap := minf(grid_h, band_cap)
+	var min_row_h := inventory_slot_size.y
+	if inventory_scroll_max_height <= 0.0:
+		return
+	inventory_scroll_max_height = clampf(inventory_scroll_max_height, min_row_h, cap)
 
 
 func hero_band_min_height() -> float:
