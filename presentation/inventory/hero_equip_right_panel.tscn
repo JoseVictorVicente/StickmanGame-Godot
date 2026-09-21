@@ -56,11 +56,9 @@ text = "+"
 autowrap_mode = 3
 
 [node name="SlotRing" parent="MainGrid" unique_id=435455995 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
 [node name="SlotPendant" parent="MainGrid" unique_id=1564896119 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
 [node name="SlotSkillMenuPassiva1" type="Button" parent="MainGrid" unique_id=574950785]
@@ -75,29 +73,29 @@ text = "+"
 autowrap_mode = 3
 
 [node name="SlotBracelet" parent="MainGrid" unique_id=1933086272 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
 [node name="SlotBelt" parent="MainGrid" unique_id=1293321618 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="." unique_id=1267397833]
 layout_mode = 2
-columns = 2
 
 [node name="SlotPet" parent="GridContainer" unique_id=1649155764 instance=ExtResource("2_slot")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
-size_flags_horizontal = 0
+size_flags_horizontal = 10
 
-[node name="SortInventoryButton" type="Button" parent="GridContainer" unique_id=950267656]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=752579915]
+layout_mode = 2
+
+[node name="SortInventoryButton" type="Button" parent="VBoxContainer" unique_id=950267656]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 8
-size_flags_vertical = 8
+size_flags_vertical = 10
 tooltip_text = "Organizar inventário"
 theme_override_styles/normal = SubResource("StyleBoxFlat_sort_normal")
 text = "F"
