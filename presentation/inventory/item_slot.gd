@@ -10,6 +10,11 @@ signal item_right_clicked(slot: ItemSlot)
 signal item_dropped(destino: ItemSlot, item: ItemData, origem: ItemSlot)
 
 const OFFSET_LEGENDA := Vector2(10, 0)
+const SLOT_FRAME_TEXTURE := preload("res://sprites/ui/slot_border.png")
+const SLOT_FRAME_BLEED_BASE_SIZE := 42.0
+const SLOT_FRAME_BLEED_BASE_PX := 2.0
+const SLOT_ICON_INSET_BASE_SIZE := 42.0
+const SLOT_ICON_INSET_BASE_PX := 5.0
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
 const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
@@ -27,24 +32,57 @@ static var _slot_legenda: ItemSlot
 var item: ItemData = null
 var accepted_type: ItemData.Type = ItemData.Type.WEAPON
 var accepts_any: bool = true
+var is_expand_placeholder: bool = false
 var slot_label: String = ""
 var validar_drop_extra: Callable
 var forge_reserved: bool = false
 var icone_rect: TextureRect
+var slot_frame: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
 var _textura_vazia: Texture2D
 
 
 func _ready() -> void:
+	if icone_rect == null:
+		icone_rect = get_icon_rect()
+	if slot_frame == null:
+		slot_frame = get_node_or_null("%SlotFrame") as TextureRect
+	if slot_frame and slot_frame.texture == null:
+		slot_frame.texture = SLOT_FRAME_TEXTURE
+	_sync_slot_chrome_layout()
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 	visibility_changed.connect(_on_visibility_changed)
 	tree_exiting.connect(_hide_tooltip)
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_sync_slot_chrome_layout()
+
+
 func get_icon_rect() -> TextureRect:
 	return get_node_or_null("Icone") as TextureRect
+
+
+func _sync_slot_chrome_layout() -> void:
+	var side := minf(size.x, size.y)
+	if side <= 0.0:
+		return
+	var scale := side / SLOT_FRAME_BLEED_BASE_SIZE
+	if slot_frame:
+		var bleed := maxf(SLOT_FRAME_BLEED_BASE_PX, SLOT_FRAME_BLEED_BASE_PX * scale)
+		slot_frame.offset_left = -bleed
+		slot_frame.offset_top = -bleed
+		slot_frame.offset_right = bleed
+		slot_frame.offset_bottom = bleed
+	if icone_rect:
+		var inset := maxf(SLOT_ICON_INSET_BASE_PX, SLOT_ICON_INSET_BASE_PX * scale)
+		icone_rect.offset_left = inset
+		icone_rect.offset_top = inset
+		icone_rect.offset_right = -inset
+		icone_rect.offset_bottom = -inset
 
 
 func configure(
@@ -53,6 +91,9 @@ func configure(
 	p_qualquer: bool = true
 ) -> void:
 	icone_rect = p_icone if p_icone else get_icon_rect()
+	slot_frame = get_node_or_null("%SlotFrame") as TextureRect
+	if slot_frame and slot_frame.texture == null:
+		slot_frame.texture = SLOT_FRAME_TEXTURE
 	accepted_type = p_tipo
 	accepts_any = p_qualquer
 	if not accepts_any:
@@ -65,15 +106,40 @@ func configure(
 
 
 func set_item(novo: ItemData) -> void:
+	if is_expand_placeholder:
+		return
 	item = novo
 	_apply_icon()
+	update_visual()
+
+
+func set_expand_placeholder(enabled: bool = true) -> void:
+	is_expand_placeholder = enabled
+	if enabled:
+		item = null
+		accepts_any = false
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tooltip_text = ""
+	else:
+		accepts_any = true
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	update_visual()
 
 
 func update_visual(selecionado: bool = _selecionado) -> void:
 	_selecionado = selecionado
 	_ensure_abbreviation()
-	add_theme_stylebox_override("panel", _current_style())
+	_apply_frame_modulate()
+	if is_expand_placeholder:
+		if _label_sigla:
+			_label_sigla.text = "+"
+			_label_sigla.visible = true
+			_label_sigla.add_theme_color_override("font_color", Color(0.82, 0.68, 0.32, 1))
+		if icone_rect:
+			icone_rect.texture = null
+		tooltip_text = ""
+		return
 	if _label_sigla:
 		if item:
 			_label_sigla.text = item.type_abbreviation()
@@ -97,6 +163,8 @@ func set_forge_reserved(ativa: bool) -> void:
 
 
 func aceita(candidato: ItemData) -> bool:
+	if is_expand_placeholder:
+		return false
 	if candidato == null:
 		return true
 	if forge_reserved:
@@ -282,7 +350,7 @@ func _tooltip_label(texto: String, cor: Color, tamanho: int, negrito: bool) -> L
 
 func _get_drag_data(_posicao: Vector2) -> Variant:
 	_hide_tooltip()
-	if item == null or forge_reserved:
+	if is_expand_placeholder or item == null or forge_reserved:
 		return null
 	var preview := TextureRect.new()
 	preview.texture = item.icone
@@ -346,20 +414,22 @@ func _ensure_abbreviation() -> void:
 	add_child(_label_sigla)
 
 
-func _current_style() -> StyleBoxFlat:
-	var estilo := StyleBoxFlat.new()
-	estilo.set_corner_radius_all(3)
+func _apply_frame_modulate() -> void:
+	if slot_frame == null:
+		slot_frame = get_node_or_null("%SlotFrame") as TextureRect
+	if slot_frame == null:
+		return
+	var cor := Color.WHITE
 	if item:
 		var raridade := item.get_rarity_color()
-		estilo.bg_color = Color(raridade.r * 0.18, raridade.g * 0.16, raridade.b * 0.16, 1)
-		estilo.border_color = raridade
-	else:
-		estilo.bg_color = Color(0.06, 0.05, 0.04, 1)
-		estilo.border_color = Color(0.72, 0.58, 0.28, 1)
-	estilo.set_border_width_all(3 if _selecionado else 2)
+		cor = Color(
+			lerpf(1.0, raridade.r, 0.45),
+			lerpf(1.0, raridade.g, 0.45),
+			lerpf(1.0, raridade.b, 0.45),
+			1.0
+		)
 	if _selecionado:
-		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+		cor = Color(1.0, 0.88, 0.42)
 	if forge_reserved:
-		estilo.bg_color = Color(estilo.bg_color.r * 0.45, estilo.bg_color.g * 0.45, estilo.bg_color.b * 0.45, estilo.bg_color.a)
-		estilo.border_color = Color(estilo.border_color.r * 0.55, estilo.border_color.g * 0.55, estilo.border_color.b * 0.55, 0.65)
-	return estilo
+		cor = cor * Color(0.55, 0.55, 0.55, 0.85)
+	slot_frame.modulate = cor

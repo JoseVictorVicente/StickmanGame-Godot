@@ -11,7 +11,7 @@
 
 [node name="BottomNav" type="HBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(438, 34)
+custom_minimum_size = Vector2(420, 34)
 size_flags_horizontal = 4
 size_flags_vertical = 0
 theme_override_constants/separation = 3

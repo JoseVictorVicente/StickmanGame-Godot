@@ -32,12 +32,6 @@ func set_inventory_visible(visible_hub: bool) -> void:
 	if _menu.hub_content == null or _menu.hub_body == null:
 		return
 	_menu.restore_base_panel()
-	if not visible_hub:
-		var tam := _menu.hub_body.get_combined_minimum_size()
-		var layout := _menu.get_layout()
-		tam.x = maxf(tam.x, layout.panel_pixel_width())
-		tam.y = maxf(tam.y, _menu.hub_body.custom_minimum_size.y)
-		_menu.hub_body.custom_minimum_size = tam
 	_menu.hub_content.visible = visible_hub
 
 

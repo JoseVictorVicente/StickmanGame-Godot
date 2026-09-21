@@ -16,9 +16,11 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export var spacing_normal: int = 6
 @export var bottom_bar_height: int = 34
 @export var formation_bar_height: int = 0
-@export var sort_toolbar_height: int = 40
-@export var sort_button_scale: float = 1.5
-@export var hub_lower_inset_top: int = 4
+## Reserved row height for the sort button; keeps hero/inventory bands stable when icon shrinks. 0 = match icon height.
+@export var sort_toolbar_height: int = 0
+## Icon size only; does not change layout row height when `sort_toolbar_height` > 0.
+@export var sort_button_scale: float = 0.9
+@export var hub_lower_inset_top: int = 40
 @export var hub_lower_inset_bottom: int = 0
 ## Visible scroll viewport height in px. 0 = fill the grid band. Does not move bottom nav.
 @export var inventory_scroll_max_height: float = 0.0
@@ -60,8 +62,8 @@ const HUB_HEADER_BAND_HEIGHT := 40.0
 @export_group("Grade de inventário")
 @export var inventory_grid_columns: int = INVENTORY_COLUMNS
 @export var inventory_grid_rows: int = INVENTORY_ROWS
-@export var inventory_grid_h_separation: int = 2
-@export var inventory_grid_v_separation: int = 2
+@export var inventory_grid_h_separation: int = 0
+@export var inventory_grid_v_separation: int = 0
 
 @export_group("Painel principal")
 @export var panel_min_width: float = 477.0
@@ -165,7 +167,7 @@ func hub_body_height() -> float:
 func equip_right_columns_pixel_size() -> Vector2:
 	var jewelry_h := equip_block_pixel_size(2, 2).y
 	var pet_h := pet_slot_pixel_size().y
-	var sort_h := sort_button_pixel_size().y
+	var sort_h := sort_button_row_height()
 	var h := jewelry_h + float(spacing_tight) + pet_h + float(spacing_tight) + sort_h
 	return Vector2(left_zone_pixel_size().x, h)
 
@@ -198,10 +200,25 @@ func pet_slot_pixel_size() -> Vector2:
 	return Vector2(w, h)
 
 
-func sort_button_pixel_size() -> Vector2:
+func sort_button_icon_pixel_size() -> Vector2:
 	var pet_w := pet_slot_pixel_size().x
 	var side := minf(equip_slot_size.x * sort_button_scale, pet_w)
 	return Vector2(side, side)
+
+
+func sort_button_row_height() -> float:
+	var icon_h := sort_button_icon_pixel_size().y
+	if sort_toolbar_height > 0:
+		return maxf(float(sort_toolbar_height), icon_h)
+	return icon_h
+
+
+func sort_button_row_pixel_size() -> Vector2:
+	return Vector2(pet_slot_pixel_size().x, sort_button_row_height())
+
+
+func sort_button_pixel_size() -> Vector2:
+	return sort_button_icon_pixel_size()
 
 
 func center_column_pixel_size() -> Vector2:

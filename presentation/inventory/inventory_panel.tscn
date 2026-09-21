@@ -1,24 +1,28 @@
 [gd_scene format=3 uid="uid://c8invpanel1"]
 
-[ext_resource type="Script" path="res://presentation/inventory/inventory_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://8el4ye6nhimb" path="res://presentation/inventory/inventory_panel.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://c8invslots01" path="res://presentation/inventory/inventory_slots_grid.tscn" id="2_ext"]
 
-[node name="InventoryPanel" type="VBoxContainer"]
+[node name="InventoryPanel" type="VBoxContainer" unique_id=1088023359]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 148)
+offset_right = 428.0
+offset_bottom = 186.0
 size_flags_horizontal = 4
 size_flags_vertical = 0
 theme_override_constants/separation = 2
 script = ExtResource("1_script")
 
-[node name="InventoryScroll" type="ScrollContainer" parent="."]
+[node name="InventoryScroll" type="ScrollContainer" parent="." unique_id=94294768]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 148)
 layout_mode = 2
 size_flags_horizontal = 4
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
-draw_scrollbar_over_content = true
 
-[node name="InventoryGrid" parent="InventoryScroll" instance=ExtResource("2_ext")]
+[node name="InventoryGrid" parent="InventoryScroll" unique_id=1814675022 instance=ExtResource("2_ext")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4

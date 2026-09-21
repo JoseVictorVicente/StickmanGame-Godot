@@ -11,15 +11,26 @@ func serialize_inventory(menu: InventoryMenu) -> Array:
 	return lista
 
 
-func apply_inventory(menu: InventoryMenu, lista: Array) -> void:
+func apply_inventory(menu: InventoryMenu, dados: Variant) -> void:
+	var lista := _inventory_slot_payload(dados)
 	var slots := menu.inventory_slots_grid.usable_slots() if menu.inventory_slots_grid else menu.inventory_slots()
 	for i in slots.size():
 		var item: ItemData = null
 		if i < lista.size() and lista[i] is Dictionary:
-			var dados: Dictionary = lista[i]
-			if not dados.is_empty():
-				item = ItemData.from_dictionary(dados)
+			var slot_data: Dictionary = lista[i]
+			if not slot_data.is_empty():
+				item = ItemData.from_dictionary(slot_data)
 		slots[i].set_item(item)
+
+
+func _inventory_slot_payload(dados: Variant) -> Array:
+	if dados is Array:
+		return dados
+	if dados is Dictionary:
+		var raw: Variant = dados.get("slots", dados.get("items", []))
+		if raw is Array:
+			return raw
+	return []
 
 
 func serialize_equipment(menu: InventoryMenu) -> Dictionary:

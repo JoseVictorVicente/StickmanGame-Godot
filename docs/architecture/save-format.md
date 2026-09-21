@@ -1,6 +1,6 @@
 # Save Format
 
-Persistence in `user://save.cfg` (`ConfigFile`). Current version **`SAVE_VERSION = 6`** (`core/save_service.gd`).
+Persistence in `user://save.cfg` (`ConfigFile`). Current version **`SAVE_VERSION = 8`** (`core/save_service.gd`).
 
 The game exposes state via `main.collect_save()` / `main.apply_from_save(data)`. `SaveService` maps to `ConfigFile` sections and serializes complex structures as JSON strings.
 
@@ -15,6 +15,8 @@ The game exposes state via `main.collect_save()` / `main.apply_from_save(data)`.
 | **4** | Equipped hero skills (`hero_equipment`) + English keys + legacy PT aliases |
 | **5** | English runtime dict keys (`level`, `attack`, `hp`, `unlocked`, …) + item/skill ID migration via `IdMigration` |
 | **6** | Warehouse `tabs` (was `abas`), equipment slot `type` (was `tipo`), bonus keys `attack_pct`/`hp_pct`/`evasion` |
+| **7** | Inventory grid normalized to **49** usable slots (array); legacy dict payloads coerced |
+| **8** | Inventory UI **5 rows × 10 cols** (49 usable + expand placeholder); save stays 49-slot array |
 
 ### Migration v3
 
@@ -55,6 +57,14 @@ If `version < 6`, `SaveService._migrate_schema_v6()`:
 
 Runtime bonus dictionaries use `attack_pct`, `hp_pct`, and `evasion` (legacy keys migrated on read in services).
 
+### Migration v7
+
+If `version < 7`, `SaveService._migrate_schema_v7()` normalizes `inventory` to a **49-element** array (empty slot = `{}`). Legacy dict payloads (`slots` / `items` keys) are accepted.
+
+### Migration v8
+
+If `version < 8`, `SaveService._migrate_schema_v8()` re-applies the same 49-slot normalization when upgrading from interim 7×7 UI saves. Item order is preserved by index (no spatial remapping).
+
 ## Key aliases (v4)
 
 | English (canonical) | Legacy PT |
@@ -91,7 +101,7 @@ Dictionary returned by `scenes/main.gd`:
 	"repeat_stage": bool,
 	"active_character_index": int,  # 0..2 in character menu
 	"progress": Dictionary,         # see below
-	"inventory": Array,             # 49 × ItemData dict or {} (5×10 grid, expand slot not saved)
+	"inventory": Array,             # 49 × ItemData dict or {} (5 rows × 10 cols, slot 50 = expand UI)
 	"warehouse": Dictionary,        # see below
 	"equipment": Dictionary,        # per class_id
 	"party": Dictionary,            # party
@@ -148,7 +158,7 @@ Legacy: `Array` aligned with `party.classes` — still accepted in `HeroProgress
 
 ### `inventory`
 
-Array of **49** elements (usable inventory slots; UI shows 50 with expand "+" placeholder). Empty item = `{}`. Filled item = `ItemData.to_dictionary()`:
+Array of **49** elements (5 rows × 10 cols inventory grid; 49 usable slots, slot 50 is a non-persisted expand placeholder). Empty item = `{}`. Filled item = `ItemData.to_dictionary()`:
 
 ```json
 {

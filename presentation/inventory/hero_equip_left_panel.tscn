@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c8heroeqleft"]
 
-[ext_resource type="Script" uid="uid://c82hnbc4s6qbh" path="res://presentation/inventory/hero_equip_left_panel.gd" id="1_script"]
+[ext_resource type="Script" path="res://presentation/inventory/hero_equip_left_panel.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_skill"]
@@ -16,97 +16,30 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
 bg_color = Color(0.1, 0.08, 0.07, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.5, 0.4, 0.22, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
 bg_color = Color(0.32, 0.24, 0.16, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.9, 0.74, 0.4, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
-[node name="HeroEquipLeftPanel" type="HBoxContainer" unique_id=473932359]
+[node name="HeroEquipLeftPanel" type="GridContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(143, 177)
+custom_minimum_size = Vector2(134, 177)
 size_flags_horizontal = 0
-size_flags_vertical = 0
-theme_override_constants/separation = 4
-script = ExtResource("1_script")
-
-[node name="EquipGrid" type="GridContainer" parent="." unique_id=1961763829]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(88, 177)
-layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 3
-columns = 2
+columns = 3
+script = ExtResource("1_script")
 
-[node name="SlotWeapon" parent="EquipGrid" unique_id=765817869 instance=ExtResource("2_slot")]
+[node name="SlotWeapon" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-size_flags_horizontal = 4
 
-[node name="SlotOffhand" parent="EquipGrid" unique_id=1332719007 instance=ExtResource("2_slot")]
+[node name="SlotOffhand" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-size_flags_horizontal = 4
 
-[node name="SlotHelmet" parent="EquipGrid" unique_id=488362242 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="SlotChest" parent="EquipGrid" unique_id=738893540 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="SlotPants" parent="EquipGrid" unique_id=530365461 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="SlotGloves" parent="EquipGrid" unique_id=724886106 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="SlotBoots" parent="EquipGrid" unique_id=406654628 instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="ActiveColumn" type="VBoxContainer" parent="." unique_id=306045015]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 129)
-layout_mode = 2
-theme_override_constants/separation = 3
-alignment = 0
-
-[node name="SlotSkillMenuAtiva0" type="Button" parent="ActiveColumn" unique_id=519441421]
+[node name="SlotSkillAtiva0" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
@@ -117,7 +50,15 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuAtiva1" type="Button" parent="ActiveColumn" unique_id=1756616291]
+[node name="SlotHelmet" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotChest" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="SlotSkillAtiva1" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
@@ -128,14 +69,29 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "+"
 autowrap_mode = 3
 
-[node name="SlotSkillMenuUltimate" type="Button" parent="ActiveColumn" unique_id=918273645]
-unique_name_in_owner = true
+[node name="SlotPants" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-tooltip_text = "Ultimate"
-text = "+"
-autowrap_mode = 3
+
+[node name="SlotGloves" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="CellSpacer22" type="Control" parent="."]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SlotBoots" parent="." instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+
+[node name="CellSpacer31" type="Control" parent="."]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CellSpacer32" type="Control" parent="."]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+mouse_filter = 2

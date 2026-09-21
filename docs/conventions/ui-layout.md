@@ -72,6 +72,7 @@ MenuArea (HBox)
 - **Viewport cap:** after changing `base_unit` or slot sizes, call `InventoryLayout.sync_from_base_unit()` — it runs `fit_panel_to_viewport()` so the panel never exceeds `UiConstants.max_hub_panel_pixel_height()` (860 − combat − top margin). Extra grid rows scroll inside `InventoryScroll` instead of growing the panel.
 - Sort button: `hero_equip_right_panel.tscn` (`%SortInventoryButton`), right-aligned under pet slot.
 - Avoid `SectionVisualOffset` in the hub; use container `separation` and layout tokens (`formation_bar_height`, `hub_lower_inset_top`).
+- **Inventory hub (2026 rebuild):** hub prefabs bake all geometry in `.tscn`; hub scripts must not call `custom_minimum_size`, `position`, or `apply_layout()` at runtime. Regenerate grids via `tools/generate_inventory_slots_tscn.py` when slot size changes.
 
 ## New UI scene checklist
 

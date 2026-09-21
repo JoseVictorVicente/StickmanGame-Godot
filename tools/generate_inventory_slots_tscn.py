@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Generate inventory_slots_grid.tscn with 50 baked ItemSlot instances."""
+"""Generate inventory_slots_grid.tscn with 50 baked ItemSlot instances (5 rows × 10 cols; slot 50 = expand)."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "presentation" / "inventory" / "inventory_slots_grid.tscn"
 
 SLOT_SIZE = 42
-H_SEP = 2
-V_SEP = 2
+H_SEP = 0
+V_SEP = 0
 COLS = 10
 ROWS = 5
+SLOT_COUNT = COLS * ROWS
+EXPAND_SLOT_INDEX = SLOT_COUNT
 GRID_W = COLS * SLOT_SIZE + (COLS - 1) * H_SEP
 GRID_H = ROWS * SLOT_SIZE + (ROWS - 1) * V_SEP
 
@@ -26,10 +28,12 @@ lines = [
     f"theme_override_constants/v_separation = {V_SEP}",
     'script = ExtResource("1_grid")',
 ]
-for index in range(1, 51):
+for index in range(1, SLOT_COUNT + 1):
     lines.append("")
     lines.append(f'[node name="SlotInventario_{index:02d}" parent="." instance=ExtResource("2_slot")]')
+    if index == EXPAND_SLOT_INDEX:
+        lines.append("unique_name_in_owner = true")
     lines.append(f"custom_minimum_size = Vector2({SLOT_SIZE}, {SLOT_SIZE})")
     lines.append("layout_mode = 2")
 OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(f"Wrote {OUT}")
+print(f"Wrote {OUT} ({ROWS} rows × {COLS} cols, expand slot {EXPAND_SLOT_INDEX})")

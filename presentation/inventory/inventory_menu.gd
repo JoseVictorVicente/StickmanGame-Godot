@@ -35,13 +35,13 @@ var CLASSES: Array[ClassData] = []
 @onready var hub_body: PanelContainer = %HubBody
 @onready var hub_content: VBoxContainer = %HubContent
 @onready var hub_upper_row: HBoxContainer = %HubUpperRow
-@onready var hub_row_spacer_left: Control = %HubRowSpacerLeft
-@onready var hub_row_spacer_right: Control = %HubRowSpacerRight
 @onready var overlay_stack: Control = %OverlayStack
 @onready var menu_area: HBoxContainer = %MenuArea
 @onready var overlay_vbox: VBoxContainer = %OverlayVBox
-@onready var top_spacer: Control = %TopSpacer
-@onready var bottom_spacer: Control = %BottomSpacer
+@onready var top_spacer_expand: Control = %TopSpacerExpand
+@onready var top_spacer_combat: Control = %TopSpacerCombat
+@onready var bottom_spacer_combat: Control = %BottomSpacerCombat
+@onready var bottom_spacer_expand: Control = %BottomSpacerExpand
 @onready var forge_panel_node: ForgePanel = %PanelForgePanel
 @onready var warehouse_panel_node: WarehousePanel = %WarehousePanel
 @onready var worlds_panel_node: WorldsPanel = %WorldsPanel
@@ -93,6 +93,7 @@ var query_gold: Callable
 var query_slot_progress: Callable
 
 @export var layout_inventario: InventoryLayout = preload("res://presentation/inventory/inventory_layout_default.tres")
+@export var active_side_button_style: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -101,8 +102,8 @@ func _ready() -> void:
 	_drag.setup(self)
 	_panels.setup(self)
 	_configure_hub_prefabs()
-	_apply_panel_layout()
 	_setup_equipment()
+	_apply_combat_spacers()
 	_wire_character_selector()
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	quit_game_button.pressed.connect(_on_quit_button_pressed)
@@ -153,9 +154,7 @@ func _ready() -> void:
 
 
 func get_layout() -> InventoryLayout:
-	var layout := layout_inventario if layout_inventario else InventoryLayout.new()
-	layout.sync_from_base_unit()
-	return layout
+	return layout_inventario if layout_inventario else InventoryLayout.new()
 
 
 func _layout() -> InventoryLayout:
@@ -175,7 +174,6 @@ func _bind_settings_nodes() -> void:
 
 
 func _configure_hub_prefabs() -> void:
-	var layout := get_layout()
 	inventory_slots_grid = inventory_panel.inventory_grid
 	sort_inventory_button = null
 	storage_button = bottom_nav.storage_button
@@ -189,8 +187,9 @@ func _configure_hub_prefabs() -> void:
 	hero_character.configure(self)
 	hero_equip_right.configure(self)
 	hero_equip_right.bind_skill_provider(_hero_skill_provider)
-	inventory_panel.configure(self, layout)
-	bottom_nav.configure(self, layout)
+	inventory_panel.configure(self)
+	bottom_nav.configure(self)
+	sort_inventory_button = hero_equip_right.get_sort_button() if hero_equip_right else null
 	if skill_tree_panel_node:
 		skill_tree_panel_node.configure(self)
 		if not skill_tree_panel_node.panel_open_changed.is_connected(_on_skill_tree_visibility_changed):
@@ -242,13 +241,10 @@ func connect_item_slot(slot: ItemSlot) -> void:
 
 
 func _setup_equipment() -> void:
-	var layout := get_layout()
 	var class_ids: Array = []
 	for classe in CLASSES:
 		class_ids.append(classe.id)
 	equipment_loadouts.ensure_classes(class_ids)
-	hero_equip_left.apply_layout(layout)
-	hero_equip_right.apply_layout(layout)
 	hero_equip_left.connect_equipment_slots(Callable(self, "connect_item_slot"))
 	for slot in hero_equip_right.slots():
 		connect_item_slot(slot)
@@ -300,10 +296,6 @@ func restore_base_panel() -> void:
 		return
 	hub_body.modulate = Color.WHITE
 	hub_body.mouse_filter = Control.MOUSE_FILTER_STOP
-	if hub_body.custom_minimum_size.x < get_layout().panel_pixel_width():
-		hub_body.custom_minimum_size.x = get_layout().panel_pixel_width()
-
-
 func restore_forge_button_style() -> void:
 	_apply_stored_button_styles(forge_button, _forge_button_styles)
 	if forge_button:
@@ -326,16 +318,9 @@ func restore_world_button_style() -> void:
 
 
 func create_active_side_button_style() -> StyleBoxFlat:
-	var estilo := StyleBoxFlat.new()
-	estilo.content_margin_left = 8
-	estilo.content_margin_top = 7
-	estilo.content_margin_right = 8
-	estilo.content_margin_bottom = 7
-	estilo.bg_color = Color(0.32, 0.24, 0.16, 1)
-	estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-	estilo.set_border_width_all(1)
-	estilo.set_corner_radius_all(4)
-	return estilo
+	if active_side_button_style:
+		return active_side_button_style.duplicate()
+	return null
 
 
 func setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> void:
@@ -358,75 +343,9 @@ func setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> 
 	botao.modulate = Color(1.0, 0.92, 0.72, 1.0)
 
 
-func _apply_panel_layout() -> void:
-	var layout := get_layout()
-	if hub_chrome_bar:
-		hub_chrome_bar.custom_minimum_size = Vector2(
-			layout.panel_pixel_width(),
-			layout.hub_chrome_bar_height()
-		)
-	if cabecalho:
-		cabecalho.custom_minimum_size.y = InventoryLayout.HUB_HEADER_BAND_HEIGHT
-	if hub_body:
-		hub_body.custom_minimum_size = Vector2(layout.panel_pixel_width(), layout.panel_pixel_height())
-	if hub_content:
-		hub_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_apply_hub_content_heights(layout)
-	if inventory_panel:
-		inventory_panel.apply_layout(layout)
-	if bottom_nav:
-		bottom_nav.apply_layout(layout)
-	if not Engine.is_editor_hint():
-		if inventory_panel:
-			inventory_panel.visible = true
-			inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		if bottom_nav:
-			bottom_nav.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			bottom_nav.size_flags_vertical = Control.SIZE_SHRINK_END
-	if gold_label:
-		gold_label.add_theme_font_size_override("font_size", layout.font_gold)
-	if hero_equip_left:
-		hero_equip_left.apply_layout(layout)
-	if hero_character:
-		hero_character.apply_layout(layout)
-	if hero_equip_right:
-		hero_equip_right.apply_layout(layout)
-	sort_inventory_button = hero_equip_right.get_sort_button() if hero_equip_right else null
-	if sort_inventory_button:
-		sort_inventory_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
-
-
-func _apply_hub_content_heights(layout: InventoryLayout) -> void:
-	var band_w := layout.hub_content_pixel_width()
-	var upper_h := layout.hub_upper_band_height()
-	var grid_h := layout.hub_grid_band_height()
-	var nav_h := layout.hub_nav_band_height()
-	if hub_upper_row:
-		hub_upper_row.custom_minimum_size = Vector2(band_w, upper_h)
-		hub_upper_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		hub_upper_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	for spacer in [hub_row_spacer_left, hub_row_spacer_right]:
-		if spacer:
-			spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if inventory_panel:
-		inventory_panel.custom_minimum_size = Vector2(band_w, grid_h)
-		inventory_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	if bottom_nav:
-		bottom_nav.custom_minimum_size = Vector2(band_w, nav_h)
-		bottom_nav.size_flags_vertical = Control.SIZE_SHRINK_END
-
-
 func _wire_character_selector() -> void:
-	var layout := get_layout()
-	_character_buttons = hero_character.wire_character_selector(
-		HERO_SLOTS,
-		layout.character_slot_size,
-		Callable(self, "_create_character_style"),
-		Callable(self, "select_character")
-	)
-	if _character_buttons.size() > 0:
-		select_character(0)
+	_character_buttons = []
+	select_character(0)
 
 
 func select_character(stage_index: int) -> void:
@@ -453,11 +372,6 @@ func select_character(stage_index: int) -> void:
 		team.select_slot(stage_index, false)
 	_update_portrait()
 	_refresh_all_skill_slots()
-	hero_character.set_character_button_style(
-		_character_buttons,
-		stage_index,
-		Callable(self, "_create_character_style")
-	)
 	refresh_equipment_ui()
 	character_changed.emit(stage_index)
 	equipment_changed.emit()
@@ -499,18 +413,20 @@ func set_below_combat(abaixo: bool) -> void:
 
 
 func _apply_combat_spacers() -> void:
-	if top_spacer == null or bottom_spacer == null:
+	if top_spacer_expand == null or top_spacer_combat == null:
+		return
+	if bottom_spacer_combat == null or bottom_spacer_expand == null:
 		return
 	if _menus_abaixo:
-		top_spacer.custom_minimum_size = Vector2(0, COMBAT_RESERVED_SPACE)
-		top_spacer.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		bottom_spacer.custom_minimum_size = Vector2.ZERO
-		bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		top_spacer_expand.visible = false
+		top_spacer_combat.visible = true
+		bottom_spacer_combat.visible = false
+		bottom_spacer_expand.visible = true
 	else:
-		top_spacer.custom_minimum_size = Vector2(0, MARGEM_TOPO_UI)
-		top_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		bottom_spacer.custom_minimum_size = Vector2(0, COMBAT_RESERVED_SPACE)
-		bottom_spacer.size_flags_vertical = Control.SIZE_SHRINK_END
+		top_spacer_expand.visible = true
+		top_spacer_combat.visible = false
+		bottom_spacer_combat.visible = true
+		bottom_spacer_expand.visible = false
 
 
 func get_clickable_rects() -> Array[Rect2]:
@@ -557,9 +473,6 @@ func align_side_panels() -> void:
 		skill_tree_panel_node,
 		overlay_stack
 	)
-	_apply_panel_layout()
-	_sync_side_panel_heights()
-	_align_settings()
 	menu_width_changed.emit()
 	_aligning_side_panels = false
 
@@ -574,19 +487,6 @@ func close_right_panels(except: Control = null) -> void:
 
 func open_skill_tree_panel() -> void:
 	_panels.open_skill_tree()
-
-
-func _sync_side_panel_heights() -> void:
-	if hub_body == null:
-		return
-	var hub_h := (
-		hub_column.get_combined_minimum_size().y
-		if hub_column
-		else hub_body.get_combined_minimum_size().y
-	)
-	for lateral in [warehouse_panel_node, forge_panel_node, worlds_panel_node]:
-		if lateral:
-			lateral.custom_minimum_size.y = hub_h
 
 
 func inventory_slots() -> Array[ItemSlot]:
@@ -969,8 +869,8 @@ func serialize_inventory() -> Array:
 	return _persistence.serialize_inventory(self)
 
 
-func apply_inventory(lista: Array) -> void:
-	_persistence.apply_inventory(self, lista)
+func apply_inventory(dados: Variant) -> void:
+	_persistence.apply_inventory(self, dados)
 
 
 func update_world_progress(world: int, stage: int, difficulty: int, liberadas: Array) -> void:
@@ -1015,20 +915,6 @@ func _class_id_for_slot(stage_index: int) -> String:
 		if classe is ClassData:
 			return (classe as ClassData).id
 	return ""
-
-
-func _create_character_style(selecionado: bool) -> StyleBoxFlat:
-	var estilo := StyleBoxFlat.new()
-	if selecionado:
-		estilo.bg_color = Color(0.22, 0.17, 0.1, 1)
-		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-		estilo.set_border_width_all(3)
-	else:
-		estilo.bg_color = Color(0.08, 0.07, 0.06, 1)
-		estilo.border_color = Color(0.42, 0.35, 0.24, 1)
-		estilo.set_border_width_all(2)
-	estilo.set_corner_radius_all(3)
-	return estilo
 
 
 func _store_forge_button_styles() -> void:
@@ -1170,7 +1056,6 @@ func _open_settings() -> void:
 	_update_localized_texts()
 	settings_panel.show()
 	_panels.set_inventory_visible(false)
-	_align_settings()
 	menu_width_changed.emit()
 
 
@@ -1179,27 +1064,6 @@ func _close_settings() -> void:
 		settings_panel.hide()
 	_panels.set_inventory_visible(true)
 	menu_width_changed.emit()
-
-
-func _align_settings() -> void:
-	if settings_panel == null or not settings_panel.visible or hub_body == null:
-		return
-	var tam := settings_panel.get_combined_minimum_size()
-	tam.x = maxf(tam.x, settings_panel.custom_minimum_size.x)
-	settings_panel.size = tam
-	var origem := hub_body.position
-	if formation_panel_node and formation_panel_node.visible:
-		origem = formation_panel_node.position
-	elif skills_panel_node and skills_panel_node.visible:
-		origem = skills_panel_node.position
-	elif attributes_panel_node and attributes_panel_node.visible:
-		origem = attributes_panel_node.position
-	elif skill_tree_panel_node and skill_tree_panel_node.visible:
-		origem = skill_tree_panel_node.position
-	settings_panel.position = origem + Vector2(
-		hub_body.size.x - tam.x,
-		0.0
-	)
 
 
 func _on_volume_changed(valor: float) -> void:
@@ -1279,7 +1143,6 @@ func _update_localized_texts() -> void:
 		close_settings_button.text = tr(LocaleKeys.BTN_CLOSE)
 	if hero_character.character_attributes_button:
 		hero_character.character_attributes_button.tooltip_text = tr(LocaleKeys.BTN_ATTRIBUTES)
-		hero_character.character_attributes_button.text = ""
 	if formation_button:
 		formation_button.text = ""
 		formation_button.tooltip_text = tr(LocaleKeys.BTN_FORMATION)

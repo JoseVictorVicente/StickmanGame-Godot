@@ -1,22 +1,29 @@
 [gd_scene format=3 uid="uid://c8herochar01"]
 
-[ext_resource type="Script" path="res://presentation/inventory/hero_character_panel.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://w5v1sd0cmvma" path="res://presentation/inventory/hero_character_panel.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://c74n55kpxkj17" path="res://sprites/heroes/px_warrior2.jpg" id="2_ext"]
 [ext_resource type="PackedScene" uid="uid://c8partybtn01" path="res://presentation/inventory/party_hero_slot_button.tscn" id="3_ext"]
 [ext_resource type="Script" uid="uid://u7nsljsgk78f" path="res://presentation/inventory/team_selection_ui.gd" id="4_ext"]
-[ext_resource type="Texture2D" path="res://sprites/ui/nav_attributes.png" id="5_ext"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.18, 0.14, 0.11, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.62, 0.5, 0.28, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_foto"]
+bg_color = Color(0.16, 0.13, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.44, 0.26, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_skill"]
+bg_color = Color(0.06, 0.05, 0.04, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.44, 0.26, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -54,29 +61,8 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_skill"]
-bg_color = Color(0.06, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_foto"]
-bg_color = Color(0.16, 0.13, 0.1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_1xjhv"]
+load_path = "res://.godot/imported/open_status_icon.png-415116945c6dd0b7b37273ffe8a7b965.ctex"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_bg"]
 bg_color = Color(0.08, 0.06, 0.05, 0.92)
@@ -97,21 +83,21 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
-[node name="HeroCharacterPanel" type="VBoxContainer"]
+[node name="HeroCharacterPanel" type="VBoxContainer" unique_id=1202079659]
 unique_name_in_owner = true
-layout_mode = 2
+custom_minimum_size = Vector2(158, 177)
 size_flags_horizontal = 4
 theme_override_constants/separation = 4
 alignment = 1
 script = ExtResource("1_script")
 
-[node name="PortraitArea" type="Control" parent="."]
+[node name="PortraitArea" type="Control" parent="." unique_id=547714963]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(99, 99)
+custom_minimum_size = Vector2(158, 188)
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="AreaFoto" type="Panel" parent="PortraitArea"]
+[node name="AreaFoto" type="Panel" parent="PortraitArea" unique_id=2083188205]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -121,7 +107,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_foto")
 
-[node name="CharacterPortrait" type="TextureRect" parent="PortraitArea/AreaFoto"]
+[node name="CharacterPortrait" type="TextureRect" parent="PortraitArea/AreaFoto" unique_id=736554399]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -137,30 +123,48 @@ texture = ExtResource("2_ext")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CharacterAttributesButton" type="Button" parent="PortraitArea/AreaFoto"]
+[node name="UltimateSlotButton" type="Button" parent="PortraitArea/AreaFoto" unique_id=317258911]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_top = 0.0
-anchor_right = 1.0
-anchor_bottom = 0.0
-offset_left = -30.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = 30.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = -2.0
+grow_vertical = 0
+tooltip_text = "Ultimate"
+theme_override_font_sizes/font_size = 9
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
+disabled = true
+text = "+"
+autowrap_mode = 3
+
+[node name="CharacterAttributesButton" type="TextureButton" parent="PortraitArea/AreaFoto" unique_id=709902566]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.98700005
+anchor_top = 0.011000001
+anchor_right = 0.98700005
+anchor_bottom = 0.011000001
+offset_left = -27.946014
+offset_top = -0.06800008
+offset_right = 0.053985596
+offset_bottom = 27.932
 grow_horizontal = 0
 grow_vertical = 0
 tooltip_text = "Atributos"
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-icon = ExtResource("5_ext")
-icon_alignment = 1
-expand_icon = true
+texture_normal = SubResource("CompressedTexture2D_1xjhv")
+ignore_texture_size = true
+stretch_mode = 0
 
-[node name="CharacterXpBar" type="ProgressBar" parent="PortraitArea/AreaFoto"]
+[node name="CharacterXpBar" type="ProgressBar" parent="PortraitArea/AreaFoto" unique_id=2035680807]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
@@ -179,7 +183,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
 value = 65.0
 show_percentage = false
 
-[node name="CharacterXpLabel" type="Label" parent="PortraitArea/AreaFoto/CharacterXpBar"]
+[node name="CharacterXpLabel" type="Label" parent="PortraitArea/AreaFoto/CharacterXpBar" unique_id=571129235]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -196,55 +200,56 @@ text = "Nv.12 195/300"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TeamArea" type="VBoxContainer" parent="."]
+[node name="TeamArea" type="VBoxContainer" parent="." unique_id=1606892640]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 script = ExtResource("4_ext")
 
-[node name="PartySlots" type="HBoxContainer" parent="TeamArea"]
+[node name="PartySlots" type="HBoxContainer" parent="TeamArea" unique_id=766296821]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(158, 59)
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="PartySlot0" parent="TeamArea/PartySlots" instance=ExtResource("3_ext")]
+[node name="PartySlot0" parent="TeamArea/PartySlots" unique_id=1058055322 instance=ExtResource("3_ext")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PartySlot1" parent="TeamArea/PartySlots" instance=ExtResource("3_ext")]
+[node name="PartySlot1" parent="TeamArea/PartySlots" unique_id=435954390 instance=ExtResource("3_ext")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PartySlot2" parent="TeamArea/PartySlots" instance=ExtResource("3_ext")]
+[node name="PartySlot2" parent="TeamArea/PartySlots" unique_id=615728658 instance=ExtResource("3_ext")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PartyTitle" type="Label" parent="TeamArea"]
+[node name="PartyTitle" type="Label" parent="TeamArea" unique_id=880069690]
 visible = false
 layout_mode = 2
 
-[node name="ClassesTitle" type="Label" parent="TeamArea"]
+[node name="ClassesTitle" type="Label" parent="TeamArea" unique_id=1260428030]
 visible = false
 layout_mode = 2
 
-[node name="GradeClasses" type="GridContainer" parent="TeamArea"]
+[node name="GradeClasses" type="GridContainer" parent="TeamArea" unique_id=1253885613]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 columns = 6
 
-[node name="CharacterRow" type="HBoxContainer" parent="."]
+[node name="CharacterRow" type="HBoxContainer" parent="." unique_id=766623020]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="CharacterNameLabel" type="Label" parent="."]
+[node name="CharacterNameLabel" type="Label" parent="." unique_id=1668597242]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="CharacterLevelLabel" type="Label" parent="."]
+[node name="CharacterLevelLabel" type="Label" parent="." unique_id=1297390972]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

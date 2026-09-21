@@ -69,7 +69,12 @@ static func nav_world_frames() -> SpriteFrames:
 	return sf
 
 
-static func setup_icon_button(botao: Button, caminho_icone: String, lado: int = 42) -> void:
+static func setup_icon_button(
+	botao: Button,
+	caminho_icone: String,
+	lado: int = 42,
+	slot_size: Vector2 = Vector2.ZERO
+) -> void:
 	if botao == null:
 		return
 	var sem_fundo := StyleBoxEmpty.new()
@@ -85,7 +90,10 @@ static func setup_icon_button(botao: Button, caminho_icone: String, lado: int = 
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 	botao.add_theme_constant_override("icon_max_width", lado)
-	botao.custom_minimum_size = Vector2(lado, lado)
+	if slot_size != Vector2.ZERO:
+		botao.custom_minimum_size = slot_size
+	else:
+		botao.custom_minimum_size = Vector2(lado, lado)
 
 
 static func base_gem() -> Texture2D:

@@ -4,7 +4,7 @@ extends RefCounted
 
 const SAVE_PATH := "user://save.cfg"
 const AUTOSAVE_INTERVAL := 30.0
-const SAVE_VERSION := 6
+const SAVE_VERSION := 8
 
 const _LEGACY_KEY_MAP := {
 	"ouro": "gold",
@@ -96,6 +96,10 @@ static func load_game(root: Node) -> bool:
 		payload = _migrate_schema_v5(payload)
 	if version < 6:
 		payload = _migrate_schema_v6(payload)
+	if version < 7:
+		payload = _migrate_schema_v7(payload)
+	if version < 8:
+		payload = _migrate_schema_v8(payload)
 	if root.has_method("apply_from_save"):
 		root.apply_from_save(payload)
 		_log_save_event(EventCatalog.SAVE_LOADED, {
@@ -207,6 +211,35 @@ static func _migrate_schema_v6(payload: Dictionary) -> Dictionary:
 	migrated["warehouse"] = _migrate_warehouse_schema(migrated.get("warehouse", {}))
 	migrated["equipment"] = _migrate_equipment_slot_types(migrated.get("equipment", {}))
 	return migrated
+
+
+static func _migrate_schema_v7(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	migrated["inventory"] = _normalize_inventory_save_array(migrated.get("inventory", []))
+	return migrated
+
+
+static func _migrate_schema_v8(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	migrated["inventory"] = _normalize_inventory_save_array(migrated.get("inventory", []))
+	return migrated
+
+
+static func _normalize_inventory_save_array(inventory: Variant) -> Array:
+	var slots: Array = []
+	if inventory is Dictionary:
+		var raw: Variant = inventory.get("slots", inventory.get("items", []))
+		if raw is Array:
+			slots = raw.duplicate()
+	elif inventory is Array:
+		slots = inventory.duplicate()
+	var normalized: Array = []
+	for i in InventoryService.DEFAULT_UNLOCKED_SLOTS:
+		if i < slots.size() and slots[i] is Dictionary:
+			normalized.append(slots[i])
+		else:
+			normalized.append({})
+	return normalized
 
 
 static func _migrate_warehouse_schema(warehouse: Variant) -> Variant:

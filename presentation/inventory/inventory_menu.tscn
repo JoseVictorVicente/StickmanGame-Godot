@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://c8skills0001" path="res://presentation/inventory/skills_panel.tscn" id="8_skills"]
 [ext_resource type="PackedScene" uid="uid://c8arvore001" path="res://presentation/inventory/skill_tree_panel.tscn" id="9_arvore"]
 [ext_resource type="Texture2D" uid="uid://cyyp1jo2qkwsn" path="res://sprites/ui/inventory_bg.png" id="10_fundo_inventario"]
-[ext_resource type="Resource" uid="uid://layoutinv001" path="res://presentation/inventory/inventory_layout_default.tres" id="12_layout_padrao"]
 [ext_resource type="PackedScene" uid="uid://c8heroeqleft" path="res://presentation/inventory/hero_equip_left_panel.tscn" id="13_left"]
 [ext_resource type="PackedScene" uid="uid://c8herochar01" path="res://presentation/inventory/hero_character_panel.tscn" id="14_char"]
 [ext_resource type="PackedScene" uid="uid://c8heroeqright" path="res://presentation/inventory/hero_equip_right_panel.tscn" id="15_right"]
@@ -17,16 +16,37 @@
 [ext_resource type="PackedScene" uid="uid://c8bottomnav1" path="res://presentation/inventory/bottom_nav.tscn" id="20_nav"]
 [ext_resource type="PackedScene" uid="uid://c8settings01" path="res://presentation/inventory/settings_panel.tscn" id="21_settings"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_inventario"]
-content_margin_left = 35.0
-content_margin_top = 28.0
-content_margin_right = 31.0
-content_margin_bottom = 26.0
-texture = ExtResource("10_fundo_inventario")
-texture_margin_left = 35.0
-texture_margin_top = 28.0
-texture_margin_right = 31.0
-texture_margin_bottom = 26.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_active_side"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.12, 0.1, 0.08, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
 content_margin_left = 8.0
@@ -92,34 +112,30 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
-content_margin_left = 6.0
-content_margin_top = 4.0
-content_margin_right = 6.0
-content_margin_bottom = 4.0
-bg_color = Color(0.12, 0.1, 0.08, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.78, 0.32, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_inventario"]
+content_margin_left = 35.0
+content_margin_top = 28.0
+content_margin_right = 31.0
+content_margin_bottom = 26.0
+texture = ExtResource("10_fundo_inventario")
+texture_margin_left = 35.0
+texture_margin_top = 28.0
+texture_margin_right = 31.0
+texture_margin_bottom = 26.0
 
-[node name="Menu" type="Control"]
+[node name="Menu" type="Control" unique_id=539068831]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = 19.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_menu")
-layout_inventario = ExtResource("12_layout_padrao")
+active_side_button_style = SubResource("StyleBoxFlat_active_side")
 
-[node name="OverlayVBox" type="VBoxContainer" parent="."]
+[node name="OverlayVBox" type="VBoxContainer" parent="." unique_id=2085803656]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -130,13 +146,22 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 
-[node name="TopSpacer" type="Control" parent="OverlayVBox"]
+[node name="TopSpacerExpand" type="Control" parent="OverlayVBox" unique_id=1954731793]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="MenuArea" type="HBoxContainer" parent="OverlayVBox"]
+[node name="TopSpacerCombat" type="Control" parent="OverlayVBox" unique_id=1531769535]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="MenuArea" type="HBoxContainer" parent="OverlayVBox" unique_id=141629902]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -145,41 +170,43 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="WarehousePanel" parent="OverlayVBox/MenuArea" instance=ExtResource("4_armazem")]
+[node name="WarehousePanel" parent="OverlayVBox/MenuArea" unique_id=333237029 instance=ExtResource("4_armazem")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
 
-[node name="HubColumn" type="VBoxContainer" parent="OverlayVBox/MenuArea"]
+[node name="HubColumn" type="VBoxContainer" parent="OverlayVBox/MenuArea" unique_id=1196220336]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="HubChromeBar" type="Control" parent="OverlayVBox/MenuArea/HubColumn"]
+[node name="HubChromeBar" type="Control" parent="OverlayVBox/MenuArea/HubColumn" unique_id=1176399711]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(486, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(477, 44)
-mouse_filter = 0
 
-[node name="Header" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar"]
+[node name="Header" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar" unique_id=880263128]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 19.0
+offset_top = 20.0
+offset_right = -18.0
+offset_bottom = 16.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8
 
-[node name="GoldPanel" type="PanelContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header"]
+[node name="GoldPanel" type="PanelContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=139883940]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ouro")
 
-[node name="GoldLabel" type="Label" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel"]
+[node name="GoldLabel" type="Label" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel" unique_id=97319457]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
@@ -187,11 +214,11 @@ theme_override_font_sizes/font_size = 13
 text = "Ouro: 12345"
 horizontal_alignment = 1
 
-[node name="EspacoCabecalho" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header"]
+[node name="EspacoCabecalho" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=115284155]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="QuitGameButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header"]
+[node name="QuitGameButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=56974447]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -204,7 +231,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "L"
 
-[node name="SettingsButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header"]
+[node name="SettingsButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=1018783966]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
@@ -219,7 +246,7 @@ text = "S"
 icon_alignment = 1
 expand_icon = true
 
-[node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header"]
+[node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=607564648]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(36, 36)
@@ -232,61 +259,54 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="HubBody" type="PanelContainer" parent="OverlayVBox/MenuArea/HubColumn"]
+[node name="HubBody" type="PanelContainer" parent="OverlayVBox/MenuArea/HubColumn" unique_id=255986644]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(477, 534)
+custom_minimum_size = Vector2(500, 550)
 layout_mode = 2
 size_flags_vertical = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_inventario")
 
-[node name="HubContent" type="VBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubBody"]
+[node name="HubContent" type="VBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubBody" unique_id=1489795676]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 0
+alignment = 1
 
-[node name="HubUpperRow" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent"]
+[node name="HubUpperRow" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent" unique_id=196492325]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(440, 250)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_vertical = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="HubRowSpacerLeft" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow"]
+[node name="HeroEquipLeftPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" unique_id=1718280253 instance=ExtResource("13_left")]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 1
+
+[node name="HeroCharacterPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" unique_id=338890698 instance=ExtResource("14_char")]
+
+[node name="HeroEquipRightPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" unique_id=1402060316 instance=ExtResource("15_right")]
+layout_mode = 2
+size_flags_horizontal = 10
+
+[node name="InventoryPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent" unique_id=559043417 instance=ExtResource("16_inv")]
+custom_minimum_size = Vector2(306, 175)
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="BottomNav" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent" unique_id=1557917992 instance=ExtResource("20_nav")]
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 3
+
+[node name="OverlayStack" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubBody" unique_id=109561746]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="HeroEquipLeftPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" instance=ExtResource("13_left")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HeroCharacterPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" instance=ExtResource("14_char")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HeroEquipRightPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow" instance=ExtResource("15_right")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HubRowSpacerRight" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent/HubUpperRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="InventoryPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent" instance=ExtResource("16_inv")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="BottomNav" parent="OverlayVBox/MenuArea/HubColumn/HubBody/HubContent" instance=ExtResource("20_nav")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 16
-
-[node name="OverlayStack" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubBody"]
+[node name="FormationPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" unique_id=787916721 instance=ExtResource("6_formacao")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -296,7 +316,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FormationPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" instance=ExtResource("6_formacao")]
+[node name="AttributesPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" unique_id=151974583 instance=ExtResource("7_atributos")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -306,7 +326,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="AttributesPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" instance=ExtResource("7_atributos")]
+[node name="SkillsPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" unique_id=179555961 instance=ExtResource("8_skills")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -316,7 +336,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="SkillsPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" instance=ExtResource("8_skills")]
+[node name="SkillTreePanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" unique_id=449695637 instance=ExtResource("9_arvore")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -326,18 +346,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="SkillTreePanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" instance=ExtResource("9_arvore")]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="SettingsPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" instance=ExtResource("21_settings")]
-unique_name_in_owner = true
+[node name="SettingsPanel" parent="OverlayVBox/MenuArea/HubColumn/HubBody/OverlayStack" unique_id=154736166 instance=ExtResource("21_settings")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -347,19 +356,23 @@ offset_bottom = 280.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="PanelForgePanel" parent="OverlayVBox/MenuArea" instance=ExtResource("3_ferraria")]
+[node name="PanelForgePanel" parent="OverlayVBox/MenuArea" unique_id=1709884103 instance=ExtResource("3_ferraria")]
+layout_mode = 2
+
+[node name="WorldsPanel" parent="OverlayVBox/MenuArea" unique_id=1967457791 instance=ExtResource("5_mundos")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
 
-[node name="WorldsPanel" parent="OverlayVBox/MenuArea" instance=ExtResource("5_mundos")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="BottomSpacer" type="Control" parent="OverlayVBox"]
+[node name="BottomSpacerCombat" type="Control" parent="OverlayVBox" unique_id=87014383]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 320)
 layout_mode = 2
 size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="BottomSpacerExpand" type="Control" parent="OverlayVBox" unique_id=110175615]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2

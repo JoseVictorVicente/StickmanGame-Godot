@@ -63,6 +63,19 @@ def scan_file(path: Path) -> list[str]:
 
 WINDOW_WIDTH = 960
 HUB_NODES = ("MenuArea", "HubBody", "InventoryPanel")
+HUB_SCRIPT_GLOBS = (
+    "inventory_menu.gd",
+    "hero_equip_left_panel.gd",
+    "hero_equip_right_panel.gd",
+    "hero_character_panel.gd",
+    "inventory_panel.gd",
+    "inventory_slots_grid.gd",
+    "bottom_nav.gd",
+    "party_hero_slot_button.gd",
+)
+HUB_RUNTIME_LAYOUT_RE = re.compile(
+    r"(custom_minimum_size\s*=|\.position\s*=|offset_(?:left|right|top|bottom)\s*=|\.reparent\(|StyleBoxFlat\.new\()"
+)
 MIN_SIZE_RE = re.compile(
     r'^\s*custom_minimum_size\s*=\s*Vector2\((\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\)\s*$'
 )
@@ -92,11 +105,28 @@ def scan_inventory_hub_sizes(path: Path) -> list[str]:
     return issues
 
 
+def scan_hub_scripts() -> list[str]:
+    issues: list[str] = []
+    inv_dir = PRESENTATION / "inventory"
+    for name in HUB_SCRIPT_GLOBS:
+        path = inv_dir / name
+        if not path.is_file():
+            continue
+        rel = path.relative_to(ROOT).as_posix()
+        for index, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if line.strip().startswith("#"):
+                continue
+            if HUB_RUNTIME_LAYOUT_RE.search(line):
+                issues.append(f"{rel}:{index}: hub script must not resize/displace via code")
+    return issues
+
+
 def main() -> int:
     all_issues: list[str] = []
     for tscn in sorted(PRESENTATION.rglob("*.tscn")):
         all_issues.extend(scan_file(tscn))
         all_issues.extend(scan_inventory_hub_sizes(tscn))
+    all_issues.extend(scan_hub_scripts())
     if all_issues:
         print("UI layout check FAILED — forbidden layout_mode = 0:\n")
         for issue in all_issues:

@@ -19,8 +19,9 @@ var _indices_slot: Array[int] = []
 
 
 func _ready() -> void:
-	if not LocaleService.locale_changed.is_connected(_on_locale_changed):
-		LocaleService.locale_changed.connect(_on_locale_changed)
+	var locale_service := get_node_or_null("/root/LocaleService")
+	if locale_service != null and not locale_service.locale_changed.is_connected(_on_locale_changed):
+		locale_service.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
 	_wire_party_slot_buttons()
 

@@ -8,6 +8,8 @@ const LayoutStates := preload("res://tests/inventory_menu_layout_states.gd")
 
 const TEST_HOST_GROUP := "inventory_layout_test_host"
 const TOL := 12.0
+const BAKED_INVENTORY_WIDTH := 420.0
+const BAKED_HERO_ROW_WIDTH := 434.0
 const WORLDS_TOL := 2.0
 const OVERLAY_COVERAGE := 0.85
 const GRID_OVERLAP_MAX := 0.05
@@ -93,7 +95,7 @@ func _run_invariants(menu: Control, state_id: String) -> void:
 	if painel.visible:
 		_check_combat_band(state_id, painel, menu)
 		_check_hub_width(state_id, painel, menu_area, layout, menu)
-		_check_panel_viewport_fit(state_id, layout)
+		_check_panel_viewport_fit(state_id, menu)
 		_check_hero_inventory_width(state_id, menu, layout)
 	var conteudo := menu.get_node_or_null("%HubContent") as Control
 	if conteudo != null and conteudo.visible:
@@ -118,47 +120,45 @@ func _check_hero_inventory_width(state_id: String, menu: Control, layout: Invent
 	if upper_row == null or inv_panel == null or not upper_row.visible or not inv_panel.visible:
 		return
 	var hero_rect := _rect_in_menu(upper_row, menu)
-	var row_rect := _rect_in_menu(inv_panel, menu)
-	var target_w := layout.hub_content_pixel_width()
-	if absf(hero_rect.size.x - target_w) > TOL:
+	var inv_rect := _rect_in_menu(inv_panel, menu)
+	var inv_target_w := BAKED_INVENTORY_WIDTH
+	if absf(inv_rect.size.x - inv_target_w) > TOL:
+		_record_failure(
+			state_id,
+			"InventoryPanel",
+			inv_rect,
+			"inventory panel width ~= hub content width (%.0f)" % inv_target_w
+		)
+	if absf(hero_rect.size.x - BAKED_HERO_ROW_WIDTH) > TOL:
 		_record_failure(
 			state_id,
 			"HubUpperRow",
 			hero_rect,
-			"hero row width ~= inventory hub width (%.0f)" % target_w
+			"hero row width ~= baked hero band (%.0f)" % BAKED_HERO_ROW_WIDTH
 		)
-	if absf(row_rect.size.x - target_w) > TOL:
-		_record_failure(
-			state_id,
-			"InventoryPanel",
-			row_rect,
-			"inventory panel width ~= hub content width (%.0f)" % target_w
-		)
-	if absf(hero_rect.size.x - row_rect.size.x) > TOL:
+	var hero_center_x := hero_rect.position.x + hero_rect.size.x * 0.5
+	var inv_center_x := inv_rect.position.x + inv_rect.size.x * 0.5
+	if absf(hero_center_x - inv_center_x) > TOL:
 		_record_failure(
 			state_id,
 			"HubUpperRow/InventoryPanel",
-			Rect2(hero_rect.position, hero_rect.size + row_rect.size),
-			"hero and inventory panel share width"
-		)
-	if absf(hero_rect.position.x - row_rect.position.x) > TOL:
-		_record_failure(
-			state_id,
-			"HubUpperRow/InventoryPanel",
-			Rect2(hero_rect.position, hero_rect.size + row_rect.size),
-			"hero and inventory panel left edges align"
+			Rect2(hero_rect.position, hero_rect.size + inv_rect.size),
+			"hero row and inventory panel share horizontal center"
 		)
 
 
-func _check_panel_viewport_fit(state_id: String, layout: InventoryLayout) -> void:
-	var max_h := layout.max_hub_panel_pixel_height()
-	var column_h := layout.hub_column_pixel_height()
+func _check_panel_viewport_fit(state_id: String, menu: Control) -> void:
+	var hub_column := menu.get_node_or_null("%HubColumn") as Control
+	if hub_column == null:
+		return
+	var max_h := UiConstants.max_hub_panel_pixel_height()
+	var column_h := hub_column.get_combined_minimum_size().y
 	if column_h > max_h + TOL:
 		_record_failure(
 			state_id,
-			"InventoryLayout",
+			"HubColumn",
 			Rect2(),
-			"hub column height %.1f <= viewport max %.1f (run sync_from_base_unit / fit_panel_to_viewport)"
+			"hub column height %.1f <= viewport max %.1f (baked TSCN geometry)"
 			% [column_h, max_h]
 		)
 
