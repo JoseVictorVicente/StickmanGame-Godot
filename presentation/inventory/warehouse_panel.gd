@@ -14,6 +14,10 @@ const LINHAS := 8
 const SLOT_SIZE := Vector2(42, 42)
 const WAREHOUSE_GRID_SCENE := preload("res://presentation/inventory/warehouse_slots_grid.tscn")
 
+@export var style_tab_normal: StyleBoxFlat
+@export var style_tab_active: StyleBoxFlat
+@export var style_tab_locked: StyleBoxFlat
+
 @onready var cabecalho: HBoxContainer = %WarehouseHeader
 @onready var botao_fechar: Button = %CloseWarehouseButton
 @onready var tab_row: GridContainer = %TabRow
@@ -243,25 +247,18 @@ func _apply_item_list(slots: Array[ItemSlot], lista: Array) -> void:
 
 
 func _style_tab(botao: Button, ativa: bool, desbloqueada: bool) -> void:
-	var estilo := StyleBoxFlat.new()
-	estilo.content_margin_left = 6
-	estilo.content_margin_top = 6
-	estilo.content_margin_right = 6
-	estilo.content_margin_bottom = 6
-	estilo.set_corner_radius_all(4)
-	estilo.set_border_width_all(1)
+	var base: StyleBoxFlat = style_tab_normal
 	if not desbloqueada:
-		estilo.bg_color = Color(0.1, 0.09, 0.08, 1)
-		estilo.border_color = Color(0.32, 0.28, 0.22, 1)
+		base = style_tab_locked
 		botao.add_theme_color_override("font_color", Color(0.5, 0.46, 0.4, 1))
 	elif ativa:
-		estilo.bg_color = Color(0.32, 0.24, 0.16, 1)
-		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
+		base = style_tab_active
 		botao.add_theme_color_override("font_color", Color(1, 0.92, 0.72, 1))
 	else:
-		estilo.bg_color = Color(0.18, 0.14, 0.11, 1)
-		estilo.border_color = Color(0.62, 0.5, 0.28, 1)
 		botao.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
+	if base == null:
+		return
+	var estilo := base.duplicate() as StyleBoxFlat
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
 	botao.add_theme_stylebox_override("disabled", estilo)

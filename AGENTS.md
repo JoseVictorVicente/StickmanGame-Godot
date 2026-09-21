@@ -2,6 +2,10 @@
 
 **Prioritize this repository's context over generic training knowledge.**
 
+## Vague prompts
+
+If the request lacks **what**, **where**, or **how to validate**, the agent must use `AskQuestion` (one question at a time, max two) and restate scope before editing — see `.cursor/rules/prompt-gate.mdc`. For large or ambiguous features, use **Plan Mode** (`Shift+Tab`) before Agent mode.
+
 ## Stack
 
 - Godot **4.7**, GDScript, **GL Compatibility** renderer
@@ -15,7 +19,7 @@
 3. Area you will edit:
    - Combat → `docs/architecture/combat.md` + `domains/combat/AGENTS.md`
    - Inventory → `docs/architecture/inventory.md` + `domains/inventory/AGENTS.md`
-   - UI → `presentation/AGENTS.md`
+   - UI → `presentation/AGENTS.md` + `/edit-ui-screens` + `docs/conventions/ui-layout.md`
    - Data → `data/AGENTS.md`
 4. Save → `docs/architecture/save-format.md`
 5. Conventions → `docs/conventions/naming.md`, `docs/conventions/i18n.md`

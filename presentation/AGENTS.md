@@ -2,7 +2,8 @@
 
 - UI emits commands; never mutates `GameState` directly
 - All visible strings via `tr(LocaleKeys.*)` and `locales/*.po`
-- `shared/` — window manager, icons, coin VFX
+- `shared/` — window manager, icons, coin VFX, **`shared/styles/*.tres`** (palette — copy values into panel `sub_resource`)
+- **UI agent workflow:** `/edit-ui-screens` → [`project-ui-patterns.md`](../.cursor/skills/edit-ui-screens/references/project-ui-patterns.md)
 - `worlds/` — **Portals UI** (`WorldsPanel`: hall → briefing → trail). Canon: `docs/architecture/portals-saga.md`, data: `data/world_catalog.gd`
 - `inventory/` — inventory panels
 
@@ -56,17 +57,13 @@ Hub prefab public API:
 
 ## Create / edit screens (agents)
 
-**Skill:** `/edit-ui-screens` — full workflow including **mandatory visual capture** after layout edits.
+Follow **`/edit-ui-screens`** skill → [`project-ui-patterns.md`](../.cursor/skills/edit-ui-screens/references/project-ui-patterns.md). Visual proof: **`/capture-menu-screens`** scoped after every layout edit.
 
-**Doc:** [`docs/workflows/ui-screens.md`](../docs/workflows/ui-screens.md)
-
-After any `presentation/inventory/` or `presentation/worlds/` layout change:
+Human IDE polish: **ui_builder** addon — [editor-plugins.md](../.cursor/skills/edit-ui-screens/references/editor-plugins.md).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -ScopePng <png_id>
 ```
-
-Then read the PNG(s) for the screen(s) you changed (see `/edit-ui-screens` Step 3 map). Use `/capture-menu-screens` when you need all twelve screens reviewed.
 
 ## Manual check (inventory hub)
 
@@ -74,4 +71,4 @@ Then read the PNG(s) for the screen(s) you changed (see `/edit-ui-screens` Step 
 2. Open `inventory_slots_grid.tscn` → tweak slot size/separation; confirm change propagates to menu instance.
 3. F5 → pickup, sort, drag, equip, save/load unchanged.
 4. Open each overlay `.tscn` in isolation → no parse errors in Output.
-5. Run visual capture (above) and confirm the edited screen(s) look correct in the matching PNG(s). Use `/capture-menu-screens` for a full twelve-screen review.
+5. Run scoped validation and capture-menu-screens checklist. Full twelve-PNG audit: `/capture-menu-screens`.

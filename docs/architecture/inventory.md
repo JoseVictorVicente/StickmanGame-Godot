@@ -11,7 +11,7 @@ The inventory groups equipment per class, item grid, forge (craft), warehouse (e
 | Area | Component | Function |
 |------|-----------|----------|
 | Main grid | `InventorySlotsGrid` | 5×10 display (49 usable slots + expand) |
-| Equipment | `EquipLeftColumns` / `EquipRightColumns` | 12 slots per class |
+| Equipment | `hero_equip_left_panel` / `hero_equip_right_panel` | 12 slots per class |
 | Characters | hidden `CharacterRow` in hero section | legacy selector (party UI primary) |
 | Party | `TeamSelectionUI` | Up to 3 active classes (`PartyService`) |
 | Forge | `ForgePanel` | Synthesis, dismantle, gems |

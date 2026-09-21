@@ -4,9 +4,9 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 6.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 6.0
 bg_color = Color(0.14, 0.11, 0.08, 1)
 border_width_left = 2
 border_width_top = 2
@@ -20,9 +20,9 @@ corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_active"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 6.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 6.0
 bg_color = Color(0.28, 0.2, 0.12, 1)
 border_width_left = 3
 border_width_top = 3
@@ -36,9 +36,9 @@ corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_locked"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 6.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 6.0
 bg_color = Color(0.1, 0.08, 0.07, 1)
 border_width_left = 2
 border_width_top = 2
@@ -51,27 +51,46 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [node name="PortalCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 64)
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
 script = ExtResource("1_card")
+style_normal = SubResource("StyleBoxFlat_card")
+style_active = SubResource("StyleBoxFlat_card_active")
+style_locked = SubResource("StyleBoxFlat_card_locked")
 
-[node name="CardVBox" type="VBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="WorldButton" type="Button" parent="CardVBox"]
+[node name="WorldButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 focus_mode = 0
+flat = true
+
+[node name="CardCenter" type="CenterContainer" parent="WorldButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardVBox" type="VBoxContainer" parent="WorldButton/CardCenter"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="WorldName" type="Label" parent="WorldButton/CardCenter/CardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.88, 0.7, 1)
 theme_override_font_sizes/font_size = 11
 text = "Dimensão"
-flat = true
+horizontal_alignment = 1
 
-[node name="PortalProgress" type="Label" parent="CardVBox"]
+[node name="PortalProgress" type="Label" parent="WorldButton/CardCenter/CardVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.74, 0.52, 1)
-theme_override_font_sizes/font_size = 9
-text = "⚔ 0/9"
+theme_override_font_sizes/font_size = 10
+text = "⚔ 0 / 9"
 horizontal_alignment = 1

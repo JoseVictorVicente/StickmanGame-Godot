@@ -4,7 +4,9 @@ Guide for agents and developers working on `presentation/` screens, especially t
 
 **Related:** [`conventions/ui-layout.md`](../conventions/ui-layout.md), [`presentation/AGENTS.md`](../../presentation/AGENTS.md), [`architecture/overlay-desktop.md`](../architecture/overlay-desktop.md).
 
-**Cursor skills:** `/edit-ui-screens` (this workflow), `/capture-menu-screens` (capture-only).
+**Cursor skills:** `/edit-ui-screens` (edit + TSCN ownership) → `/capture-menu-screens` (scoped PNG review after every edit; full mode for 12-screen audit).
+
+**Agent index:** [`.cursor/skills/edit-ui-screens/references/project-ui-patterns.md`](../../.cursor/skills/edit-ui-screens/references/project-ui-patterns.md). **Detail:** containers, cookbook, styles, troubleshooting, editor-plugins.
 
 ---
 
@@ -28,8 +30,8 @@ Use this on **every** UI create/edit task (agents: follow before marking done):
 | 1 | Edit `.tscn` first — containers, `separation`, size flags, StyleBoxes |
 | 2 | Grep panel `.gd` for `position`, `custom_minimum_size`, `reparent`, `StyleBoxFlat.new()` — remove layout uses |
 | 3 | Popups/dropdowns: stack menu **above** button in a `VBox` (see `worlds_panel.tscn`), not `position` in script |
-| 4 | Run `run_ui_layout_check.ps1` + `run_inventory_menu_layout_audit.ps1` |
-| 5 | Run visual capture; read all 10 PNGs |
+| 4 | Run `run_edit_ui_validation.ps1 -ScopePng <id>` (chains preflight optional, layout check, audit, capture) |
+| 5 | Follow [`capture-menu-screens` scoped workflow](../../.cursor/skills/capture-menu-screens/SKILL.md#scoped-workflow-from-edit-ui-screens) — all **12** only for full review (`/capture-menu-screens`) |
 
 **Script may:** `text`, `visible`, `disabled`, signals, `tr()`, state tints, swap **pre-baked** style references.
 
@@ -41,7 +43,7 @@ Use this on **every** UI create/edit task (agents: follow before marking done):
 
 ## Screen map (inventory menu)
 
-All ten states are captured at **960×860** for review.
+All **twelve** states are captured at **960×860** for review.
 
 | State ID | What the player sees | Layout pattern |
 |----------|----------------------|----------------|
@@ -84,6 +86,13 @@ inventory_menu.tscn
 
 ## Creating a new screen
 
+### 0. Doc-first (agents)
+
+1. Read [`project-ui-patterns.md`](../../.cursor/skills/edit-ui-screens/references/project-ui-patterns.md) and [`ui-layout.md`](../conventions/ui-layout.md).
+2. Classify pattern; design shell + body in `.tscn` (do not clone existing panels as visual templates).
+3. Bake StyleBoxes as `sub_resource` — see [`tscn-ownership.md`](../../.cursor/skills/edit-ui-screens/references/tscn-ownership.md) and [`style-recipes.md`](../../.cursor/skills/edit-ui-screens/references/style-recipes.md).
+4. Optional human polish: Godot + **ui_builder** — [`editor-plugins.md`](../../.cursor/skills/edit-ui-screens/references/editor-plugins.md).
+
 ### 1. Choose where it lives
 
 | Type | Location | Example |
@@ -123,11 +132,10 @@ See [Adding a capture state](#adding-a-capture-state) below.
 ### 5. Verify
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -PanelPath presentation/inventory/my_panel.gd -ScopePng warehouse_open
 ```
 
-Read the PNG(s) listed in [`edit-ui-screens` Step 3](../../.cursor/skills/edit-ui-screens/SKILL.md#step-3--read-the-relevant-pngs) for the screen(s) you edited. Use `/capture-menu-screens` for a full ten-screen review.
+Follow [`capture-menu-screens` scoped workflow](../../.cursor/skills/capture-menu-screens/SKILL.md#scoped-workflow-from-edit-ui-screens). Use full mode for a twelve-screen review.
 
 ---
 
@@ -139,9 +147,10 @@ Read the PNG(s) listed in [`edit-ui-screens` Step 3](../../.cursor/skills/edit-u
 
 ```mermaid
 flowchart LR
-  edit[Edit tscn/tres/gd] --> guard[run_ui_layout_check]
-  guard --> capture[run_inventory_menu_visual_capture]
-  capture --> read[Agent reads relevant PNG(s)]
+  edit[Edit tscn/tres/gd] --> preflight[run_new_screen_preflight]
+  preflight --> guard[run_ui_layout_check]
+  guard --> validate[run_edit_ui_validation -ScopePng]
+  validate --> read[capture-menu-screens scoped read + checklist]
   read --> ok{Acceptable?}
   ok -->|no| edit
   ok -->|yes| done[Done]
@@ -150,17 +159,17 @@ flowchart LR
 ### Commands
 
 ```powershell
+# Preflight (panel script anti-patterns + layout check)
+powershell -ExecutionPolicy Bypass -File tools/run_new_screen_preflight.ps1 -PanelPath presentation/inventory/my_panel.gd
+
 # Layout guardrail (headless)
 powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 
 # Geometry audit (headless, optional)
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1
 
-# Visual capture (display required — not --headless)
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
-
-# Geometry + visual + checklist
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.ps1
+# Full validation chain (preflight optional, layout, audit, capture)
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -ScopePng <state_id>
 ```
 
 Output: `artifacts/inventory_layout/<state_id>.png` + `manifest.json` (gitignored).

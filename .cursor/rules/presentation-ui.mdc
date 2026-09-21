@@ -40,9 +40,19 @@ Applies to `presentation/` (shared, combat, inventory, worlds).
 - **No hardcoded menu band heights** — use `OverlayVBox` + `UiConstants.COMBAT_RESERVED_SPACE`.
 - Absolute position only for dynamic canvases, popups, and `WindowManager` — see `docs/conventions/ui-layout.md`.
 
+## UI workflow (agents)
+
+- Follow `/edit-ui-screens` → `.cursor/skills/edit-ui-screens/references/project-ui-patterns.md`
+- **Doc-first:** design from `docs/conventions/ui-layout.md` + style tokens — do not clone existing panels as visual templates
+- **Never** use removed `scaffold_ui_panel.py`
+- **Wiring only** from `inventory_menu.gd` / `InventoryPanelRouter` — not visual chrome
+- After layout edits: `run_edit_ui_validation.ps1 -ScopePng <id>` + capture-menu-screens scoped PNG review
+- Humans may polish in Godot **ui_builder** — still run validation after save
+
 ## Docs
 
 - `docs/conventions/ui-layout.md`
+- `docs/workflows/ui-screens.md`
 - `docs/architecture/overlay-desktop.md`
 - `docs/conventions/i18n.md`
 - `presentation/AGENTS.md`

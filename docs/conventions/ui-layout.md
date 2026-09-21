@@ -115,12 +115,12 @@ powershell -ExecutionPolicy Bypass -File tools/run_ui_layout_check.ps1
 
 `tools/check_ui_layout.py` scans `presentation/**/*.tscn` and fails on `layout_mode = 0` unless the node is in the allowlist (`trail_map_view` map layer, `stage_node` stage number). It also rejects `custom_minimum_size.x` above `WINDOW_WIDTH` on inventory hub nodes. Extend `ALLOWLIST` in that script when a new documented exception is added.
 
-Inventory menu geometry (ten screens): `tools/run_inventory_menu_layout_audit.ps1`.
+Inventory menu geometry (twelve screens): `tools/run_inventory_menu_layout_audit.ps1`.
 
-Menu **visual** review for Cursor agents: after a single-screen edit, read only the matching PNG(s) per [`edit-ui-screens`](../../.cursor/skills/edit-ui-screens/SKILL.md) Step 3. Use `/capture-menu-screens` for all ten PNGs.
+Menu **visual** review for Cursor agents: [`capture-menu-screens`](../../.cursor/skills/capture-menu-screens/SKILL.md) owns capture + checklist. After a single-screen edit, use **scoped** mode (read only matching PNG row). Full twelve-PNG audit: `/capture-menu-screens` full workflow.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -ScopePng worlds_open
 ```
 
 See [`workflows/ui-screens.md`](../workflows/ui-screens.md) and [`workflows/testing.md`](../workflows/testing.md#menu-screens-visual-review-cursor).

@@ -83,35 +83,34 @@ Catches forbidden `layout_mode = 0` in `presentation/` scenes. See [`conventions
 powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1
 ```
 
-Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): ten menu states with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
+Runs [`tests/inventory_menu_layout_audit.gd`](../tests/inventory_menu_layout_audit.gd): twelve menu states with rect invariants. On failure prints one JSON line per issue (`state`, `node`, `rect`, `expected`).
 
 Full create/edit workflow: [`ui-screens.md`](ui-screens.md). Cursor skill: `/edit-ui-screens`.
 
 ### Menu screens visual review (Cursor)
 
-Captures **ten** PNG screenshots (all `inventory_menu` screens) at 960×860 for AI visual review. **Requires display** — do not pass `--headless` (rendering is disabled headless).
+Captures **twelve** PNG screenshots (all `inventory_menu` screens) at 960×860 for AI visual review. **Requires display** — do not pass `--headless` (rendering is disabled headless). Set `GODOT` env if Godot is not on PATH.
 
-Cursor skill: `/capture-menu-screens` (`.cursor/skills/capture-menu-screens/SKILL.md`).
+Cursor skills: `/edit-ui-screens` then `/capture-menu-screens` scoped (`.cursor/skills/capture-menu-screens/SKILL.md`).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -ScopePng worlds_open
 ```
 
 Output: `artifacts/inventory_layout/<state_id>.png` plus `manifest.json`.
 
-Full review (geometry + visual):
+Full review (geometry + visual + all twelve PNGs):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1
 ```
 
-**Agent loop** after edits under `presentation/inventory/`:
+**Agent loop** after edits under `presentation/inventory/` or `presentation/worlds/`:
 
-1. Run `tools/run_inventory_menu_visual_capture.ps1`
-2. Read the PNG(s) for the screen(s) you edited (map in [`edit-ui-screens`](../../.cursor/skills/edit-ui-screens/SKILL.md)); use `/capture-menu-screens` for all ten
-3. Evaluate layout visually (checklist below)
-4. Fix [`inventory_menu.tscn`](../presentation/inventory/inventory_menu.tscn), [`inventory_layout_default.tres`](../presentation/inventory/inventory_layout_default.tres), or [`inventory_menu.gd`](../presentation/inventory/inventory_menu.gd). For UTF-16 corruption only, use `tools/fix_inventory_menu_encoding.py` on a **clean** file — it runs `git restore` and drops uncommitted edits.
-5. Repeat until acceptable; optionally run `tools/run_inventory_menu_layout_audit.ps1`
+1. Run `tools/run_edit_ui_validation.ps1 -ScopePng <id>` (see PNG map in [`capture-menu-screens`](../../.cursor/skills/capture-menu-screens/SKILL.md#png-map))
+2. Read scoped PNG(s) + apply checklist in capture-menu-screens skill (full mode: all twelve)
+3. Fix `.tscn` first. For UTF-16 corruption only, use `tools/fix_inventory_menu_encoding.py` on a **clean** file — it runs `git restore` and drops uncommitted edits.
+4. Repeat until acceptable
 
 | PNG | Visual expectations |
 |-----|---------------------|
@@ -123,7 +122,9 @@ powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_review.
 | `skill_tree_open` | Skill tree replaces hub; map visible |
 | `warehouse_open` | Warehouse side panel visible; tabs and grid readable |
 | `forge_open` | Forge side panel visible; slots aligned |
-| `worlds_open` | Worlds side panel visible; stage map readable |
+| `worlds_open` | Portal hall: five cards; header + footer readable |
+| `worlds_briefing_open` | Dimension briefing before trail |
+| `worlds_trail_open` | Trail map + header meta; stage nodes inside panel |
 | `settings_open` | Settings panel top-right; volume and locale controls |
 
 Shared state setup: [`tests/inventory_menu_layout_states.gd`](../tests/inventory_menu_layout_states.gd).

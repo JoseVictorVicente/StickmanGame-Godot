@@ -42,6 +42,12 @@ func bind_hall(
 		var meta := ""
 		if not liberado:
 			meta = "🔒"
+		elif atual:
+			var concluidas: int = completed_in_dimension.call(world)
+			meta = "⚔ " + (tr(LocaleKeys.PORTAL_PROGRESS_FORMAT) % [
+				concluidas,
+				WorldProgress.STAGES_PER_WORLD,
+			])
 		elif salvo:
 			meta = tr(LocaleKeys.PORTAL_SAVED)
 		else:

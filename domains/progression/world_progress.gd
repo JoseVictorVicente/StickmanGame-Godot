@@ -26,17 +26,6 @@ const DAMAGE_SCALE := 9.0
 const DAMAGE_EXPONENT := 1.22
 const BOSS_HP_MULT := 1.70
 const BOSS_DAMAGE_MULT := 1.35
-const STAGE_POSITIONS: Array[Vector2] = [
-	Vector2(0.18, 0.88),
-	Vector2(0.42, 0.80),
-	Vector2(0.70, 0.70),
-	Vector2(0.82, 0.50),
-	Vector2(0.54, 0.46),
-	Vector2(0.28, 0.40),
-	Vector2(0.22, 0.26),
-	Vector2(0.50, 0.24),
-	Vector2(0.42, 0.14),
-]
 
 
 static func stage_index(world: int, stage: int) -> int:

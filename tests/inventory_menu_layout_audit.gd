@@ -449,16 +449,9 @@ func _check_worlds_briefing_invariants(state_id: String, worlds: Control, panel_
 
 func _check_worlds_trail_invariants(state_id: String, worlds: Control, panel_rect: Rect2, menu: Control) -> void:
 	var map_panel := worlds.get_node_or_null("%PanelStageMap") as Control
-	var trail_difficulty_row := worlds.get_node_or_null("%TrailDifficultyRow") as Control
-	var trail_difficulty := worlds.get_node_or_null("%TrailDifficultyButton") as Control
-	var progress := worlds.get_node_or_null("%TrailProgressLabel") as Control
 	if map_panel == null or not map_panel.is_visible_in_tree():
 		_record_failure(state_id, "PanelStageMap", panel_rect, "trail map should be visible")
 		return
-	if progress == null or not progress.is_visible_in_tree():
-		_record_failure(state_id, "TrailProgressLabel", panel_rect, "trail progress label should be visible")
-	if trail_difficulty_row == null or not trail_difficulty_row.is_visible_in_tree():
-		_record_failure(state_id, "TrailDifficultyRow", panel_rect, "trail difficulty row should be visible in header")
 	var stage_map := map_panel.get_node_or_null("%StageMap") as Control if map_panel else null
 	if stage_map != null:
 		for i in WorldProgress.STAGES_PER_WORLD:
@@ -476,12 +469,6 @@ func _check_worlds_trail_invariants(state_id: String, worlds: Control, panel_rec
 				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
 			if stage_rect.end.y > panel_rect.end.y + WORLDS_TOL:
 				_record_failure(state_id, "StageAnchor_%d" % (i + 1), stage_rect, "stage node should stay inside WorldsPanel")
-	if trail_difficulty != null:
-		var diff_rect := _rect_in_menu(trail_difficulty, menu)
-		if diff_rect.end.y > panel_rect.end.y + WORLDS_TOL:
-			_record_failure(state_id, "TrailDifficultyButton", diff_rect, "difficulty button should stay inside WorldsPanel")
-
-
 func _check_worlds_no_overlap(state_id: String, nodes: Array[Control], menu: Control, panel_rect: Rect2) -> void:
 	for j in range(nodes.size()):
 		for k in range(j + 1, nodes.size()):

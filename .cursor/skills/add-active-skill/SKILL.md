@@ -1,9 +1,10 @@
 ---
 name: add-active-skill
 description: >-
-  Add or update an active combat skill in Stickman Idle. Create the .tres resource,
-  locales, and icon following the GAS-lite architecture. Use when the user runs
-  /add-active-skill or asks to add a character active skill.
+  Adds or updates an active combat skill in Stickman Idle (.tres, locales, icon)
+  following GAS-lite architecture. Use for /add-active-skill, skill ativa,
+  habilidade ativa, nova skill do mago/arqueiro/guerreiro, ou adicionar
+  habilidade de combate.
 ---
 # Add Active Skill (Stickman Idle)
 

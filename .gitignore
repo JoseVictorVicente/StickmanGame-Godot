@@ -5,3 +5,7 @@
 # Generated layout review captures (local agent loop)
 artifacts/inventory_layout/*.png
 artifacts/inventory_layout/manifest.json
+
+# Python
+__pycache__/
+*.pyc

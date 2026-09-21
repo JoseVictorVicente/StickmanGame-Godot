@@ -1,188 +1,128 @@
 ---
 name: edit-ui-screens
 description: >-
-  Create or edit Stickman Idle UI screens using container layout conventions.
-  After editing any inventory_menu screen, run visual PNG capture and read the
-  PNG(s) for the screen(s) you changed before finishing. Use for /edit-ui-screens,
-  new panels, layout changes, or editing presentation/inventory or presentation/worlds UI.
+  Creates or edits Stickman Idle UI screens doc-first with TSCN ownership; runs
+  scoped PNG validation via capture-menu-screens after layout edits. Use for
+  /edit-ui-screens, presentation/inventory/worlds UI, nova tela, editar UI,
+  layout do inventário, painel de portais, warehouse, worlds ou menu hub.
 ---
 # Edit UI Screens (Stickman Idle)
 
-**Read first:** [`docs/workflows/ui-screens.md`](../../docs/workflows/ui-screens.md), [`docs/conventions/ui-layout.md`](../../docs/conventions/ui-layout.md), [`presentation/AGENTS.md`](../../presentation/AGENTS.md).
+**Start here:** [`references/project-ui-patterns.md`](references/project-ui-patterns.md) (operational index).
+
+**Wiring:** [`presentation/AGENTS.md`](../../presentation/AGENTS.md). **Visual loop:** [`capture-menu-screens`](../capture-menu-screens/SKILL.md) scoped workflow.
 
 ## Boundaries
 
-- UI in `presentation/` only — no gold/combat rules, no domain imports of `Control` nodes.
+- UI in `presentation/` only — no gold/combat rules, no domain `Control` imports.
 - Player strings: `tr(LocaleKeys.*)` + `locales/*.po`.
 - Do not bulk-edit `sprites/` without explicit user request.
+- **Do not** clone existing panels as visual templates — design from doc + judgment.
 
-## TSCN-first design (mandatory)
+## TSCN ownership
 
-**The scene file is the designer.** Scripts wire data and state — they do not lay out the screen.
+**The `.tscn` file is the single source of truth for each panel.** Full rule: [`references/tscn-ownership.md`](references/tscn-ownership.md).
 
-| Do in `.tscn` | OK in script |
-|---------------|--------------|
-| `VBox` / `HBox` / `MarginContainer` / `GridContainer` structure | `text`, `visible`, `disabled` |
-| `theme_override_constants/separation`, margins, size flags | Signals, `tr()`, bind callbacks |
-| `custom_minimum_size`, anchors, `%UniqueName` | State colors (`modulate`, `font_color`) |
-| `StyleBoxFlat` / `StyleBoxTexture` on nodes | Toggle baked child panels/menus |
-| Popups stacked **above** their button in a `VBox` | Read game data into labels |
+| Put in `.tscn` | Never put in `.gd` |
+|----------------|---------------------|
+| Node tree, separation, min sizes, size flags | `custom_minimum_size`, `size_flags_*` |
+| `sub_resource` StyleBoxes | `StyleBoxFlat.new()` / `ExtResource` to `shared/styles/` |
+| Default fonts/colors | `add_theme_constant_override("separation", …)` |
 
-**Never in UI scripts (layout anti-patterns):**
+Enforced by `tools/check_tscn_ownership.py` (inside `run_ui_layout_check.ps1`).
 
-- `node.position = …`, `offset_* = …`, `reparent()` to fix layout
-- `custom_minimum_size = …` / `size = …` at runtime for structure
-- `StyleBoxFlat.new()` to define panel/button chrome (bake in `.tscn`; script may **swap** pre-baked style refs for state)
-- Floating menus positioned with `get_global_rect()` math — bake menu + button in one stack instead
+## Agent workflow
 
-**Agent plan** (follow in order on every UI task):
+```text
+Phase 0  Classify pattern → read project-ui-patterns + ui-layout + style-recipes → note Scope PNG
+Phase 1  Preflight (new panels): run_new_screen_preflight.ps1 -PanelPath …
+Phase 2  Design + edit .tscn (structure, StyleBoxes, %UniqueName)
+Phase 3  Script audit — grep .gd for layout anti-patterns
+Phase 4  Wire configure(menu) + signals; instance in menu/router
+Phase 5  run_edit_ui_validation.ps1 -ScopePng <id> → capture-menu-screens scoped read
+Phase 6  If issue: fix .tscn → repeat Phase 5 (max 3 iterations)
+```
 
-1. **Design in `.tscn`** — open the scene in Godot mentally: containers, separation, baked StyleBoxes.
-2. **Script audit** — grep the panel `.gd` for `position`, `custom_minimum_size`, `reparent`, `StyleBoxFlat.new()`; move layout hits to `.tscn`.
-3. **Edit** — prefab/scene first; script only for data/state.
-4. **Guard** — `tools/run_ui_layout_check.ps1` + `tools/run_inventory_menu_layout_audit.ps1`.
-5. **Capture** — `tools/run_inventory_menu_visual_capture.ps1`; read **all 12** PNGs.
-6. **Docs** — if you add a new layout exception, update [`ui-layout.md`](../../docs/conventions/ui-layout.md) + `tools/check_ui_layout.py` `ALLOWLIST`.
+**Never in UI scripts:** `position =`, `offset_* =`, `reparent()` for layout, runtime `custom_minimum_size`/`size` for structure, `StyleBoxFlat.new()` for chrome.
 
-Reference implementation: `presentation/worlds/worlds_panel.tscn` (header stacks, inline difficulty menus), `trail_map_view.tscn` (`AspectRatioContainer` + UV anchors on `MapLayer`).
+---
 
-## Creating a new screen
+## Phase 0 — Doc-first (not clone / not scaffold)
 
-1. Pick a layout pattern from [`ui-layout.md`](../../docs/conventions/ui-layout.md) (form column, sidecar, full-bleed overlay, grid prefab).
-2. Prefer a **prefab** `.tscn` under `presentation/inventory/` (or `presentation/worlds/`).
-3. Root `Control` / `PanelContainer`; nest `VBox`/`HBox`/`MarginContainer`; `%UniqueName` on script refs.
-4. Wire from parent controller (`inventory_menu.gd`) via `configure(self)` + signals — match sibling panels.
-5. If the screen is a new **menu state**, add capture support (see below).
-6. **Mandatory:** run visual capture and read the PNG for the screen(s) you changed (see [Step 3](#step-3--read-the-relevant-pngs)).
+1. Classify: sidecar | overlay | hub block | worlds | settings.
+2. Open [`project-ui-patterns.md`](references/project-ui-patterns.md) — pattern row + validation PNG id.
+3. Read [`docs/conventions/ui-layout.md`](../../docs/conventions/ui-layout.md) — layout pattern table.
+4. Read [`style-recipes.md`](references/style-recipes.md) — bake tokens in `.tscn`.
+5. **Design** shell + body for the request (containers per [`containers-cheatsheet.md`](references/containers-cheatsheet.md)).
+6. **Wiring only:** `presentation/AGENTS.md` + `inventory_menu.gd` / `InventoryPanelRouter`.
 
-## Editing an existing screen
+PNG map: [`capture-menu-screens`](../capture-menu-screens/SKILL.md#png-map).
 
-**Always run capture after layout edits** — geometry audit alone is not enough.
+**Router:** `inventory_menu.gd` + `InventoryPanelRouter` — do not add UIFlow.
 
-### Step 1 — Edit
+---
+
+## Phase 5–6 — Visual validation
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/run_edit_ui_validation.ps1 -ScopePng <scope>
+```
+
+Follow [`capture-menu-screens` scoped workflow](../capture-menu-screens/SKILL.md#scoped-workflow-from-edit-ui-screens). Read **only** scoped PNG(s). Full twelve-PNG audit: `/capture-menu-screens`.
+
+Task is **not done** without `EDIT_UI_VALIDATION_OK` + scoped checklist pass.
+
+---
+
+## File map
 
 | Area | Files |
 |------|--------|
 | Hub shell | `inventory_menu.tscn`, `inventory_menu.gd`, `inventory_layout_default.tres` |
-| Hub blocks | `hero_equip_left_panel.tscn`, `hero_character_panel.tscn`, `hero_equip_right_panel.tscn`, `inventory_panel.tscn`, `bottom_nav.tscn` |
+| Hub blocks | `hero_equip_*`, `hero_character_panel`, `inventory_panel`, `bottom_nav` |
 | Overlays | `formation_panel.*`, `skills_panel.*`, `attributes_panel.*`, `skill_tree_panel.*` |
-| Side panels | `warehouse_panel.*`, `forge_panel.*`, `worlds_panel.*` (Portals: hall → briefing → trail; mockups in `artifacts/design/`) |
+| Side panels | `warehouse_panel.*`, `forge_panel.*`, `worlds_panel.*` |
 | Settings | `settings_panel.tscn` in `%OverlayStack` |
-| Shared | `ui_constants.gd`, `panel_layout.gd`, `window_manager.gd` |
+| Shared | `ui_constants.gd`, `panel_layout.gd`, `presentation/shared/styles/` |
 
-Rules:
-- **TSCN-first** — see [TSCN-first design](#tscn-first-design-mandatory) below; structure and StyleBoxes live in `.tscn`, not in `.gd`.
-- Containers own child positions — no `layout_mode = 0` inside `VBox`/`HBox` (unless allowlisted).
-- **Stack related widgets in `VBox`/`HBox`** — use `theme_override_constants/separation` (e.g. **20px** title row → meta block, **8px** inside meta) instead of manual `position` / `offset_*` / reparenting controls at runtime.
-- Hub widths/slot sizes via `InventoryLayout` + `_apply_panel_layout()`, not hardcoded on `HubBody`/`MenuArea`.
-- **Do not** use `SectionVisualOffset` or negative `position` offsets in the hub — they bleed across `inventory_bg.png` bands.
-- **`inventory_menu.gd`:** edit normally in UTF-8. **Never run** `python tools/fix_inventory_menu_encoding.py` after your edits — it runs `git restore` and wipes uncommitted changes. Use that script only for one-off UTF-16 recovery on a clean tree.
+---
 
-### Inventory hub zones (`inventory_bg.png`)
-
-The panel art has **two horizontal bands** inside `%HubBody`. Gold / quit / settings live in `%HubChromeBar` above the panel.
-
-```text
-HubColumn (VBox)
-├─ HubChromeBar (transparent) → Header: gold + quit + settings
-└─ HubBody
-   ├─ HubContent (VBox)
-   │  ├─ HubUpperRow → hero_equip_left + hero_character + hero_equip_right
-   │  ├─ InventoryPanel
-   │  └─ BottomNav
-   └─ OverlayStack (full bleed) → formation, skills, attributes, skill tree, settings
-```
-
-- Heights: `_apply_hub_content_heights()` + `InventoryLayout.hub_upper_row_size()` / `inventory_panel_size()`.
-- **Changing `base_unit`:** edit `inventory_layout_default.tres`, then run `sync_from_base_unit()` (via `_apply_panel_layout()` at runtime). That recalculates panel size and calls `fit_panel_to_viewport()` so the hub never exceeds the overlay band — extra inventory rows scroll instead of clipping the top border. Regenerate `inventory_slots_grid.tscn` if slot pixel size changed (`tools/generate_inventory_slots_tscn.py`). Run layout audit before visual capture.
-- **Formation** and **warehouse** nav live in `bottom_nav.tscn` (`%FormationButton`, `%StorageButton`).
-- Sort button: `hero_equip_right_panel.tscn` (`%SortInventoryButton`).
-- `inventory_panel.tscn`: scrollable **5×10** `inventory_slots_grid.tscn`.
-- When moving a widget between upper/lower bands, update `inventory_panel_size()` (and related layout helpers) so the zone split stays balanced.
-- Overlays that hide the hub: use `set_hub_visible(false)` / `InventoryPanelRouter.set_inventory_visible()` — hides `%HubContent`, not `%HubBody`.
-- Side panels: `_sync_side_panel_heights()` + `size_flags_vertical = EXPAND_FILL` on warehouse/forge/worlds.
-
-### Worlds / Portais (`presentation/worlds/`)
-
-Shell: `FundoPainel` + `Margem` (`UiConstants` margins) + `Conteudo` VBox — same pattern as warehouse.
-
-**Header (hall / briefing / trail):** stack in `WorldsHeader` (VBox), no absolute coords:
-
-```text
-WorldsHeader (VBox, separation = 20)
-├─ HeaderRow (HBox) — back, title banner, close
-└─ TrailHeaderDetails (VBox, separation = 8) — trail only
-   ├─ TrailProgressLabel
-   └─ TrailDifficultyRow → TrailDifficultyButton
-RodapeDificuldade — hall only (%DifficultyButton)
-```
-
-- **20px** between title row and trail meta block (`WorldsHeader.separation`).
-- **8px** between progress label and difficulty button (`TrailHeaderDetails.separation`).
-- Do **not** `reparent()` the difficulty button or position the difficulty menu in script — bake **two** stacks in `worlds_panel.tscn` (hall footer + trail header), each with menu panel above the button in a `VBox`.
-- **Trail map canvas** (`trail_map_view.tscn`): bake stage UV anchors on `MapLayer`; use `AspectRatioContainer` + `TextureRect` for the map art. Inside each anchor, center a `StageColumn` VBox (circle + label). Scripts bind data/state only — no `position` / `custom_minimum_size` at runtime.
-
-Mockups: `artifacts/design/portals_mockup_*.png`. After edits, capture must include `worlds_open`, `worlds_briefing_open`, `worlds_trail_open`.
-
-### Step 2 — Capture (required)
+## Preflight (new panels)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_visual_capture.ps1
+powershell -ExecutionPolicy Bypass -File tools/run_new_screen_preflight.ps1 -PanelPath presentation/inventory/my_panel.gd
 ```
 
-Run headless audit **before** capture (catches panel height / stack regressions):
+## New capture state
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/run_inventory_menu_layout_audit.ps1
-```
+1. `tests/inventory_menu_layout_states.gd`
+2. `tools/run_inventory_menu_visual_capture.ps1`
+3. `tests/inventory_menu_layout_audit.gd` (optional)
+4. Update `capture-menu-screens/SKILL.md` + `docs/workflows/ui-screens.md`
 
-Full details: skill [`capture-menu-screens`](../capture-menu-screens/SKILL.md) (`/capture-menu-screens`).
+## Human editors (Godot)
 
-### Step 3 — Read the relevant PNG(s)
+**ui_builder** addon — [`editor-plugins.md`](references/editor-plugins.md). Parallel to agent workflow; run validation after IDE edits.
 
-The capture script still writes **all twelve** PNGs to `artifacts/inventory_layout/` — that is fine. **You only need to read the PNG(s) that match what you edited.**
+**Never run** `tools/fix_inventory_menu_encoding.py` after edits — it `git restore`s `inventory_menu.gd`.
 
-Use this map (file area → `state_id` → PNG):
+---
 
-| You edited | Read this PNG |
-|------------|----------------|
-| Hub shell, `inventory_layout_default.tres`, `inventory_menu.gd`, `ui_constants.gd`, `panel_layout.gd`, hub prefabs (`hero_equip_*`, `hero_character_panel`, `inventory_panel`, `bottom_nav`) | `hub_combat_bottom.png` |
-| `inventory_menu.gd` / spacers / `set_below_combat` only | also `hub_combat_top.png` |
-| `formation_panel.*` | `formation_open.png` |
-| `skills_panel.*` | `skills_open.png` |
-| `attributes_panel.*` | `attributes_open.png` |
-| `skill_tree_panel.*` | `skill_tree_open.png` |
-| `warehouse_panel.*` | `warehouse_open.png` |
-| `forge_panel.*` | `forge_open.png` |
-| `worlds_panel.*` (hall) | `worlds_open.png` |
-| `realm_briefing_view.*` / briefing flow | `worlds_briefing_open.png` |
-| `trail_map_view.*` / trail flow | `worlds_trail_open.png` |
-| `settings_panel.*` | `settings_open.png` |
+## Reference index
 
-**Rules:**
+| File | When |
+|------|------|
+| [**project-ui-patterns.md**](references/project-ui-patterns.md) | **Start here — doc-first index** |
+| [`capture-menu-screens/SKILL.md`](../capture-menu-screens/SKILL.md) | PNG map, checklist, visual loop |
+| [`tscn-ownership.md`](references/tscn-ownership.md) | TSCN vs `.gd` rules |
+| [`containers-cheatsheet.md`](references/containers-cheatsheet.md) | Container pick |
+| [`screen-cookbook.md`](references/screen-cookbook.md) | Shell diagrams (not clone list) |
+| [`style-recipes.md`](references/style-recipes.md) | Visual tokens |
+| [`stylebox-gotchas.md`](references/stylebox-gotchas.md) | Frame texture issues |
+| [`troubleshooting.md`](references/troubleshooting.md) | PNG symptoms |
+| [`editor-plugins.md`](references/editor-plugins.md) | ui_builder in IDE |
 
-- Read **only** the row(s) for your edit. Do not open the other PNGs unless you changed shared layout code and see a regression, or the user asks for a full menu review (`/capture-menu-screens`).
-- Hub-band edits (upper row vs inventory grid vs nav): prefer `hub_combat_bottom.png` — it shows the `inventory_bg.png` divider.
-- If you touched `InventoryPanelRouter`, `InventoryLayout.sync_from_base_unit()`, or overlay alignment, add the overlay/side PNG for the panel you wired — not the whole set.
-
-Example paths:
-
-- `artifacts/inventory_layout/hub_combat_bottom.png`
-- `artifacts/inventory_layout/worlds_trail_open.png`
-
-### Step 4 — Fix and repeat
-
-Iterate edit → capture → read **the same PNG(s)** until those screens look acceptable. Mention other states only if you observed a side effect.
-
-## Adding a new capture state
-
-When a new visible menu state is introduced:
-
-1. Add `state_id` to `STATE_IDS` in [`tests/inventory_menu_layout_states.gd`](../../tests/inventory_menu_layout_states.gd).
-2. Implement `reset_menu` cleanup + `apply_state` setup.
-3. Add PNG name to [`tools/run_inventory_menu_visual_capture.ps1`](../../tools/run_inventory_menu_visual_capture.ps1) `$stateIds`.
-4. Extend audit invariants in [`tests/inventory_menu_layout_audit.gd`](../../tests/inventory_menu_layout_audit.gd) if needed.
-5. Update checklist in [`capture-menu-screens/SKILL.md`](../capture-menu-screens/SKILL.md) and [`docs/workflows/ui-screens.md`](../../docs/workflows/ui-screens.md).
+---
 
 ## Output format
 
@@ -192,14 +132,13 @@ When a new visible menu state is introduced:
 ### Changes
 - ...
 
-### Visual capture
-- [ ] Ran `run_inventory_menu_visual_capture.ps1`
-- [ ] Read PNG(s) for the screen(s) edited (see Step 3 map); use `/capture-menu-screens` for all twelve when needed
+### Visual validation
+- [ ] capture-menu-screens scoped workflow
+- [ ] Scope: `<png_id>`
+- [ ] EDIT_UI_VALIDATION_OK
 
 ### Findings
-| Screen (PNG) | Status | Notes |
-|--------------|--------|-------|
-| hub_combat_bottom | ok / issue | ... |
+(capture-menu-screens scoped table)
 
 ### Recommended follow-ups
 1. ...
@@ -207,10 +146,10 @@ When a new visible menu state is introduced:
 
 ## Quick reference
 
-| Command | Purpose |
-|---------|---------|
-| `tools/run_inventory_menu_visual_capture.ps1` | Writes 10 PNGs; read only the one(s) for your edit |
-| `tools/run_inventory_menu_layout_audit.ps1` | Headless geometry check |
-| `tools/run_ui_layout_check.ps1` | Forbidden `layout_mode = 0` scan |
-| `/capture-menu-screens` | Full review — read **all** ten PNGs |
-| `explorer artifacts/inventory_layout` | Open captures folder (Windows) |
+| Command / skill | Purpose |
+|-----------------|---------|
+| `run_new_screen_preflight.ps1 -PanelPath` | Anti-pattern grep + ownership |
+| `run_edit_ui_validation.ps1 -ScopePng <id>` | Guards + capture |
+| `/capture-menu-screens` | Scoped (default) or full (12 PNGs) |
+| `run_ui_layout_check.ps1` | Layout scan + ownership |
+| `tools/regen/*.py` | Manual grid regen only — not agent workflow |

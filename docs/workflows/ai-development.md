@@ -28,14 +28,9 @@ Guide for agents (Cursor, Copilot, etc.) working on Stickman Idle with correct c
 
 ## Legacy → target migration
 
-The repo may have **both** paths during migration:
+Historical EN/PT migration scripts live in `tools/archive/migrations/` — not for daily use.
 
-```
-combate/party_manager.gd      # legacy
-domains/combat/party_service.gd  # target
-```
-
-**Rule for agents:** prefer editing where code **already lives** unless the task is explicitly migration. When creating new files, use target path and English.
+**Rule for agents:** prefer editing where code **already lives** unless the task is explicitly migration. When creating new files, use `domains/`, `presentation/`, `data/` paths and English.
 
 ## Diff size
 

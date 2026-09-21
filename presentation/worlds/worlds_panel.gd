@@ -12,9 +12,6 @@ signal stage_started(world: int, stage: int, difficulty: int)
 @onready var back_button: Button = %WorldsBackButton
 @onready var close_button: Button = %CloseWorldsButton
 @onready var title_label: Label = %WorldsTitle
-@onready var trail_progress_label: Label = %TrailProgressLabel
-@onready var trail_header_details: VBoxContainer = %TrailHeaderDetails
-@onready var trail_difficulty_button: Button = %TrailDifficultyButton
 @onready var header: VBoxContainer = %WorldsHeader
 @onready var hall_view = %WorldListPanel
 @onready var briefing_view = %RealmBriefingPanel
@@ -22,9 +19,7 @@ signal stage_started(world: int, stage: int, difficulty: int)
 @onready var difficulty_footer: VBoxContainer = $Margem/Conteudo/RodapeDificuldade
 @onready var difficulty_button: Button = %DifficultyButton
 @onready var difficulty_menu_hall: PanelContainer = %DifficultyMenuHall
-@onready var difficulty_menu_trail: PanelContainer = %DifficultyMenuTrail
 @onready var difficulty_options_hall: VBoxContainer = %DifficultyOptionsHall
-@onready var difficulty_options_trail: VBoxContainer = %DifficultyOptionsTrail
 @onready var difficulty_menu_backdrop: ColorRect = %DifficultyMenuBackdrop
 
 var _menu: InventoryMenu
@@ -49,7 +44,6 @@ func _ready() -> void:
 	hall_view.portal_pressed.connect(_on_portal_pressed)
 	trail_view.stage_pressed.connect(_on_stage_pressed)
 	difficulty_button.pressed.connect(_toggle_difficulty_menu)
-	trail_difficulty_button.pressed.connect(_toggle_difficulty_menu)
 	difficulty_menu_backdrop.gui_input.connect(_on_difficulty_backdrop_gui_input)
 	header.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
@@ -140,25 +134,20 @@ func _cache_option_styles() -> void:
 
 func _wire_difficulty_options() -> void:
 	_difficulty_option_buttons.clear()
-	for options in [difficulty_options_hall, difficulty_options_trail]:
-		for i in WorldProgress.Difficulty.size():
-			var suffix := "Hall" if options == difficulty_options_hall else "Trail"
-			var button := options.get_node_or_null("DifficultyOption%s_%d" % [suffix, i]) as Button
-			assert(button != null, "difficulty menu should bake option %s %d" % [suffix, i])
-			if not button.get_meta(&"wired", false):
-				button.pressed.connect(_choose_difficulty.bind(i))
-				button.set_meta(&"wired", true)
-			if options == difficulty_options_hall:
-				_difficulty_option_buttons.append(button)
+	for i in WorldProgress.Difficulty.size():
+		var button := difficulty_options_hall.get_node_or_null("DifficultyOptionHall_%d" % i) as Button
+		assert(button != null, "difficulty menu should bake option Hall %d" % i)
+		if not button.get_meta(&"wired", false):
+			button.pressed.connect(_choose_difficulty.bind(i))
+			button.set_meta(&"wired", true)
+		_difficulty_option_buttons.append(button)
 	_update_difficulty_options()
 
 
 func _show_portal_hall() -> void:
 	_panel_view = PanelView.PORTAL_HALL
 	_close_difficulty_menu()
-	back_button.hide()
-	trail_progress_label.hide()
-	trail_header_details.hide()
+	back_button.show()
 	title_label.text = tr(LocaleKeys.PORTALS_TITLE).to_upper()
 	hall_view.show()
 	briefing_view.hide()
@@ -174,8 +163,6 @@ func _show_realm_briefing(world: int) -> void:
 	_panel_view = PanelView.REALM_BRIEFING
 	_close_difficulty_menu()
 	back_button.show()
-	trail_progress_label.hide()
-	trail_header_details.hide()
 	hall_view.hide()
 	trail_view.hide()
 	briefing_view.show()
@@ -192,17 +179,16 @@ func _show_trail_map() -> void:
 	briefing_view.hide()
 	trail_view.show()
 	difficulty_footer.hide()
-	trail_header_details.show()
 	_refresh_trail()
 
 
 func _on_back_pressed() -> void:
 	match _panel_view:
+		PanelView.PORTAL_HALL:
+			close()
 		PanelView.TRAIL_MAP:
 			_show_realm_briefing(_world_menu_open)
 		PanelView.REALM_BRIEFING:
-			_show_portal_hall()
-		_:
 			_show_portal_hall()
 
 
@@ -243,11 +229,6 @@ func _refresh_hall() -> void:
 
 func _refresh_trail() -> void:
 	title_label.text = WorldCatalog.dimension_name(_world_menu_open)
-	trail_progress_label.show()
-	trail_progress_label.text = tr(LocaleKeys.TRAIL_PROGRESS_FORMAT) % [
-		_current_stage,
-		WorldProgress.STAGES_PER_WORLD,
-	]
 	trail_view.bind_trail(
 		_world_menu_open,
 		_current_world,
@@ -259,7 +240,7 @@ func _refresh_trail() -> void:
 
 
 func _refresh_locale() -> void:
-	close_button.text = tr(LocaleKeys.BTN_CLOSE)
+	close_button.tooltip_text = tr(LocaleKeys.BTN_CLOSE)
 	back_button.tooltip_text = tr(LocaleKeys.BTN_BACK)
 	briefing_view.refresh_static_texts()
 	_update_difficulty_button()
@@ -275,8 +256,6 @@ func _refresh_locale() -> void:
 
 
 func _active_difficulty_menu() -> PanelContainer:
-	if _panel_view == PanelView.TRAIL_MAP:
-		return difficulty_menu_trail
 	return difficulty_menu_hall
 
 
@@ -292,7 +271,6 @@ func _toggle_difficulty_menu() -> void:
 
 func _close_difficulty_menu() -> void:
 	difficulty_menu_hall.hide()
-	difficulty_menu_trail.hide()
 	difficulty_menu_backdrop.hide()
 
 
@@ -317,24 +295,21 @@ func _choose_difficulty(value: int) -> void:
 func _update_difficulty_button() -> void:
 	var label := WorldProgress.difficulty_name(_difficulty)
 	difficulty_button.text = label
-	trail_difficulty_button.text = label
 	_update_difficulty_options()
 
 
 func _update_difficulty_options() -> void:
-	for options in [difficulty_options_hall, difficulty_options_trail]:
-		for i in WorldProgress.Difficulty.size():
-			var suffix := "Hall" if options == difficulty_options_hall else "Trail"
-			var button := options.get_node_or_null("DifficultyOption%s_%d" % [suffix, i]) as Button
-			if button == null:
-				continue
-			var unlocked := WorldProgress.is_difficulty_unlocked(i, _unlocked)
-			var text: String = WorldProgress.difficulty_name(i)
-			if not unlocked:
-				text += " 🔒"
-			button.text = text
-			button.disabled = not unlocked
-			_apply_option_style(button, i == _difficulty, not unlocked)
+	for i in WorldProgress.Difficulty.size():
+		var button := difficulty_options_hall.get_node_or_null("DifficultyOptionHall_%d" % i) as Button
+		if button == null:
+			continue
+		var unlocked := WorldProgress.is_difficulty_unlocked(i, _unlocked)
+		var text: String = WorldProgress.difficulty_name(i)
+		if not unlocked:
+			text += " 🔒"
+		button.text = text
+		button.disabled = not unlocked
+		_apply_option_style(button, i == _difficulty, not unlocked)
 
 
 func _apply_option_style(button: Button, active: bool, locked: bool) -> void:

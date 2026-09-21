@@ -44,8 +44,10 @@
 - `docs/conventions/ui-layout.md` — TSCN-first design, container patterns, overlay hub, allowed exceptions
 - `docs/workflows/ui-screens.md` — create/edit screens, mandatory visual capture loop
 - `presentation/shared/ui_constants.gd` — window and combat band sizes
-- `.cursor/skills/edit-ui-screens/` — agent skill for UI screen work (`/edit-ui-screens`)
-- `.cursor/skills/capture-menu-screens/` — PNG capture + visual review (`/capture-menu-screens`)
+- `.cursor/skills/edit-ui-screens/references/project-ui-patterns.md` — doc-first UI index (agents)
+- `.cursor/skills/edit-ui-screens/` — UI edit + TSCN ownership (`/edit-ui-screens`)
+- `.cursor/skills/capture-menu-screens/` — PNG capture, checklist, visual loop (`/capture-menu-screens`; scoped after every edit)
+- `.cursor/skills/add-active-skill/` — active skill authoring (`/add-active-skill`)
 
 ### Assisted logging (Cursor / CI)
 - `docs/workflows/assisted-logging.md` — how it works, commands, rules for devs
@@ -60,10 +62,11 @@
 | Task | Path |
 |------|------|
 | Onboarding | README → AGENTS → overview → naming |
-| New / edit UI screen | `docs/workflows/ui-screens.md` → `ui-layout.md` → `presentation/AGENTS.md` |
+| New / edit UI screen | `project-ui-patterns.md` → `/edit-ui-screens` → `ui-layout.md` → `presentation/AGENTS.md` |
 | Combat bug | combat.md → domains/combat/ → save-format if progression involved |
-| New skill | workflows/add-skill.md → data/skills/ |
-| New item | workflows/add-item.md → platform/item_database |
+| New active skill | `/add-active-skill` → `workflows/add-active-skill.md` → `data/skills/` |
+| New passive / generic skill | `workflows/add-skill.md` → `data/skills/` |
+| New item | `workflows/add-item.md` → `platform/item_database` |
 | Broken save | save-format.md → save_service migrations |
 | AI on project | workflows/ai-development.md |
 | Logging / assisted test | workflows/assisted-logging.md → event-catalog.md |

@@ -4,6 +4,7 @@ extends Control
 signal stage_pressed(stage: int)
 
 const WorldCatalog := preload("res://data/world_catalog.gd")
+const TrailMapLayout := preload("res://data/trail_map_layout.gd")
 const BOSS_SIZE := 48.0
 const STAGE_SIZE := 34.0
 
@@ -16,10 +17,13 @@ var _stage_numbers: Array[Label] = []
 var _stage_names: Array[Label] = []
 var _stage_tex: ImageTexture
 var _boss_tex: ImageTexture
+var _layout_world: int = 1
 
 
 func _ready() -> void:
 	_wire_stage_nodes()
+	map_layer.resized.connect(_on_map_layout_changed)
+	map_background.resized.connect(_on_map_layout_changed)
 
 
 func bind_trail(
@@ -30,8 +34,9 @@ func bind_trail(
 	unlocked: Array[int],
 	is_stage_unlocked: Callable
 ) -> void:
+	_layout_world = world
 	map_background.texture = WorldCatalog.map_texture(world)
-	stage_map.refresh_path()
+	_apply_stage_layout_deferred()
 	for i in _stage_buttons.size():
 		var stage := i + 1
 		var rotulo := WorldCatalog.stage_milestone(world, stage)
@@ -46,6 +51,63 @@ func bind_trail(
 		_style_stage(_stage_buttons[i], _stage_numbers[i], _stage_names[i], atual, concluida, not liberada, WorldCatalog.is_boss_stage(stage))
 
 
+func _on_map_layout_changed() -> void:
+	_apply_stage_layout_deferred()
+
+
+func _apply_stage_layout_deferred() -> void:
+	call_deferred("_apply_stage_layout")
+
+
+func _apply_stage_layout() -> void:
+	if _layout_world < 1:
+		return
+	for i in WorldProgress.STAGES_PER_WORLD:
+		var stage := i + 1
+		var tex_uv := TrailMapLayout.stage_uv(_layout_world, stage)
+		var layer_uv := _layer_uv_from_texture_uv(tex_uv)
+		var ancora := map_layer.get_node_or_null("StageAnchor_%d" % stage) as Control
+		if ancora == null:
+			continue
+		ancora.anchor_left = layer_uv.x
+		ancora.anchor_right = layer_uv.x
+		ancora.anchor_top = layer_uv.y
+		ancora.anchor_bottom = layer_uv.y
+	stage_map.refresh_path()
+
+
+func _layer_uv_from_texture_uv(tex_uv: Vector2) -> Vector2:
+	var rect := _texture_display_rect()
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return tex_uv
+	var layer_size := map_layer.size
+	if layer_size.x <= 0.0 or layer_size.y <= 0.0:
+		return tex_uv
+	var pixel := rect.position + tex_uv * rect.size
+	return pixel / layer_size
+
+
+func _texture_display_rect() -> Rect2:
+	var layer_size := map_layer.size
+	var tex := map_background.texture
+	if tex == null or layer_size.x <= 0.0 or layer_size.y <= 0.0:
+		return Rect2(Vector2.ZERO, layer_size)
+	var tex_size := Vector2(tex.get_size())
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return Rect2(Vector2.ZERO, layer_size)
+	var layer_aspect := layer_size.x / layer_size.y
+	var tex_aspect := tex_size.x / tex_size.y
+	var displayed_size: Vector2
+	if tex_aspect > layer_aspect:
+		displayed_size.x = layer_size.x
+		displayed_size.y = layer_size.x / tex_aspect
+	else:
+		displayed_size.y = layer_size.y
+		displayed_size.x = layer_size.y * tex_aspect
+	var offset := (layer_size - displayed_size) * 0.5
+	return Rect2(offset, displayed_size)
+
+
 func _wire_stage_nodes() -> void:
 	_stage_tex = _circle_texture(int(STAGE_SIZE))
 	_boss_tex = _circle_texture(int(BOSS_SIZE))
@@ -55,11 +117,10 @@ func _wire_stage_nodes() -> void:
 	for i in WorldProgress.STAGES_PER_WORLD:
 		var indice := i + 1
 		var ancora := map_layer.get_node_or_null("StageAnchor_%d" % indice) as Control
-		var coluna := ancora.get_node_or_null("CenterWrap/StageColumn") as VBoxContainer if ancora else null
-		var botao := coluna.get_node_or_null("StageButton") as TextureButton if coluna else null
+		var botao := ancora.get_node_or_null("StageButton") as TextureButton if ancora else null
 		var numero := botao.get_node_or_null("StageNumber") as Label if botao else null
-		var nome := coluna.get_node_or_null("StageNameLabel") as Label if coluna else null
-		assert(ancora != null and coluna != null and botao != null and numero != null and nome != null)
+		var nome := ancora.get_node_or_null("StageNameLabel") as Label if ancora else null
+		assert(ancora != null and botao != null and numero != null and nome != null)
 		var chefe := WorldCatalog.is_boss_stage(indice)
 		botao.texture_normal = _boss_tex if chefe else _stage_tex
 		botao.texture_pressed = botao.texture_normal

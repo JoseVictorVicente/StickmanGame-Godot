@@ -1,0 +1,44 @@
+---
+description: Clarify vague prompts before editing — AskQuestion, restate scope, suggest Plan Mode for large work
+alwaysApply: true
+---
+
+# Prompt gate (non-dev team)
+
+Before the first `Write`, `StrReplace`, or shell command that changes the repo, check whether the request has **clear scope**.
+
+## Proceed without asking when the user already provides
+
+- **What** to change (behavior, layout, skill effect, etc.)
+- **Where** (file path, panel name, domain: UI / combat / inventory)
+- **How to validate** (PNG scope id, playtest step, or explicit "docs only")
+
+Example that needs no gate: *"Edit `worlds_panel.tscn` — header spacing 20px; validate with `worlds_open`."*
+
+## Ask when scope is missing (max 2 questions, one at a time)
+
+Use `AskQuestion` with 2–5 concrete options (not open-ended essays). Prioritize:
+
+1. **Where** — which screen, panel, or domain?
+2. **What** — what should look or behave differently?
+3. **Validation** — which PNG id, playtest, or checklist?
+
+After answers, restate in 2–3 lines (*"Entendi: …"*) before editing.
+
+## Do not assume
+
+- Layout structure, node names, or visual clone of existing panels
+- Combat or economy rules not described
+- Running `tools/regen/*` or other `.py` generators — edit `.gd` / `.tscn` / `.tres` directly unless the user asks for bulk regen
+
+## Large or ambiguous work
+
+If the task spans many files, unclear requirements, or multiple valid architectures → suggest **Plan Mode** (`Shift+Tab`) before Agent mode. Do not start a wide refactor on a one-line prompt.
+
+## Domain routing (after scope is clear)
+
+| Area | Route |
+|------|--------|
+| UI layout | `/edit-ui-screens` → scoped `/capture-menu-screens` |
+| Active skill | `/add-active-skill` |
+| Combat / save / inventory rules | Domain doc + `AGENTS.md` required reading |

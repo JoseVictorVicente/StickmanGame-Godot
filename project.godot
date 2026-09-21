@@ -48,6 +48,10 @@ locale/translations=PackedStringArray("res://locales/pt_BR.po", "res://locales/e
 
 3d/physics_engine="Jolt Physics"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/ui_builder/plugin.cfg")
+
 [rendering]
 
 rendering_device/driver.windows="d3d12"

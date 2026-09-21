@@ -1,11 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://c8arma0em01"]
+[gd_scene load_steps=11 format=3 uid="uid://c8arma0em01"]
 
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://presentation/inventory/warehouse_panel.gd" id="1_armazem"]
 [ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
-
 [ext_resource type="PackedScene" path="res://presentation/inventory/warehouse_slots_grid.tscn" id="10_whgrid"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
 texture = ExtResource("2_fundo_mundos")
 texture_margin_left = 21.0
 texture_margin_top = 19.0
@@ -76,6 +79,54 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_normal"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_locked"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.09, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.28, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="WarehousePanel" type="Control"]
 visible = false
 custom_minimum_size = Vector2(252, 0)
@@ -85,6 +136,9 @@ size_flags_vertical = 3
 mouse_filter = 0
 clip_contents = true
 script = ExtResource("1_armazem")
+style_tab_normal = SubResource("StyleBoxFlat_tab_normal")
+style_tab_active = SubResource("StyleBoxFlat_tab_active")
+style_tab_locked = SubResource("StyleBoxFlat_tab_locked")
 
 [node name="FundoPainel" type="PanelContainer" parent="."]
 layout_mode = 1
