@@ -5,8 +5,9 @@ const ATTACK_LUNGE := 28.0
 const LUNGE_DURATION := 0.09
 const DURACAO_RETORNO := 0.12
 
-const ARROW_RELEASE_FRAME := 4
+const DEFAULT_ARROW_RELEASE_FRAME := 4
 
+var _marker_pos: Vector2 = Vector2.ZERO
 var _pos_base: Vector2 = Vector2.ZERO
 var _tween_ataque: Tween
 var _tween_flash: Tween
@@ -15,6 +16,7 @@ var _caido: bool = false
 var _barra: HeroHealthBar
 var _usar_arte: bool = false
 var _id_classe: String = ""
+var _attack_speed: float = 1.0
 var _flecha_solta: bool = false
 var _frames_stick: SpriteFrames
 
@@ -26,22 +28,26 @@ func _ready() -> void:
 	animation_finished.connect(_on_animation_finished)
 	frame_changed.connect(_on_frame_changed)
 	play("Idle")
+	_marker_pos = position
 	_pos_base = position
 	_barra = HeroHealthBar.new()
 	add_child(_barra)
 
 
 func set_base_position(pos: Vector2) -> void:
-	_pos_base = pos
+	_marker_pos = pos
+	_reanchor_position()
 	if _tween_ataque:
 		_tween_ataque.kill()
-	position = pos
 
 
 func play_attack() -> void:
 	if _caido:
 		return
 	_flecha_solta = false
+	if _usar_arte and sprite_frames and sprite_frames.has_animation("Ataque"):
+		var fps := HeroSpritesheet.attack_animation_speed(_id_classe, _attack_speed)
+		sprite_frames.set_animation_speed("Ataque", fps)
 	play("Ataque")
 	if not _usar_arte:
 		_slide_attack()
@@ -50,14 +56,17 @@ func play_attack() -> void:
 func apply_class(classe: ClassData) -> void:
 	if classe == null:
 		_id_classe = ""
+		_attack_speed = 1.0
 		_usar_arte = false
 		_cor_classe = Color.WHITE
 		self_modulate = Color.WHITE
 		scale = HeroSpritesheet.ESCALA_STICK
 		sprite_frames = _default_frames()
+		_reanchor_position()
 		_adjust_bar()
 		return
 	_id_classe = classe.id
+	_attack_speed = classe.attack_speed
 	var arte := HeroSpritesheet.frames(classe.id)
 	_usar_arte = arte != null
 	scale = HeroSpritesheet.scale_for(classe.id)
@@ -70,9 +79,15 @@ func apply_class(classe: ClassData) -> void:
 		if not _caido:
 			self_modulate = _cor_classe
 		sprite_frames = _default_frames()
+	_reanchor_position()
 	_adjust_bar()
 	if not _caido:
 		play("Idle")
+
+
+func _reanchor_position() -> void:
+	_pos_base = _marker_pos + HeroSpritesheet.ground_offset(_id_classe)
+	position = _pos_base
 
 
 func play_buff_glow() -> void:
@@ -148,7 +163,10 @@ func _on_frame_changed() -> void:
 		return
 	if animation != "Ataque":
 		return
-	if frame >= ARROW_RELEASE_FRAME:
+	var release_frame := HeroSpritesheet.attack_release_frame(_id_classe)
+	if _id_classe == "":
+		release_frame = DEFAULT_ARROW_RELEASE_FRAME
+	if frame >= release_frame:
 		_flecha_solta = true
 		_fire_arrow()
 
@@ -163,7 +181,8 @@ func _fire_arrow() -> void:
 	var destino := global_position + Vector2(90, 0)
 	if inimigo:
 		destino = inimigo.global_position
-	ArrowProjectile.fire(combat_root, global_position + Vector2(18, -8), destino)
+	var spawn_offset := HeroSpritesheet.arrow_spawn_offset(_id_classe)
+	ArrowProjectile.fire(combat_root, global_position + spawn_offset, destino)
 
 
 func _adjust_bar() -> void:

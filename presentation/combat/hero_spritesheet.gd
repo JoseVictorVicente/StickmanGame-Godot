@@ -1,17 +1,25 @@
 class_name HeroSpritesheet
 extends RefCounted
-## Recorta a spritesheet do herói (JSON + PNG) em Idle / Ataque / Hit / Morte.
+## Monta SpriteFrames do arqueiro (frames individuais) e utilitários de combate.
 
 const ID_ARQUEIRO := "archer"
-const PNG_ARQUEIRO := "res://sprites/heroes/A_2D_pixel-art_stickman-Idle.png"
-const JSON_ARQUEIRO := "res://sprites/heroes/A_2D_pixel-art_stickman-Idle.json"
+const FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
+const FRAME_COUNT := 21
 const ESCALA_STICK := Vector2(1.25, 1.25)
-const ESCALA_ARQUEIRO := Vector2(0.34, 0.34)
+const ESCALA_ARQUEIRO := Vector2(0.55, 0.55)
 const BARRA_STICK := Vector2(-14, -38)
-const ARCHER_BAR := Vector2(-14, -118)
+const ARCHER_BAR := Vector2(-14, -78)
+const ARCHER_GROUND_OFFSET := Vector2(0, 10)
+
+## Índice do frame dentro da animação "Ataque" em que a flecha é disparada.
+const ARCHER_ATTACK_RELEASE_INDEX := 9
+const ARCHER_ATTACK_START := 4
+const ARCHER_ATTACK_END := 16
+const ARCHER_ARROW_SPAWN := Vector2(22, -14)
+const ATTACK_INTERVAL_BASE := 1.0
 
 static var _frames: Dictionary = {}
-static var _sheets: Dictionary = {}
+static var _textures: Dictionary = {}
 
 
 static func has_class_art(id_classe: String) -> bool:
@@ -41,29 +49,64 @@ static func health_bar_offset(id_classe: String) -> Vector2:
 	return BARRA_STICK
 
 
+static func attack_release_frame(id_classe: String) -> int:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_ATTACK_RELEASE_INDEX
+	return 4
+
+
+static func arrow_spawn_offset(id_classe: String) -> Vector2:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_ARROW_SPAWN
+	return Vector2(18, -8)
+
+
+static func ground_offset(id_classe: String) -> Vector2:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_GROUND_OFFSET
+	return Vector2.ZERO
+
+
+static func attack_animation_speed(id_classe: String, attack_speed: float) -> float:
+	if id_classe != ID_ARQUEIRO:
+		return 14.0
+	var frame_count := ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
+	var intervalo := ATTACK_INTERVAL_BASE / maxf(0.25, attack_speed)
+	return float(frame_count) / (intervalo * 0.9)
+
+
 static func _build_archer() -> SpriteFrames:
-	var sheet := _load_texture(PNG_ARQUEIRO)
-	if sheet == null:
-		return null
-	var cell: int = 256
-	var dados: Variant = _read_json(JSON_ARQUEIRO)
-	if dados is Dictionary:
-		var info: Variant = (dados as Dictionary).get("spritesheet", {})
-		if info is Dictionary:
-			var cell_info: Variant = (info as Dictionary).get("cell_size", {})
-			if cell_info is Dictionary:
-				cell = int((cell_info as Dictionary).get("width", 256))
 	var sf := SpriteFrames.new()
-	var idle: Array[Texture2D] = []
-	idle.append(_celula(sheet, 2, 0, cell))
-	_add_anim(sf, "Idle", idle, true, 1.0)
-	_add_anim(sf, "Ataque", _draw_line(sheet, 2, 9, cell), false, 12.0)
-	_add_anim(sf, "Hit", _draw_line(sheet, 1, 5, cell), false, 10.0)
-	_add_anim(sf, "Morte", _draw_line(sheet, 8, 17, cell), false, 10.0)
+	_add_anim(sf, "Idle", _load_frame_range(0, 3), true, 5.0)
+	_add_anim(sf, "Ataque", _load_frame_range(ARCHER_ATTACK_START, ARCHER_ATTACK_END), false, 20.0)
+	_add_anim(sf, "Hit", _load_frame_range(5, 7), false, 12.0)
+	_add_anim(sf, "Morte", _load_frame_range(8, 5), false, 8.0)
 	return sf
 
 
+static func _load_frame_range(from_frame: int, to_frame: int) -> Array[Texture2D]:
+	var lista: Array[Texture2D] = []
+	if from_frame <= to_frame:
+		for i in range(from_frame, to_frame + 1):
+			var tex := _load_frame(i)
+			if tex:
+				lista.append(tex)
+	else:
+		for i in range(from_frame, to_frame - 1, -1):
+			var tex := _load_frame(i)
+			if tex:
+				lista.append(tex)
+	return lista
+
+
+static func _load_frame(index: int) -> Texture2D:
+	var path := "%sframe_%03d.png" % [FRAMES_DIR, index]
+	return _load_texture(path)
+
+
 static func _add_anim(sf: SpriteFrames, nome: String, texturas: Array[Texture2D], loop: bool, fps: float) -> void:
+	if texturas.is_empty():
+		return
 	if not sf.has_animation(nome):
 		sf.add_animation(nome)
 	sf.set_animation_loop(nome, loop)
@@ -72,24 +115,9 @@ static func _add_anim(sf: SpriteFrames, nome: String, texturas: Array[Texture2D]
 		sf.add_frame(nome, tex)
 
 
-static func _draw_line(sheet: Texture2D, row: int, amount: int, cell: int) -> Array[Texture2D]:
-	var lista: Array[Texture2D] = []
-	for col in amount:
-		lista.append(_celula(sheet, col, row, cell))
-	return lista
-
-
-static func _celula(sheet: Texture2D, col: int, row: int, cell: int) -> AtlasTexture:
-	var atlas := AtlasTexture.new()
-	atlas.atlas = sheet
-	atlas.filter_clip = true
-	atlas.region = Rect2(col * cell, row * cell, cell, cell)
-	return atlas
-
-
 static func _load_texture(caminho: String) -> Texture2D:
-	if _sheets.has(caminho):
-		return _sheets[caminho] as Texture2D
+	if _textures.has(caminho):
+		return _textures[caminho] as Texture2D
 	var tex: Texture2D = null
 	if ResourceLoader.exists(caminho):
 		var recurso: Resource = ResourceLoader.load(caminho)
@@ -101,13 +129,5 @@ static func _load_texture(caminho: String) -> Texture2D:
 		if img != null and img.get_width() > 1:
 			tex = ImageTexture.create_from_image(img)
 	if tex:
-		_sheets[caminho] = tex
+		_textures[caminho] = tex
 	return tex
-
-
-static func _read_json(caminho: String) -> Variant:
-	if not FileAccess.file_exists(caminho):
-		return {}
-	var txt: String = FileAccess.get_file_as_string(caminho)
-	var parsed: Variant = JSON.parse_string(txt)
-	return parsed

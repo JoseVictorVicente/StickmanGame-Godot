@@ -1,16 +1,13 @@
 class_name ArrowProjectile
 extends AnimatedSprite2D
-## Flecha verde que voa do arqueiro até o alvo.
+## Flecha do arqueiro: projétil estático que voa até o alvo.
 
-const PNG := "res://sprites/projectiles/2D_pixel-art_animated_arrow_projectile_flying_hori.png"
-const DURACAO := 0.18
-const ESCALA := Vector2(0.28, 0.28)
-const FRAME_VOO := 9
-const CELL := 256
-const FLIGHT_LINE := 1
+const PNG := "res://sprites/projectiles/archer_arrow.png"
+const DURACAO := 0.16
+const ESCALA := Vector2(0.16, 0.16)
 
 static var _frames: SpriteFrames
-static var _sheet: Texture2D
+static var _texture: Texture2D
 
 
 static func fire(pai: Node, origem: Vector2, destino: Vector2) -> void:
@@ -41,32 +38,27 @@ func _fly(destino: Vector2) -> void:
 static func _get_frames() -> SpriteFrames:
 	if _frames:
 		return _frames
-	var sheet := _load_sheet()
-	if sheet == null:
+	var tex := _load_texture()
+	if tex == null:
 		return null
 	var sf := SpriteFrames.new()
 	sf.add_animation("Voo")
 	sf.set_animation_loop("Voo", true)
-	sf.set_animation_speed("Voo", 16.0)
-	for col in FRAME_VOO:
-		var atlas := AtlasTexture.new()
-		atlas.atlas = sheet
-		atlas.filter_clip = true
-		atlas.region = Rect2(col * CELL, FLIGHT_LINE * CELL, CELL, CELL)
-		sf.add_frame("Voo", atlas)
+	sf.set_animation_speed("Voo", 1.0)
+	sf.add_frame("Voo", tex)
 	_frames = sf
 	return _frames
 
 
-static func _load_sheet() -> Texture2D:
-	if _sheet:
-		return _sheet
+static func _load_texture() -> Texture2D:
+	if _texture:
+		return _texture
 	if ResourceLoader.exists(PNG):
 		var recurso: Resource = ResourceLoader.load(PNG)
 		if recurso is Texture2D:
-			_sheet = recurso
-			return _sheet
+			_texture = recurso
+			return _texture
 	var img: Image = Image.load_from_file(ProjectSettings.globalize_path(PNG))
 	if img != null and img.get_width() > 1:
-		_sheet = ImageTexture.create_from_image(img)
-	return _sheet
+		_texture = ImageTexture.create_from_image(img)
+	return _texture
