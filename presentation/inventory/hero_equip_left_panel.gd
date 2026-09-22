@@ -4,8 +4,6 @@ extends GridContainer
 
 signal skill_slot_pressed(slot_type: SkillResource.Type, slot_index: int)
 
-const EMPTY_SKILL_SLOT_TEXT := "+"
-const SKILL_SLOT_ICON_SIZE := Vector2(42, 42)
 
 const SLOT_NAMES: PackedStringArray = [
 	"SlotWeapon",
@@ -16,7 +14,7 @@ const SLOT_NAMES: PackedStringArray = [
 	"SlotSkillAtiva1",
 	"SlotPants",
 	"SlotGloves",
-	"CellSpacer22",
+	"UltimateSlotButton",
 	"SlotBoots",
 	"CellSpacer31",
 	"CellSpacer32",
@@ -40,8 +38,9 @@ const EQUIP_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BOOTS,
 ]
 
-@onready var slot_ativa_0: Button = %SlotSkillAtiva0
-@onready var slot_ativa_1: Button = %SlotSkillAtiva1
+@onready var slot_ativa_0: HubSkillSlot = %SlotSkillAtiva0
+@onready var slot_ativa_1: HubSkillSlot = %SlotSkillAtiva1
+@onready var ultimate_slot_button: HubSkillSlot = %UltimateSlotButton
 
 var _menu: Node
 var _skill_provider: Callable
@@ -52,6 +51,8 @@ func configure(menu: Node) -> void:
 	_menu = menu
 	_wire_skill_slots()
 	_configure_equip_slots()
+	if ultimate_slot_button:
+		ultimate_slot_button.tooltip_text = tr(LocaleKeys.SKILLS_ULTIMATE)
 
 
 func all_equipment_slots() -> Array[ItemSlot]:
@@ -108,7 +109,7 @@ func _wire_skill_slots() -> void:
 	_bind_main_skill_slot(slot_ativa_1, SkillResource.Type.ACTIVE, 1)
 
 
-func _bind_main_skill_slot(botao: Button, slot_type: SkillResource.Type, slot_index: int) -> void:
+func _bind_main_skill_slot(botao: HubSkillSlot, slot_type: SkillResource.Type, slot_index: int) -> void:
 	if botao == null:
 		return
 	if not botao.pressed.is_connected(_on_skill_slot_pressed):
@@ -124,15 +125,13 @@ func _on_skill_slot_pressed(slot_type: SkillResource.Type, slot_index: int) -> v
 	skill_slot_pressed.emit(slot_type, slot_index)
 
 
-func _apply_skill_slot_text(botao: Button, skill: SkillResource) -> void:
+func _apply_skill_slot_text(botao: HubSkillSlot, skill: SkillResource) -> void:
 	if botao == null:
 		return
 	if skill == null:
-		botao.text = EMPTY_SKILL_SLOT_TEXT
-		SkillIcons.apply_to_button(botao, null, SKILL_SLOT_ICON_SIZE)
+		botao.set_empty()
 	else:
-		botao.text = ""
-		SkillIcons.apply_to_button(botao, skill, SKILL_SLOT_ICON_SIZE)
+		botao.set_skill(skill)
 
 
 func _skill_from_provider(slot_type: SkillResource.Type, slot_index: int) -> SkillResource:

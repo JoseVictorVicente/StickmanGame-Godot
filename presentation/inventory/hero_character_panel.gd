@@ -1,6 +1,6 @@
 class_name HeroCharacterPanel
 extends VBoxContainer
-## Center hub panel: portrait, ultimate placeholder, attributes, party row.
+## Center hub panel: portrait, attributes, party row.
 
 signal attributes_requested
 
@@ -8,7 +8,6 @@ signal attributes_requested
 @onready var character_xp_bar: ProgressBar = %CharacterXpBar
 @onready var character_xp_label: Label = %CharacterXpLabel
 @onready var character_attributes_button: TextureButton = %CharacterAttributesButton
-@onready var ultimate_slot_button: Button = %UltimateSlotButton
 @onready var party_slots: HBoxContainer = %PartySlots
 @onready var character_name_label: Label = %CharacterNameLabel
 @onready var character_level_label: Label = %CharacterLevelLabel

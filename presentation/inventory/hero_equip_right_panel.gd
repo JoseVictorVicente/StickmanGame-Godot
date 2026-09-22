@@ -4,8 +4,6 @@ extends VBoxContainer
 
 signal skill_slot_pressed(slot_type: SkillResource.Type, slot_index: int)
 
-const EMPTY_SKILL_SLOT_TEXT := "+"
-const SKILL_SLOT_ICON_SIZE := Vector2(42, 42)
 
 const JEWELRY_SLOT_NAMES: PackedStringArray = [
 	"SlotRing",
@@ -20,8 +18,8 @@ const JEWELRY_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BELT,
 ]
 
-@onready var slot_passiva_0: Button = %SlotSkillMenuPassiva0
-@onready var slot_passiva_1: Button = %SlotSkillMenuPassiva1
+@onready var slot_passiva_0: HubSkillSlot = %SlotSkillMenuPassiva0
+@onready var slot_passiva_1: HubSkillSlot = %SlotSkillMenuPassiva1
 @onready var slot_pet: ItemSlot = %SlotPet
 @onready var sort_button: Button = %SortInventoryButton
 
@@ -100,7 +98,7 @@ func _wire_skill_slots() -> void:
 	_bind_main_skill_slot(slot_passiva_1, SkillResource.Type.PASSIVE, 1)
 
 
-func _bind_main_skill_slot(botao: Button, slot_type: SkillResource.Type, slot_index: int) -> void:
+func _bind_main_skill_slot(botao: HubSkillSlot, slot_type: SkillResource.Type, slot_index: int) -> void:
 	if botao == null:
 		return
 	if not botao.pressed.is_connected(_on_skill_slot_pressed):
@@ -116,15 +114,13 @@ func _on_skill_slot_pressed(slot_type: SkillResource.Type, slot_index: int) -> v
 	skill_slot_pressed.emit(slot_type, slot_index)
 
 
-func _apply_skill_slot_text(botao: Button, skill: SkillResource) -> void:
+func _apply_skill_slot_text(botao: HubSkillSlot, skill: SkillResource) -> void:
 	if botao == null:
 		return
 	if skill == null:
-		botao.text = EMPTY_SKILL_SLOT_TEXT
-		SkillIcons.apply_to_button(botao, null, SKILL_SLOT_ICON_SIZE)
+		botao.set_empty()
 	else:
-		botao.text = ""
-		SkillIcons.apply_to_button(botao, skill, SKILL_SLOT_ICON_SIZE)
+		botao.set_skill(skill)
 
 
 func _skill_from_provider(slot_type: SkillResource.Type, slot_index: int) -> SkillResource:

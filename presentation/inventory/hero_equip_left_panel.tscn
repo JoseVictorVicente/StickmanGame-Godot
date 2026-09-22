@@ -2,24 +2,7 @@
 
 [ext_resource type="Script" path="res://presentation/inventory/hero_equip_left_panel.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_skill"]
-bg_color = Color(0.06, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-bg_color = Color(0.1, 0.08, 0.07, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-bg_color = Color(0.32, 0.24, 0.16, 1)
+[ext_resource type="PackedScene" uid="uid://c8hubskillslot" path="res://presentation/inventory/hub_skill_slot.tscn" id="3_skill"]
 
 [node name="HeroEquipLeftPanel" type="GridContainer"]
 unique_name_in_owner = true
@@ -39,16 +22,9 @@ layout_mode = 2
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
-[node name="SlotSkillAtiva0" type="Button" parent="."]
+[node name="SlotSkillAtiva0" parent="." instance=ExtResource("3_skill")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "+"
-autowrap_mode = 3
 
 [node name="SlotHelmet" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
@@ -58,16 +34,9 @@ layout_mode = 2
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
-[node name="SlotSkillAtiva1" type="Button" parent="."]
+[node name="SlotSkillAtiva1" parent="." instance=ExtResource("3_skill")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot_skill")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "+"
-autowrap_mode = 3
 
 [node name="SlotPants" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
@@ -77,10 +46,10 @@ layout_mode = 2
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 
-[node name="CellSpacer22" type="Control" parent="."]
-custom_minimum_size = Vector2(42, 42)
+[node name="UltimateSlotButton" parent="." instance=ExtResource("3_skill")]
+unique_name_in_owner = true
 layout_mode = 2
-mouse_filter = 2
+disabled = true
 
 [node name="SlotBoots" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)

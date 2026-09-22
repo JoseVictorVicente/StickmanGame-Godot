@@ -32,6 +32,7 @@ func _initialize() -> void:
 	root.add_child(left_panel)
 	assert(left_panel.all_equipment_slots().size() == 7, "left equip panel should expose 7 baked slots")
 	assert(left_panel.get_node("%SlotSkillAtiva0") != null, "left panel should bake active skill slots")
+	assert(left_panel.get_node("%UltimateSlotButton") != null, "left panel should bake ultimate placeholder")
 	left_panel.queue_free()
 
 	var right_panel := HERO_EQUIP_RIGHT_SCENE.instantiate() as HeroEquipRightPanel
@@ -47,7 +48,6 @@ func _initialize() -> void:
 	root.add_child(character_panel)
 	assert(character_panel.get_node("%PortraitArea") != null, "character panel should bake portrait area")
 	assert(character_panel.get_node("%PartySlots") != null, "character panel should bake party slots")
-	assert(character_panel.get_node("%UltimateSlotButton") != null, "ultimate placeholder should be baked")
 	character_panel.queue_free()
 
 	var inventory_panel := INVENTORY_PANEL_SCENE.instantiate() as InventoryPanel
