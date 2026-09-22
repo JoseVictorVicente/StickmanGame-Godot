@@ -17,6 +17,7 @@ const SLOT_ICON_INSET_BASE_SIZE := 42.0
 const SLOT_ICON_INSET_BASE_PX := 5.0
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
+const HOVER_FRAME_COLOR := Color(1.0, 0.88, 0.42, 1.0)
 const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BELT,
 	ItemData.Type.PENDANT,
@@ -40,6 +41,7 @@ var icone_rect: TextureRect
 var slot_frame: TextureRect
 var _label_sigla: Label
 var _selecionado: bool = false
+var _hovered: bool = false
 var _textura_vazia: Texture2D
 
 
@@ -189,15 +191,21 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _on_mouse_entered() -> void:
+	_hovered = true
+	_apply_frame_modulate()
 	_show_tooltip()
 
 
 func _on_mouse_exited() -> void:
+	_hovered = false
+	_apply_frame_modulate()
 	_hide_tooltip()
 
 
 func _on_visibility_changed() -> void:
 	if not is_visible_in_tree():
+		_hovered = false
+		_apply_frame_modulate()
 		_hide_tooltip()
 
 
@@ -428,8 +436,8 @@ func _apply_frame_modulate() -> void:
 			lerpf(1.0, raridade.b, 0.45),
 			1.0
 		)
-	if _selecionado:
-		cor = Color(1.0, 0.88, 0.42)
+	if _selecionado or _hovered:
+		cor = HOVER_FRAME_COLOR
 	if forge_reserved:
 		cor = cor * Color(0.55, 0.55, 0.55, 0.85)
 	slot_frame.modulate = cor

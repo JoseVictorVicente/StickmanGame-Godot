@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://c8invpanel1" path="res://presentation/inventory/inventory_panel.tscn" id="16_inv"]
 [ext_resource type="PackedScene" uid="uid://c8bottomnav1" path="res://presentation/inventory/bottom_nav.tscn" id="20_nav"]
 [ext_resource type="PackedScene" uid="uid://c8settings01" path="res://presentation/inventory/settings_panel.tscn" id="21_settings"]
+[ext_resource type="Texture2D" uid="uid://bsettingsicon01" path="res://sprites/ui/settings_icon.png" id="22_settings_icon"]
+[ext_resource type="Texture2D" uid="uid://bquitgameicon1" path="res://sprites/ui/quit_game_icon.png" id="23_quit_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_active_side"]
 content_margin_left = 0.0
@@ -43,22 +45,6 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.95, 0.78, 0.32, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_sair_jogo"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.38, 0.12, 0.1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.38, 0.28, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -218,33 +204,33 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="QuitGameButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=56974447]
+[node name="QuitGameButton" type="TextureButton" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=56974447]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 36)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
 tooltip_text = "Sair do jogo"
-theme_override_colors/font_color = Color(1, 0.85, 0.78, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao_sair_jogo")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "L"
+texture_filter = 1
+texture_normal = ExtResource("23_quit_icon")
+texture_pressed = ExtResource("23_quit_icon")
+texture_hover = ExtResource("23_quit_icon")
+ignore_texture_size = true
+stretch_mode = 5
+focus_mode = 0
 
-[node name="SettingsButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=1018783966]
+[node name="SettingsButton" type="TextureButton" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=1018783966]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 36)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
 tooltip_text = "Configurações"
-theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
-text = "S"
-icon_alignment = 1
-expand_icon = true
+texture_filter = 1
+texture_normal = ExtResource("22_settings_icon")
+texture_pressed = ExtResource("22_settings_icon")
+texture_hover = ExtResource("22_settings_icon")
+ignore_texture_size = true
+stretch_mode = 5
+focus_mode = 0
 
 [node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=607564648]
 unique_name_in_owner = true

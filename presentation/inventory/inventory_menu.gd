@@ -24,8 +24,8 @@ var HERO_SLOTS: Array[Dictionary] = [
 var CLASSES: Array[ClassData] = []
 
 @onready var exit_button: Button = %ExitButton
-@onready var quit_game_button: Button = %QuitGameButton
-@onready var settings_button: Button = %SettingsButton
+@onready var quit_game_button: TextureButton = %QuitGameButton
+@onready var settings_button: TextureButton = %SettingsButton
 @onready var gold_label: Label = %GoldLabel
 @onready var gold_panel: Control = %GoldPanel
 @onready var settings_panel: SettingsPanel = %SettingsPanel
@@ -95,6 +95,11 @@ var query_slot_progress: Callable
 @export var layout_inventario: InventoryLayout = preload("res://presentation/inventory/inventory_layout_default.tres")
 @export var active_side_button_style: StyleBoxFlat
 
+const HEADER_ICON_HOVER_SCALE := 1.12
+const HEADER_ICON_TWEEN_DURATION := 0.08
+
+var _header_icon_tweens: Dictionary = {}
+
 
 func _ready() -> void:
 	CLASSES = ClassData.catalog()
@@ -108,6 +113,12 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	quit_game_button.pressed.connect(_on_quit_button_pressed)
 	settings_button.pressed.connect(_on_settings_button_pressed)
+	_wire_header_icon_hover(quit_game_button)
+	_wire_header_icon_hover(
+		settings_button,
+		func() -> bool:
+			return settings_panel != null and settings_panel.visible
+	)
 	if close_settings_button:
 		close_settings_button.pressed.connect(_close_settings)
 	if slider_volume:
@@ -115,9 +126,6 @@ func _ready() -> void:
 	_setup_locale_selector()
 	LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
-	settings_button.icon = _gear_icon()
-	settings_button.add_theme_constant_override("icon_max_width", 20)
-	settings_button.text = "S"
 	cabecalho.gui_input.connect(_on_header_gui_input)
 	if hub_chrome_bar:
 		hub_chrome_bar.gui_input.connect(_on_header_gui_input)
@@ -1062,6 +1070,7 @@ func _open_settings() -> void:
 	_update_localized_texts()
 	settings_panel.show()
 	_panels.set_inventory_visible(false)
+	_tween_header_icon_scale(settings_button, HEADER_ICON_HOVER_SCALE)
 	menu_width_changed.emit()
 
 
@@ -1069,7 +1078,66 @@ func _close_settings() -> void:
 	if settings_panel:
 		settings_panel.hide()
 	_panels.set_inventory_visible(true)
+	_tween_header_icon_scale(settings_button, 1.0)
 	menu_width_changed.emit()
+
+
+func _wire_header_icon_hover(botao: TextureButton, keep_scaled: Callable = Callable()) -> void:
+	if botao == null:
+		return
+	if not botao.resized.is_connected(_on_header_icon_resized):
+		botao.resized.connect(_on_header_icon_resized.bind(botao))
+	call_deferred("_sync_header_icon_pivot", botao)
+	if not botao.mouse_entered.is_connected(_on_header_icon_mouse_entered):
+		botao.mouse_entered.connect(_on_header_icon_mouse_entered.bind(botao, keep_scaled))
+	if not botao.mouse_exited.is_connected(_on_header_icon_mouse_exited):
+		botao.mouse_exited.connect(_on_header_icon_mouse_exited.bind(botao, keep_scaled))
+
+
+func _on_header_icon_resized(botao: TextureButton) -> void:
+	_sync_header_icon_pivot(botao)
+
+
+func _sync_header_icon_pivot(botao: TextureButton) -> void:
+	if botao == null:
+		return
+	var size := botao.size
+	if size.x < 1.0 or size.y < 1.0:
+		size = botao.custom_minimum_size
+	botao.pivot_offset = size * 0.5
+
+
+func _tween_header_icon_scale(botao: TextureButton, target_scale: float) -> void:
+	if botao == null:
+		return
+	_sync_header_icon_pivot(botao)
+	var key := botao.get_instance_id()
+	if _header_icon_tweens.has(key):
+		var old_tween: Variant = _header_icon_tweens[key]
+		if old_tween is Tween and (old_tween as Tween).is_valid():
+			(old_tween as Tween).kill()
+	var tween := botao.create_tween()
+	_header_icon_tweens[key] = tween
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(
+		botao,
+		"scale",
+		Vector2.ONE * target_scale,
+		HEADER_ICON_TWEEN_DURATION
+	)
+
+
+func _on_header_icon_mouse_entered(botao: TextureButton, keep_scaled: Callable) -> void:
+	if keep_scaled.is_valid() and keep_scaled.call():
+		return
+	_tween_header_icon_scale(botao, HEADER_ICON_HOVER_SCALE)
+
+
+func _on_header_icon_mouse_exited(botao: TextureButton, keep_scaled: Callable) -> void:
+	if keep_scaled.is_valid() and keep_scaled.call():
+		return
+	_tween_header_icon_scale(botao, 1.0)
 
 
 func _on_volume_changed(valor: float) -> void:
@@ -1140,7 +1208,7 @@ func _update_localized_texts() -> void:
 	if label_language_title:
 		label_language_title.text = tr(LocaleKeys.SETTINGS_LANGUAGE)
 	if quit_game_button:
-		quit_game_button.text = tr(LocaleKeys.BTN_QUIT_GAME)
+		quit_game_button.tooltip_text = tr(LocaleKeys.BTN_QUIT_GAME)
 	if settings_button:
 		settings_button.tooltip_text = tr(LocaleKeys.BTN_SETTINGS)
 	if exit_button:
@@ -1175,30 +1243,6 @@ func _update_localized_texts() -> void:
 		for i in option_locale.item_count:
 			var locale_code := str(option_locale.get_item_metadata(i))
 			option_locale.set_item_text(i, LocaleService.locale_display_name(locale_code))
-
-
-func _gear_icon() -> Texture2D:
-	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var cor := Color(0.95, 0.88, 0.7, 1)
-	var centro := Vector2(16, 16)
-	for i in 8:
-		var ang := float(i) * TAU / 8.0
-		var p: Vector2 = centro + Vector2(cos(ang), sin(ang)) * 11.0
-		_fill_circle(img, p, 3.2, cor)
-	_fill_circle(img, centro, 8.0, cor)
-	_fill_circle(img, centro, 3.4, Color(0, 0, 0, 0))
-	return ImageTexture.create_from_image(img)
-
-
-func _fill_circle(img: Image, centro: Vector2, raio: float, cor: Color) -> void:
-	var r := int(ceil(raio))
-	for y in range(int(centro.y) - r, int(centro.y) + r + 1):
-		for x in range(int(centro.x) - r, int(centro.x) + r + 1):
-			if Vector2(x, y).distance_to(centro) <= raio:
-				if x < 0 or y < 0 or x >= img.get_width() or y >= img.get_height():
-					continue
-				img.set_pixel(x, y, cor)
 
 
 func _on_header_gui_input(event: InputEvent) -> void:
