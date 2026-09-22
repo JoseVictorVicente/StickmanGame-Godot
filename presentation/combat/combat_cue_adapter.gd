@@ -32,10 +32,13 @@ static func _fire_arrow(
 	_total: int,
 	delay_sec: float
 ) -> void:
+	var sprite := party.get_hero_sprite(slot_index)
 	var origem := party.hero_world_position(slot_index) + Vector2(18, -8)
+	if sprite != null and sprite.has_method("get_arrow_spawn_global"):
+		origem = sprite.get_arrow_spawn_global()
 	var destino := origem + Vector2(90, 0)
 	if enemy_visual:
-		destino = enemy_visual.global_position
+		destino = HeroSpritesheet.arrow_target_horizontal(origem, enemy_visual.global_position)
 	if delay_sec <= 0.0:
 		ArrowProjectile.fire(combat_root, origem, destino)
 		return

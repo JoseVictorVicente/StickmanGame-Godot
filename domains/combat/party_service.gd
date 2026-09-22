@@ -3,16 +3,20 @@ extends Node2D
 ## Party of up to 3 stickmen with independent attack timers and stats.
 
 signal party_changed
+signal hero_attack_windup(slot_index: int)
 signal hero_attacked(slot_index: int, damage: int, is_crit: bool)
 signal hero_skill_used(slot_index: int, skill: SkillResource, hits: Array, heals: Array)
 signal dps_changed(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
+const ENEMY_SPAWN_X_BASE := 190.0
+const OFF_SCREEN_SPAWN_EXTRA_X := 220.0
 
 var active_party: Array = [null, null, null]
 var unlocked_classes: Array[ClassData] = []
 var combat_paused: bool = false
+var combat_ready: bool = false
 var stat_calculator: StatCalculator = null
 ## Callable (slot: int) -> int  equipment damage bonus for that hero.
 var get_equipped_damage: Callable
@@ -22,6 +26,8 @@ var get_equipped_hp: Callable
 var get_level: Callable
 ## Callable (slot: int) -> Dictionary  skill-tree bonuses.
 var get_skill_tree_bonus: Callable
+## Callable () -> bool  gate hero attacks (e.g. runner phase until enemy in range).
+var can_attack_target: Callable
 
 var _catalogo: Array[ClassData] = []
 var _sprites: Array[AnimatedSprite2D] = []
@@ -33,6 +39,8 @@ var _skill_runtime := SkillRuntime.new()
 var _buff_container := BuffContainer.new()
 var _active_runtime := ActiveSkillRuntime.new()
 var _combat_resolver := CombatResolver.new()
+var _pending_attacks: Array = [{}, {}, {}]
+var _running: bool = false
 
 
 func _ready() -> void:
@@ -56,6 +64,94 @@ func _process(delta: float) -> void:
 func _on_equipment_changed(_class_id: String) -> void:
 	_active_runtime.clear_cooldowns()
 	recalculate_stats()
+
+
+func start_combat() -> void:
+	combat_ready = true
+	HeroSpritesheet.invalidate_cache()
+	for i in SLOTS:
+		_pending_attacks[i] = {}
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if sprite.has_method("abort_attack"):
+			sprite.abort_attack()
+		_timers[i].stop()
+		_update_sprite_slot(i)
+		_update_timer_slot(i)
+
+
+func is_running() -> bool:
+	return _running
+
+
+func combat_floor_y() -> float:
+	return _posicoes[0].position.y if not _posicoes.is_empty() else -46.0
+
+
+func get_enemy_spawn_local(off_screen: bool = false) -> Vector2:
+	var base_y := combat_floor_y()
+	var spawn_x := ENEMY_SPAWN_X_BASE
+	if off_screen:
+		spawn_x += OFF_SCREEN_SPAWN_EXTRA_X
+	return Vector2(spawn_x, base_y)
+
+
+func begin_running() -> void:
+	_running = true
+	_set_running_animation(true)
+
+
+func pause_running_animation() -> void:
+	_set_running_animation(false)
+
+
+func resume_running_animation() -> void:
+	if _running:
+		_set_running_animation(true)
+
+
+func _set_running_animation(active: bool) -> void:
+	for i in SLOTS:
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if active_party[i] == null or not sprite.visible:
+			continue
+		if active and sprite.has_method("begin_running"):
+			sprite.begin_running()
+		elif sprite.has_method("end_running"):
+			sprite.end_running()
+
+
+func end_running() -> void:
+	if not _running:
+		return
+	_running = false
+	for i in SLOTS:
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if sprite.has_method("end_running"):
+			sprite.end_running()
+
+
+func reset_runner_state() -> void:
+	_running = false
+	for i in SLOTS:
+		_pending_attacks[i] = {}
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if sprite.has_method("reset_combat_pose"):
+			sprite.reset_combat_pose()
+		elif sprite.has_method("abort_attack"):
+			sprite.abort_attack()
+		if sprite.has_method("end_running"):
+			sprite.end_running()
+
+
+func _apply_slot_position(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	var pos := _posicoes[slot_index].position
+	if sprite.has_method("set_base_position"):
+		sprite.set_base_position(pos)
+	else:
+		sprite.position = pos
 
 
 func get_class_by_id(class_id: String) -> ClassData:
@@ -558,9 +654,12 @@ func _create_hero_visuals() -> void:
 		add_child(sprite)
 		_sprites.append(sprite)
 
+		sprite.connect("attack_impact", _on_hero_attack_impact.bind(i))
+		sprite.connect("attack_finished", _on_hero_attack_finished.bind(i))
+
 		var timer := Timer.new()
 		timer.name = "TimerHeroi_%d" % (i + 1)
-		timer.one_shot = false
+		timer.one_shot = true
 		timer.timeout.connect(_on_hero_timer.bind(i))
 		add_child(timer)
 		_timers.append(timer)
@@ -575,10 +674,7 @@ func _update_sprite_slot(slot_index: int) -> void:
 		_update_bar_slot(slot_index)
 		return
 	sprite.visible = true
-	if sprite.has_method("set_base_position"):
-		sprite.set_base_position(_posicoes[slot_index].position)
-	else:
-		sprite.position = _posicoes[slot_index].position
+	_apply_slot_position(slot_index)
 	if sprite.has_method("apply_class"):
 		sprite.apply_class(classe)
 	_set_fallen(slot_index, not is_hero_alive(slot_index))
@@ -593,9 +689,33 @@ func _update_timer_slot(slot_index: int) -> void:
 		return
 	var stats := hero_stats(slot_index)
 	var vel := float(stats.get("attack_speed", 1.0))
-	timer.wait_time = INTERVALO_BASE / maxf(0.25, vel)
-	if timer.is_stopped():
+	timer.wait_time = HeroSpritesheet.attack_cooldown(vel)
+	if not combat_ready:
+		timer.stop()
+		return
+	if timer.is_stopped() and not _is_slot_attacking(slot_index):
 		timer.start()
+
+
+func _is_slot_attacking(slot_index: int) -> bool:
+	if _has_arrow_in_flight(slot_index):
+		return true
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	return sprite.has_method("is_attacking") and sprite.is_attacking()
+
+
+func _restart_hero_timer(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _timers.size():
+		return
+	var classe: Variant = active_party[slot_index]
+	if classe == null or not is_hero_alive(slot_index):
+		_timers[slot_index].stop()
+		return
+	var stats := hero_stats(slot_index)
+	var vel := float(stats.get("attack_speed", 1.0))
+	var timer: Timer = _timers[slot_index]
+	timer.wait_time = HeroSpritesheet.attack_cooldown(vel)
+	timer.start()
 
 
 func _update_max_hp_slot(slot_index: int, reset_hp: bool) -> void:
@@ -633,7 +753,13 @@ func _set_fallen(slot_index: int, fallen: bool) -> void:
 
 
 func _on_hero_timer(slot_index: int) -> void:
+	if not combat_ready:
+		return
+	if can_attack_target.is_valid() and not bool(can_attack_target.call()):
+		_restart_hero_timer(slot_index)
+		return
 	if combat_paused:
+		_restart_hero_timer(slot_index)
 		return
 	if not is_hero_alive(slot_index):
 		return
@@ -641,13 +767,17 @@ func _on_hero_timer(slot_index: int) -> void:
 	if classe == null or not (classe is ClassData):
 		return
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
-	if sprite.has_method("play_attack"):
-		sprite.play_attack()
+	if _is_slot_attacking(slot_index):
+		if sprite.has_method("abort_attack"):
+			sprite.abort_attack()
+	var stats := hero_stats(slot_index)
+	var vel := float(stats.get("attack_speed", 1.0))
+	var cooldown := HeroSpritesheet.attack_cooldown(vel)
 	var class_data := classe as ClassData
 	var cdr_pct := cooldown_reduction_pct(slot_index)
 	var skill := _active_runtime.try_cast(slot_index, class_data.id, cdr_pct)
+	var pending: Dictionary = {}
 	if skill != null:
-		var stats := hero_stats(slot_index)
 		var ctx := {
 			"base_damage": int(stats.get("damage", 1)),
 			"crit_chance": float(stats.get("crit_chance", 0.0)),
@@ -658,6 +788,42 @@ func _on_hero_timer(slot_index: int) -> void:
 			recalculate_stats()
 		if _apply_rune_resonance_stacking(slot_index, class_data.id):
 			recalculate_stats()
+		pending = {"kind": "skill", "skill": skill, "result": result}
+	else:
+		var roll := roll_attack_damage(slot_index)
+		pending = {"kind": "basic", "roll": roll}
+	_pending_attacks[slot_index] = pending
+	if not sprite.has_method("begin_attack") or not sprite.begin_attack(cooldown, vel):
+		_pending_attacks[slot_index] = {}
+		_restart_hero_timer(slot_index)
+		return
+	hero_attack_windup.emit(slot_index)
+
+
+func _on_hero_attack_impact(slot_index: int) -> void:
+	if combat_paused:
+		_wait_and_apply_attack_impact(slot_index)
+		return
+	_apply_hero_attack_impact(slot_index)
+
+
+func _wait_and_apply_attack_impact(slot_index: int) -> void:
+	while combat_paused:
+		var tree := get_tree()
+		if tree == null:
+			return
+		await tree.process_frame
+	_apply_hero_attack_impact(slot_index)
+
+
+func _apply_hero_attack_impact(slot_index: int) -> void:
+	var pending: Dictionary = _pending_attacks[slot_index]
+	if pending.is_empty():
+		return
+	_pending_attacks[slot_index] = {}
+	if pending.get("kind") == "skill":
+		var skill: SkillResource = pending.get("skill")
+		var result: Dictionary = pending.get("result", {})
 		hero_skill_used.emit(
 			slot_index,
 			skill,
@@ -665,8 +831,35 @@ func _on_hero_timer(slot_index: int) -> void:
 			result.get("heals", [])
 		)
 		return
-	var roll := roll_attack_damage(slot_index)
+	var roll: Dictionary = pending.get("roll", {})
 	hero_attacked.emit(slot_index, int(roll.get("damage", 0)), bool(roll.get("is_crit", false)))
+	if _uses_deferred_arrow_impact(slot_index):
+		_restart_hero_timer(slot_index)
+
+
+func _on_hero_attack_finished(slot_index: int) -> void:
+	if _uses_deferred_arrow_impact(slot_index):
+		if _has_arrow_in_flight(slot_index):
+			return
+		if _pending_attacks[slot_index].is_empty():
+			_restart_hero_timer(slot_index)
+		return
+	_pending_attacks[slot_index] = {}
+	_restart_hero_timer(slot_index)
+
+
+func _uses_deferred_arrow_impact(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return false
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	return sprite.has_method("uses_deferred_arrow_impact") and sprite.uses_deferred_arrow_impact()
+
+
+func _has_arrow_in_flight(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return false
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	return sprite.has_method("has_arrow_in_flight") and sprite.has_arrow_in_flight()
 
 
 func _emit_dps() -> void:

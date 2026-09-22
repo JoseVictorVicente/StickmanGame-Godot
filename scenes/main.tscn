@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://b71mobneq8wgw" path="res://presentation/combat/enemy_visual.gd" id="5_inimigo"]
 [ext_resource type="Script" uid="uid://d3eb0eg6ln5cl" path="res://presentation/shared/coin_effect.gd" id="6_moedas"]
 [ext_resource type="Texture2D" uid="uid://qrjq2r1aebta" path="res://sprites/environment/grass_floor.png" id="7_chao"]
+[ext_resource type="Script" path="res://presentation/combat/floor_scroller.gd" id="8_floor"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_batalha"]
 content_margin_left = 8.0
@@ -100,6 +101,7 @@ grow_vertical = 0
 [node name="Floor" type="TextureRect" parent="BattleHud/StageArea" unique_id=96424052]
 unique_name_in_owner = true
 texture_filter = 1
+script = ExtResource("8_floor")
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -126,9 +128,8 @@ position = Vector2(-72, -46)
 [node name="Posicao3" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=947033902]
 position = Vector2(-26, -46)
 
-[node name="EnemyVisual" type="Sprite2D" parent="BattleHud/Combate" unique_id=1178503625]
+[node name="EnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate" unique_id=1178503625]
 position = Vector2(102, -46)
-scale = Vector2(1.45, 1.45)
 script = ExtResource("5_inimigo")
 
 [node name="BattlePanel" type="PanelContainer" parent="BattleHud" unique_id=179778745]

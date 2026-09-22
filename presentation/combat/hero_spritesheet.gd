@@ -4,19 +4,38 @@ extends RefCounted
 
 const ID_ARQUEIRO := "archer"
 const FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
+const RUN_DIR := FRAMES_DIR + "run/"
+const DEATH_DIR := FRAMES_DIR + "death/"
+const ARCHER_RUN_FPS := 14.0
+const ARCHER_DEATH_FPS := 10.0
 const FRAME_COUNT := 21
 const ESCALA_STICK := Vector2(1.25, 1.25)
 const ESCALA_ARQUEIRO := Vector2(0.55, 0.55)
 const BARRA_STICK := Vector2(-14, -38)
 const ARCHER_BAR := Vector2(-14, -78)
-const ARCHER_GROUND_OFFSET := Vector2(0, 10)
+const ARCHER_GROUND_OFFSET := Vector2(0, 15)
+## Extra Y shift while playing death (sprite collapses toward floor).
+const ARCHER_DEATH_GROUND_OFFSET := Vector2(0, 22)
+## Pixels below sprite center to feet at ARCHER scale (frame feet ~y168, center y100).
+const ARCHER_FEET_BELOW_CENTER := 37.4
+const STICK_FEET_BELOW_CENTER := 22.0
 
 ## Índice do frame dentro da animação "Ataque" em que a flecha é disparada.
 const ARCHER_ATTACK_RELEASE_INDEX := 9
 const ARCHER_ATTACK_START := 4
 const ARCHER_ATTACK_END := 16
 const ARCHER_ARROW_SPAWN := Vector2(22, -14)
+const ARCHER_ARROW_SPAWN_BY_FRAME := {
+	8: Vector2(24, -12),
+	9: Vector2(30, -10),
+	10: Vector2(34, -10),
+}
 const ATTACK_INTERVAL_BASE := 1.0
+const STICK_ATTACK_FPS := 14.0
+const STICK_ATTACK_FRAMES := 3
+const ARCHER_ATTACK_FPS := 20.0
+const ARCHER_ENGAGE_RANGE := 100.0
+const STICK_ENGAGE_RANGE := 55.0
 
 static var _frames: Dictionary = {}
 static var _textures: Dictionary = {}
@@ -35,6 +54,11 @@ static func frames(id_classe: String) -> SpriteFrames:
 	if montado:
 		_frames[id_classe] = montado
 	return montado
+
+
+static func invalidate_cache() -> void:
+	_frames.clear()
+	_textures.clear()
 
 
 static func scale_for(id_classe: String) -> Vector2:
@@ -61,27 +85,92 @@ static func arrow_spawn_offset(id_classe: String) -> Vector2:
 	return Vector2(18, -8)
 
 
+static func arrow_spawn_offset_for_frame(id_classe: String, frame_idx: int) -> Vector2:
+	if id_classe == ID_ARQUEIRO and ARCHER_ARROW_SPAWN_BY_FRAME.has(frame_idx):
+		return ARCHER_ARROW_SPAWN_BY_FRAME[frame_idx]
+	return arrow_spawn_offset(id_classe)
+
+
+static func arrow_target_horizontal(origem: Vector2, alvo: Vector2) -> Vector2:
+	return Vector2(alvo.x, origem.y)
+
+
 static func ground_offset(id_classe: String) -> Vector2:
 	if id_classe == ID_ARQUEIRO:
 		return ARCHER_GROUND_OFFSET
 	return Vector2.ZERO
 
 
-static func attack_animation_speed(id_classe: String, attack_speed: float) -> float:
-	if id_classe != ID_ARQUEIRO:
-		return 14.0
-	var frame_count := ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
-	var intervalo := ATTACK_INTERVAL_BASE / maxf(0.25, attack_speed)
-	return float(frame_count) / (intervalo * 0.9)
+static func death_ground_offset(id_classe: String) -> Vector2:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_DEATH_GROUND_OFFSET
+	return Vector2.ZERO
+
+
+static func feet_below_center(id_classe: String) -> float:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_FEET_BELOW_CENTER
+	return STICK_FEET_BELOW_CENTER
+
+
+static func attack_cooldown(attack_speed: float) -> float:
+	return ATTACK_INTERVAL_BASE / maxf(0.25, attack_speed)
+
+
+static func engage_range(id_classe: String) -> float:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_ENGAGE_RANGE
+	return STICK_ENGAGE_RANGE
+
+
+static func attack_frame_count(id_classe: String) -> int:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
+	return STICK_ATTACK_FRAMES
+
+
+static func attack_base_fps(id_classe: String) -> float:
+	if id_classe == ID_ARQUEIRO:
+		return ARCHER_ATTACK_FPS
+	return STICK_ATTACK_FPS
+
+
+## speed_scale so attack animation duration matches attack cooldown.
+static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
+	var frame_count := attack_frame_count(id_classe)
+	var base_fps := attack_base_fps(id_classe)
+	var default_duration := float(frame_count) / base_fps
+	var cooldown := attack_cooldown(attack_speed)
+	return default_duration / maxf(0.01, cooldown)
 
 
 static func _build_archer() -> SpriteFrames:
 	var sf := SpriteFrames.new()
 	_add_anim(sf, "Idle", _load_frame_range(0, 3), true, 5.0)
+	_add_anim(sf, "Corrida", _load_run_frames(), true, ARCHER_RUN_FPS)
 	_add_anim(sf, "Ataque", _load_frame_range(ARCHER_ATTACK_START, ARCHER_ATTACK_END), false, 20.0)
 	_add_anim(sf, "Hit", _load_frame_range(5, 7), false, 12.0)
-	_add_anim(sf, "Morte", _load_frame_range(8, 5), false, 8.0)
+	_add_anim(sf, "Morte", _load_dir_frames(DEATH_DIR), false, ARCHER_DEATH_FPS)
 	return sf
+
+
+static func _load_run_frames() -> Array[Texture2D]:
+	return _load_dir_frames(RUN_DIR)
+
+
+static func _load_dir_frames(dir: String) -> Array[Texture2D]:
+	var lista: Array[Texture2D] = []
+	var index := 0
+	while ResourceLoader.exists("%sframe_%03d.png" % [dir, index]) or _file_exists("%sframe_%03d.png" % [dir, index]):
+		var tex := _load_texture("%sframe_%03d.png" % [dir, index])
+		if tex:
+			lista.append(tex)
+		index += 1
+	return lista
+
+
+static func _file_exists(path: String) -> bool:
+	return FileAccess.file_exists(ProjectSettings.globalize_path(path))
 
 
 static func _load_frame_range(from_frame: int, to_frame: int) -> Array[Texture2D]:

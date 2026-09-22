@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://c8portalhall01"]
+[gd_scene format=3 uid="uid://725hsowlcub5"]
 
 [ext_resource type="Script" uid="uid://c8phallgd001" path="res://presentation/worlds/portal_hall_view.gd" id="1_hall"]
 [ext_resource type="PackedScene" uid="uid://c8portalcard01" path="res://presentation/worlds/portal_card.tscn" id="2_card"]

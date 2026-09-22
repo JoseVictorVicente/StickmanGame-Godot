@@ -1,4 +1,4 @@
-[gd_scene load_steps=1 format=3 uid="uid://c8stagenode01"]
+[gd_scene format=3 uid="uid://c8stagenode01"]
 
 [node name="StageAnchor" type="Control"]
 layout_mode = 2

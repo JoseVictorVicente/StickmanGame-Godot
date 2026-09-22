@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8trailmap01"]
+[gd_scene format=3 uid="uid://c8trailmap01"]
 
 [ext_resource type="Script" uid="uid://c8ptrailgd001" path="res://presentation/worlds/trail_map_view.gd" id="1_trail"]
 [ext_resource type="Script" uid="uid://c8mapafas001" path="res://presentation/worlds/stage_map.gd" id="2_mapa"]

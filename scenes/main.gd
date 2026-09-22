@@ -12,10 +12,10 @@ extends Node2D
 @onready var repeat_stage_button: Button = %RepeatStageButton
 @onready var notice_label: Label = %NoticeLabel
 @onready var stage_panel: Control = $BattleHud/StageArea
-@onready var floor: TextureRect = %Floor
+@onready var floor: FloorScroller = %Floor
 @onready var combat_root: Node2D = $BattleHud/Combate
 @onready var party: PartyService = $BattleHud/Combate/PartyService
-@onready var enemy_visual: Sprite2D = $BattleHud/Combate/EnemyVisual
+@onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -48,6 +48,11 @@ func _ready() -> void:
 	_combat.party = party
 	_combat.enemy_visual = enemy_visual
 	_combat.enemy_health_bar = enemy_health_bar
+	_combat.floor_scroller = floor
+	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):
+		enemy_visual.attack_impact.connect(_combat.on_enemy_attack_impact)
+	if not enemy_visual.attack_finished.is_connected(_combat.on_enemy_attack_finished):
+		enemy_visual.attack_finished.connect(_combat.on_enemy_attack_finished)
 	_combat.hero_progress = _hero_progress
 	_combat.get_character_index = func() -> int: return inventory_menu.current_character_index()
 	_combat.get_gold_destination = _gold_destination
@@ -93,6 +98,7 @@ func _ready() -> void:
 	party.get_equipped_hp = get_equipped_hp_for_slot
 	party.get_level = get_level_for_slot
 	party.get_skill_tree_bonus = get_skill_tree_bonus_for_slot
+	party.hero_attack_windup.connect(func(_slot: int) -> void: AudioManager.play_attack_sound())
 	party.hero_attacked.connect(_combat.on_hero_attacked)
 	party.hero_skill_used.connect(_combat.on_hero_skill_used)
 	party.dps_changed.connect(_on_dps_changed)
@@ -109,9 +115,9 @@ func _ready() -> void:
 		inventory_menu.fill_initial_item_if_empty()
 
 	_on_progression_changed()
-	_combat.spawn_enemy()
 	recalculate_attributes()
 	party.heal_party()
+	_combat.start_combat()
 	stage_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	stage_panel.gui_input.connect(_window_manager.on_drag_area)
 	battle_panel.gui_input.connect(_window_manager.on_drag_area)

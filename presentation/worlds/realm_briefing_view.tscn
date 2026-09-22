@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8realmbrief01"]
+[gd_scene format=3 uid="uid://barm85e7s4ob5"]
 
 [ext_resource type="Script" uid="uid://c8pbriefgd001" path="res://presentation/worlds/realm_briefing_view.gd" id="1_brief"]
 

@@ -1,11 +1,17 @@
 extends AnimatedSprite2D
-## Stickman de combat_root: Idle enquanto espera, Ataque no timer de dano.
+## Stickman de combat_root: Idle enquanto espera, Ataque sincronizado ao cooldown.
+
+signal attack_impact
+signal attack_finished
+
+enum State { IDLE, ATTACKING, RUNNING }
 
 const ATTACK_LUNGE := 28.0
 const LUNGE_DURATION := 0.09
 const DURACAO_RETORNO := 0.12
 
 const DEFAULT_ARROW_RELEASE_FRAME := 4
+const STICK_IMPACT_FRAME := 1
 
 var _marker_pos: Vector2 = Vector2.ZERO
 var _pos_base: Vector2 = Vector2.ZERO
@@ -18,6 +24,10 @@ var _usar_arte: bool = false
 var _id_classe: String = ""
 var _attack_speed: float = 1.0
 var _flecha_solta: bool = false
+var _impact_emitted: bool = false
+var _state: State = State.IDLE
+var _resume_running_after_attack: bool = false
+var _arrow_in_flight: bool = false
 var _frames_stick: SpriteFrames
 
 
@@ -42,18 +52,110 @@ func set_base_position(pos: Vector2) -> void:
 
 
 func play_attack() -> void:
+	begin_attack(HeroSpritesheet.attack_cooldown(_attack_speed), _attack_speed)
+
+
+func begin_running() -> void:
 	if _caido:
 		return
+	if _state == State.ATTACKING:
+		abort_attack()
+	_state = State.RUNNING
+	_play_running_anim()
+
+
+func end_running() -> void:
+	if _state != State.RUNNING:
+		return
+	_state = State.IDLE
+	_resume_running_after_attack = false
+	play("Idle")
+
+
+func uses_deferred_arrow_impact() -> bool:
+	return _usar_arte and _id_classe == HeroSpritesheet.ID_ARQUEIRO
+
+
+func has_arrow_in_flight() -> bool:
+	return _arrow_in_flight
+
+
+func reset_combat_pose() -> void:
+	_resume_running_after_attack = false
+	_arrow_in_flight = false
+	if _tween_ataque:
+		_tween_ataque.kill()
+		_tween_ataque = null
+	if _state == State.ATTACKING:
+		position = _pos_base
+		speed_scale = 1.0
+	_state = State.IDLE
+	if not _caido:
+		play("Idle")
+
+
+func is_running() -> bool:
+	return _state == State.RUNNING
+
+
+func begin_march() -> void:
+	begin_running()
+
+
+func end_march() -> void:
+	end_running()
+
+
+func is_marching() -> bool:
+	return is_running()
+
+
+func begin_attack(_cooldown: float, attack_speed: float) -> bool:
+	if _caido:
+		return false
+	if _arrow_in_flight:
+		return false
+	if _state == State.ATTACKING:
+		abort_attack()
+	_attack_speed = attack_speed
+	_impact_emitted = false
 	_flecha_solta = false
-	if _usar_arte and sprite_frames and sprite_frames.has_animation("Ataque"):
-		var fps := HeroSpritesheet.attack_animation_speed(_id_classe, _attack_speed)
-		sprite_frames.set_animation_speed("Ataque", fps)
+	_resume_running_after_attack = _state == State.RUNNING
+	_state = State.ATTACKING
+	speed_scale = HeroSpritesheet.attack_speed_scale(_id_classe, attack_speed)
+	if sprite_frames == null or not sprite_frames.has_animation("Ataque"):
+		_emit_attack_impact()
+		_finish_attack()
+		return true
 	play("Ataque")
+	if animation != "Ataque":
+		_emit_attack_impact()
+		_finish_attack()
+		return true
 	if not _usar_arte:
-		_slide_attack()
+		_slide_attack(speed_scale)
+	return true
+
+
+func is_attacking() -> bool:
+	return _state == State.ATTACKING
+
+
+func abort_attack() -> void:
+	if _state != State.ATTACKING:
+		return
+	if _tween_ataque:
+		_tween_ataque.kill()
+	position = _pos_base
+	_finish_attack()
 
 
 func apply_class(classe: ClassData) -> void:
+	if classe != null and classe.id == _id_classe and not _caido and _state != State.RUNNING:
+		_attack_speed = classe.attack_speed
+		_reanchor_position()
+		_adjust_bar()
+		return
 	if classe == null:
 		_id_classe = ""
 		_attack_speed = 1.0
@@ -81,6 +183,8 @@ func apply_class(classe: ClassData) -> void:
 		sprite_frames = _default_frames()
 	_reanchor_position()
 	_adjust_bar()
+	_state = State.IDLE
+	speed_scale = 1.0
 	if not _caido:
 		play("Idle")
 
@@ -110,12 +214,22 @@ func update_hp(atual: int, maximo: int) -> void:
 
 func set_fallen(fallen: bool) -> void:
 	_caido = fallen
+	_arrow_in_flight = false
+	_resume_running_after_attack = false
+	if _state == State.ATTACKING:
+		abort_attack()
+	elif _state == State.RUNNING:
+		_state = State.IDLE
 	if _tween_ataque:
 		_tween_ataque.kill()
-	position = _pos_base
+	speed_scale = 1.0
+	_reanchor_position()
 	if fallen:
 		if _tween_flash:
 			_tween_flash.kill()
+		if _barra:
+			_barra.visible = false
+		position += HeroSpritesheet.death_ground_offset(_id_classe)
 		if _usar_arte and sprite_frames and sprite_frames.has_animation("Morte"):
 			self_modulate = Color.WHITE
 			play("Morte")
@@ -123,7 +237,9 @@ func set_fallen(fallen: bool) -> void:
 			self_modulate = Color(_cor_classe.r * 0.4, _cor_classe.g * 0.4, _cor_classe.b * 0.4, 0.55)
 			play("Idle")
 	else:
-		self_modulate = _cor_classe
+		if _barra:
+			_barra.visible = true
+		self_modulate = _cor_classe if not _usar_arte else Color.WHITE
 		play("Idle")
 
 
@@ -141,48 +257,105 @@ func flash_damage() -> void:
 	_tween_flash.tween_property(self, "self_modulate", _cor_classe, 0.08)
 
 
-func _slide_attack() -> void:
+func _slide_attack(scale_factor: float) -> void:
 	if _tween_ataque:
 		_tween_ataque.kill()
 	position = _pos_base
+	var factor := maxf(0.25, scale_factor)
 	_tween_ataque = create_tween()
 	_tween_ataque.set_trans(Tween.TRANS_QUAD)
-	_tween_ataque.tween_property(self, "position:x", _pos_base.x + ATTACK_LUNGE, LUNGE_DURATION).set_ease(Tween.EASE_OUT)
-	_tween_ataque.tween_property(self, "position:x", _pos_base.x, DURACAO_RETORNO).set_ease(Tween.EASE_IN)
+	_tween_ataque.tween_property(
+		self, "position:x", _pos_base.x + ATTACK_LUNGE, LUNGE_DURATION / factor
+	).set_ease(Tween.EASE_OUT)
+	_tween_ataque.tween_property(
+		self, "position:x", _pos_base.x, DURACAO_RETORNO / factor
+	).set_ease(Tween.EASE_IN)
 
 
 func _on_animation_finished() -> void:
 	if animation == "Morte":
 		return
-	if animation == "Ataque" or animation == "Hit":
-		play("Idle")
+	if animation == "Ataque":
+		_emit_attack_impact()
+		_finish_attack()
+		return
+	if animation == "Hit":
+		if _state == State.ATTACKING:
+			_finish_attack()
+		else:
+			play("Idle")
 
 
 func _on_frame_changed() -> void:
-	if not _usar_arte or _caido or _flecha_solta:
-		return
-	if animation != "Ataque":
+	if _caido or _impact_emitted or animation != "Ataque":
 		return
 	var release_frame := HeroSpritesheet.attack_release_frame(_id_classe)
-	if _id_classe == "":
-		release_frame = DEFAULT_ARROW_RELEASE_FRAME
-	if frame >= release_frame:
+	if not _usar_arte:
+		release_frame = STICK_IMPACT_FRAME
+	if frame < release_frame:
+		return
+	_emit_attack_impact()
+
+
+func _emit_attack_impact() -> void:
+	if _impact_emitted:
+		return
+	_impact_emitted = true
+	if _usar_arte and _id_classe == HeroSpritesheet.ID_ARQUEIRO and not _flecha_solta:
 		_flecha_solta = true
-		_fire_arrow()
+		if _fire_arrow_deferred_impact():
+			return
+	attack_impact.emit()
 
 
-func _fire_arrow() -> void:
+func _finish_attack() -> void:
+	speed_scale = 1.0
+	if _resume_running_after_attack:
+		_state = State.RUNNING
+		_resume_running_after_attack = false
+	else:
+		_state = State.IDLE
+	attack_finished.emit()
+	if _state == State.RUNNING:
+		_play_running_anim()
+	else:
+		play("Idle")
+
+
+func _play_running_anim() -> void:
+	if _usar_arte and sprite_frames and sprite_frames.has_animation("Corrida"):
+		play("Corrida")
+	else:
+		play("Idle")
+
+
+func get_arrow_spawn_global() -> Vector2:
+	var local := HeroSpritesheet.arrow_spawn_offset_for_frame(_id_classe, frame)
+	return to_global(local)
+
+
+func _resolve_arrow_target(combat_root: Node) -> Vector2:
+	var origem := get_arrow_spawn_global()
+	var inimigo: Node2D = combat_root.get_node_or_null("EnemyVisual") as Node2D
+	if inimigo:
+		return HeroSpritesheet.arrow_target_horizontal(origem, inimigo.global_position)
+	return origem + Vector2(90, 0)
+
+
+func _fire_arrow_deferred_impact() -> bool:
 	var combat_root: Node = get_parent()
 	if combat_root:
 		combat_root = combat_root.get_parent()
 	if combat_root == null:
-		return
-	var inimigo: Node2D = combat_root.get_node_or_null("EnemyVisual") as Node2D
-	var destino := global_position + Vector2(90, 0)
-	if inimigo:
-		destino = inimigo.global_position
-	var spawn_offset := HeroSpritesheet.arrow_spawn_offset(_id_classe)
-	ArrowProjectile.fire(combat_root, global_position + spawn_offset, destino)
+		return false
+	var origem := get_arrow_spawn_global()
+	var destino := _resolve_arrow_target(combat_root)
+	_arrow_in_flight = true
+	ArrowProjectile.fire(combat_root, origem, destino, func() -> void:
+		_arrow_in_flight = false
+		attack_impact.emit()
+	)
+	return true
 
 
 func _adjust_bar() -> void:

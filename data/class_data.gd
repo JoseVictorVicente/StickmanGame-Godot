@@ -79,7 +79,7 @@ static func catalog() -> Array[ClassData]:
 		create("priest", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.RequiredClass.PRIEST, 32, "res://sprites/heroes/px_priest2.jpg", 4, 2),
 		create("tank", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.RequiredClass.TANK, 60, "res://sprites/heroes/px_tank2.jpg", 9, 1),
 		create("assassin", "Assassino", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.RequiredClass.ASSASSIN, 26, "res://sprites/heroes/px_assassin2.jpg", 6, 1),
-		create("archer", "Arqueiro", 4, 1.15, 1.3, Color(0.16, 0.42, 0.2), ItemData.RequiredClass.ARCHER, 30, "res://sprites/heroes/px_archer2.png", 4, 2),
+		create("archer", "Arqueiro", 4, 1.15, 2.0, Color(0.16, 0.42, 0.2), ItemData.RequiredClass.ARCHER, 30, "res://sprites/heroes/px_archer2.png", 4, 2),
 		create("mage", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.RequiredClass.MAGE, 24, "res://sprites/heroes/px_mage2.jpg", 4, 2),
 		create("warrior", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.RequiredClass.WARRIOR, 42, "res://sprites/heroes/px_warrior2.jpg", 7, 1),
 	]
