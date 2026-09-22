@@ -301,8 +301,7 @@ size_flags_vertical = 2
 layout_mode = 2
 size_flags_horizontal = 1
 size_flags_vertical = 3
-offset_transform_enabled = true
-offset_transform_position = Vector2(0, 2)
+offset_transform_position = Vector2(0, 6)
 
 [node name="OverlayStack" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubBody" unique_id=109561746]
 unique_name_in_owner = true
