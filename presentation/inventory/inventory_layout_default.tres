@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_layout")
+nav_world_icon_scale = 1.0
 sort_toolbar_height = 63
 inventory_scroll_max_height = 150.0
 chrome_button_size = 46

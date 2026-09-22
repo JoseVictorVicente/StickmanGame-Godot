@@ -22,12 +22,15 @@ var _world_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 
 func _ready() -> void:
 	set_process(true)
+	resized.connect(_sync_nav_button_pivots)
+	call_deferred("_sync_nav_button_pivots")
 
 
 func configure(menu: InventoryMenu, _layout: InventoryLayout = null) -> void:
 	_menu = menu
 	_wire_buttons(menu)
 	_setup_world_animated_icon()
+	call_deferred("_sync_nav_button_pivots")
 
 
 func apply_bar_icons(menu: InventoryMenu) -> void:
@@ -99,6 +102,7 @@ func _setup_world_animated_icon() -> void:
 	world_button.icon = null
 	world_button.expand_icon = true
 	world_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	world_button.remove_theme_constant_override("icon_max_width")
 	_world_icon_anim.reset(InterfaceIcons.nav_world_frames())
 	var first: Texture2D = _world_icon_anim.advance(0.0)
 	if first == null:
@@ -132,9 +136,23 @@ func _on_nav_mouse_exited(botao: Button) -> void:
 	_tween_nav_scale(botao, 1.0)
 
 
+func _sync_nav_button_pivots() -> void:
+	for botao in _nav_buttons():
+		if botao:
+			botao.pivot_offset = _nav_button_pivot(botao)
+
+
+func _nav_button_pivot(botao: Control) -> Vector2:
+	var size := botao.size
+	if size.x < 1.0 or size.y < 1.0:
+		size = botao.custom_minimum_size
+	return size * 0.5
+
+
 func _tween_nav_scale(botao: Button, target_scale: float) -> void:
 	if botao == null:
 		return
+	botao.pivot_offset = _nav_button_pivot(botao)
 	var target := Vector2.ONE * target_scale
 	if Engine.is_editor_hint():
 		botao.scale = target

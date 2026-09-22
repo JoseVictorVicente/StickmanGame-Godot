@@ -115,7 +115,8 @@ func party_hero_slot_pixel_size() -> Vector2:
 
 
 func nav_world_icon_pixel_width() -> int:
-	return int(round(float(nav_icon_max_width) * nav_world_icon_scale))
+	var slot := float(maxi(1, base_unit))
+	return int(round(slot * nav_world_icon_scale))
 
 
 func equip_block_pixel_size(cols: int, rows: int) -> Vector2:

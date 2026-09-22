@@ -17,10 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://c8settings01" path="res://presentation/inventory/settings_panel.tscn" id="21_settings"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_active_side"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
 bg_color = Color(0.32, 0.24, 0.16, 1)
 border_width_left = 1
 border_width_top = 1

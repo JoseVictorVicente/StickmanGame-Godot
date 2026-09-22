@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c8bottomnav1"]
 
-[ext_resource type="Script" path="res://presentation/inventory/bottom_nav.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://peyp0y8k830f" path="res://presentation/inventory/bottom_nav.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://c5o34g0lmphl5" path="res://sprites/ui/chest.png" id="2_ext"]
 [ext_resource type="Texture2D" uid="uid://bnc8n5u3bvfvp" path="res://sprites/ui/nav_skills.png" id="3_ext"]
 [ext_resource type="Texture2D" uid="uid://dpbh05jiuntra" path="res://sprites/ui/nav_inventory.png" id="4_ext"]
@@ -9,112 +9,107 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nav"]
 
-[node name="BottomNav" type="HBoxContainer"]
+[node name="BottomNav" type="HBoxContainer" unique_id=727074752]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(420, 34)
 size_flags_horizontal = 4
 size_flags_vertical = 0
+offset_transform_enabled = true
 theme_override_constants/separation = 3
 alignment = 1
 script = ExtResource("1_script")
 
-[node name="StorageButton" type="Button" parent="."]
+[node name="StorageButton" type="Button" parent="." unique_id=29207280]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
 icon = ExtResource("2_ext")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true
 
-[node name="SkillsButton" type="Button" parent="."]
+[node name="SkillsButton" type="Button" parent="." unique_id=1805392071]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
 icon = ExtResource("3_ext")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true
 
-[node name="TreeButton" type="Button" parent="."]
+[node name="TreeButton" type="Button" parent="." unique_id=2094273269]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
 icon = ExtResource("4_ext")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true
 
-[node name="FormationButton" type="Button" parent="."]
+[node name="FormationButton" type="Button" parent="." unique_id=1418322321]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
 icon = ExtResource("7_ext")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true
 
-[node name="ForgePanelButton" type="Button" parent="."]
+[node name="ForgePanelButton" type="Button" parent="." unique_id=1271937720]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
 icon = ExtResource("5_ext")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true
 
-[node name="WorldButton" type="Button" parent="."]
+[node name="WorldButton" type="Button" parent="." unique_id=1049704179]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
 texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-flat = true
 theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
+flat = true
 icon_alignment = 1
-vertical_icon_alignment = 1
 expand_icon = true

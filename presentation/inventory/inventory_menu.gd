@@ -318,9 +318,15 @@ func restore_world_button_style() -> void:
 
 
 func create_active_side_button_style() -> StyleBoxFlat:
-	if active_side_button_style:
-		return active_side_button_style.duplicate()
-	return null
+	if active_side_button_style == null:
+		return null
+	var style := active_side_button_style.duplicate() as StyleBoxFlat
+	# Nav icons are full-bleed (42px); content margins shrink the portal animation when a panel is open.
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
+	return style
 
 
 func setup_bar_button(botao: Button, chave: String, destacado: bool = false) -> void:
