@@ -17,6 +17,10 @@ const HOVER_TWEEN_DURATION := 0.08
 
 var _menu: InventoryMenu
 var _nav_tweens: Dictionary = {}
+var _warehouse_icon_anim: RefCounted = NAV_WORLD_ICON.new()
+var _skills_icon_anim: RefCounted = NAV_WORLD_ICON.new()
+var _tree_icon_anim: RefCounted = NAV_WORLD_ICON.new()
+var _forge_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 var _world_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 
 
@@ -29,6 +33,10 @@ func _ready() -> void:
 func configure(menu: InventoryMenu, _layout: InventoryLayout = null) -> void:
 	_menu = menu
 	_wire_buttons(menu)
+	_setup_warehouse_animated_icon()
+	_setup_skills_animated_icon()
+	_setup_tree_animated_icon()
+	_setup_forge_animated_icon()
 	_setup_world_animated_icon()
 	call_deferred("_sync_nav_button_pivots")
 
@@ -36,10 +44,10 @@ func configure(menu: InventoryMenu, _layout: InventoryLayout = null) -> void:
 func apply_bar_icons(menu: InventoryMenu) -> void:
 	if menu == null:
 		return
-	if skills_button:
-		menu.setup_bar_button(skills_button, "skills")
-	menu.setup_bar_button(tree_button, "inventory")
-	menu.setup_bar_button(forge_button, "forge")
+	_setup_warehouse_animated_icon()
+	_setup_skills_animated_icon()
+	_setup_tree_animated_icon()
+	_setup_forge_animated_icon()
 	_setup_world_animated_icon()
 
 
@@ -96,27 +104,92 @@ func _nav_buttons() -> Array[Button]:
 	]
 
 
-func _setup_world_animated_icon() -> void:
-	if world_button == null:
+func _setup_animated_nav_icon(
+	botao: Button,
+	anim: RefCounted,
+	frames: SpriteFrames,
+	fallback_bar_key: String
+) -> void:
+	if botao == null:
 		return
-	world_button.icon = null
-	world_button.expand_icon = true
-	world_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	world_button.remove_theme_constant_override("icon_max_width")
-	_world_icon_anim.reset(InterfaceIcons.nav_world_frames())
-	var first: Texture2D = _world_icon_anim.advance(0.0)
+	botao.icon = null
+	botao.expand_icon = true
+	botao.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	botao.remove_theme_constant_override("icon_max_width")
+	anim.reset(frames)
+	var first: Texture2D = anim.advance(0.0)
 	if first == null:
-		first = InterfaceIcons.bar_icon("world")
+		first = InterfaceIcons.bar_icon(fallback_bar_key)
 	if first:
-		world_button.icon = first
+		botao.icon = first
+
+
+func _setup_warehouse_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		storage_button,
+		_warehouse_icon_anim,
+		InterfaceIcons.nav_warehouse_frames(),
+		"warehouse"
+	)
+
+
+func _setup_skills_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		skills_button,
+		_skills_icon_anim,
+		InterfaceIcons.nav_skills_frames(),
+		"skills"
+	)
+
+
+func _setup_tree_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		tree_button,
+		_tree_icon_anim,
+		InterfaceIcons.nav_inventory_frames(),
+		"inventory"
+	)
+
+
+func _setup_forge_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		forge_button,
+		_forge_icon_anim,
+		InterfaceIcons.nav_forge_frames(),
+		"forge"
+	)
+
+
+func _setup_world_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		world_button,
+		_world_icon_anim,
+		InterfaceIcons.nav_world_frames(),
+		"world"
+	)
 
 
 func _process(delta: float) -> void:
-	if world_button == null:
-		return
-	var frame: Texture2D = _world_icon_anim.advance(delta)
-	if frame:
-		world_button.icon = frame
+	if storage_button:
+		var warehouse_frame: Texture2D = _warehouse_icon_anim.advance(delta)
+		if warehouse_frame:
+			storage_button.icon = warehouse_frame
+	if skills_button:
+		var skills_frame: Texture2D = _skills_icon_anim.advance(delta)
+		if skills_frame:
+			skills_button.icon = skills_frame
+	if tree_button:
+		var tree_frame: Texture2D = _tree_icon_anim.advance(delta)
+		if tree_frame:
+			tree_button.icon = tree_frame
+	if forge_button:
+		var forge_frame: Texture2D = _forge_icon_anim.advance(delta)
+		if forge_frame:
+			forge_button.icon = forge_frame
+	if world_button:
+		var world_frame: Texture2D = _world_icon_anim.advance(delta)
+		if world_frame:
+			world_button.icon = world_frame
 
 
 func _wire_nav_hover(botao: Button) -> void:

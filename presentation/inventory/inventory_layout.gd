@@ -96,7 +96,7 @@ func sync_from_base_unit() -> void:
 	portrait_min_size = portrait_pixel_size()
 	chrome_button_size = int(round(float(u) * 1.1))
 	bottom_bar_height = int(round(float(u) * 1.28))
-	nav_icon_max_width = int(round(float(u) * 0.80))
+	nav_icon_max_width = int(round(float(u) * 1.10))
 	warehouse_button_min_width = float(int(round(float(u) * 2.0)))
 	inventory_grid_columns = INVENTORY_COLUMNS
 	inventory_grid_rows = INVENTORY_ROWS

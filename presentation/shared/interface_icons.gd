@@ -44,28 +44,51 @@ static func bar_icon(nome: String) -> Texture2D:
 
 
 static func nav_world_frames() -> SpriteFrames:
-	var chave := "nav_world_frames"
-	if _cache.has(chave):
-		return _cache[chave] as SpriteFrames
+	return _nav_button_frames("nav_world_frames", "nav_world", 9, "world")
+
+
+static func nav_warehouse_frames() -> SpriteFrames:
+	return _nav_button_frames("nav_warehouse_frames", "nav_warehouse", 15, "warehouse")
+
+
+static func nav_skills_frames() -> SpriteFrames:
+	return _nav_button_frames("nav_skills_frames", "nav_skills", 17, "skills")
+
+
+static func nav_inventory_frames() -> SpriteFrames:
+	return _nav_button_frames("nav_inventory_frames", "nav_inventory", 17, "inventory")
+
+
+static func nav_forge_frames() -> SpriteFrames:
+	return _nav_button_frames("nav_forge_frames", "nav_forge", 11, "forge")
+
+
+static func _nav_button_frames(
+	cache_key: String,
+	folder: String,
+	frame_count: int,
+	fallback_bar_key: String
+) -> SpriteFrames:
+	if _cache.has(cache_key):
+		return _cache[cache_key] as SpriteFrames
 	var sf := SpriteFrames.new()
 	const ANIM := "default"
 	if not sf.has_animation(ANIM):
 		sf.add_animation(ANIM)
 	sf.set_animation_loop(ANIM, true)
-	const FRAME_COUNT := 9
-	for i in FRAME_COUNT:
-		var caminho := PASTA + "nav_world/frame_%02d.png" % i
+	for i in frame_count:
+		var caminho := PASTA + "%s/frame_%02d.png" % [folder, i]
 		if not ResourceLoader.exists(caminho):
 			continue
 		var tex := load(caminho) as Texture2D
 		if tex:
 			sf.add_frame(ANIM, tex)
 	if sf.get_frame_count(ANIM) == 0:
-		var fallback := bar_icon("world")
+		var fallback := bar_icon(fallback_bar_key)
 		if fallback:
 			sf.add_frame(ANIM, fallback)
 	sf.set_animation_speed(ANIM, 1000.0 / 150.0)
-	_cache[chave] = sf
+	_cache[cache_key] = sf
 	return sf
 
 

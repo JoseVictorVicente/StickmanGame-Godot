@@ -321,7 +321,7 @@ func create_active_side_button_style() -> StyleBoxFlat:
 	if active_side_button_style == null:
 		return null
 	var style := active_side_button_style.duplicate() as StyleBoxFlat
-	# Nav icons are full-bleed (42px); content margins shrink the portal animation when a panel is open.
+	# Nav icons are full-bleed; content margins shrink animated icons when a panel is open.
 	style.content_margin_left = 0.0
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
