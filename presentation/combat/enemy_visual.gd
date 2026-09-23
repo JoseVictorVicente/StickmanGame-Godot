@@ -1,6 +1,6 @@
 class_name EnemyVisual
 extends AnimatedSprite2D
-## Inimigo com FSM: MOVING, ATTACKING, DEAD. Suporta imp_red e dark_elite (escort).
+## Enemy FSM: MOVING, ATTACKING, DEAD. Visual tuning from EnemyVisualProfile.
 
 signal attack_impact
 signal attack_finished
@@ -8,8 +8,7 @@ signal death_finished
 
 enum State { MOVING, ATTACKING, DEAD }
 
-const KIND_IMP_RED := "imp_red"
-const KIND_DARK_ELITE := "dark_elite"
+const _DefaultProfile := preload("res://data/enemy_visual_profiles/imp_red.tres")
 
 var _marker_pos: Vector2 = Vector2.ZERO
 var _tween: Tween
@@ -23,7 +22,7 @@ var _death_drifting: bool = false
 var _death_anim_done: bool = false
 var _death_finished_emitted: bool = false
 var _hero_was_close_at_death: bool = false
-var _sheet_kind: String = KIND_IMP_RED
+var _profile: EnemyVisualProfile = _DefaultProfile
 var _escort_mode: bool = false
 var _escort_leader: EnemyVisual = null
 var _escort_offset: Vector2 = Vector2.ZERO
@@ -35,7 +34,7 @@ const DEATH_OFFSCREEN_X := -90.0
 func _ready() -> void:
 	centered = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	configure_kind(KIND_IMP_RED)
+	configure(_DefaultProfile)
 	animation_finished.connect(_on_animation_finished)
 	animation_changed.connect(_on_animation_changed)
 	frame_changed.connect(_on_frame_changed)
@@ -50,16 +49,13 @@ func _ready() -> void:
 	_snap_to_ground(true)
 
 
-func configure_kind(kind: String = KIND_IMP_RED) -> void:
-	_sheet_kind = kind if kind == KIND_DARK_ELITE else KIND_IMP_RED
-	if _sheet_kind == KIND_DARK_ELITE:
-		DarkEliteSpritesheet.invalidate_cache()
-		sprite_frames = DarkEliteSpritesheet.frames()
-		scale = DarkEliteSpritesheet.scale_for()
-	else:
-		EnemySpritesheet.invalidate_cache()
-		sprite_frames = EnemySpritesheet.frames()
-		scale = EnemySpritesheet.scale_for()
+func configure(profile: EnemyVisualProfile) -> void:
+	if profile == null:
+		profile = _DefaultProfile
+	_profile = profile
+	EnemySpritesheetBuilder.invalidate_cache(_profile)
+	sprite_frames = EnemySpritesheetBuilder.frames(_profile)
+	scale = _profile.scale
 	if _barra:
 		_barra.adjust_in_parent(_health_bar_offset())
 
@@ -304,9 +300,7 @@ func _sync_escort_animation_to_leader() -> void:
 
 
 func _escort_behind_gap() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.escort_behind_gap()
-	return maxf(8.0, _escort_offset.x * 0.15)
+	return _profile.escort_gap_or_default(_escort_offset)
 
 
 func _process_moving(delta: float) -> void:
@@ -504,55 +498,35 @@ func _finish_death_sequence() -> void:
 
 
 func _health_bar_offset() -> Vector2:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.health_bar_offset()
-	return EnemySpritesheet.health_bar_offset()
+	return _profile.health_bar_offset
 
 
 func _spawn_offset() -> Vector2:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.spawn_offset()
-	return EnemySpritesheet.spawn_offset()
+	return _profile.spawn_offset
 
 
 func _attack_range() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.attack_range()
-	return EnemySpritesheet.attack_range()
+	return _profile.attack_range
 
 
 func _move_speed() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.move_speed()
-	return EnemySpritesheet.move_speed()
+	return _profile.move_speed
 
 
 func _gravity() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.gravity()
-	return EnemySpritesheet.gravity()
+	return _profile.gravity
 
 
 func _feet_align_offset() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.feet_align_offset()
-	return EnemySpritesheet.feet_align_offset()
+	return _profile.feet_align_fallback
 
 
 func _death_ground_offset() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.death_ground_offset()
-	return EnemySpritesheet.death_ground_offset()
+	return _profile.death_ground_offset
 
 
 func _active_feet_below_center() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		if animation == "Idle":
-			return DarkEliteSpritesheet.idle_feet_below_center()
-		return DarkEliteSpritesheet.feet_below_center()
-	if _sheet_kind == KIND_IMP_RED:
-		return EnemySpritesheet.feet_below_center()
-	return EnemySpritesheet.feet_below_center()
+	return _profile.feet_below_for_animation(animation)
 
 
 func _center_y_for_shared_feet(hero_center_y: float, hero_feet_below: float) -> float:
@@ -562,24 +536,19 @@ func _center_y_for_shared_feet(hero_center_y: float, hero_feet_below: float) -> 
 
 
 func _ground_fine_tune() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.ground_fine_tune()
-	return EnemySpritesheet.ground_fine_tune()
+	return _profile.ground_fine_tune
 
 
 func _attack_cooldown() -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.attack_cooldown()
-	return EnemySpritesheet.attack_cooldown()
+	return _profile.attack_interval
 
 
 func _attack_speed_scale(cooldown: float) -> float:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.attack_speed_scale(cooldown)
-	return EnemySpritesheet.attack_speed_scale(cooldown)
+	return EnemySpritesheetBuilder.attack_speed_scale(_profile, cooldown)
 
 
 func _attack_impact_frames() -> Array[int]:
-	if _sheet_kind == KIND_DARK_ELITE:
-		return DarkEliteSpritesheet.attack_impact_frames()
-	return EnemySpritesheet.attack_impact_frames()
+	var frames: Array[int] = []
+	for frame_idx in _profile.attack_impact_frames:
+		frames.append(frame_idx)
+	return frames

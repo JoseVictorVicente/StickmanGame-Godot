@@ -50,7 +50,6 @@ func _ready() -> void:
 	_combat.enemy_visual = enemy_visual
 	_combat.elite_enemy_visual = elite_enemy_visual
 	_combat.enemy_health_bar = enemy_health_bar
-	elite_enemy_visual.configure_kind(EnemyVisual.KIND_DARK_ELITE)
 	elite_enemy_visual.hide_escort()
 	_combat.floor_scroller = floor
 	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):

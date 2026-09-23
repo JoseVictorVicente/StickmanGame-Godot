@@ -29,7 +29,7 @@ Applies to `domains/combat/` and `presentation/combat/`.
 
 ## Enemy stats
 
-Always from `WorldProgress.stats_inimigo(mundo, fase, dificuldade)` — do not hardcode HP/gold.
+Base curve from `WorldProgress.enemy_stats(world, stage, difficulty)`. Identity and multipliers from `EnemyCatalog` + `data/enemies/*.tres` — do not hardcode HP/gold in `CombatController`.
 
 ## Docs
 

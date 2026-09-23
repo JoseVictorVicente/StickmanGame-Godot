@@ -16,8 +16,7 @@ signal enemy_died
 
 const ENEMY_ATTACK_INTERVAL := 1.35
 const WAVES_PER_STAGE := 4
-## TEMP: elite on wave 1 for faster playtests; set to WAVES_PER_STAGE for release.
-const ELITE_WAVE := 1
+const ELITE_WAVE := WAVES_PER_STAGE
 const HORDE_COOLDOWN_SEC := 5.0
 const HORDE_COOLDOWN_RUN_ACCEL := 2.5
 const WorldCatalog := preload("res://data/world_catalog.gd")
@@ -33,6 +32,8 @@ var wave: int = 1
 var stage_wave: int = 1
 var current_enemy: Enemy
 var current_elite_enemy: Enemy
+var _minion_enemy_data: EnemyData
+var _elite_enemy_data: EnemyData
 
 var party: PartyService
 var enemy_visual: EnemyVisual
@@ -152,16 +153,21 @@ func _is_elite_wave() -> bool:
 
 
 func _configure_wave_enemies(anchor: Vector2) -> void:
-	enemy_visual.configure_kind(EnemyVisual.KIND_IMP_RED)
+	if _minion_enemy_data != null and _minion_enemy_data.visual_profile != null:
+		enemy_visual.configure(_minion_enemy_data.visual_profile)
 	enemy_visual.prepare_spawn(anchor)
 	enemy_visual.show_up(anchor)
-	if not _is_elite_wave():
+	if not _is_elite_wave() or WorldCatalog.is_boss_stage(stage):
 		_hide_elite_visual()
 		return
-	if elite_enemy_visual == null:
+	if elite_enemy_visual == null or _elite_enemy_data == null:
 		return
-	elite_enemy_visual.configure_kind(EnemyVisual.KIND_DARK_ELITE)
-	elite_enemy_visual.set_escort(enemy_visual, DarkEliteSpritesheet.escort_spawn_offset())
+	if _elite_enemy_data.visual_profile != null:
+		elite_enemy_visual.configure(_elite_enemy_data.visual_profile)
+	var escort_offset := Vector2.ZERO
+	if _elite_enemy_data.visual_profile != null:
+		escort_offset = _elite_enemy_data.visual_profile.escort_spawn_offset
+	elite_enemy_visual.set_escort(enemy_visual, escort_offset)
 	elite_enemy_visual.show_up(anchor)
 	_schedule_elite_attack()
 
@@ -344,11 +350,11 @@ func on_enemy_attacked() -> void:
 	if _minion_alive() and enemy_visual != null:
 		if enemy_visual.is_attacking():
 			enemy_visual.abort_attack()
-		if enemy_visual.begin_attack(ENEMY_ATTACK_INTERVAL):
+		if enemy_visual.begin_attack(_minion_attack_interval()):
 			attacked = true
 	elif _elite_alive() and elite_enemy_visual != null:
 		elite_enemy_visual.clear_escort()
-		if elite_enemy_visual.begin_attack(DarkEliteSpritesheet.attack_cooldown()):
+		if elite_enemy_visual.begin_attack(_elite_attack_interval()):
 			attacked = true
 	if not attacked:
 		_schedule_enemy_attack()
@@ -383,7 +389,7 @@ func _on_elite_attacked() -> void:
 		return
 	if elite_enemy_visual.is_attacking():
 		elite_enemy_visual.abort_attack()
-	var cooldown := DarkEliteSpritesheet.attack_cooldown()
+	var cooldown := _elite_attack_interval()
 	if elite_enemy_visual.is_escort():
 		elite_enemy_visual.mirror_attack(cooldown)
 	elif elite_enemy_visual.begin_attack(cooldown):
@@ -403,7 +409,7 @@ func _schedule_enemy_attack() -> void:
 		return
 	if _run_phase == RunPhase.RUNNING:
 		return
-	_enemy_timer.wait_time = ENEMY_ATTACK_INTERVAL
+	_enemy_timer.wait_time = _minion_attack_interval()
 	_enemy_timer.start()
 
 
@@ -419,7 +425,7 @@ func _schedule_elite_attack() -> void:
 	if not _elite_alive():
 		_stop_elite_attack_timer()
 		return
-	_elite_enemy_timer.wait_time = DarkEliteSpritesheet.attack_cooldown()
+	_elite_enemy_timer.wait_time = _elite_attack_interval()
 	_elite_enemy_timer.start()
 
 
@@ -495,32 +501,49 @@ func _reset_active_combat() -> void:
 
 
 func spawn_enemy() -> void:
-	var stats := WorldProgress.enemy_stats(world, stage, difficulty)
-	wave = int(stats["level"])
-	var base_hp := int(stats["hp"])
-	var base_damage := int(stats.get("damage", 1))
+	var base_stats := WorldProgress.enemy_stats(world, stage, difficulty)
+	var minion_role := EnemyCatalog.resolve_role_for_stage(stage, EnemyData.SpawnRole.MINION)
+	_minion_enemy_data = EnemyCatalog.resolve(world, stage, stage_wave, minion_role)
+	var runtime := EnemyCatalog.build_runtime(base_stats, _minion_enemy_data)
+	wave = int(runtime.get("level", base_stats.get("level", 1)))
 	current_enemy = Enemy.new()
 	current_enemy.configure(
-		str(stats["name"]),
-		base_hp,
-		int(stats["gold"]),
-		int(stats["xp"]),
-		base_damage
+		EnemyCatalog.display_name(_minion_enemy_data, world),
+		int(runtime["hp"]),
+		int(runtime["gold"]),
+		int(runtime["xp"]),
+		int(runtime["damage"])
 	)
 	current_elite_enemy = null
-	if _is_elite_wave():
-		current_elite_enemy = Enemy.new()
-		current_elite_enemy.configure(
-			"Dark Elite",
-			base_hp * DarkEliteSpritesheet.HP_MULT,
-			0,
-			0,
-			base_damage * DarkEliteSpritesheet.DAMAGE_MULT
-		)
+	_elite_enemy_data = null
+	if _is_elite_wave() and not WorldCatalog.is_boss_stage(stage):
+		_elite_enemy_data = EnemyCatalog.resolve(world, stage, stage_wave, EnemyData.SpawnRole.ELITE)
+		if _elite_enemy_data != null:
+			var elite_runtime := EnemyCatalog.build_runtime(base_stats, _elite_enemy_data)
+			current_elite_enemy = Enemy.new()
+			current_elite_enemy.configure(
+				EnemyCatalog.display_name(_elite_enemy_data, world),
+				int(elite_runtime["hp"]),
+				int(elite_runtime["gold"]),
+				int(elite_runtime["xp"]),
+				int(elite_runtime["damage"])
+			)
 	enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
 	if enemy_visual and enemy_visual.has_method("update_hp"):
 		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
+
+
+func _minion_attack_interval() -> float:
+	if _minion_enemy_data != null:
+		return _minion_enemy_data.get_attack_interval()
+	return ENEMY_ATTACK_INTERVAL
+
+
+func _elite_attack_interval() -> float:
+	if _elite_enemy_data != null:
+		return _elite_enemy_data.get_attack_interval()
+	return ENEMY_ATTACK_INTERVAL
 
 
 func toggle_repeat() -> void:

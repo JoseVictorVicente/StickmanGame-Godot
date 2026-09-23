@@ -54,6 +54,12 @@ msgstr "%s caiu. A chama de %s acende de novo."
 msgid "COMBAT_MISS"
 msgstr "Errou!"
 
+msgid "ENEMY_imp_red"
+msgstr "Diabinho"
+
+msgid "ENEMY_dark_elite"
+msgstr "Elite Sombria"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Trilha Segura"
 

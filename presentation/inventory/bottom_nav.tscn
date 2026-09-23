@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://c8bottomnav1"]
 
 [ext_resource type="Script" uid="uid://peyp0y8k830f" path="res://presentation/inventory/bottom_nav.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cur0apo3o7e1y" path="res://sprites/ui/nav_attributes.png" id="7_ext"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nav"]
 
@@ -71,7 +70,6 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_nav")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_nav")
-icon = ExtResource("7_ext")
 flat = true
 icon_alignment = 1
 expand_icon = true

@@ -19,6 +19,10 @@ $godotArgs = @("--headless", "--path", $ProjectRoot)
 
 $exitCode = 0
 
+Write-Host "==> Unit: EnemyCatalog"
+& $godotCmd @godotArgs -s res://tests/enemy_catalog_test.gd
+if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+
 Write-Host "==> Unit: CombatResolver"
 & $godotCmd @godotArgs -s res://tests/combat_resolver_test.gd
 if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }

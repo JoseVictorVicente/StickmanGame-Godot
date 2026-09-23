@@ -21,6 +21,7 @@ var _warehouse_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 var _skills_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 var _tree_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 var _forge_icon_anim: RefCounted = NAV_WORLD_ICON.new()
+var _formation_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 var _world_icon_anim: RefCounted = NAV_WORLD_ICON.new()
 
 
@@ -37,6 +38,7 @@ func configure(menu: InventoryMenu, _layout: InventoryLayout = null) -> void:
 	_setup_skills_animated_icon()
 	_setup_tree_animated_icon()
 	_setup_forge_animated_icon()
+	_setup_formation_animated_icon()
 	_setup_world_animated_icon()
 	call_deferred("_sync_nav_button_pivots")
 
@@ -48,6 +50,7 @@ func apply_bar_icons(menu: InventoryMenu) -> void:
 	_setup_skills_animated_icon()
 	_setup_tree_animated_icon()
 	_setup_forge_animated_icon()
+	_setup_formation_animated_icon()
 	_setup_world_animated_icon()
 
 
@@ -160,6 +163,15 @@ func _setup_forge_animated_icon() -> void:
 	)
 
 
+func _setup_formation_animated_icon() -> void:
+	_setup_animated_nav_icon(
+		formation_button,
+		_formation_icon_anim,
+		InterfaceIcons.nav_formation_frames(),
+		"formation"
+	)
+
+
 func _setup_world_animated_icon() -> void:
 	_setup_animated_nav_icon(
 		world_button,
@@ -186,6 +198,10 @@ func _process(delta: float) -> void:
 		var forge_frame: Texture2D = _forge_icon_anim.advance(delta)
 		if forge_frame:
 			forge_button.icon = forge_frame
+	if formation_button:
+		var formation_frame: Texture2D = _formation_icon_anim.advance(delta)
+		if formation_frame:
+			formation_button.icon = formation_frame
 	if world_button:
 		var world_frame: Texture2D = _world_icon_anim.advance(delta)
 		if world_frame:

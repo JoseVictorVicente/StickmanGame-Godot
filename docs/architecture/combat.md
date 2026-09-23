@@ -85,7 +85,18 @@ sequenceDiagram
 
 ### Enemy generation
 
-`WorldProgress.enemy_stats(world, stage, difficulty)` returns HP, damage, gold, XP, and `level` (global stage index). Boss = stage 9 of each dimension (Demon King; `BOSS_HP_MULT`, `BOSS_DAMAGE_MULT`).
+Base stats from `WorldProgress.enemy_stats(world, stage, difficulty)` (HP, damage, gold, XP, global `level` index). Stage 9 applies boss multipliers (`BOSS_HP_MULT`, `BOSS_DAMAGE_MULT`).
+
+**Enemy catalog** (`data/enemy_catalog.gd`):
+
+1. Scans `data/enemies/*.tres` (`EnemyData` resources).
+2. `resolve(world, stage, stage_wave, role)` picks archetype by spawn scope.
+3. `build_runtime()` applies per-enemy multipliers (`hp_mult`, `damage_mult`, …).
+4. Stage 9 main enemy uses `SpawnRole.BOSS` (demon king per dimension).
+
+Visuals: `EnemyVisualProfile` → `EnemySpritesheetBuilder` → `EnemyVisual.configure()`.
+
+Workflow: [`docs/workflows/add-enemy.md`](../workflows/add-enemy.md). Agent skill: `/add-enemy`.
 
 ### Stage advance
 

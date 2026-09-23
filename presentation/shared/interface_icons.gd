@@ -63,6 +63,10 @@ static func nav_forge_frames() -> SpriteFrames:
 	return _nav_button_frames("nav_forge_frames", "nav_forge", 11, "forge")
 
 
+static func nav_formation_frames() -> SpriteFrames:
+	return _nav_button_frames("nav_formation_frames", "nav_formation", 17, "formation")
+
+
 static func _nav_button_frames(
 	cache_key: String,
 	folder: String,

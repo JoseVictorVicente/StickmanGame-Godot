@@ -54,6 +54,12 @@ msgstr "%s fell. The flame of %s burns again."
 msgid "COMBAT_MISS"
 msgstr "Miss!"
 
+msgid "ENEMY_imp_red"
+msgstr "Imp"
+
+msgid "ENEMY_dark_elite"
+msgstr "Dark Elite"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Safe Trail"
 

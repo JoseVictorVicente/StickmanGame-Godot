@@ -2,7 +2,8 @@
 
 - `combat_controller.gd` — idle loop, phase advance, enemy death/defeat
 - `party_service.gd` — 3 hero slots, timers, DPS, optional `StatCalculator`
-- `enemy.gd` — HP, damage, rewards
+- `enemy.gd` — HP, damage, rewards (runtime instance)
+- `data/enemy_catalog.gd` — resolves `EnemyData` by world/stage/wave/role
 - `drop_manager.gd` — gold variance and item drops
 - `skill_runtime.gd` — passive bonuses from `HeroEquipment` + `SkillResource.stat_value`
 - `active_skill_runtime.gd` — active cooldowns and cast priority

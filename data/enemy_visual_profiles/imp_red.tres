@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyVisualProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_visual_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+profile_id = "imp_red"
+base_dir = "res://sprites/enemies/imp_red/"
+scale = Vector2(0.72, 0.72)
+health_bar_offset = Vector2(-14, -62)
+feet_align_fallback = 28.0
+feet_below_center = 19.7
+idle_feet_below_center = -1.0
+ground_fine_tune = -4.0
+death_ground_offset = 10.0
+spawn_offset = Vector2(88, 0)
+escort_spawn_offset = Vector2(0, 0)
+escort_behind_gap = 0.0
+move_speed = 90.0
+attack_range = 40.0
+gravity = 520.0
+attack_interval = 1.35
+run_fps = 16.0
+idle_fps = 5.0
+attack_base_fps = 33.0
+death_fps = 18.0
+attack_impact_frames = PackedInt32Array(12, 24, 36)
+idle_frame_indices = PackedInt32Array()

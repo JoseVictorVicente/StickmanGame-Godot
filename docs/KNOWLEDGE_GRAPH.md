@@ -48,6 +48,7 @@
 - `.cursor/skills/edit-ui-screens/` — UI edit + TSCN ownership (`/edit-ui-screens`)
 - `.cursor/skills/capture-menu-screens/` — PNG capture, checklist, visual loop (`/capture-menu-screens`; scoped after every edit)
 - `.cursor/skills/add-active-skill/` — active skill authoring (`/add-active-skill`)
+- `.cursor/skills/add-enemy/` — enemy archetype authoring (`/add-enemy`)
 
 ### Assisted logging (Cursor / CI)
 - `docs/workflows/assisted-logging.md` — how it works, commands, rules for devs
