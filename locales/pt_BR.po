@@ -60,6 +60,9 @@ msgstr "Diabinho"
 msgid "ENEMY_dark_elite"
 msgstr "Elite Sombria"
 
+msgid "ENEMY_flying_demon"
+msgstr "Demônio Voador"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Trilha Segura"
 

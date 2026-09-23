@@ -60,6 +60,9 @@ msgstr "Imp"
 msgid "ENEMY_dark_elite"
 msgstr "Dark Elite"
 
+msgid "ENEMY_flying_demon"
+msgstr "Flying Demon"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Safe Trail"
 

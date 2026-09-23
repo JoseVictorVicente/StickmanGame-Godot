@@ -32,12 +32,15 @@ var wave: int = 1
 var stage_wave: int = 1
 var current_enemy: Enemy
 var current_elite_enemy: Enemy
+var current_flying_demon_enemy: Enemy
 var _minion_enemy_data: EnemyData
 var _elite_enemy_data: EnemyData
+var _flying_demon_enemy_data: EnemyData
 
 var party: PartyService
 var enemy_visual: EnemyVisual
 var elite_enemy_visual: EnemyVisual
+var flying_demon_enemy_visual: EnemyVisual
 var enemy_health_bar: ProgressBar
 var floor_scroller: FloorScroller
 var hero_progress: HeroProgress
@@ -56,6 +59,7 @@ var _running_engaged: bool = false
 var _combat_transition_id: int = 0
 var _dying_enemy_visual: EnemyVisual = null
 var _elite_enemy_timer: Timer
+var _flying_demon_enemy_timer: Timer
 
 
 func _ready() -> void:
@@ -67,6 +71,10 @@ func _ready() -> void:
 	_elite_enemy_timer.one_shot = true
 	_elite_enemy_timer.timeout.connect(_on_elite_attacked)
 	add_child(_elite_enemy_timer)
+	_flying_demon_enemy_timer = Timer.new()
+	_flying_demon_enemy_timer.one_shot = true
+	_flying_demon_enemy_timer.timeout.connect(_on_flying_demon_attacked)
+	add_child(_flying_demon_enemy_timer)
 	set_process(true)
 
 
@@ -82,7 +90,7 @@ func _process(delta: float) -> void:
 
 
 func has_living_enemies() -> bool:
-	return _minion_alive() or _elite_alive()
+	return _minion_alive() or _elite_alive() or _flying_demon_alive()
 
 
 func get_active_enemy() -> Enemy:
@@ -90,16 +98,20 @@ func get_active_enemy() -> Enemy:
 		return current_enemy
 	if _elite_alive():
 		return current_elite_enemy
+	if _flying_demon_alive():
+		return current_flying_demon_enemy
 	return null
 
 
 func get_enemy_display_name() -> String:
-	var active := get_active_enemy()
-	if active == null:
-		return ""
-	if _minion_alive() and _elite_alive():
-		return "%s + %s" % [current_enemy.display_name, current_elite_enemy.display_name]
-	return active.display_name
+	var nomes: PackedStringArray = []
+	if _minion_alive():
+		nomes.append(current_enemy.display_name)
+	if _elite_alive():
+		nomes.append(current_elite_enemy.display_name)
+	if _flying_demon_alive():
+		nomes.append(current_flying_demon_enemy.display_name)
+	return " + ".join(nomes)
 
 
 func _minion_alive() -> bool:
@@ -110,11 +122,17 @@ func _elite_alive() -> bool:
 	return _is_elite_wave() and current_elite_enemy != null and not current_elite_enemy.is_dead()
 
 
+func _flying_demon_alive() -> bool:
+	return _is_elite_wave() and current_flying_demon_enemy != null and not current_flying_demon_enemy.is_dead()
+
+
 func _get_active_enemy_visual() -> EnemyVisual:
 	if _minion_alive():
 		return enemy_visual
 	if _elite_alive():
 		return elite_enemy_visual
+	if _flying_demon_alive():
+		return flying_demon_enemy_visual
 	return enemy_visual
 
 
@@ -169,13 +187,27 @@ func _configure_wave_enemies(anchor: Vector2) -> void:
 		escort_offset = _elite_enemy_data.visual_profile.escort_spawn_offset
 	elite_enemy_visual.set_escort(enemy_visual, escort_offset)
 	elite_enemy_visual.show_up(anchor)
+	if flying_demon_enemy_visual == null or _flying_demon_enemy_data == null:
+		_schedule_elite_attack()
+		return
+	if _flying_demon_enemy_data.visual_profile != null:
+		flying_demon_enemy_visual.configure(_flying_demon_enemy_data.visual_profile)
+	var flying_offset := Vector2.ZERO
+	if _flying_demon_enemy_data.visual_profile != null:
+		flying_offset = _flying_demon_enemy_data.visual_profile.escort_spawn_offset
+	flying_demon_enemy_visual.set_escort(enemy_visual, flying_offset)
+	flying_demon_enemy_visual.show_up(anchor)
 	_schedule_elite_attack()
+	_schedule_flying_demon_attack()
 
 
 func _hide_elite_visual() -> void:
 	_stop_elite_attack_timer()
+	_stop_flying_demon_attack_timer()
 	if elite_enemy_visual != null:
 		elite_enemy_visual.hide_escort()
+	if flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.hide_escort()
 
 
 func _flash_enemy_hit() -> void:
@@ -215,6 +247,8 @@ func _engage_horde() -> void:
 	_schedule_enemy_attack()
 	if _elite_alive():
 		_schedule_elite_attack()
+	if _flying_demon_alive():
+		_schedule_flying_demon_attack()
 	hud_refresh.emit()
 
 
@@ -352,9 +386,15 @@ func on_enemy_attacked() -> void:
 			enemy_visual.abort_attack()
 		if enemy_visual.begin_attack(_minion_attack_interval()):
 			attacked = true
+			_mirror_elite_attack_with_minion()
 	elif _elite_alive() and elite_enemy_visual != null:
 		elite_enemy_visual.clear_escort()
 		if elite_enemy_visual.begin_attack(_elite_attack_interval()):
+			attacked = true
+			_mirror_flying_demon_attack_with_minion()
+	elif _flying_demon_alive() and flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.clear_escort()
+		if flying_demon_enemy_visual.begin_attack(_flying_demon_attack_interval()):
 			attacked = true
 	if not attacked:
 		_schedule_enemy_attack()
@@ -434,6 +474,92 @@ func _stop_elite_attack_timer() -> void:
 		_elite_enemy_timer.stop()
 
 
+func _mirror_elite_attack_with_minion() -> void:
+	if not _elite_alive() or elite_enemy_visual == null:
+		return
+	if not elite_enemy_visual.is_escort():
+		return
+	if not elite_enemy_visual.is_in_attack_range():
+		_schedule_elite_attack()
+		return
+	if elite_enemy_visual.is_attacking():
+		elite_enemy_visual.abort_attack()
+	var cooldown := _elite_attack_interval()
+	elite_enemy_visual.mirror_attack(cooldown)
+	_schedule_elite_attack()
+	_mirror_flying_demon_attack_with_minion()
+
+
+func _mirror_flying_demon_attack_with_minion() -> void:
+	if not _flying_demon_alive() or flying_demon_enemy_visual == null:
+		return
+	if not flying_demon_enemy_visual.is_escort():
+		return
+	if not flying_demon_enemy_visual.is_in_attack_range():
+		_schedule_flying_demon_attack()
+		return
+	if flying_demon_enemy_visual.is_attacking():
+		flying_demon_enemy_visual.abort_attack()
+	var cooldown := _flying_demon_attack_interval()
+	flying_demon_enemy_visual.mirror_attack(cooldown)
+	_schedule_flying_demon_attack()
+
+
+func on_flying_demon_attack_finished() -> void:
+	_schedule_flying_demon_attack()
+
+
+func _on_flying_demon_attacked() -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if _run_phase == RunPhase.RUNNING:
+		return
+	if party.combat_paused:
+		_schedule_flying_demon_attack()
+		return
+	if not _flying_demon_alive() or flying_demon_enemy_visual == null:
+		_stop_flying_demon_attack_timer()
+		return
+	if party.right_target_index() < 0:
+		await _resolve_defeat()
+		return
+	if not flying_demon_enemy_visual.is_in_attack_range():
+		_schedule_flying_demon_attack()
+		return
+	if flying_demon_enemy_visual.is_attacking():
+		flying_demon_enemy_visual.abort_attack()
+	var cooldown := _flying_demon_attack_interval()
+	if flying_demon_enemy_visual.is_escort():
+		flying_demon_enemy_visual.mirror_attack(cooldown)
+	elif flying_demon_enemy_visual.begin_attack(cooldown):
+		pass
+	else:
+		_schedule_flying_demon_attack()
+		return
+	AudioManager.play_attack_sound()
+
+
+func _schedule_flying_demon_attack() -> void:
+	if _flying_demon_enemy_timer == null:
+		return
+	if not _combat_ready:
+		return
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if _run_phase == RunPhase.RUNNING:
+		return
+	if not _flying_demon_alive():
+		_stop_flying_demon_attack_timer()
+		return
+	_flying_demon_enemy_timer.wait_time = _flying_demon_attack_interval()
+	_flying_demon_enemy_timer.start()
+
+
+func _stop_flying_demon_attack_timer() -> void:
+	if _flying_demon_enemy_timer:
+		_flying_demon_enemy_timer.stop()
+
+
 func on_enemy_attack_impact() -> void:
 	if not _minion_alive():
 		return
@@ -444,6 +570,12 @@ func on_elite_attack_impact() -> void:
 	if not _elite_alive():
 		return
 	await _apply_enemy_damage_to_hero(current_elite_enemy.damage)
+
+
+func on_flying_demon_attack_impact() -> void:
+	if not _flying_demon_alive():
+		return
+	await _apply_enemy_damage_to_hero(current_flying_demon_enemy.damage)
 
 
 func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
@@ -485,6 +617,7 @@ func _reset_active_combat() -> void:
 	if _enemy_timer:
 		_enemy_timer.stop()
 	_stop_elite_attack_timer()
+	_stop_flying_demon_attack_timer()
 	if party != null:
 		party.combat_paused = false
 		party.can_attack_target = can_heroes_attack
@@ -496,7 +629,10 @@ func _reset_active_combat() -> void:
 		enemy_visual.abort_attack()
 	if elite_enemy_visual != null and elite_enemy_visual.has_method("abort_attack"):
 		elite_enemy_visual.abort_attack()
+	if flying_demon_enemy_visual != null and flying_demon_enemy_visual.has_method("abort_attack"):
+		flying_demon_enemy_visual.abort_attack()
 	current_elite_enemy = null
+	current_flying_demon_enemy = null
 	_hide_elite_visual()
 
 
@@ -515,7 +651,9 @@ func spawn_enemy() -> void:
 		int(runtime["damage"])
 	)
 	current_elite_enemy = null
+	current_flying_demon_enemy = null
 	_elite_enemy_data = null
+	_flying_demon_enemy_data = null
 	if _is_elite_wave() and not WorldCatalog.is_boss_stage(stage):
 		_elite_enemy_data = EnemyCatalog.resolve(world, stage, stage_wave, EnemyData.SpawnRole.ELITE)
 		if _elite_enemy_data != null:
@@ -527,6 +665,17 @@ func spawn_enemy() -> void:
 				int(elite_runtime["gold"]),
 				int(elite_runtime["xp"]),
 				int(elite_runtime["damage"])
+			)
+		_flying_demon_enemy_data = EnemyCatalog.get_by_id("flying_demon")
+		if _flying_demon_enemy_data != null:
+			var flying_runtime := EnemyCatalog.build_runtime(base_stats, _flying_demon_enemy_data)
+			current_flying_demon_enemy = Enemy.new()
+			current_flying_demon_enemy.configure(
+				EnemyCatalog.display_name(_flying_demon_enemy_data, world),
+				int(flying_runtime["hp"]),
+				int(flying_runtime["gold"]),
+				int(flying_runtime["xp"]),
+				int(flying_runtime["damage"])
 			)
 	enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
@@ -543,6 +692,12 @@ func _minion_attack_interval() -> float:
 func _elite_attack_interval() -> float:
 	if _elite_enemy_data != null:
 		return _elite_enemy_data.get_attack_interval()
+	return ENEMY_ATTACK_INTERVAL
+
+
+func _flying_demon_attack_interval() -> float:
+	if _flying_demon_enemy_data != null:
+		return _flying_demon_enemy_data.get_attack_interval()
 	return ENEMY_ATTACK_INTERVAL
 
 
@@ -745,8 +900,11 @@ func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
 	AudioManager.play_hit_sound()
 	if not morreu:
 		return false
-	if active == current_enemy and _elite_alive():
+	if active == current_enemy and (_elite_alive() or _flying_demon_alive()):
 		await _resolve_minion_killed()
+		return false
+	if active == current_elite_enemy and _flying_demon_alive():
+		await _resolve_elite_killed()
 		return false
 	_dying_enemy_visual = visual
 	enemy_died.emit()
@@ -757,17 +915,57 @@ func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
 func _resolve_minion_killed() -> void:
 	if elite_enemy_visual != null:
 		elite_enemy_visual.detach_from_leader()
+	if flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.detach_from_leader()
 	enemy_visual.fade_out(false)
 	enemy_health_bar.fade_out()
 	if enemy_visual.has_signal("death_finished"):
 		await enemy_visual.death_finished
 	if elite_enemy_visual != null:
 		elite_enemy_visual.clear_escort()
+	if flying_demon_enemy_visual != null and _elite_alive():
+		var elite_offset := Vector2.ZERO
+		if _elite_enemy_data != null and _elite_enemy_data.visual_profile != null:
+			elite_offset = _elite_enemy_data.visual_profile.escort_spawn_offset
+		flying_demon_enemy_visual.set_escort(elite_enemy_visual, elite_offset)
+	elif flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.clear_escort()
+	if _elite_alive():
 		enemy_health_bar.initialize_bar(current_elite_enemy.max_hp)
 		enemy_health_bar.show_up()
 		_emit_enemy_hp()
 		elite_enemy_visual.update_hp(current_elite_enemy.current_hp, current_elite_enemy.max_hp)
 		_schedule_elite_attack()
+	elif _flying_demon_alive():
+		enemy_health_bar.initialize_bar(current_flying_demon_enemy.max_hp)
+		enemy_health_bar.show_up()
+		_emit_enemy_hp()
+		flying_demon_enemy_visual.update_hp(
+			current_flying_demon_enemy.current_hp,
+			current_flying_demon_enemy.max_hp
+		)
+		_schedule_flying_demon_attack()
+	_schedule_enemy_attack()
+	hud_refresh.emit()
+
+
+func _resolve_elite_killed() -> void:
+	if flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.detach_from_leader()
+	elite_enemy_visual.fade_out(false)
+	enemy_health_bar.fade_out()
+	if elite_enemy_visual.has_signal("death_finished"):
+		await elite_enemy_visual.death_finished
+	if flying_demon_enemy_visual != null:
+		flying_demon_enemy_visual.clear_escort()
+		enemy_health_bar.initialize_bar(current_flying_demon_enemy.max_hp)
+		enemy_health_bar.show_up()
+		_emit_enemy_hp()
+		flying_demon_enemy_visual.update_hp(
+			current_flying_demon_enemy.current_hp,
+			current_flying_demon_enemy.max_hp
+		)
+		_schedule_flying_demon_attack()
 	_schedule_enemy_attack()
 	hud_refresh.emit()
 

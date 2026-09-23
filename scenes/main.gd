@@ -17,6 +17,7 @@ extends Node2D
 @onready var party: PartyService = $BattleHud/Combate/PartyService
 @onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
 @onready var elite_enemy_visual: EnemyVisual = $BattleHud/Combate/EliteEnemyVisual
+@onready var flying_demon_enemy_visual: EnemyVisual = $BattleHud/Combate/FlyingDemonEnemyVisual
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -49,8 +50,10 @@ func _ready() -> void:
 	_combat.party = party
 	_combat.enemy_visual = enemy_visual
 	_combat.elite_enemy_visual = elite_enemy_visual
+	_combat.flying_demon_enemy_visual = flying_demon_enemy_visual
 	_combat.enemy_health_bar = enemy_health_bar
 	elite_enemy_visual.hide_escort()
+	flying_demon_enemy_visual.hide_escort()
 	_combat.floor_scroller = floor
 	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):
 		enemy_visual.attack_impact.connect(_combat.on_enemy_attack_impact)
@@ -60,6 +63,10 @@ func _ready() -> void:
 		elite_enemy_visual.attack_impact.connect(_combat.on_elite_attack_impact)
 	if not elite_enemy_visual.attack_finished.is_connected(_combat.on_elite_attack_finished):
 		elite_enemy_visual.attack_finished.connect(_combat.on_elite_attack_finished)
+	if not flying_demon_enemy_visual.attack_impact.is_connected(_combat.on_flying_demon_attack_impact):
+		flying_demon_enemy_visual.attack_impact.connect(_combat.on_flying_demon_attack_impact)
+	if not flying_demon_enemy_visual.attack_finished.is_connected(_combat.on_flying_demon_attack_finished):
+		flying_demon_enemy_visual.attack_finished.connect(_combat.on_flying_demon_attack_finished)
 	_combat.hero_progress = _hero_progress
 	_combat.get_character_index = func() -> int: return inventory_menu.current_character_index()
 	_combat.get_gold_destination = _gold_destination

@@ -82,13 +82,18 @@ func is_targetable() -> bool:
 static func pick_arrow_target(combat_root: Node) -> Node2D:
 	var minion := combat_root.get_node_or_null("EnemyVisual") as EnemyVisual
 	var elite := combat_root.get_node_or_null("EliteEnemyVisual") as EnemyVisual
+	var flying := combat_root.get_node_or_null("FlyingDemonEnemyVisual") as EnemyVisual
 	if minion != null and minion.is_targetable():
 		return minion
 	if elite != null and elite.is_targetable():
 		return elite
+	if flying != null and flying.is_targetable():
+		return flying
 	if minion != null and minion.visible:
 		return minion
-	return elite
+	if elite != null and elite.visible:
+		return elite
+	return flying
 
 
 func clear_escort() -> void:
@@ -251,6 +256,10 @@ func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 		_snap_to_ground(true)
 		if _escort_mode and _escort_leader != null:
 			position = _escort_leader.position + _escort_offset
+		if sprite_frames != null and sprite_frames.has_animation("Idle"):
+			play("Idle")
+		elif sprite_frames != null and sprite_frames.has_animation("Corrida"):
+			play("Corrida")
 	)
 
 
@@ -266,27 +275,47 @@ func _sync_escort_to_leader(delta: float) -> void:
 	_apply_gravity(delta)
 	if _state == State.ATTACKING:
 		position.y = _ground_y()
-		z_index = _escort_leader.z_index - 1
+		_update_escort_z_index()
 		return
+	if _escort_leader_engaged():
+		_process_moving(delta)
+	else:
+		_process_escort_catch_up(delta)
+	position.y = _ground_y()
+	_update_escort_z_index()
+
+
+func _escort_leader_engaged() -> bool:
+	if _escort_leader == null:
+		return false
+	return _escort_leader.is_in_attack_range() or _escort_leader._state == State.ATTACKING
+
+
+func _process_escort_catch_up(delta: float) -> void:
 	var leader_x := _escort_leader.position.x
-	var min_x := leader_x
 	var max_lag_x := leader_x + _escort_offset.x
 	var gap := _escort_behind_gap()
 	var behind_leader := position.x > leader_x + gap
 	if behind_leader:
-		position.x = maxf(min_x, position.x - _move_speed() * delta)
+		position.x = maxf(leader_x, position.x - _move_speed() * delta)
 		if position.x > max_lag_x:
 			position.x = max_lag_x
 		_velocity.x = -_move_speed()
 		_play_run()
 	else:
-		position.x = maxf(position.x, min_x)
 		if position.x > max_lag_x:
 			position.x = max_lag_x
 		_velocity.x = 0.0
 		_sync_escort_animation_to_leader()
-	position.y = _ground_y()
-	z_index = _escort_leader.z_index - 1
+
+
+func _update_escort_z_index() -> void:
+	if _escort_leader == null:
+		return
+	if position.x <= _escort_leader.position.x + 2.0:
+		z_index = _escort_leader.z_index + 1
+	else:
+		z_index = _escort_leader.z_index - 1
 
 
 func _sync_escort_animation_to_leader() -> void:
@@ -448,7 +477,12 @@ func _finish_attack() -> void:
 	if _state == State.ATTACKING:
 		_set_state(State.MOVING)
 	if _escort_mode and _escort_leader != null:
-		if position.x > _escort_leader.position.x + _escort_behind_gap():
+		if _escort_leader_engaged():
+			if is_in_attack_range():
+				_play_idle()
+			else:
+				_play_run()
+		elif position.x > _escort_leader.position.x + _escort_behind_gap():
 			_play_run()
 		else:
 			_sync_escort_animation_to_leader()
