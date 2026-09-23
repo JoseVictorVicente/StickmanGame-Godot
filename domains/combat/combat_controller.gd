@@ -16,6 +16,8 @@ signal enemy_died
 
 const ENEMY_ATTACK_INTERVAL := 1.35
 const WAVES_PER_STAGE := 4
+## TEMP: elite on wave 1 for faster playtests; set to WAVES_PER_STAGE for release.
+const ELITE_WAVE := 1
 const HORDE_COOLDOWN_SEC := 5.0
 const HORDE_COOLDOWN_RUN_ACCEL := 2.5
 const WorldCatalog := preload("res://data/world_catalog.gd")
@@ -30,9 +32,11 @@ var repeat_stage: bool = false
 var wave: int = 1
 var stage_wave: int = 1
 var current_enemy: Enemy
+var current_elite_enemy: Enemy
 
 var party: PartyService
 var enemy_visual: EnemyVisual
+var elite_enemy_visual: EnemyVisual
 var enemy_health_bar: ProgressBar
 var floor_scroller: FloorScroller
 var hero_progress: HeroProgress
@@ -49,6 +53,8 @@ var _run_phase: RunPhase = RunPhase.COMBAT
 var _horde_cooldown: float = 0.0
 var _running_engaged: bool = false
 var _combat_transition_id: int = 0
+var _dying_enemy_visual: EnemyVisual = null
+var _elite_enemy_timer: Timer
 
 
 func _ready() -> void:
@@ -56,6 +62,10 @@ func _ready() -> void:
 	_enemy_timer.one_shot = true
 	_enemy_timer.timeout.connect(on_enemy_attacked)
 	add_child(_enemy_timer)
+	_elite_enemy_timer = Timer.new()
+	_elite_enemy_timer.one_shot = true
+	_elite_enemy_timer.timeout.connect(_on_elite_attacked)
+	add_child(_elite_enemy_timer)
 	set_process(true)
 
 
@@ -71,7 +81,40 @@ func _process(delta: float) -> void:
 
 
 func has_living_enemies() -> bool:
+	return _minion_alive() or _elite_alive()
+
+
+func get_active_enemy() -> Enemy:
+	if _minion_alive():
+		return current_enemy
+	if _elite_alive():
+		return current_elite_enemy
+	return null
+
+
+func get_enemy_display_name() -> String:
+	var active := get_active_enemy()
+	if active == null:
+		return ""
+	if _minion_alive() and _elite_alive():
+		return "%s + %s" % [current_enemy.display_name, current_elite_enemy.display_name]
+	return active.display_name
+
+
+func _minion_alive() -> bool:
 	return current_enemy != null and not current_enemy.is_dead()
+
+
+func _elite_alive() -> bool:
+	return _is_elite_wave() and current_elite_enemy != null and not current_elite_enemy.is_dead()
+
+
+func _get_active_enemy_visual() -> EnemyVisual:
+	if _minion_alive():
+		return enemy_visual
+	if _elite_alive():
+		return elite_enemy_visual
+	return enemy_visual
 
 
 func is_running_phase() -> bool:
@@ -99,13 +142,51 @@ func _spawn_wave_enemy(off_screen: bool) -> void:
 	if party == null or enemy_visual == null:
 		return
 	var anchor := party.get_enemy_spawn_local(off_screen)
-	enemy_visual.prepare_spawn(anchor)
-	enemy_visual.show_up(anchor)
+	_configure_wave_enemies(anchor)
 	if enemy_health_bar:
 		enemy_health_bar.show_up()
 
 
+func _is_elite_wave() -> bool:
+	return stage_wave == ELITE_WAVE
+
+
+func _configure_wave_enemies(anchor: Vector2) -> void:
+	enemy_visual.configure_kind(EnemyVisual.KIND_IMP_RED)
+	enemy_visual.prepare_spawn(anchor)
+	enemy_visual.show_up(anchor)
+	if not _is_elite_wave():
+		_hide_elite_visual()
+		return
+	if elite_enemy_visual == null:
+		return
+	elite_enemy_visual.configure_kind(EnemyVisual.KIND_DARK_ELITE)
+	elite_enemy_visual.set_escort(enemy_visual, DarkEliteSpritesheet.escort_spawn_offset())
+	elite_enemy_visual.show_up(anchor)
+	_schedule_elite_attack()
+
+
+func _hide_elite_visual() -> void:
+	_stop_elite_attack_timer()
+	if elite_enemy_visual != null:
+		elite_enemy_visual.hide_escort()
+
+
+func _flash_enemy_hit() -> void:
+	var visual := _get_active_enemy_visual()
+	if visual != null:
+		visual.flash_hit()
+
+
 func _start_running_phase() -> void:
+	_begin_running_phase_visuals()
+	_spawn_wave_enemy(true)
+	if party != null:
+		party.combat_paused = false
+	hud_refresh.emit()
+
+
+func _begin_running_phase_visuals() -> void:
 	_run_phase = RunPhase.RUNNING
 	_horde_cooldown = HORDE_COOLDOWN_SEC
 	_running_engaged = false
@@ -113,10 +194,6 @@ func _start_running_phase() -> void:
 		party.begin_running()
 	if floor_scroller:
 		floor_scroller.set_scrolling(true)
-	_spawn_wave_enemy(true)
-	if party != null:
-		party.combat_paused = false
-	hud_refresh.emit()
 
 
 func _engage_horde() -> void:
@@ -130,6 +207,8 @@ func _engage_horde() -> void:
 	if floor_scroller:
 		floor_scroller.set_scrolling(false)
 	_schedule_enemy_attack()
+	if _elite_alive():
+		_schedule_elite_attack()
 	hud_refresh.emit()
 
 
@@ -140,7 +219,8 @@ func can_heroes_attack() -> bool:
 
 
 func is_enemy_in_hero_engage_range() -> bool:
-	if enemy_visual == null or party == null:
+	var visual := _get_active_enemy_visual()
+	if visual == null or party == null:
 		return false
 	if not has_living_enemies():
 		return false
@@ -154,7 +234,7 @@ func is_enemy_in_hero_engage_range() -> bool:
 	var range_px := HeroSpritesheet.engage_range("archer")
 	if classe is ClassData:
 		range_px = HeroSpritesheet.engage_range((classe as ClassData).id)
-	return absf(enemy_visual.global_position.x - hero_pos.x) <= range_px
+	return absf(visual.global_position.x - hero_pos.x) <= range_px
 
 
 func _update_running_engagement() -> void:
@@ -188,7 +268,7 @@ func on_hero_skill_used(
 		spawn_enemy()
 	var combat_root: Node = enemy_visual.get_parent() if enemy_visual else self
 	_apply_skill_heals(slot_index, heals, combat_root)
-	CombatCueAdapter.play(skill.vfx_id, party, slot_index, enemy_visual, combat_root, hits.size())
+	CombatCueAdapter.play(skill.vfx_id, party, slot_index, _get_active_enemy_visual(), combat_root, hits.size())
 	if hits.is_empty():
 		hud_refresh.emit()
 		return
@@ -198,7 +278,7 @@ func on_hero_skill_used(
 			return
 		if _is_transition_stale(transition_token):
 			return
-		if current_enemy == null or current_enemy.is_dead():
+		if get_active_enemy() == null:
 			break
 		var delay_sec := float(hit.get("delay_sec", 0.0))
 		if delay_sec > 0.0:
@@ -207,25 +287,14 @@ func on_hero_skill_used(
 			return
 		if _is_transition_stale(transition_token):
 			return
-		if current_enemy == null or current_enemy.is_dead():
+		var active := get_active_enemy()
+		if active == null or active.is_dead():
 			break
 		var damage := int(hit.get("damage", 0))
 		var is_crit := bool(hit.get("is_crit", false))
 		if damage <= 0:
 			continue
-		var morreu := current_enemy.take_damage(damage)
-		_emit_enemy_hp()
-		enemy_hit.emit(damage, current_enemy.current_hp, current_enemy.max_hp)
-		enemy_health_bar.update_hp(current_enemy.current_hp)
-		if enemy_visual.has_method("update_hp"):
-			enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
-		var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
-		DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage, cor, is_crit)
-		enemy_visual.flash_hit()
-		AudioManager.play_hit_sound()
-		if morreu:
-			enemy_died.emit()
-			await _resolve_death()
+		if await _apply_damage_to_active_enemy(damage, is_crit):
 			return
 	hud_refresh.emit()
 
@@ -252,19 +321,8 @@ func on_hero_attacked(_slot_index: int, damage: int, is_crit: bool = false) -> v
 		if _run_phase == RunPhase.RUNNING:
 			return
 		spawn_enemy()
-	var morreu := current_enemy.take_damage(damage)
-	_emit_enemy_hp()
-	enemy_hit.emit(damage, current_enemy.current_hp, current_enemy.max_hp)
-	enemy_health_bar.update_hp(current_enemy.current_hp)
-	if enemy_visual.has_method("update_hp"):
-		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
-	var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
-	DamageNumber.spawn(enemy_visual.get_parent(), enemy_visual.global_position, damage, cor, is_crit)
-	enemy_visual.flash_hit()
-	AudioManager.play_hit_sound()
-	if morreu:
-		enemy_died.emit()
-		await _resolve_death()
+	if await _apply_damage_to_active_enemy(damage, is_crit):
+		return
 	hud_refresh.emit()
 
 
@@ -276,18 +334,23 @@ func on_enemy_attacked() -> void:
 	if party.combat_paused:
 		_schedule_enemy_attack()
 		return
-	if current_enemy == null or current_enemy.is_dead():
+	if not has_living_enemies():
 		_schedule_enemy_attack()
 		return
 	if party.right_target_index() < 0:
 		await _resolve_defeat()
 		return
-	if enemy_visual == null:
-		_schedule_enemy_attack()
-		return
-	if enemy_visual.is_attacking():
-		enemy_visual.abort_attack()
-	if not enemy_visual.begin_attack(ENEMY_ATTACK_INTERVAL):
+	var attacked := false
+	if _minion_alive() and enemy_visual != null:
+		if enemy_visual.is_attacking():
+			enemy_visual.abort_attack()
+		if enemy_visual.begin_attack(ENEMY_ATTACK_INTERVAL):
+			attacked = true
+	elif _elite_alive() and elite_enemy_visual != null:
+		elite_enemy_visual.clear_escort()
+		if elite_enemy_visual.begin_attack(DarkEliteSpritesheet.attack_cooldown()):
+			attacked = true
+	if not attacked:
 		_schedule_enemy_attack()
 		return
 	AudioManager.play_attack_sound()
@@ -295,6 +358,40 @@ func on_enemy_attacked() -> void:
 
 func on_enemy_attack_finished() -> void:
 	_schedule_enemy_attack()
+
+
+func on_elite_attack_finished() -> void:
+	_schedule_elite_attack()
+
+
+func _on_elite_attacked() -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if _run_phase == RunPhase.RUNNING:
+		return
+	if party.combat_paused:
+		_schedule_elite_attack()
+		return
+	if not _elite_alive() or elite_enemy_visual == null:
+		_stop_elite_attack_timer()
+		return
+	if party.right_target_index() < 0:
+		await _resolve_defeat()
+		return
+	if not elite_enemy_visual.is_in_attack_range():
+		_schedule_elite_attack()
+		return
+	if elite_enemy_visual.is_attacking():
+		elite_enemy_visual.abort_attack()
+	var cooldown := DarkEliteSpritesheet.attack_cooldown()
+	if elite_enemy_visual.is_escort():
+		elite_enemy_visual.mirror_attack(cooldown)
+	elif elite_enemy_visual.begin_attack(cooldown):
+		pass
+	else:
+		_schedule_elite_attack()
+		return
+	AudioManager.play_attack_sound()
 
 
 func _schedule_enemy_attack() -> void:
@@ -310,31 +407,37 @@ func _schedule_enemy_attack() -> void:
 	_enemy_timer.start()
 
 
-func on_enemy_attack_impact() -> void:
+func _schedule_elite_attack() -> void:
+	if _elite_enemy_timer == null:
+		return
+	if not _combat_ready:
+		return
 	if _resolvendo_morte or _resolvendo_derrota:
 		return
 	if _run_phase == RunPhase.RUNNING:
 		return
-	if party.combat_paused:
+	if not _elite_alive():
+		_stop_elite_attack_timer()
 		return
-	if current_enemy == null or current_enemy.is_dead():
+	_elite_enemy_timer.wait_time = DarkEliteSpritesheet.attack_cooldown()
+	_elite_enemy_timer.start()
+
+
+func _stop_elite_attack_timer() -> void:
+	if _elite_enemy_timer:
+		_elite_enemy_timer.stop()
+
+
+func on_enemy_attack_impact() -> void:
+	if not _minion_alive():
 		return
-	var alvo := party.right_target_index()
-	if alvo < 0:
-		await _resolve_defeat()
+	await _apply_enemy_damage_to_hero(current_enemy.damage)
+
+
+func on_elite_attack_impact() -> void:
+	if not _elite_alive():
 		return
-	var mitigation: Dictionary = party.mitigate_incoming_damage(alvo, current_enemy.damage)
-	if bool(mitigation.get("evaded", false)):
-		var posicao := party.hero_world_position(alvo)
-		if posicao != Vector2.ZERO:
-			DamageNumber.spawn_miss(enemy_visual.get_parent(), posicao, tr(LocaleKeys.COMBAT_MISS))
-		return
-	var dano_recebido := int(mitigation.get("damage", 0))
-	if dano_recebido > 0:
-		party.apply_damage_to_hero(alvo, dano_recebido)
-		AudioManager.play_hit_sound()
-	if party.right_target_index() < 0:
-		await _resolve_defeat()
+	await _apply_enemy_damage_to_hero(current_elite_enemy.damage)
 
 
 func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
@@ -375,6 +478,7 @@ func _reset_active_combat() -> void:
 	_running_engaged = false
 	if _enemy_timer:
 		_enemy_timer.stop()
+	_stop_elite_attack_timer()
 	if party != null:
 		party.combat_paused = false
 		party.can_attack_target = can_heroes_attack
@@ -384,19 +488,35 @@ func _reset_active_combat() -> void:
 		floor_scroller.reset_scroll()
 	if enemy_visual != null and enemy_visual.has_method("abort_attack"):
 		enemy_visual.abort_attack()
+	if elite_enemy_visual != null and elite_enemy_visual.has_method("abort_attack"):
+		elite_enemy_visual.abort_attack()
+	current_elite_enemy = null
+	_hide_elite_visual()
 
 
 func spawn_enemy() -> void:
 	var stats := WorldProgress.enemy_stats(world, stage, difficulty)
 	wave = int(stats["level"])
+	var base_hp := int(stats["hp"])
+	var base_damage := int(stats.get("damage", 1))
 	current_enemy = Enemy.new()
 	current_enemy.configure(
 		str(stats["name"]),
-		int(stats["hp"]),
+		base_hp,
 		int(stats["gold"]),
 		int(stats["xp"]),
-		int(stats.get("damage", 1))
+		base_damage
 	)
+	current_elite_enemy = null
+	if _is_elite_wave():
+		current_elite_enemy = Enemy.new()
+		current_elite_enemy.configure(
+			"Dark Elite",
+			base_hp * DarkEliteSpritesheet.HP_MULT,
+			0,
+			0,
+			base_damage * DarkEliteSpritesheet.DAMAGE_MULT
+		)
 	enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
 	if enemy_visual and enemy_visual.has_method("update_hp"):
@@ -428,6 +548,7 @@ func _resolve_death() -> void:
 		return
 	_resolvendo_morte = true
 	var transition_token := _combat_transition_id
+	var will_enter_run := stage_wave < WAVES_PER_STAGE
 	party.combat_paused = true
 	AudioManager.play_death_sound()
 	var gold := _drops.gold_with_variance(current_enemy.gold_reward)
@@ -435,10 +556,18 @@ func _resolve_death() -> void:
 	var destino := Vector2.ZERO
 	if get_gold_destination.is_valid():
 		destino = get_gold_destination.call()
-	coin_effect_requested.emit(enemy_visual.global_position, destino, 2 + gold / 2)
-	enemy_visual.fade_out()
+	var dying_visual := _dying_enemy_visual if _dying_enemy_visual != null else _get_active_enemy_visual()
+	if dying_visual != null:
+		coin_effect_requested.emit(dying_visual.global_position, destino, 2 + gold / 2)
+		dying_visual.fade_out(will_enter_run)
 	enemy_health_bar.fade_out()
-	await get_tree().create_timer(0.4).timeout
+	if will_enter_run:
+		_begin_running_phase_visuals()
+	if dying_visual != null and dying_visual.has_signal("death_finished"):
+		await dying_visual.death_finished
+	else:
+		await get_tree().create_timer(0.4).timeout
+	_dying_enemy_visual = null
 	if _is_transition_stale(transition_token):
 		_resolvendo_morte = false
 		return
@@ -446,24 +575,27 @@ func _resolve_death() -> void:
 	_apply_xp(_apply_xp_bonus(current_enemy.xp_reward))
 	_try_drop()
 	party.apply_on_kill_passives()
-	if stage_wave < WAVES_PER_STAGE:
+	if will_enter_run:
 		stage_wave += 1
 		_resolvendo_morte = false
-		_start_running_phase()
+		_spawn_wave_enemy(true)
+		party.combat_paused = false
+		hud_refresh.emit()
 		save_needed.emit()
 		return
 	_advance_stage()
 	stage_wave = 1
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
-	party.reset_runner_state()
+	_running_engaged = false
 	if floor_scroller:
 		floor_scroller.reset_scroll()
 	party.heal_party()
+	_resume_party_combat_loop()
 	_spawn_wave_enemy(false)
 	_resolvendo_morte = false
-	party.combat_paused = false
 	_schedule_enemy_attack()
+	hud_refresh.emit()
 	save_needed.emit()
 
 
@@ -483,12 +615,12 @@ func _resolve_defeat() -> void:
 	stage_wave = 1
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
-	party.reset_runner_state()
+	_running_engaged = false
 	if floor_scroller:
 		floor_scroller.reset_scroll()
+	_resume_party_combat_loop()
 	_spawn_wave_enemy(false)
 	_resolvendo_derrota = false
-	party.combat_paused = false
 	_schedule_enemy_attack()
 	hud_refresh.emit()
 
@@ -558,6 +690,87 @@ func _try_drop() -> void:
 
 
 func _emit_enemy_hp() -> void:
-	if current_enemy == null:
+	var active := get_active_enemy()
+	if active == null:
 		return
-	enemy_hp_changed.emit(current_enemy.current_hp, current_enemy.max_hp)
+	enemy_hp_changed.emit(active.current_hp, active.max_hp)
+
+
+func _resume_party_combat_loop() -> void:
+	if party == null:
+		return
+	party.combat_paused = false
+	party.can_attack_target = can_heroes_attack
+	party.reset_runner_state()
+	party.start_combat()
+
+
+func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
+	var active := get_active_enemy()
+	var visual := _get_active_enemy_visual()
+	if active == null or visual == null:
+		return false
+	var morreu := active.take_damage(damage)
+	_emit_enemy_hp()
+	enemy_hit.emit(damage, active.current_hp, active.max_hp)
+	enemy_health_bar.update_hp(active.current_hp)
+	if visual.has_method("update_hp"):
+		visual.update_hp(active.current_hp, active.max_hp)
+	var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
+	DamageNumber.spawn(visual.get_parent(), visual.global_position, damage, cor, is_crit)
+	_flash_enemy_hit()
+	AudioManager.play_hit_sound()
+	if not morreu:
+		return false
+	if active == current_enemy and _elite_alive():
+		await _resolve_minion_killed()
+		return false
+	_dying_enemy_visual = visual
+	enemy_died.emit()
+	await _resolve_death()
+	return true
+
+
+func _resolve_minion_killed() -> void:
+	if elite_enemy_visual != null:
+		elite_enemy_visual.detach_from_leader()
+	enemy_visual.fade_out(false)
+	enemy_health_bar.fade_out()
+	if enemy_visual.has_signal("death_finished"):
+		await enemy_visual.death_finished
+	if elite_enemy_visual != null:
+		elite_enemy_visual.clear_escort()
+		enemy_health_bar.initialize_bar(current_elite_enemy.max_hp)
+		enemy_health_bar.show_up()
+		_emit_enemy_hp()
+		elite_enemy_visual.update_hp(current_elite_enemy.current_hp, current_elite_enemy.max_hp)
+		_schedule_elite_attack()
+	_schedule_enemy_attack()
+	hud_refresh.emit()
+
+
+func _apply_enemy_damage_to_hero(damage_amount: int) -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
+		return
+	if _run_phase == RunPhase.RUNNING:
+		return
+	if party.combat_paused:
+		return
+	var alvo := party.right_target_index()
+	if alvo < 0:
+		await _resolve_defeat()
+		return
+	var mitigation: Dictionary = party.mitigate_incoming_damage(alvo, damage_amount)
+	if bool(mitigation.get("evaded", false)):
+		var posicao := party.hero_world_position(alvo)
+		if posicao != Vector2.ZERO:
+			var root := _get_active_enemy_visual()
+			var parent := root.get_parent() if root else self
+			DamageNumber.spawn_miss(parent, posicao, tr(LocaleKeys.COMBAT_MISS))
+		return
+	var dano_recebido := int(mitigation.get("damage", 0))
+	if dano_recebido > 0:
+		party.apply_damage_to_hero(alvo, dano_recebido)
+		AudioManager.play_hit_sound()
+	if party.right_target_index() < 0:
+		await _resolve_defeat()

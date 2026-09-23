@@ -1,11 +1,15 @@
 class_name EnemyVisual
 extends AnimatedSprite2D
-## Inimigo demônio com FSM: MOVING, ATTACKING, DEAD.
+## Inimigo com FSM: MOVING, ATTACKING, DEAD. Suporta imp_red e dark_elite (escort).
 
 signal attack_impact
 signal attack_finished
+signal death_finished
 
 enum State { MOVING, ATTACKING, DEAD }
+
+const KIND_IMP_RED := "imp_red"
+const KIND_DARK_ELITE := "dark_elite"
 
 var _marker_pos: Vector2 = Vector2.ZERO
 var _tween: Tween
@@ -15,29 +19,117 @@ var _state: State = State.MOVING
 var _velocity: Vector2 = Vector2.ZERO
 var _impact_frames_hit: Array[int] = []
 var _combat_root: Node2D
+var _death_drifting: bool = false
+var _death_anim_done: bool = false
+var _death_finished_emitted: bool = false
+var _hero_was_close_at_death: bool = false
+var _sheet_kind: String = KIND_IMP_RED
+var _escort_mode: bool = false
+var _escort_leader: EnemyVisual = null
+var _escort_offset: Vector2 = Vector2.ZERO
+
+const DEATH_PASS_DISTANCE := 100.0
+const DEATH_OFFSCREEN_X := -90.0
 
 
 func _ready() -> void:
 	centered = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	scale = EnemySpritesheet.scale_for()
-	EnemySpritesheet.invalidate_cache()
-	sprite_frames = EnemySpritesheet.frames()
+	configure_kind(KIND_IMP_RED)
 	animation_finished.connect(_on_animation_finished)
+	animation_changed.connect(_on_animation_changed)
 	frame_changed.connect(_on_frame_changed)
 	_combat_root = get_parent() as Node2D
 	_party = _combat_root.get_node_or_null("PartyService") as PartyService if _combat_root else null
 	_marker_pos = position
 	_barra = HeroHealthBar.new()
 	add_child(_barra)
-	_barra.adjust_in_parent(EnemySpritesheet.health_bar_offset())
+	_barra.adjust_in_parent(_health_bar_offset())
 	_set_state(State.MOVING)
 	self_modulate = Color(1, 1, 1, 0)
 	_snap_to_ground(true)
 
 
+func configure_kind(kind: String = KIND_IMP_RED) -> void:
+	_sheet_kind = kind if kind == KIND_DARK_ELITE else KIND_IMP_RED
+	if _sheet_kind == KIND_DARK_ELITE:
+		DarkEliteSpritesheet.invalidate_cache()
+		sprite_frames = DarkEliteSpritesheet.frames()
+		scale = DarkEliteSpritesheet.scale_for()
+	else:
+		EnemySpritesheet.invalidate_cache()
+		sprite_frames = EnemySpritesheet.frames()
+		scale = EnemySpritesheet.scale_for()
+	if _barra:
+		_barra.adjust_in_parent(_health_bar_offset())
+
+
+func set_escort(leader: EnemyVisual, offset: Vector2) -> void:
+	_escort_mode = leader != null
+	_escort_leader = leader
+	_escort_offset = offset
+	if _barra:
+		_barra.visible = false
+	if leader != null:
+		z_index = leader.z_index - 1
+
+
+func detach_from_leader() -> void:
+	_escort_leader = null
+	_marker_pos = position
+
+
+func is_targetable() -> bool:
+	return visible and _state != State.DEAD and self_modulate.a > 0.9
+
+
+static func pick_arrow_target(combat_root: Node) -> Node2D:
+	var minion := combat_root.get_node_or_null("EnemyVisual") as EnemyVisual
+	var elite := combat_root.get_node_or_null("EliteEnemyVisual") as EnemyVisual
+	if minion != null and minion.is_targetable():
+		return minion
+	if elite != null and elite.is_targetable():
+		return elite
+	if minion != null and minion.visible:
+		return minion
+	return elite
+
+
+func clear_escort() -> void:
+	_escort_mode = false
+	_escort_leader = null
+	_escort_offset = Vector2.ZERO
+	_marker_pos = position
+	z_index = 0
+
+
+func hide_escort() -> void:
+	clear_escort()
+	visible = false
+	if _tween:
+		_tween.kill()
+	_velocity = Vector2.ZERO
+	_impact_frames_hit.clear()
+	_death_drifting = false
+	_death_anim_done = false
+	_death_finished_emitted = false
+	_hero_was_close_at_death = false
+	speed_scale = 1.0
+	_set_state(State.MOVING)
+	self_modulate = Color(1, 1, 1, 0)
+
+
+func is_escort() -> bool:
+	return _escort_mode
+
+
 func _process(delta: float) -> void:
 	if _state == State.DEAD:
+		if _death_drifting:
+			_process_death_drift(delta)
+		return
+	if _escort_mode and _escort_leader != null:
+		_sync_escort_to_leader(delta)
 		return
 	if self_modulate.a < 0.99:
 		return
@@ -49,19 +141,30 @@ func _process(delta: float) -> void:
 
 
 func is_in_attack_range() -> bool:
-	return _distance_to_hero() <= EnemySpritesheet.attack_range()
+	return _distance_to_hero() <= _attack_range()
 
 
 func begin_attack(cooldown: float = -1.0) -> bool:
-	if _state == State.DEAD:
+	if _state == State.DEAD or _escort_mode:
 		return false
 	if not is_in_attack_range():
 		return false
 	if _state == State.ATTACKING:
 		abort_attack()
-	var intervalo := cooldown if cooldown > 0.0 else EnemySpritesheet.attack_cooldown()
+	var intervalo := cooldown if cooldown > 0.0 else _attack_cooldown()
 	_start_attack(intervalo)
 	return true
+
+
+func mirror_attack(cooldown: float) -> void:
+	if _state == State.DEAD or not _escort_mode:
+		return
+	if not is_in_attack_range():
+		return
+	if _state == State.ATTACKING:
+		abort_attack()
+	var intervalo := cooldown if cooldown > 0.0 else _attack_cooldown()
+	_start_attack(intervalo)
 
 
 func is_attacking() -> bool:
@@ -79,6 +182,8 @@ func play_attack() -> void:
 
 
 func update_hp(atual: int, maximo: int) -> void:
+	if _escort_mode:
+		return
 	if _barra:
 		_barra.update(atual, maximo)
 
@@ -93,19 +198,32 @@ func flash_hit() -> void:
 	_tween.tween_property(self, "self_modulate", Color.WHITE, 0.12)
 
 
-func fade_out() -> void:
+func fade_out(drift_with_scroll: bool = false) -> void:
+	if _state == State.DEAD:
+		return
 	if _tween:
 		_tween.kill()
+	if _state == State.ATTACKING:
+		abort_attack()
 	_velocity = Vector2.ZERO
+	speed_scale = 1.0
+	_death_finished_emitted = false
+	_death_anim_done = false
+	_hero_was_close_at_death = _distance_to_hero() <= DEATH_PASS_DISTANCE
+	_death_drifting = drift_with_scroll
 	_set_state(State.DEAD)
 	if _barra:
 		_barra.visible = false
-	_tween = create_tween()
-	_tween.tween_property(self, "self_modulate:a", 0.0, 0.35)
+	position.y = _ground_y() + _death_ground_offset()
+	if sprite_frames != null and sprite_frames.has_animation("Morte"):
+		play("Morte")
+		return
+	_death_anim_done = true
+	_check_death_complete()
 
 
 func prepare_spawn(anchor_local: Vector2) -> void:
-	_marker_pos = anchor_local - EnemySpritesheet.spawn_offset()
+	_marker_pos = anchor_local - _spawn_offset()
 
 
 func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
@@ -113,30 +231,92 @@ func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 		_tween.kill()
 	_velocity = Vector2.ZERO
 	_impact_frames_hit.clear()
+	_death_drifting = false
+	_death_anim_done = false
+	_death_finished_emitted = false
+	_hero_was_close_at_death = false
 	speed_scale = 1.0
 	_set_state(State.MOVING)
+	_snap_to_ground(true)
+	visible = true
 	if anchor_local != Vector2.INF:
 		prepare_spawn(anchor_local)
-	position = _marker_pos + EnemySpritesheet.spawn_offset()
+	if _escort_mode and _escort_leader != null:
+		position = _escort_leader.position + _escort_offset
+	else:
+		position = _marker_pos + _spawn_offset()
 	self_modulate = Color(1, 1, 1, 0)
 	if _barra:
-		_barra.visible = true
+		_barra.visible = not _escort_mode
 	_tween = create_tween()
 	_tween.tween_property(self, "self_modulate", Color.WHITE, 0.2)
 	_tween.tween_callback(func() -> void:
 		_set_state(State.MOVING)
 		_snap_to_ground(true)
+		if _escort_mode and _escort_leader != null:
+			position = _escort_leader.position + _escort_offset
 	)
+
+
+func _sync_escort_to_leader(delta: float) -> void:
+	if _escort_leader == null:
+		return
+	if _escort_leader._state == State.DEAD:
+		detach_from_leader()
+		_apply_gravity(delta)
+		if _state == State.MOVING:
+			_process_moving(delta)
+		return
+	_apply_gravity(delta)
+	if _state == State.ATTACKING:
+		position.y = _ground_y()
+		z_index = _escort_leader.z_index - 1
+		return
+	var leader_x := _escort_leader.position.x
+	var min_x := leader_x
+	var max_lag_x := leader_x + _escort_offset.x
+	var gap := _escort_behind_gap()
+	var behind_leader := position.x > leader_x + gap
+	if behind_leader:
+		position.x = maxf(min_x, position.x - _move_speed() * delta)
+		if position.x > max_lag_x:
+			position.x = max_lag_x
+		_velocity.x = -_move_speed()
+		_play_run()
+	else:
+		position.x = maxf(position.x, min_x)
+		if position.x > max_lag_x:
+			position.x = max_lag_x
+		_velocity.x = 0.0
+		_sync_escort_animation_to_leader()
+	position.y = _ground_y()
+	z_index = _escort_leader.z_index - 1
+
+
+func _sync_escort_animation_to_leader() -> void:
+	if _escort_leader == null or _escort_leader._state == State.ATTACKING:
+		return
+	match _escort_leader.animation:
+		"Corrida":
+			_play_run()
+		"Idle":
+			_play_idle()
+
+
+func _escort_behind_gap() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.escort_behind_gap()
+	return maxf(8.0, _escort_offset.x * 0.15)
 
 
 func _process_moving(delta: float) -> void:
 	var distancia := _distance_to_hero()
-	if distancia <= EnemySpritesheet.attack_range():
+	if distancia <= _attack_range():
 		_velocity.x = 0.0
 		flip_h = false
 		_play_idle()
 		return
-	_velocity.x = -EnemySpritesheet.move_speed()
+	_velocity.x = -_move_speed()
 	position.x += _velocity.x * delta
 	flip_h = false
 	_play_run()
@@ -146,14 +326,16 @@ func _start_attack(cooldown: float) -> void:
 	_velocity.x = 0.0
 	_impact_frames_hit.clear()
 	_set_state(State.ATTACKING)
-	speed_scale = EnemySpritesheet.attack_speed_scale(cooldown)
+	speed_scale = _attack_speed_scale(cooldown)
 	if sprite_frames == null or not sprite_frames.has_animation("Ataque"):
-		_emit_attack_impact()
+		if not _escort_mode:
+			_emit_attack_impact()
 		_finish_attack()
 		return
 	play("Ataque")
 	if animation != "Ataque":
-		_emit_attack_impact()
+		if not _escort_mode:
+			_emit_attack_impact()
 		_finish_attack()
 
 
@@ -190,20 +372,20 @@ func _ground_y() -> float:
 				class_id = (classe as ClassData).id
 			var floor_y := _party.combat_floor_y()
 			var hero_center_y := floor_y + HeroSpritesheet.ground_offset(class_id).y
-			return EnemySpritesheet.center_y_for_shared_feet(
+			return _center_y_for_shared_feet(
 				hero_center_y,
 				HeroSpritesheet.feet_below_center(class_id)
 			)
 	var floor_y := _marker_pos.y
 	if _party != null:
 		floor_y = _party.combat_floor_y()
-	return floor_y + EnemySpritesheet.feet_align_offset()
+	return floor_y + _feet_align_offset()
 
 
 func _apply_gravity(delta: float) -> void:
 	var chao := _ground_y()
 	if position.y < chao:
-		_velocity.y += EnemySpritesheet.gravity() * delta
+		_velocity.y += _gravity() * delta
 		position.y += _velocity.y * delta
 		if position.y >= chao:
 			position.y = chao
@@ -223,14 +405,26 @@ func _snap_to_ground(instant: bool) -> void:
 func _play_run() -> void:
 	if animation != "Corrida" and sprite_frames and sprite_frames.has_animation("Corrida"):
 		play("Corrida")
+		_snap_to_ground(true)
 
 
 func _play_idle() -> void:
 	if animation != "Idle" and animation != "Ataque":
 		play("Idle")
+		_snap_to_ground(true)
+
+
+func _on_animation_changed() -> void:
+	if _state == State.DEAD:
+		return
+	_snap_to_ground(true)
 
 
 func _on_animation_finished() -> void:
+	if animation == "Morte":
+		_death_anim_done = true
+		_check_death_complete()
+		return
 	if _state == State.DEAD:
 		return
 	if animation == "Ataque":
@@ -242,7 +436,7 @@ func _on_frame_changed() -> void:
 		return
 	if animation != "Ataque":
 		return
-	if not EnemySpritesheet.attack_impact_frames().has(frame):
+	if not _attack_impact_frames().has(frame):
 		return
 	if _impact_frames_hit.has(frame):
 		return
@@ -259,4 +453,133 @@ func _finish_attack() -> void:
 	speed_scale = 1.0
 	if _state == State.ATTACKING:
 		_set_state(State.MOVING)
+	if _escort_mode and _escort_leader != null:
+		if position.x > _escort_leader.position.x + _escort_behind_gap():
+			_play_run()
+		else:
+			_sync_escort_animation_to_leader()
+	elif is_in_attack_range():
+		_play_idle()
+	else:
+		_play_run()
 	attack_finished.emit()
+
+
+func _process_death_drift(delta: float) -> void:
+	position.x -= FloorScroller.SCROLL_SPEED_PX * delta
+	_check_death_complete()
+
+
+func _corpse_passed_hero() -> bool:
+	var hero_local: Variant = _hero_local_pos()
+	if hero_local == null:
+		return position.x <= DEATH_OFFSCREEN_X
+	return position.x <= (hero_local as Vector2).x - 24.0
+
+
+func _check_death_complete() -> void:
+	if _death_finished_emitted or not _death_anim_done:
+		return
+	if _death_drifting:
+		if _hero_was_close_at_death:
+			if not _corpse_passed_hero():
+				return
+		elif position.x > DEATH_OFFSCREEN_X:
+			return
+	_finish_death_sequence()
+
+
+func _finish_death_sequence() -> void:
+	if _death_finished_emitted:
+		return
+	_death_finished_emitted = true
+	_death_drifting = false
+	if _tween:
+		_tween.kill()
+	_tween = create_tween()
+	_tween.tween_property(self, "self_modulate:a", 0.0, 0.12)
+	_tween.tween_callback(func() -> void:
+		death_finished.emit()
+	)
+
+
+func _health_bar_offset() -> Vector2:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.health_bar_offset()
+	return EnemySpritesheet.health_bar_offset()
+
+
+func _spawn_offset() -> Vector2:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.spawn_offset()
+	return EnemySpritesheet.spawn_offset()
+
+
+func _attack_range() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.attack_range()
+	return EnemySpritesheet.attack_range()
+
+
+func _move_speed() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.move_speed()
+	return EnemySpritesheet.move_speed()
+
+
+func _gravity() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.gravity()
+	return EnemySpritesheet.gravity()
+
+
+func _feet_align_offset() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.feet_align_offset()
+	return EnemySpritesheet.feet_align_offset()
+
+
+func _death_ground_offset() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.death_ground_offset()
+	return EnemySpritesheet.death_ground_offset()
+
+
+func _active_feet_below_center() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		if animation == "Idle":
+			return DarkEliteSpritesheet.idle_feet_below_center()
+		return DarkEliteSpritesheet.feet_below_center()
+	if _sheet_kind == KIND_IMP_RED:
+		return EnemySpritesheet.feet_below_center()
+	return EnemySpritesheet.feet_below_center()
+
+
+func _center_y_for_shared_feet(hero_center_y: float, hero_feet_below: float) -> float:
+	var feet := _active_feet_below_center()
+	var fine := _ground_fine_tune()
+	return hero_center_y + hero_feet_below - feet + fine
+
+
+func _ground_fine_tune() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.ground_fine_tune()
+	return EnemySpritesheet.ground_fine_tune()
+
+
+func _attack_cooldown() -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.attack_cooldown()
+	return EnemySpritesheet.attack_cooldown()
+
+
+func _attack_speed_scale(cooldown: float) -> float:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.attack_speed_scale(cooldown)
+	return EnemySpritesheet.attack_speed_scale(cooldown)
+
+
+func _attack_impact_frames() -> Array[int]:
+	if _sheet_kind == KIND_DARK_ELITE:
+		return DarkEliteSpritesheet.attack_impact_frames()
+	return EnemySpritesheet.attack_impact_frames()

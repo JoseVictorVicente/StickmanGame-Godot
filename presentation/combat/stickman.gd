@@ -246,6 +246,14 @@ func set_fallen(fallen: bool) -> void:
 func flash_damage() -> void:
 	if _caido:
 		return
+	var restore := Color.WHITE if _usar_arte else _cor_classe
+	if _state == State.ATTACKING or _arrow_in_flight:
+		if _tween_flash:
+			_tween_flash.kill()
+		self_modulate = Color(1.45, 0.35, 0.32, 1.0)
+		_tween_flash = create_tween()
+		_tween_flash.tween_property(self, "self_modulate", restore, 0.12)
+		return
 	if _usar_arte and sprite_frames and sprite_frames.has_animation("Hit"):
 		play("Hit")
 		return
@@ -336,7 +344,7 @@ func get_arrow_spawn_global() -> Vector2:
 
 func _resolve_arrow_target(combat_root: Node) -> Vector2:
 	var origem := get_arrow_spawn_global()
-	var inimigo: Node2D = combat_root.get_node_or_null("EnemyVisual") as Node2D
+	var inimigo := EnemyVisual.pick_arrow_target(combat_root)
 	if inimigo:
 		return HeroSpritesheet.arrow_target_horizontal(origem, inimigo.global_position)
 	return origem + Vector2(90, 0)

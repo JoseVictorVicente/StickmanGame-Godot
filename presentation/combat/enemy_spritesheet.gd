@@ -6,6 +6,7 @@ const BASE_DIR := "res://sprites/enemies/imp_red/"
 const IDLE_DIR := BASE_DIR + "idle/"
 const RUN_DIR := BASE_DIR + "run/"
 const ATTACK_DIR := BASE_DIR + "attack/"
+const DEATH_DIR := BASE_DIR + "death/"
 
 const SCALE := Vector2(0.72, 0.72)
 const HEALTH_BAR_OFFSET := Vector2(-14, -62)
@@ -13,6 +14,8 @@ const FEET_ALIGN_FALLBACK := 28.0
 ## Pixels below sprite center to feet at imp scale (48px canvas, scale 0.72).
 const FEET_BELOW_CENTER := 19.7
 const GROUND_FINE_TUNE := -4.0
+## Extra Y shift while playing death (sprite collapses toward floor).
+const DEATH_GROUND_OFFSET := 10.0
 const SPAWN_OFFSET := Vector2(88, 0)
 
 const MOVE_SPEED := 90.0
@@ -23,6 +26,7 @@ const ATTACK_INTERVAL := 1.35
 const RUN_FPS := 16.0
 const IDLE_FPS := 5.0
 const ATTACK_BASE_FPS := 33.0
+const DEATH_FPS := 18.0
 ## Frames where each claw strike in the 3-hit combo should deal damage.
 const ATTACK_IMPACT_FRAMES: Array[int] = [12, 24, 36]
 
@@ -60,6 +64,10 @@ static func feet_below_center() -> float:
 
 static func ground_fine_tune() -> float:
 	return GROUND_FINE_TUNE
+
+
+static func death_ground_offset() -> float:
+	return DEATH_GROUND_OFFSET
 
 
 static func center_y_for_shared_feet(hero_center_y: float, hero_feet_below: float) -> float:
@@ -107,6 +115,7 @@ static func _build() -> SpriteFrames:
 	_add_anim(sf, "Idle", _load_dir(IDLE_DIR), true, IDLE_FPS)
 	_add_anim(sf, "Corrida", _load_dir(RUN_DIR), true, RUN_FPS)
 	_add_anim(sf, "Ataque", _load_dir(ATTACK_DIR), false, ATTACK_BASE_FPS)
+	_add_anim(sf, "Morte", _load_dir(DEATH_DIR), false, DEATH_FPS)
 	return sf
 
 

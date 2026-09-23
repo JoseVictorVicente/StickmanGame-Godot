@@ -841,8 +841,8 @@ func _on_hero_attack_finished(slot_index: int) -> void:
 	if _uses_deferred_arrow_impact(slot_index):
 		if _has_arrow_in_flight(slot_index):
 			return
-		if _pending_attacks[slot_index].is_empty():
-			_restart_hero_timer(slot_index)
+		_pending_attacks[slot_index] = {}
+		_restart_hero_timer(slot_index)
 		return
 	_pending_attacks[slot_index] = {}
 	_restart_hero_timer(slot_index)

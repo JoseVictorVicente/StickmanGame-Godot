@@ -132,6 +132,11 @@ position = Vector2(-26, -46)
 position = Vector2(102, -46)
 script = ExtResource("5_inimigo")
 
+[node name="EliteEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate"]
+position = Vector2(180, -46)
+visible = false
+script = ExtResource("5_inimigo")
+
 [node name="BattlePanel" type="PanelContainer" parent="BattleHud" unique_id=179778745]
 custom_minimum_size = Vector2(320, 0)
 anchors_preset = 7

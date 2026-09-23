@@ -16,6 +16,7 @@ extends Node2D
 @onready var combat_root: Node2D = $BattleHud/Combate
 @onready var party: PartyService = $BattleHud/Combate/PartyService
 @onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
+@onready var elite_enemy_visual: EnemyVisual = $BattleHud/Combate/EliteEnemyVisual
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -47,12 +48,19 @@ func _ready() -> void:
 	_combat.name = "CombatController"
 	_combat.party = party
 	_combat.enemy_visual = enemy_visual
+	_combat.elite_enemy_visual = elite_enemy_visual
 	_combat.enemy_health_bar = enemy_health_bar
+	elite_enemy_visual.configure_kind(EnemyVisual.KIND_DARK_ELITE)
+	elite_enemy_visual.hide_escort()
 	_combat.floor_scroller = floor
 	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):
 		enemy_visual.attack_impact.connect(_combat.on_enemy_attack_impact)
 	if not enemy_visual.attack_finished.is_connected(_combat.on_enemy_attack_finished):
 		enemy_visual.attack_finished.connect(_combat.on_enemy_attack_finished)
+	if not elite_enemy_visual.attack_impact.is_connected(_combat.on_elite_attack_impact):
+		elite_enemy_visual.attack_impact.connect(_combat.on_elite_attack_impact)
+	if not elite_enemy_visual.attack_finished.is_connected(_combat.on_elite_attack_finished):
+		elite_enemy_visual.attack_finished.connect(_combat.on_elite_attack_finished)
 	_combat.hero_progress = _hero_progress
 	_combat.get_character_index = func() -> int: return inventory_menu.current_character_index()
 	_combat.get_gold_destination = _gold_destination
@@ -135,8 +143,9 @@ func _on_save_needed_log() -> void:
 
 func _build_log_snapshot() -> Dictionary:
 	var enemy_hp := 0
-	if _combat.current_enemy != null:
-		enemy_hp = _combat.current_enemy.current_hp
+	var active := _combat.get_active_enemy()
+	if active != null:
+		enemy_hp = active.current_hp
 	return {
 		"gold": _game_state.get_gold(),
 		"world": _combat.world,
@@ -310,11 +319,9 @@ func _on_menu_gold_spent(amount: int) -> void:
 
 
 func _update_hud() -> void:
-	if _combat.current_enemy:
-		enemy_label.text = "%s  %s" % [
-			_combat.current_enemy.display_name,
-			WorldProgress.difficulty_name(_combat.difficulty),
-		]
+	var nome := _combat.get_enemy_display_name()
+	if nome != "":
+		enemy_label.text = "%s  %s" % [nome, WorldProgress.difficulty_name(_combat.difficulty)]
 	inventory_menu.update_gold(_game_state.get_gold())
 	var hero_progress: Dictionary = _hero_progress.at_index(inventory_menu.current_character_index(), party.active_party)
 	level_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [
