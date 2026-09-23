@@ -4,14 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://c74n55kpxkj17" path="res://sprites/heroes/px_warrior2.jpg" id="2_ext"]
 [ext_resource type="PackedScene" uid="uid://c8partybtn01" path="res://presentation/inventory/party_hero_slot_button.tscn" id="3_ext"]
 [ext_resource type="Script" uid="uid://u7nsljsgk78f" path="res://presentation/inventory/team_selection_ui.gd" id="4_ext"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_foto"]
 bg_color = Color(0.16, 0.13, 0.1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.44, 0.26, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -54,6 +48,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 
 [node name="AreaFoto" type="Panel" parent="PortraitArea" unique_id=2083188205]
+unique_name_in_owner = true
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -75,6 +70,7 @@ offset_right = -6.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("2_ext")
 expand_mode = 1
 stretch_mode = 5
