@@ -350,7 +350,12 @@ grow_horizontal = 0
 grow_vertical = 2
 
 [node name="PanelForgePanel" parent="OverlayVBox/MenuArea" unique_id=1709884103 instance=ExtResource("3_ferraria")]
+unique_name_in_owner = true
+visible = true
+custom_minimum_size = Vector2(300, 528)
 layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
 
 [node name="WorldsPanel" parent="OverlayVBox/MenuArea" unique_id=1967457791 instance=ExtResource("5_mundos")]
 unique_name_in_owner = true

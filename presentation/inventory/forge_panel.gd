@@ -11,24 +11,29 @@ enum Aba { SINTESE, DESMONTAR, JOIAS }
 const SYNTHESIS_SLOTS := 9
 const SLOT_CENTRAL := 4
 const COLUNAS := 3
-const SLOT_SIZE := Vector2(44, 44)
-const TAMANHO_ICONE_INFO := 28
-const WAREHOUSE_TOGGLE_SIZE := Vector2(48, 26)
 const GRADE_MARGEM := 0.08
 const FILTRO_TODOS := -1
-const CAMADA_LEGENDA_INFO := 127
-const Z_INDEX_LEGENDA_INFO := 100
-const OFFSET_LEGENDA_INFO := Vector2(10, 0)
 const GEMS_ARROW_WIDTH := 32.0
+
+@export var style_tab_normal: StyleBoxFlat
+@export var style_tab_active: StyleBoxFlat
+@export var style_toggle_track_off: StyleBoxFlat
+@export var style_toggle_track_on: StyleBoxFlat
+@export var style_toggle_knob: StyleBoxFlat
+@export var style_info_normal: StyleBoxFlat
+@export var style_info_hover: StyleBoxFlat
 
 @onready var synthesis_grid: ForgeSlotsGrid = %SynthesisGrid
 @onready var dismantle_grid: ForgeSlotsGrid = %DismantleGrid
 @onready var botao_fechar: Button = %CloseForgeButton
 @onready var autofill_button: Button = %AutofillButton
 @onready var level_info_button: PanelContainer = %LevelInfoButton
+@onready var level_info_tooltip: PanelContainer = %LevelInfoTooltip
+@onready var level_info_tooltip_label: Label = %LevelInfoTooltipLabel
 @onready var warehouse_toggle: Control = %WarehouseToggle
 @onready var toggle_track: Panel = %ToggleTrack
-@onready var toggle_knob: Panel = %ToggleKnob
+@onready var toggle_knob_off: Panel = %ToggleKnobOff
+@onready var toggle_knob_on: Panel = %ToggleKnobOn
 @onready var synthesize_button: Button = %SynthesizeButton
 @onready var dismantle_button: Button = %DismantleButton
 @onready var synthesis_tab_button: Button = %SynthesisTabButton
@@ -64,8 +69,6 @@ var _aba: Aba = Aba.SINTESE
 var _filtro_raridade: int = FILTRO_TODOS
 var _usar_armazem: bool = false
 var _popup_filtro: PopupMenu
-var _camada_legenda_info: CanvasLayer
-var _caixa_legenda_info: PanelContainer
 var slot_joia_alvo: ItemSlot
 var slot_joia_gema: ItemSlot
 var _forge_service := ForgeService.new()
@@ -508,16 +511,7 @@ func _align_forge_background() -> void:
 	var grade := _current_tab_grid()
 	if grade == null:
 		return
-	var sep_h := float(grade.get_theme_constant("h_separation"))
-	var sep_v := float(grade.get_theme_constant("v_separation"))
-	var lado_slot := minf(
-		(alvo.size.x - sep_h * 2.0) / 3.0,
-		(alvo.size.y - sep_v * 2.0) / 3.0
-	)
-	var slot_size := Vector2.ONE * maxf(1.0, lado_slot)
-	for slot in _current_tab_slots():
-		slot.custom_minimum_size = slot_size
-	grade.reset_size()
+	grade.fit_to_inner_rect(alvo)
 
 
 func _canvas_inner_rect() -> Rect2:
@@ -534,18 +528,15 @@ func _canvas_inner_rect() -> Rect2:
 func _align_jewelry_slots(alvo: Rect2) -> void:
 	if gems_area == null or slot_joia_alvo == null or slot_joia_gema == null:
 		return
-	var separacao := float(gems_area.get_theme_constant("separation"))
-	var largura_seta := GEMS_ARROW_WIDTH
-	var lado := minf((alvo.size.x - largura_seta - separacao * 2.0) * 0.5, alvo.size.y)
-	lado = maxf(1.0, lado)
-	var tamanho_slot := Vector2.ONE * lado
-	slot_joia_alvo.custom_minimum_size = tamanho_slot
-	slot_joia_gema.custom_minimum_size = tamanho_slot
-	gems_area.reset_size()
-	var seta := gems_area.get_node_or_null("SetaImbuir")
-	if seta:
-		seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, lado)
-		seta.queue_redraw()
+	var seta := gems_area.get_node_or_null("SetaImbuir") as Control
+	PanelLayout.fit_forge_jewelry_row(
+		gems_area,
+		slot_joia_alvo,
+		slot_joia_gema,
+		seta,
+		alvo,
+		GEMS_ARROW_WIDTH
+	)
 
 
 func _wire_jewelry_area() -> void:
@@ -557,15 +548,9 @@ func _wire_jewelry_area() -> void:
 		_configure_jewelry_slot(slot_joia_alvo, _validate_jewelry_target_drop)
 	if slot_joia_gema:
 		_configure_jewelry_slot(slot_joia_gema, _validate_jewelry_gem_drop)
-	var seta := gems_area.get_node_or_null("SetaImbuir")
-	if seta:
-		seta.custom_minimum_size = Vector2(GEMS_ARROW_WIDTH, 44)
-
-
 func _configure_jewelry_slot(slot: ItemSlot, validar: Callable) -> void:
 	if slot == null:
 		return
-	slot.custom_minimum_size = SLOT_SIZE
 	slot.mouse_filter = Control.MOUSE_FILTER_STOP
 	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	slot.configure()
@@ -659,23 +644,13 @@ func _update_jewelry_state() -> void:
 		_set_jewelry_status(tr(LocaleKeys.FORGE_GEMS_HINT), Color(0.72, 0.66, 0.52, 1))
 
 
-func _forge_slot_style() -> StyleBoxFlat:
-	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.02, 0.02, 0.03, 0.12)
-	estilo.border_color = Color(0.72, 0.58, 0.28, 0.35)
-	estilo.set_border_width_all(1)
-	estilo.set_corner_radius_all(2)
-	return estilo
-
-
 func _bind_forge_slots() -> void:
-	var estilo_slot := _forge_slot_style()
-	_slots = _bind_forge_grid(synthesis_grid, true, estilo_slot)
-	_slots_desmontar = _bind_forge_grid(dismantle_grid, false, estilo_slot)
+	_slots = _bind_forge_grid(synthesis_grid, true)
+	_slots_desmontar = _bind_forge_grid(dismantle_grid, false)
 
 
-func _bind_forge_grid(grade: ForgeSlotsGrid, sintese: bool, estilo_slot: StyleBoxFlat) -> Array[ItemSlot]:
-	var slots := grade.ensure_slots(SLOT_SIZE, estilo_slot)
+func _bind_forge_grid(grade: ForgeSlotsGrid, sintese: bool) -> Array[ItemSlot]:
+	var slots := grade.slots()
 	for slot in slots:
 		if sintese:
 			slot.validar_drop_extra = _validate_synthesis_drop
@@ -889,7 +864,7 @@ func _setup_warehouse_toggle() -> void:
 	warehouse_toggle.tooltip_text = tr(LocaleKeys.FORGE_WAREHOUSE_TOGGLE)
 	if not warehouse_toggle.gui_input.is_connected(_on_warehouse_toggle_clicked):
 		warehouse_toggle.gui_input.connect(_on_warehouse_toggle_clicked)
-	_style_warehouse_toggle(_usar_armazem)
+	_apply_warehouse_toggle(_usar_armazem)
 
 
 func _on_warehouse_toggle_clicked(event: InputEvent) -> void:
@@ -901,79 +876,27 @@ func _on_warehouse_toggle_clicked(event: InputEvent) -> void:
 
 func _apply_warehouse_toggle(ligado: bool) -> void:
 	_usar_armazem = ligado
-	_style_warehouse_toggle(ligado)
-
-
-func _style_warehouse_toggle(ligado: bool) -> void:
-	if toggle_track == null or toggle_knob == null:
+	if toggle_track == null:
 		return
-	var raio := int(WAREHOUSE_TOGGLE_SIZE.y * 0.5)
-	var trilho := StyleBoxFlat.new()
-	trilho.set_corner_radius_all(raio)
-	trilho.set_border_width_all(1)
-	if ligado:
-		trilho.bg_color = Color(0.26, 0.42, 0.2, 1)
-		trilho.border_color = Color(0.62, 0.88, 0.38, 1)
-	else:
-		trilho.bg_color = Color(0.14, 0.12, 0.1, 1)
-		trilho.border_color = Color(0.52, 0.42, 0.24, 1)
-	toggle_track.add_theme_stylebox_override("panel", trilho)
-	var knob := StyleBoxFlat.new()
-	knob.set_corner_radius_all(10)
-	knob.bg_color = Color(0.92, 0.86, 0.72, 1)
-	knob.border_color = Color(0.72, 0.58, 0.28, 1)
-	knob.set_border_width_all(1)
-	toggle_knob.add_theme_stylebox_override("panel", knob)
-	_apply_toggle_knob_position(ligado)
-
-
-func _apply_toggle_knob_position(ligado: bool) -> void:
-	if toggle_knob == null:
-		return
-	if ligado:
-		toggle_knob.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		toggle_knob.offset_left = -23.0
-		toggle_knob.offset_top = 3.0
-		toggle_knob.offset_right = -3.0
-		toggle_knob.offset_bottom = 23.0
-	else:
-		toggle_knob.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		toggle_knob.offset_left = 3.0
-		toggle_knob.offset_top = 3.0
-		toggle_knob.offset_right = 23.0
-		toggle_knob.offset_bottom = 23.0
+	var trilho := style_toggle_track_on if ligado else style_toggle_track_off
+	if trilho != null:
+		toggle_track.add_theme_stylebox_override("panel", trilho.duplicate())
+	if toggle_knob_off != null:
+		toggle_knob_off.visible = not ligado
+	if toggle_knob_on != null:
+		toggle_knob_on.visible = ligado
+	if style_toggle_knob != null:
+		if toggle_knob_off != null:
+			toggle_knob_off.add_theme_stylebox_override("panel", style_toggle_knob.duplicate())
+		if toggle_knob_on != null:
+			toggle_knob_on.add_theme_stylebox_override("panel", style_toggle_knob.duplicate())
 
 
 func _setup_level_info_button() -> void:
 	if level_info_button == null:
 		return
-	level_info_button.custom_minimum_size = Vector2(TAMANHO_ICONE_INFO, TAMANHO_ICONE_INFO)
 	level_info_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	level_info_button.tooltip_text = ""
-	for margem in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
-		level_info_button.add_theme_constant_override(margem, 0)
-	for filho in level_info_button.get_children():
-		filho.queue_free()
-	var centro := CenterContainer.new()
-	centro.name = "CentroInfo"
-	centro.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	level_info_button.add_child(centro)
-	var rotulo := Label.new()
-	rotulo.name = "RotuloInfo"
-	rotulo.text = "i"
-	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	rotulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	rotulo.add_theme_font_size_override("font_size", 14)
-	rotulo.add_theme_color_override("font_color", Color(0.92, 0.86, 0.72, 1))
-	rotulo.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
-	rotulo.add_theme_constant_override("outline_size", 1)
-	var ajuste := MarginContainer.new()
-	ajuste.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ajuste.add_theme_constant_override("margin_left", 1)
-	ajuste.add_theme_constant_override("margin_top", 1)
-	ajuste.add_child(rotulo)
-	centro.add_child(ajuste)
 	_apply_info_icon_style(false)
 	if not level_info_button.mouse_entered.is_connected(_on_icone_info_mouse_entered):
 		level_info_button.mouse_entered.connect(_on_icone_info_mouse_entered)
@@ -994,14 +917,10 @@ func _on_icone_info_mouse_exited() -> void:
 func _apply_info_icon_style(hover: bool) -> void:
 	if level_info_button == null:
 		return
-	var raio := TAMANHO_ICONE_INFO / 2
-	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.18, 0.15, 0.13, 1) if hover else Color(0.14, 0.12, 0.1, 1)
-	estilo.border_color = Color(0.9, 0.76, 0.38, 1) if hover else Color(0.72, 0.58, 0.28, 1)
-	estilo.set_border_width_all(2)
-	estilo.set_corner_radius_all(raio)
-	estilo.set_content_margin_all(0)
-	level_info_button.add_theme_stylebox_override("panel", estilo)
+	var base := style_info_hover if hover else style_info_normal
+	if base == null:
+		return
+	level_info_button.add_theme_stylebox_override("panel", base.duplicate())
 
 
 func _on_info_tooltip_visibility() -> void:
@@ -1009,92 +928,25 @@ func _on_info_tooltip_visibility() -> void:
 		_hide_info_tooltip()
 
 
-func _ensure_info_tooltip_box() -> PanelContainer:
-	if _camada_legenda_info == null or not is_instance_valid(_camada_legenda_info):
-		_camada_legenda_info = CanvasLayer.new()
-		_camada_legenda_info.layer = CAMADA_LEGENDA_INFO
-		_camada_legenda_info.name = "CamadaLegendaInfoForgePanel"
-		get_tree().root.add_child(_camada_legenda_info)
-	if _caixa_legenda_info == null or not is_instance_valid(_caixa_legenda_info):
-		_caixa_legenda_info = PanelContainer.new()
-		_caixa_legenda_info.z_index = Z_INDEX_LEGENDA_INFO
-		_caixa_legenda_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_camada_legenda_info.add_child(_caixa_legenda_info)
-	return _caixa_legenda_info
-
-
-func _fill_info_tooltip(caixa: PanelContainer) -> void:
-	while caixa.get_child_count() > 0:
-		caixa.get_child(0).free()
-	var fundo := StyleBoxFlat.new()
-	fundo.bg_color = Color(0.08, 0.07, 0.06, 0.96)
-	fundo.border_color = Color(0.72, 0.58, 0.28, 1)
-	fundo.set_border_width_all(2)
-	fundo.set_corner_radius_all(4)
-	fundo.content_margin_left = 10
-	fundo.content_margin_top = 8
-	fundo.content_margin_right = 10
-	fundo.content_margin_bottom = 8
-	caixa.add_theme_stylebox_override("panel", fundo)
-	var coluna := VBoxContainer.new()
-	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	coluna.add_theme_constant_override("separation", 3)
-	var linhas := _level_chance_tooltip_text().split("\n")
-	for i in linhas.size():
-		var linha := str(linhas[i])
-		if linha == "":
-			continue
-		var rotulo := Label.new()
-		rotulo.text = linha
-		rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		rotulo.add_theme_font_size_override("font_size", 11 if i > 0 else 12)
-		if i == 0:
-			rotulo.add_theme_color_override("font_color", Color(0.95, 0.86, 0.45, 1))
-		else:
-			rotulo.add_theme_color_override("font_color", Color(0.88, 0.84, 0.75, 1))
-		coluna.add_child(rotulo)
-	caixa.add_child(coluna)
-
-
-func _position_info_tooltip() -> void:
-	if _caixa_legenda_info == null or level_info_button == null:
-		return
-	_caixa_legenda_info.reset_size()
-	var tam := _caixa_legenda_info.get_combined_minimum_size()
-	if _caixa_legenda_info.size.x > tam.x or _caixa_legenda_info.size.y > tam.y:
-		tam = _caixa_legenda_info.size
-	_caixa_legenda_info.size = tam
-	var icone := level_info_button.get_global_rect()
-	var pos := Vector2(
-		icone.position.x - tam.x - OFFSET_LEGENDA_INFO.x,
-		icone.position.y + (icone.size.y - tam.y) * 0.5
-	)
-	var viewport := get_viewport().get_visible_rect()
-	pos.x = clampf(pos.x, viewport.position.x + 4.0, maxf(viewport.position.x + 4.0, viewport.end.x - tam.x - 4.0))
-	pos.y = clampf(pos.y, viewport.position.y + 4.0, maxf(viewport.position.y + 4.0, viewport.end.y - tam.y - 4.0))
-	_caixa_legenda_info.global_position = pos
-
-
 func _show_info_tooltip() -> void:
 	if level_info_button == null or not is_visible_in_tree():
 		return
-	var caixa := _ensure_info_tooltip_box()
-	_fill_info_tooltip(caixa)
-	_position_info_tooltip()
-	caixa.show()
-	caixa.move_to_front()
+	if level_info_tooltip_label:
+		level_info_tooltip_label.text = _level_chance_tooltip_text()
+	if level_info_tooltip:
+		level_info_tooltip.show()
 
 
 func _hide_info_tooltip() -> void:
-	if _caixa_legenda_info and is_instance_valid(_caixa_legenda_info):
-		_caixa_legenda_info.hide()
+	if level_info_tooltip:
+		level_info_tooltip.hide()
 
 
 func _update_level_info_tooltip() -> void:
-	if _caixa_legenda_info == null or not _caixa_legenda_info.visible:
+	if level_info_tooltip == null or not level_info_tooltip.visible:
 		return
-	_fill_info_tooltip(_caixa_legenda_info)
-	_position_info_tooltip()
+	if level_info_tooltip_label:
+		level_info_tooltip_label.text = _level_chance_tooltip_text()
 
 
 func _synthesis_result_type(ingredientes: Array[ItemData], category: ItemData.Category) -> ItemData.Type:
@@ -1209,21 +1061,16 @@ func _todos_slots() -> Array[ItemSlot]:
 
 
 func _style_tab(botao: Button, ativa: bool) -> void:
-	var estilo := StyleBoxFlat.new()
-	estilo.content_margin_left = 8
-	estilo.content_margin_top = 7
-	estilo.content_margin_right = 8
-	estilo.content_margin_bottom = 7
-	estilo.set_corner_radius_all(4)
-	estilo.set_border_width_all(1)
-	if ativa:
-		estilo.bg_color = Color(0.32, 0.24, 0.16, 1)
-		estilo.border_color = Color(0.95, 0.78, 0.32, 1)
-	else:
-		estilo.bg_color = Color(0.18, 0.14, 0.11, 1)
-		estilo.border_color = Color(0.62, 0.5, 0.28, 1)
+	var base := style_tab_active if ativa else style_tab_normal
+	if base == null:
+		return
+	var estilo := base.duplicate() as StyleBoxFlat
 	botao.add_theme_stylebox_override("normal", estilo)
 	botao.add_theme_stylebox_override("hover", estilo)
+	if ativa:
+		botao.add_theme_color_override("font_color", Color(1, 0.92, 0.72, 1))
+	else:
+		botao.add_theme_color_override("font_color", Color(0.95, 0.88, 0.7, 1))
 
 
 func _set_status(texto: String, cor: Color) -> void:
@@ -1278,8 +1125,8 @@ func _open_filter(botao: Button) -> void:
 	if _popup_filtro == null or botao == null:
 		return
 	var pos := botao.get_screen_position()
-	_popup_filtro.position = Vector2i(int(pos.x), int(pos.y + botao.size.y))
-	_popup_filtro.popup()
+	var rect := Rect2i(int(pos.x), int(pos.y + botao.size.y), 1, 1)
+	_popup_filtro.popup(rect)
 
 
 func _on_filter_selected(id: int) -> void:

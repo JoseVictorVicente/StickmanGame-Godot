@@ -33,3 +33,26 @@ static func _overlay_panel(lado: Control, host: Control, parent: Control) -> voi
 	if lado.get_parent() != parent:
 		return
 	lado.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+
+## Documented exception: responsive forge jewelry row inside ForgeCanvas.
+static func fit_forge_jewelry_row(
+	area: HBoxContainer,
+	slot_alvo: ItemSlot,
+	slot_gema: ItemSlot,
+	seta: Control,
+	inner_rect: Rect2,
+	arrow_width: float
+) -> void:
+	if area == null or slot_alvo == null or slot_gema == null or inner_rect.size.x < 1.0:
+		return
+	var separacao := float(area.get_theme_constant("separation"))
+	var lado := minf((inner_rect.size.x - arrow_width - separacao * 2.0) * 0.5, inner_rect.size.y)
+	lado = maxf(1.0, lado)
+	var tamanho_slot := Vector2.ONE * lado
+	slot_alvo.custom_minimum_size = tamanho_slot
+	slot_gema.custom_minimum_size = tamanho_slot
+	area.reset_size()
+	if seta:
+		seta.custom_minimum_size = Vector2(arrow_width, lado)
+		seta.queue_redraw()

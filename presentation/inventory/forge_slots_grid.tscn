@@ -1,7 +1,19 @@
-[gd_scene format=3 uid="uid://c8forgeslots1"]
+[gd_scene load_steps=4 format=3 uid="uid://c8forgeslots1"]
 
 [ext_resource type="Script" path="res://presentation/inventory/forge_slots_grid.gd" id="1_grid"]
 [ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.02, 0.02, 0.03, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.58, 0.28, 0.35)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [node name="ForgeSlotsGrid" type="GridContainer"]
 columns = 3
@@ -12,35 +24,44 @@ script = ExtResource("1_grid")
 [node name="ForgeSlot_01" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_02" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_03" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_04" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_05" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_06" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_07" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_08" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
 [node name="ForgeSlot_09" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
