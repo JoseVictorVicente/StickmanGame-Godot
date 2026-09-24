@@ -43,6 +43,7 @@ var elite_enemy_visual: EnemyVisual
 var flying_demon_enemy_visual: EnemyVisual
 var enemy_health_bar: ProgressBar
 var floor_scroller: FloorScroller
+var combat_background: CombatBackground
 var hero_progress: HeroProgress
 var get_character_index: Callable
 var get_gold_destination: Callable
@@ -146,12 +147,12 @@ func start_combat() -> void:
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
 	_running_engaged = false
+	_apply_combat_floor()
 	if party != null:
 		party.can_attack_target = can_heroes_attack
 		party.reset_runner_state()
 		party.start_combat()
-	if floor_scroller:
-		floor_scroller.reset_scroll()
+	_reset_stage_scroll()
 	_spawn_wave_enemy(false)
 	_schedule_enemy_attack()
 
@@ -230,8 +231,14 @@ func _begin_running_phase_visuals() -> void:
 	_running_engaged = false
 	if party != null:
 		party.begin_running()
-	if floor_scroller:
-		floor_scroller.set_scrolling(true)
+	_sync_party_runner_state()
+	_set_stage_scrolling(true)
+
+
+func _sync_party_runner_state() -> void:
+	if party == null:
+		return
+	party.set_runner_sync(_run_phase == RunPhase.RUNNING, _running_engaged)
 
 
 func _engage_horde() -> void:
@@ -242,8 +249,8 @@ func _engage_horde() -> void:
 	_running_engaged = false
 	if party != null:
 		party.end_running()
-	if floor_scroller:
-		floor_scroller.set_scrolling(false)
+	_sync_party_runner_state()
+	_set_stage_scrolling(false)
 	_schedule_enemy_attack()
 	if _elite_alive():
 		_schedule_elite_attack()
@@ -282,14 +289,13 @@ func _update_running_engagement() -> void:
 	if engaged == _running_engaged:
 		return
 	_running_engaged = engaged
+	_sync_party_runner_state()
 	if engaged:
-		if floor_scroller:
-			floor_scroller.set_scrolling(false)
+		_set_stage_scrolling(false)
 		if party:
 			party.pause_running_animation()
 	else:
-		if floor_scroller:
-			floor_scroller.set_scrolling(true)
+		_set_stage_scrolling(true)
 		if party:
 			party.resume_running_animation()
 
@@ -591,6 +597,7 @@ func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
 	stage = f
 	difficulty = d
 	stage_wave = 1
+	_apply_combat_floor()
 	_reset_active_combat()
 	party.heal_party()
 	_spawn_wave_enemy(false)
@@ -623,8 +630,7 @@ func _reset_active_combat() -> void:
 		party.can_attack_target = can_heroes_attack
 		party.reset_runner_state()
 		party.start_combat()
-	if floor_scroller:
-		floor_scroller.reset_scroll()
+	_reset_stage_scroll()
 	if enemy_visual != null and enemy_visual.has_method("abort_attack"):
 		enemy_visual.abort_attack()
 	if elite_enemy_visual != null and elite_enemy_visual.has_method("abort_attack"):
@@ -719,6 +725,64 @@ func apply_state(dados: Dictionary) -> void:
 	while difficulty > 0 and not WorldProgress.is_difficulty_unlocked(difficulty, unlocked_stages):
 		difficulty -= 1
 	repeat_stage = bool(dados.get("repeat_stage", dados.get("repetir_fase", false)))
+	_apply_combat_floor()
+
+
+func sync_combat_floor() -> void:
+	_apply_combat_floor()
+
+
+func _apply_combat_floor() -> void:
+	var bg_tex: Texture2D = null
+	if WorldCatalog.uses_combat_background(world):
+		bg_tex = WorldCatalog.combat_background_texture(world)
+		if bg_tex == null:
+			push_warning(
+				"CombatController: missing combat background for world %d at %s"
+				% [world, WorldCatalog.combat_background_texture_path(world)]
+			)
+	var has_bg := bg_tex != null
+	if combat_background != null:
+		combat_background.set_background_texture(bg_tex if has_bg else null)
+		if has_bg:
+			combat_background.refresh_layout()
+	if floor_scroller != null:
+		floor_scroller.visible = not has_bg
+		if has_bg:
+			floor_scroller.set_scrolling(false)
+		elif not has_bg:
+			var floor_tex := WorldCatalog.combat_floor_texture(world)
+			if floor_tex != null:
+				floor_scroller.set_floor_texture(floor_tex)
+	if party != null:
+		party.sync_floor_positions()
+	resync_enemy_anchors()
+
+
+func _set_stage_scrolling(active: bool) -> void:
+	if combat_background != null and combat_background.visible:
+		combat_background.set_scrolling(active)
+	if floor_scroller != null and floor_scroller.visible:
+		floor_scroller.set_scrolling(active)
+
+
+func _reset_stage_scroll() -> void:
+	if combat_background != null:
+		combat_background.reset_scroll()
+	if floor_scroller != null:
+		floor_scroller.reset_scroll()
+
+
+func resync_enemy_anchors() -> void:
+	if party == null:
+		return
+	var anchor := party.get_enemy_spawn_local(false)
+	for visual in [enemy_visual, elite_enemy_visual, flying_demon_enemy_visual]:
+		if visual == null or not visual.visible:
+			continue
+		visual.prepare_spawn(anchor)
+		if visual.is_targetable():
+			visual.snap_to_combat_ground()
 
 
 func _resolve_death() -> void:
@@ -766,8 +830,7 @@ func _resolve_death() -> void:
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
 	_running_engaged = false
-	if floor_scroller:
-		floor_scroller.reset_scroll()
+	_reset_stage_scroll()
 	party.heal_party()
 	_resume_party_combat_loop()
 	_spawn_wave_enemy(false)
@@ -794,8 +857,8 @@ func _resolve_defeat() -> void:
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
 	_running_engaged = false
-	if floor_scroller:
-		floor_scroller.reset_scroll()
+	_sync_party_runner_state()
+	_reset_stage_scroll()
 	_resume_party_combat_loop()
 	_spawn_wave_enemy(false)
 	_resolvendo_derrota = false

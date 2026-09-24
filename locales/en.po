@@ -63,6 +63,9 @@ msgstr "Dark Elite"
 msgid "ENEMY_flying_demon"
 msgstr "Flying Demon"
 
+msgid "ENEMY_cerberus_pup"
+msgstr "Cerberus Pup"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Safe Trail"
 

@@ -26,13 +26,16 @@ var _profile: EnemyVisualProfile = _DefaultProfile
 var _escort_mode: bool = false
 var _escort_leader: EnemyVisual = null
 var _escort_offset: Vector2 = Vector2.ZERO
+var _attack_vfx_spawned: bool = false
 
 const DEATH_PASS_DISTANCE := 100.0
 const DEATH_OFFSCREEN_X := -90.0
+const DARK_ELITE_ATTACK_START_FRAME := 12
 
 
 func _ready() -> void:
 	centered = true
+	z_index = PartyService.COMBAT_ENEMY_Z
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	configure(_DefaultProfile)
 	animation_finished.connect(_on_animation_finished)
@@ -101,7 +104,7 @@ func clear_escort() -> void:
 	_escort_leader = null
 	_escort_offset = Vector2.ZERO
 	_marker_pos = position
-	z_index = 0
+	z_index = PartyService.COMBAT_ENEMY_Z
 
 
 func hide_escort() -> void:
@@ -132,13 +135,18 @@ func _process(delta: float) -> void:
 	if _escort_mode and _escort_leader != null:
 		_sync_escort_to_leader(delta)
 		return
-	if self_modulate.a < 0.99:
+	if self_modulate.a < 0.99 and not _allows_runner_sync_while_fading():
 		return
 	if _party != null and _party.combat_paused and _state != State.ATTACKING:
 		return
 	_apply_gravity(delta)
 	if _state == State.MOVING:
-		_process_moving(delta)
+		if _party != null and _party.is_runner_syncing():
+			_process_runner_sync(delta)
+		else:
+			_process_moving(delta)
+	elif _state == State.ATTACKING and animation == "Ataque":
+		_try_spawn_attack_vfx(frame)
 
 
 func is_in_attack_range() -> bool:
@@ -246,6 +254,7 @@ func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 		position = _escort_leader.position + _escort_offset
 	else:
 		position = _marker_pos + _spawn_offset()
+		_snap_to_ground(true)
 	self_modulate = Color(1, 1, 1, 0)
 	if _barra:
 		_barra.visible = not _escort_mode
@@ -256,10 +265,7 @@ func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 		_snap_to_ground(true)
 		if _escort_mode and _escort_leader != null:
 			position = _escort_leader.position + _escort_offset
-		if sprite_frames != null and sprite_frames.has_animation("Idle"):
-			play("Idle")
-		elif sprite_frames != null and sprite_frames.has_animation("Corrida"):
-			play("Corrida")
+		_play_spawn_move_animation()
 	)
 
 
@@ -277,11 +283,16 @@ func _sync_escort_to_leader(delta: float) -> void:
 		position.y = _ground_y()
 		_update_escort_z_index()
 		return
-	if _escort_leader_engaged():
+	if _party != null and _party.is_runner_syncing():
+		_process_runner_sync(delta)
+	elif _escort_leader_engaged():
+		speed_scale = 1.0
 		_process_moving(delta)
 	else:
+		speed_scale = 1.0
 		_process_escort_catch_up(delta)
-	position.y = _ground_y()
+	if not (_party != null and _party.is_runner_syncing()):
+		position.y = _snap_y_target()
 	_update_escort_z_index()
 
 
@@ -312,6 +323,9 @@ func _process_escort_catch_up(delta: float) -> void:
 func _update_escort_z_index() -> void:
 	if _escort_leader == null:
 		return
+	if is_in_attack_range():
+		z_index = PartyService.COMBAT_ENEMY_Z
+		return
 	if position.x <= _escort_leader.position.x + 2.0:
 		z_index = _escort_leader.z_index + 1
 	else:
@@ -320,6 +334,12 @@ func _update_escort_z_index() -> void:
 
 func _sync_escort_animation_to_leader() -> void:
 	if _escort_leader == null or _escort_leader._state == State.ATTACKING:
+		return
+	if _party != null and _party.is_runner_syncing():
+		_play_run_for_runner_sync()
+		return
+	if is_in_attack_range():
+		_play_in_range_pose()
 		return
 	match _escort_leader.animation:
 		"Corrida":
@@ -332,12 +352,35 @@ func _escort_behind_gap() -> float:
 	return _profile.escort_gap_or_default(_escort_offset)
 
 
+func _allows_runner_sync_while_fading() -> bool:
+	return _party != null and _party.is_runner_syncing()
+
+
+func _runner_sync_speed_scale() -> float:
+	if _profile.profile_id == "dark_elite" or _profile.profile_id == "flying_demon":
+		return 1.75
+	return 1.4
+
+
+func _process_runner_sync(delta: float) -> void:
+	_velocity.x = -FloorScroller.SCROLL_SPEED_PX
+	speed_scale = _runner_sync_speed_scale()
+	if _escort_mode and _escort_leader != null:
+		position = _escort_leader.position + _escort_offset
+	else:
+		position.x += _velocity.x * delta
+		position.y = _ground_y()
+	flip_h = false
+	_play_run_for_runner_sync()
+
+
 func _process_moving(delta: float) -> void:
+	speed_scale = 1.0
 	var distancia := _distance_to_hero()
 	if distancia <= _attack_range():
 		_velocity.x = 0.0
 		flip_h = false
-		_play_idle()
+		_play_in_range_pose()
 		return
 	_velocity.x = -_move_speed()
 	position.x += _velocity.x * delta
@@ -348,6 +391,7 @@ func _process_moving(delta: float) -> void:
 func _start_attack(cooldown: float) -> void:
 	_velocity.x = 0.0
 	_impact_frames_hit.clear()
+	_attack_vfx_spawned = false
 	_set_state(State.ATTACKING)
 	speed_scale = _attack_speed_scale(cooldown)
 	if sprite_frames == null or not sprite_frames.has_animation("Ataque"):
@@ -356,6 +400,7 @@ func _start_attack(cooldown: float) -> void:
 		_finish_attack()
 		return
 	play("Ataque")
+	_apply_attack_start_frame()
 	if animation != "Ataque":
 		if not _escort_mode:
 			_emit_attack_impact()
@@ -376,7 +421,7 @@ func _distance_to_hero() -> float:
 func _hero_local_pos() -> Variant:
 	if _party == null or _combat_root == null:
 		return null
-	var alvo := _party.right_target_index()
+	var alvo := _party.front_target_index()
 	if alvo < 0:
 		return null
 	var hero_pos := _party.hero_world_position(alvo)
@@ -386,11 +431,13 @@ func _hero_local_pos() -> Variant:
 
 
 func _ground_y() -> float:
+	if _party != null and _party.is_road_combat_ground():
+		return _party.combat_road_ground_y(_active_feet_below_center())
 	if _party != null:
-		var slot := _party.right_target_index()
+		var slot := _party.front_target_index()
 		if slot >= 0:
 			var classe: Variant = _party.active_party[slot]
-			var class_id := "archer"
+			var class_id := "mage"
 			if classe is ClassData:
 				class_id = (classe as ClassData).id
 			var floor_y := _party.combat_floor_y()
@@ -418,17 +465,78 @@ func _apply_gravity(delta: float) -> void:
 		_velocity.y = 0.0
 
 
+func snap_to_combat_ground() -> void:
+	_snap_to_ground(true)
+
+
+func _snap_y_target() -> float:
+	if _escort_mode and _escort_leader != null:
+		return _escort_leader.position.y + _escort_offset.y
+	return _ground_y()
+
+
 func _snap_to_ground(instant: bool) -> void:
-	var chao := _ground_y()
+	var chao := _snap_y_target()
 	if instant:
 		position.y = chao
 		_velocity.y = 0.0
+
+
+func _play_spawn_move_animation() -> void:
+	if _party != null and _party.is_runner_syncing():
+		_play_run_for_runner_sync()
+		return
+	if sprite_frames != null and sprite_frames.has_animation("Idle"):
+		play("Idle")
+	elif sprite_frames != null and sprite_frames.has_animation("Corrida"):
+		play("Corrida")
+
+
+func _play_run_for_runner_sync() -> void:
+	if sprite_frames == null or not sprite_frames.has_animation("Corrida"):
+		return
+	if animation != "Corrida" or not is_playing():
+		play("Corrida")
+	_snap_to_ground(true)
 
 
 func _play_run() -> void:
 	if animation != "Corrida" and sprite_frames and sprite_frames.has_animation("Corrida"):
 		play("Corrida")
 		_snap_to_ground(true)
+
+
+func _uses_run_ready_pose() -> bool:
+	return _profile.profile_id == "dark_elite"
+
+
+func _play_in_range_pose() -> void:
+	if _uses_run_ready_pose():
+		_hold_corrida_pose()
+		return
+	_play_idle()
+
+
+func _hold_corrida_pose() -> void:
+	if sprite_frames == null or not sprite_frames.has_animation("Corrida"):
+		_play_idle()
+		return
+	if animation != "Corrida":
+		play("Corrida")
+	var last_frame := sprite_frames.get_frame_count("Corrida") - 1
+	if last_frame >= 0:
+		frame = last_frame
+	pause()
+	_snap_to_ground(true)
+
+
+func _apply_attack_start_frame() -> void:
+	if not _uses_run_ready_pose() or sprite_frames == null:
+		return
+	var total := sprite_frames.get_frame_count("Ataque")
+	if total <= DARK_ELITE_ATTACK_START_FRAME:
+		return
+	frame = DARK_ELITE_ATTACK_START_FRAME
 
 
 func _play_idle() -> void:
@@ -439,6 +547,8 @@ func _play_idle() -> void:
 
 func _on_animation_changed() -> void:
 	if _state == State.DEAD:
+		return
+	if _party != null and _party.is_runner_syncing() and animation == "Corrida":
 		return
 	_snap_to_ground(true)
 
@@ -459,6 +569,7 @@ func _on_frame_changed() -> void:
 		return
 	if animation != "Ataque":
 		return
+	_try_spawn_attack_vfx(frame)
 	if not _attack_impact_frames().has(frame):
 		return
 	if _impact_frames_hit.has(frame):
@@ -479,7 +590,7 @@ func _finish_attack() -> void:
 	if _escort_mode and _escort_leader != null:
 		if _escort_leader_engaged():
 			if is_in_attack_range():
-				_play_idle()
+				_play_in_range_pose()
 			else:
 				_play_run()
 		elif position.x > _escort_leader.position.x + _escort_behind_gap():
@@ -487,7 +598,7 @@ func _finish_attack() -> void:
 		else:
 			_sync_escort_animation_to_leader()
 	elif is_in_attack_range():
-		_play_idle()
+		_play_in_range_pose()
 	else:
 		_play_run()
 	attack_finished.emit()
@@ -586,3 +697,25 @@ func _attack_impact_frames() -> Array[int]:
 	for frame_idx in _profile.attack_impact_frames:
 		frames.append(frame_idx)
 	return frames
+
+
+func _try_spawn_attack_vfx(current_frame: int) -> void:
+	if _attack_vfx_spawned or _profile.attack_vfx_dir == "":
+		return
+	var start_frame := _profile.attack_vfx_start_frame
+	if start_frame < 0 or current_frame < start_frame:
+		return
+	_attack_vfx_spawned = true
+	_spawn_attack_vfx()
+
+
+func _spawn_attack_vfx() -> void:
+	if _profile.attack_vfx_dir == "":
+		return
+	CombatBurstVfx.spawn_on(
+		self,
+		_profile.attack_vfx_offset,
+		_profile.attack_vfx_dir,
+		_profile.attack_vfx_scale,
+		_profile.attack_vfx_fps
+	)

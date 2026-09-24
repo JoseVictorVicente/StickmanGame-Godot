@@ -736,6 +736,11 @@ func get_equipped_hp(stage_index: int) -> int:
 	return total
 
 
+func refresh_attributes_if_open() -> void:
+	if attributes_panel_node and attributes_panel_node.is_open():
+		attributes_panel_node.update()
+
+
 func current_hero_stats() -> Dictionary:
 	var stage_index := _character_index
 	var hero_progress := _progress_for_index(stage_index)

@@ -12,14 +12,20 @@ static var _frames: SpriteFrames
 static var _texture: Texture2D
 
 
-static func fire(pai: Node, origem: Vector2, destino: Vector2, on_hit: Callable = Callable()) -> void:
+static func fire(
+	pai: Node,
+	origem: Vector2,
+	destino: Vector2,
+	on_hit: Callable = Callable(),
+	speed_mult: float = 1.0
+) -> void:
 	if pai == null:
 		return
 	var flecha := ArrowProjectile.new()
 	pai.add_child(flecha)
 	flecha.global_position = origem
 	flecha.z_index = 12
-	flecha._fly(destino, on_hit)
+	flecha._fly(destino, on_hit, speed_mult)
 
 
 func _ready() -> void:
@@ -31,7 +37,7 @@ func _ready() -> void:
 		play("Voo")
 
 
-func _fly(destino: Vector2, on_hit: Callable) -> void:
+func _fly(destino: Vector2, on_hit: Callable, speed_mult: float = 1.0) -> void:
 	var delta := destino - global_position
 	if delta.length_squared() < 1.0:
 		_call_hit(on_hit)
@@ -39,6 +45,7 @@ func _fly(destino: Vector2, on_hit: Callable) -> void:
 		return
 	rotation = delta.angle()
 	var duracao := maxf(MIN_DURACAO, delta.length() / SPEED_PX)
+	duracao /= maxf(1.0, speed_mult)
 	duracao = minf(duracao, MAX_DURACAO)
 	var tween := create_tween()
 	tween.tween_property(self, "global_position", destino, duracao).set_trans(Tween.TRANS_LINEAR)

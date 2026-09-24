@@ -21,6 +21,22 @@ const _TRAIL_TEXTURES: PackedStringArray = [
 	"res://sprites/environment/volcanic_map.jpg",
 ]
 
+const _COMBAT_FLOOR_TEXTURES: PackedStringArray = [
+	"res://sprites/environment/emerald_forest_floor.png",
+	"res://sprites/environment/grass_floor.png",
+	"res://sprites/environment/grass_floor.png",
+	"res://sprites/environment/grass_floor.png",
+	"res://sprites/environment/grass_floor.png",
+]
+
+const _COMBAT_BACKGROUND_TEXTURES: PackedStringArray = [
+	"res://sprites/environment/background_road.png",
+	"",
+	"",
+	"",
+	"",
+]
+
 const _DIMENSION_NAME_KEYS: PackedStringArray = [
 	"DIMENSION_1_NAME",
 	"DIMENSION_2_NAME",
@@ -47,7 +63,8 @@ const _BRIEFING_KEYS: PackedStringArray = [
 
 static var _briefing_texture_cache: Dictionary = {}
 static var _trail_texture_cache: Dictionary = {}
-
+static var _combat_floor_texture_cache: Dictionary = {}
+static var _combat_background_texture_cache: Dictionary = {}
 
 static func _stage_key(world_id: int, stage: int) -> String:
 	var id := clampi(world_id, 1, dimension_count())
@@ -87,12 +104,32 @@ static func map_texture_path(world_id: int) -> String:
 	return _TRAIL_TEXTURES[_world_index(world_id)]
 
 
+static func combat_floor_texture_path(world_id: int) -> String:
+	return _COMBAT_FLOOR_TEXTURES[_world_index(world_id)]
+
+
+static func combat_background_texture_path(world_id: int) -> String:
+	return _COMBAT_BACKGROUND_TEXTURES[_world_index(world_id)]
+
+
 static func briefing_texture(world_id: int) -> Texture2D:
 	return _load_cached_texture(world_id, briefing_texture_path(world_id), _briefing_texture_cache)
 
 
 static func map_texture(world_id: int) -> Texture2D:
 	return _load_cached_texture(world_id, map_texture_path(world_id), _trail_texture_cache)
+
+
+static func combat_floor_texture(world_id: int) -> Texture2D:
+	return _load_cached_texture(world_id, combat_floor_texture_path(world_id), _combat_floor_texture_cache)
+
+
+static func combat_background_texture(world_id: int) -> Texture2D:
+	return _load_cached_texture(world_id, combat_background_texture_path(world_id), _combat_background_texture_cache)
+
+
+static func uses_combat_background(world_id: int) -> bool:
+	return combat_background_texture_path(world_id) != ""
 
 
 static func _load_cached_texture(world_id: int, caminho: String, cache: Dictionary) -> Texture2D:
@@ -102,11 +139,11 @@ static func _load_cached_texture(world_id: int, caminho: String, cache: Dictiona
 		return cache[cache_key]
 	if caminho == "" or not ResourceLoader.exists(caminho):
 		push_warning("WorldCatalog: missing texture at %s (world %d)" % [caminho, id])
-		cache[cache_key] = null
 		return null
 	var tex := load(caminho) as Texture2D
 	if tex == null:
 		push_warning("WorldCatalog: failed to load texture at %s (world %d)" % [caminho, id])
+		return null
 	cache[cache_key] = tex
 	return tex
 

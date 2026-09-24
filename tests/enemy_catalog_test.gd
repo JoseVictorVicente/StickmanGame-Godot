@@ -26,8 +26,8 @@ func _init() -> void:
 
 func _test_resolve_minion_world1() -> void:
 	var data: EnemyData = EnemyCatalogScript.resolve(1, 3, 2, EnemyDataScript.SpawnRole.MINION)
-	if data == null or data.enemy_id != "imp_red":
-		_fail("expected imp_red minion for world 1 stage 3 wave 2")
+	if data == null or data.enemy_id != "cerberus_pup":
+		_fail("expected cerberus_pup minion for world 1 stage 3 wave 2")
 
 
 func _test_resolve_boss_world1() -> void:

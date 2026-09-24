@@ -5,9 +5,11 @@ extends Node
 const LARGURA := UiConstants.WINDOW_WIDTH
 const ALTURA := UiConstants.WINDOW_HEIGHT
 const STAGE_TOP_MARGIN := 8
-const STAGE_HEIGHT := 124
-const PALCO_BASE_JANELA := 108
-const PANEL_HEIGHT := 100
+const STAGE_WIDTH_HALF := UiConstants.STAGE_WIDTH_HALF
+const STAGE_HEIGHT := UiConstants.STAGE_HEIGHT
+const PALCO_BASE_JANELA := UiConstants.PALCO_BASE_JANELA
+const PANEL_HEIGHT := UiConstants.BATTLE_PANEL_HEIGHT
+const BATTLE_PANEL_BOTTOM_MARGIN := UiConstants.BATTLE_PANEL_BOTTOM_MARGIN
 const BUTTON_SIZE := 80
 const INVENTORY_PANEL_WIDTH := 580  # nominal hub width; actual width comes from MenuRow
 
@@ -15,7 +17,6 @@ var stage_panel: Control
 var battle_panel: PanelContainer
 var menu_button_area: ColorRect
 var combat_root: Node2D
-var floor: Control
 var open_inventory_button: Button
 var get_menu_rects: Callable
 var is_menu_visible: Callable
@@ -42,10 +43,10 @@ func _process(_delta: float) -> void:
 
 
 func align_combat() -> void:
-	if floor == null or combat_root == null:
+	if stage_panel == null or combat_root == null:
 		return
-	var rect := floor.get_global_rect()
-	combat_root.position = Vector2(rect.get_center().x, rect.position.y + 2)
+	var rect := stage_panel.get_global_rect()
+	combat_root.position = Vector2(rect.get_center().x, rect.end.y)
 
 
 func on_drag_area(event: InputEvent) -> void:
@@ -76,14 +77,44 @@ func apply_menu_direction() -> bool:
 func anchor_combat_to_top(no_topo: bool) -> void:
 	combat_at_top = no_topo
 	if no_topo:
-		_set_anchors(stage_panel, 0.5, 0.0, 0.5, 0.0, -240, STAGE_TOP_MARGIN, 240, STAGE_TOP_MARGIN + STAGE_HEIGHT)
+		_set_anchors(
+			stage_panel,
+			0.5,
+			0.0,
+			0.5,
+			0.0,
+			-STAGE_WIDTH_HALF,
+			STAGE_TOP_MARGIN,
+			STAGE_WIDTH_HALF,
+			STAGE_TOP_MARGIN + STAGE_HEIGHT
+		)
 		var painel_topo := STAGE_TOP_MARGIN + STAGE_HEIGHT
 		_set_anchors(battle_panel, 0.5, 0.0, 0.5, 0.0, -160, painel_topo, 160, painel_topo + PANEL_HEIGHT)
 		var botao_topo := painel_topo + 10
 		_position_inventory_button(0.0, 0.0, botao_topo, botao_topo + BUTTON_SIZE)
 	else:
-		_set_anchors(stage_panel, 0.5, 1.0, 0.5, 1.0, -240, -232, 240, -PALCO_BASE_JANELA)
-		_set_anchors(battle_panel, 0.5, 1.0, 0.5, 1.0, -160, -108, 160, -8)
+		_set_anchors(
+			stage_panel,
+			0.5,
+			1.0,
+			0.5,
+			1.0,
+			-STAGE_WIDTH_HALF,
+			-(PALCO_BASE_JANELA + STAGE_HEIGHT),
+			STAGE_WIDTH_HALF,
+			-PALCO_BASE_JANELA
+		)
+		_set_anchors(
+			battle_panel,
+			0.5,
+			1.0,
+			0.5,
+			1.0,
+			-160,
+			-PALCO_BASE_JANELA,
+			160,
+			-BATTLE_PANEL_BOTTOM_MARGIN
+		)
 		_position_inventory_button(1.0, 1.0, -96, -16)
 
 

@@ -63,6 +63,9 @@ msgstr "Elite Sombria"
 msgid "ENEMY_flying_demon"
 msgstr "Demônio Voador"
 
+msgid "ENEMY_cerberus_pup"
+msgstr "Filhote de Cérbero"
+
 msgid "DIFFICULTY_EASY"
 msgstr "Trilha Segura"
 
