@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://presentation/inventory/warehouse_panel.gd" id="1_armazem"]
 [ext_resource type="Texture2D" uid="uid://7knr2n4pn2ge" path="res://sprites/ui/worlds_bg.png" id="2_fundo"]
 [ext_resource type="PackedScene" uid="uid://c8whslots01" path="res://presentation/inventory/warehouse_slots_grid.tscn" id="3_grid"]
+[ext_resource type="Texture2D" uid="uid://b8ktransferwhbtn" path="res://sprites/ui/inventory_buttons/transfer_warehouse_button.png" id="4_transfer_wh_btn"]
+[ext_resource type="Texture2D" uid="uid://b8ksortinvbtn01" path="res://sprites/ui/inventory_buttons/sort_inventory_button.png" id="5_sort_inv_btn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_normal"]
 content_margin_left = 6.0
@@ -126,14 +128,6 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort"]
-bg_color = Color(0.06, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.58, 0.28, 1)
 
 [node name="WarehousePanel" type="Control" unique_id=1546811740]
 custom_minimum_size = Vector2(252, 0)
@@ -366,29 +360,35 @@ visible = false
 layout_mode = 2
 
 [node name="RodapeArmazem" type="HBoxContainer" parent="Margem/Conteudo" unique_id=1774011753]
+custom_maximum_size = Vector2(-1, 38)
 layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(10, 0)
 theme_override_constants/separation = 6
 
-[node name="SortWarehouseButton" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=1050740480]
+[node name="SortWarehouseButton" type="TextureButton" parent="Margem/Conteudo/RodapeArmazem" unique_id=1050740480]
 unique_name_in_owner = true
+texture_filter = 1
 custom_minimum_size = Vector2(42, 42)
+custom_maximum_size = Vector2(38, -1)
 layout_mode = 2
 tooltip_text = "Organizar página"
-theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
-text = "F"
+focus_mode = 0
+texture_normal = ExtResource("5_sort_inv_btn")
+texture_pressed = ExtResource("5_sort_inv_btn")
+texture_hover = ExtResource("5_sort_inv_btn")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="SortWarehouseButton2" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=1497759299]
+[node name="TransferInventoryButton" type="TextureButton" parent="Margem/Conteudo/RodapeArmazem" unique_id=1497759299]
 unique_name_in_owner = true
+texture_filter = 1
 custom_minimum_size = Vector2(42, 42)
+custom_maximum_size = Vector2(38, -1)
 layout_mode = 2
-tooltip_text = "Organizar página"
-theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
-text = "F"
-
-[node name="SortWarehouseButton3" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=867499159]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-tooltip_text = "Organizar página"
-theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
-text = "F"
+focus_mode = 0
+texture_normal = ExtResource("4_transfer_wh_btn")
+texture_pressed = ExtResource("4_transfer_wh_btn")
+texture_hover = ExtResource("4_transfer_wh_btn")
+ignore_texture_size = true
+stretch_mode = 5

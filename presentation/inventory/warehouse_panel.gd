@@ -17,7 +17,8 @@ const FIRST_EXTRA_PAGE_INDEX := 4
 @onready var close_button: Button = %CloseWarehouseButton
 @onready var tab_row: GridContainer = %TabRow
 @onready var warehouse_grid: GridContainer = %WarehouseGrid
-@onready var sort_button: Button = %SortWarehouseButton
+@onready var sort_button: TextureButton = %SortWarehouseButton
+@onready var transfer_button: TextureButton = %TransferInventoryButton
 @onready var title_label: Label = %WarehouseTitle
 
 var _menu: InventoryMenu
@@ -36,6 +37,9 @@ func _ready() -> void:
 	header.gui_input.connect(_on_header_gui_input)
 	gui_input.connect(_on_header_gui_input)
 	sort_button.pressed.connect(_on_sort_button_pressed)
+	if transfer_button:
+		transfer_button.pressed.connect(_on_transfer_button_pressed)
+		transfer_button.visible = false
 	LocaleService.locale_changed.connect(_on_locale_changed)
 	_update_localized_texts()
 	show_tab(0)
@@ -52,6 +56,10 @@ func is_open() -> bool:
 	return visible
 
 
+func can_receive_inventory_transfer() -> bool:
+	return is_open() and _unlocked_tabs[_current_tab]
+
+
 func toggle() -> void:
 	if visible:
 		close()
@@ -63,21 +71,29 @@ func open() -> void:
 	if _menu == null or not _menu.visible:
 		return
 	show()
+	_sync_transfer_button_visibility()
+	_notify_inventory_transfer_button()
 	panel_open_changed.emit(true)
 
 
 func close() -> void:
 	hide()
+	_sync_transfer_button_visibility()
+	_notify_inventory_transfer_button()
 	panel_open_changed.emit(false)
 
 
 func first_empty_slot() -> ItemSlot:
 	if not _unlocked_tabs[_current_tab]:
 		return null
-	for slot in _slots_for_tab(_current_tab):
+	for slot in current_tab_slots():
 		if slot.item == null:
 			return slot
 	return null
+
+
+func current_tab_slots() -> Array[ItemSlot]:
+	return _slots_for_tab(_current_tab)
 
 
 func all_slots() -> Array[ItemSlot]:
@@ -94,6 +110,8 @@ func show_tab(stage_index: int) -> void:
 	if not _unlocked_tabs[stage_index]:
 		_set_title_for_tab(stage_index, true)
 		sort_button.disabled = true
+		_sync_transfer_button_visibility(stage_index)
+		_notify_inventory_transfer_button()
 		return
 	_current_tab = stage_index
 	for i in TAB_COUNT:
@@ -102,6 +120,8 @@ func show_tab(stage_index: int) -> void:
 		_style_tab(_tab_buttons[i], i == stage_index, _unlocked_tabs[i])
 	_set_title_for_tab(stage_index, false)
 	sort_button.disabled = false
+	_sync_transfer_button_visibility(stage_index)
+	_notify_inventory_transfer_button()
 
 
 func unlock_tab(stage_index: int) -> void:
@@ -249,6 +269,8 @@ func _update_localized_texts() -> void:
 	close_button.text = tr(LocaleKeys.BTN_CLOSE)
 	close_button.tooltip_text = tr(LocaleKeys.BTN_BACK_INVENTORY)
 	sort_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
+	if transfer_button:
+		transfer_button.tooltip_text = tr(LocaleKeys.BTN_WAREHOUSE_TRANSFER_INVENTORY)
 	_set_title_for_tab(_current_tab, not _unlocked_tabs[_current_tab])
 
 
@@ -270,6 +292,34 @@ func _on_sort_button_pressed() -> void:
 	if _menu:
 		_menu.notify_items_changed()
 	sort_button.release_focus()
+
+
+func _on_transfer_button_pressed() -> void:
+	if _menu == null or not is_open() or not _unlocked_tabs[_current_tab]:
+		return
+	_menu.transfer_warehouse_to_inventory()
+	if transfer_button:
+		transfer_button.release_focus()
+
+
+func _notify_inventory_transfer_button() -> void:
+	if _menu and _menu.has_method("sync_inventory_transfer_button"):
+		_menu.sync_inventory_transfer_button()
+
+
+func _sync_transfer_button_visibility(tab_index: int = -1) -> void:
+	if transfer_button == null:
+		return
+	if tab_index < 0:
+		tab_index = _current_tab
+	var can_transfer := (
+		is_open()
+		and tab_index >= 0
+		and tab_index < TAB_COUNT
+		and _unlocked_tabs[tab_index]
+	)
+	transfer_button.visible = can_transfer
+	transfer_button.disabled = not can_transfer
 
 
 func _on_locale_changed(_locale_code: String) -> void:

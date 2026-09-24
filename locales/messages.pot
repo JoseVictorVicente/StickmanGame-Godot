@@ -123,6 +123,15 @@ msgstr ""
 msgid "BTN_SORT"
 msgstr ""
 
+msgid "BTN_WAREHOUSE_TRANSFER_INVENTORY"
+msgstr ""
+
+msgid "BTN_INVENTORY_TRANSFER_WAREHOUSE"
+msgstr ""
+
+msgid "BTN_WAREHOUSE_TRANSFER"
+msgstr ""
+
 msgid "BTN_QUIT_GAME"
 msgstr ""
 

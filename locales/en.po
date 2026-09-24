@@ -129,6 +129,15 @@ msgstr "Remove"
 msgid "BTN_SORT"
 msgstr "Sort"
 
+msgid "BTN_WAREHOUSE_TRANSFER_INVENTORY"
+msgstr "Send warehouse items to inventory"
+
+msgid "BTN_INVENTORY_TRANSFER_WAREHOUSE"
+msgstr "Send inventory items to warehouse"
+
+msgid "BTN_WAREHOUSE_TRANSFER"
+msgstr "Send"
+
 msgid "BTN_QUIT_GAME"
 msgstr "Quit game"
 

@@ -2,15 +2,9 @@
 
 [ext_resource type="Script" uid="uid://bocl76mgtfroi" path="res://presentation/inventory/hero_equip_right_panel.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://c8itemslot01" path="res://presentation/inventory/item_slot.tscn" id="2_slot"]
-[ext_resource type="PackedScene" uid="uid://c8hubskillslot" path="res://presentation/inventory/hub_skill_slot.tscn" id="3_skill"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort_normal"]
-bg_color = Color(0.06, 0.05, 0.04, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.58, 0.28, 1)
+[ext_resource type="PackedScene" uid="uid://y8og3l1wjtyx" path="res://presentation/inventory/hub_skill_slot.tscn" id="3_skill"]
+[ext_resource type="Texture2D" uid="uid://beyu2c60bcb3t" path="res://sprites/ui/inventory_buttons/transfer_inventory_button.png" id="4_transfer_inv_btn"]
+[ext_resource type="Texture2D" uid="uid://b8ksortinvbtn01" path="res://sprites/ui/inventory_buttons/sort_inventory_button.png" id="5_sort_inv_btn"]
 
 [node name="HeroEquipRightPanel" type="VBoxContainer" unique_id=1840248112]
 unique_name_in_owner = true
@@ -56,15 +50,36 @@ custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 size_flags_horizontal = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=752579915]
+[node name="VBoxContainer" type="GridContainer" parent="." unique_id=53603668]
 layout_mode = 2
+size_flags_horizontal = 8
+columns = 2
 
-[node name="SortInventoryButton" type="Button" parent="VBoxContainer" unique_id=950267656]
+[node name="TransferInventory" type="TextureButton" parent="VBoxContainer" unique_id=1396316096]
 unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+focus_mode = 0
+texture_normal = ExtResource("4_transfer_inv_btn")
+texture_pressed = ExtResource("4_transfer_inv_btn")
+texture_hover = ExtResource("4_transfer_inv_btn")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="SortInventoryButton" type="TextureButton" parent="VBoxContainer" unique_id=950267656]
+unique_name_in_owner = true
+texture_filter = 1
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 10
 tooltip_text = "Organizar inventário"
-theme_override_styles/normal = SubResource("StyleBoxFlat_sort_normal")
-text = "F"
+focus_mode = 0
+texture_normal = ExtResource("5_sort_inv_btn")
+texture_pressed = ExtResource("5_sort_inv_btn")
+texture_hover = ExtResource("5_sort_inv_btn")
+ignore_texture_size = true
+stretch_mode = 5

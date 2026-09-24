@@ -157,6 +157,7 @@ alignment = 1
 
 [node name="WarehousePanel" parent="OverlayVBox/MenuArea" unique_id=333237029 instance=ExtResource("4_armazem")]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(288, 528)
 layout_mode = 2
 size_flags_horizontal = 8

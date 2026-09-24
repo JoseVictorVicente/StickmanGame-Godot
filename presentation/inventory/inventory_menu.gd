@@ -65,7 +65,7 @@ var option_locale: OptionButton
 
 var inventory_slots_grid: InventorySlotsGrid
 var inventory_slot_list: Array[ItemSlot] = []
-var sort_inventory_button: Button
+var sort_inventory_button: TextureButton
 var formation_button: Button
 var botao_skills: Button
 var botao_inventario: Button
@@ -627,6 +627,38 @@ func first_empty_warehouse_slot() -> ItemSlot:
 	return null
 
 
+func sync_inventory_transfer_button() -> void:
+	if hero_equip_right == null or warehouse_panel_node == null:
+		return
+	hero_equip_right.set_transfer_button_visible(warehouse_panel_node.can_receive_inventory_transfer())
+
+
+func transfer_inventory_to_warehouse() -> void:
+	if warehouse_panel_node == null or not warehouse_panel_node.can_receive_inventory_transfer():
+		return
+	for slot in _inventory_sort_slots():
+		if slot.item == null:
+			continue
+		var dest := warehouse_panel_node.first_empty_slot()
+		if dest == null:
+			break
+		move_item_between_slots(slot, dest)
+	notify_items_changed()
+
+
+func transfer_warehouse_to_inventory() -> void:
+	if warehouse_panel_node == null or not warehouse_panel_node.can_receive_inventory_transfer():
+		return
+	for slot in warehouse_panel_node.current_tab_slots():
+		if slot.item == null:
+			continue
+		var dest := first_empty_inventory_slot()
+		if dest == null:
+			break
+		move_item_between_slots(slot, dest)
+	notify_items_changed()
+
+
 func move_item_between_slots(origem: ItemSlot, destino: ItemSlot) -> void:
 	_drag.move_item(origem, destino)
 
@@ -1021,6 +1053,7 @@ func _on_forge_visibility_changed(aberta: bool) -> void:
 
 func _on_warehouse_visibility_changed(aberta: bool) -> void:
 	_panels.on_warehouse_visibility_changed(aberta)
+	sync_inventory_transfer_button()
 
 
 func _on_worlds_visibility_changed(aberta: bool) -> void:
@@ -1225,6 +1258,9 @@ func _update_localized_texts() -> void:
 		storage_button.tooltip_text = tr(LocaleKeys.UI_WAREHOUSE)
 	if sort_inventory_button:
 		sort_inventory_button.tooltip_text = tr(LocaleKeys.BTN_SORT)
+	if hero_equip_right:
+		hero_equip_right.refresh_transfer_button_locale()
+		sync_inventory_transfer_button()
 	if botao_skills:
 		botao_skills.text = ""
 		botao_skills.tooltip_text = tr(LocaleKeys.UI_SKILLS)

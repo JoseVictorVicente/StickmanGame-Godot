@@ -21,7 +21,8 @@ const JEWELRY_TYPES: Array[ItemData.Type] = [
 @onready var slot_passiva_0: HubSkillSlot = %SlotSkillMenuPassiva0
 @onready var slot_passiva_1: HubSkillSlot = %SlotSkillMenuPassiva1
 @onready var slot_pet: ItemSlot = %SlotPet
-@onready var sort_button: Button = %SortInventoryButton
+@onready var sort_button: TextureButton = %SortInventoryButton
+@onready var transfer_button: TextureButton = %TransferInventory
 
 var _menu: Node
 var _skill_provider: Callable
@@ -31,8 +32,10 @@ var _slots_configured := false
 func configure(menu: Node) -> void:
 	_menu = menu
 	_wire_sort_button()
+	_wire_transfer_button()
 	_wire_skill_slots()
 	_configure_item_slots()
+	set_transfer_button_visible(false)
 
 
 func all_equipment_slots() -> Array[ItemSlot]:
@@ -51,8 +54,25 @@ func slots() -> Array[ItemSlot]:
 	return lista
 
 
-func get_sort_button() -> Button:
+func get_sort_button() -> TextureButton:
 	return sort_button
+
+
+func get_transfer_button() -> TextureButton:
+	return transfer_button
+
+
+func set_transfer_button_visible(should_show: bool) -> void:
+	if transfer_button == null:
+		return
+	transfer_button.visible = should_show
+	transfer_button.disabled = not should_show
+
+
+func refresh_transfer_button_locale() -> void:
+	if transfer_button == null:
+		return
+	transfer_button.tooltip_text = tr(LocaleKeys.BTN_INVENTORY_TRANSFER_WAREHOUSE)
 
 
 func bind_skill_provider(provider: Callable) -> void:
@@ -91,6 +111,22 @@ func _wire_sort_button() -> void:
 		return
 	if not sort_button.pressed.is_connected(_menu.on_inventory_sort_pressed):
 		sort_button.pressed.connect(_menu.on_inventory_sort_pressed)
+
+
+func _wire_transfer_button() -> void:
+	if transfer_button == null or _menu == null:
+		return
+	if not transfer_button.pressed.is_connected(_on_transfer_button_pressed):
+		transfer_button.pressed.connect(_on_transfer_button_pressed)
+	refresh_transfer_button_locale()
+	transfer_button.visible = false
+
+
+func _on_transfer_button_pressed() -> void:
+	if _menu and _menu.has_method("transfer_inventory_to_warehouse"):
+		_menu.transfer_inventory_to_warehouse()
+	if transfer_button:
+		transfer_button.release_focus()
 
 
 func _wire_skill_slots() -> void:
