@@ -148,23 +148,3 @@ layout_mode = 2
 [node name="SlotArmazem_35" parent="." instance=ExtResource("2_slot")]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-
-[node name="SlotArmazem_36" parent="." instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-
-[node name="SlotArmazem_37" parent="." instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-
-[node name="SlotArmazem_38" parent="." instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-
-[node name="SlotArmazem_39" parent="." instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2
-
-[node name="SlotArmazem_40" parent="." instance=ExtResource("2_slot")]
-custom_minimum_size = Vector2(42, 42)
-layout_mode = 2

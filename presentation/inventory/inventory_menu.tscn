@@ -15,8 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://c8invpanel1" path="res://presentation/inventory/inventory_panel.tscn" id="16_inv"]
 [ext_resource type="PackedScene" uid="uid://c8bottomnav1" path="res://presentation/inventory/bottom_nav.tscn" id="20_nav"]
 [ext_resource type="PackedScene" uid="uid://c8settings01" path="res://presentation/inventory/settings_panel.tscn" id="21_settings"]
-[ext_resource type="Texture2D" uid="uid://bsettingsicon01" path="res://sprites/ui/settings_icon.png" id="22_settings_icon"]
-[ext_resource type="Texture2D" uid="uid://bquitgameicon1" path="res://sprites/ui/quit_game_icon.png" id="23_quit_icon"]
+[ext_resource type="Texture2D" uid="uid://coywhls4n2sxs" path="res://sprites/ui/settings_icon.png" id="22_settings_icon"]
+[ext_resource type="Texture2D" uid="uid://l7irjn35pbs3" path="res://sprites/ui/quit_game_icon.png" id="23_quit_icon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_active_side"]
 content_margin_left = 0.0
@@ -50,6 +50,22 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
 content_margin_left = 8.0
 content_margin_top = 7.0
@@ -77,22 +93,6 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.9, 0.74, 0.4, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.18, 0.14, 0.11, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.62, 0.5, 0.28, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -150,7 +150,6 @@ mouse_filter = 2
 [node name="MenuArea" type="HBoxContainer" parent="OverlayVBox" unique_id=141629902]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 0
 mouse_filter = 2
 theme_override_constants/separation = 8
@@ -158,7 +157,12 @@ alignment = 1
 
 [node name="WarehousePanel" parent="OverlayVBox/MenuArea" unique_id=333237029 instance=ExtResource("4_armazem")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(288, 528)
 layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -10)
 
 [node name="HubColumn" type="VBoxContainer" parent="OverlayVBox/MenuArea" unique_id=1196220336]
 unique_name_in_owner = true
@@ -206,31 +210,31 @@ size_flags_horizontal = 3
 
 [node name="QuitGameButton" type="TextureButton" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=56974447]
 unique_name_in_owner = true
+texture_filter = 1
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
 tooltip_text = "Sair do jogo"
-texture_filter = 1
+focus_mode = 0
 texture_normal = ExtResource("23_quit_icon")
 texture_pressed = ExtResource("23_quit_icon")
 texture_hover = ExtResource("23_quit_icon")
 ignore_texture_size = true
 stretch_mode = 5
-focus_mode = 0
 
 [node name="SettingsButton" type="TextureButton" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=1018783966]
 unique_name_in_owner = true
+texture_filter = 1
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
 tooltip_text = "Configurações"
-texture_filter = 1
+focus_mode = 0
 texture_normal = ExtResource("22_settings_icon")
 texture_pressed = ExtResource("22_settings_icon")
 texture_hover = ExtResource("22_settings_icon")
 ignore_texture_size = true
 stretch_mode = 5
-focus_mode = 0
 
 [node name="ExitButton" type="Button" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=607564648]
 unique_name_in_owner = true

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate warehouse_slots_grid.tscn with 40 baked ItemSlot instances (5x8)."""
+"""Generate warehouse_slots_grid.tscn with 35 baked ItemSlot instances (5x7)."""
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "presentation" / "inventory" / "warehouse_slots_grid.tscn"
 
 lines = [
@@ -17,7 +17,7 @@ lines = [
     "theme_override_constants/v_separation = 4",
     'script = ExtResource("1_grid")',
 ]
-for index in range(1, 41):
+for index in range(1, 36):
     lines.append("")
     lines.append(f'[node name="SlotArmazem_{index:02d}" parent="." instance=ExtResource("2_slot")]')
     lines.append("custom_minimum_size = Vector2(42, 42)")

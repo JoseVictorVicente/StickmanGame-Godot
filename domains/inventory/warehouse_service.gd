@@ -4,7 +4,7 @@ extends RefCounted
 
 const TAB_COUNT := 8
 const COLUMNS := 5
-const ROWS := 8
+const ROWS := 7
 const SLOTS_PER_TAB := COLUMNS * ROWS
 const TREE_UNLOCKED_TAB_START := 1
 const TREE_UNLOCKED_TAB_END := 3

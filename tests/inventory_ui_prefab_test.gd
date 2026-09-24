@@ -64,9 +64,9 @@ func _initialize() -> void:
 
 	var wh_grid := WAREHOUSE_SLOTS_GRID_SCENE.instantiate() as WarehouseSlotsGrid
 	assert(wh_grid != null, "warehouse_slots_grid scene should instantiate")
-	assert(wh_grid.get_child_count() == 40, "warehouse grid scene should bake 40 slots")
+	assert(wh_grid.get_child_count() == 35, "warehouse grid scene should bake 35 slots")
 	var wh_slots := wh_grid.slots()
-	assert(wh_slots.size() == 40, "warehouse grid should expose 5x8 slots")
+	assert(wh_slots.size() == 35, "warehouse grid should expose 5x7 slots")
 
 	var form_slot := FORMATION_PARTY_SLOT_SCENE.instantiate()
 	assert(form_slot != null, "formation_party_slot scene should instantiate")

@@ -1,83 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://c8arma0em01"]
+[gd_scene format=3 uid="uid://c8arma0em01"]
 
 [ext_resource type="Script" uid="uid://d1rs5e5nat6rx" path="res://presentation/inventory/warehouse_panel.gd" id="1_armazem"]
-[ext_resource type="Texture2D" uid="uid://bfundomundos01" path="res://sprites/ui/worlds_bg.png" id="2_fundo_mundos"]
-[ext_resource type="PackedScene" path="res://presentation/inventory/warehouse_slots_grid.tscn" id="10_whgrid"]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo_mundos"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-texture = ExtResource("2_fundo_mundos")
-texture_margin_left = 21.0
-texture_margin_top = 19.0
-texture_margin_right = 19.0
-texture_margin_bottom = 20.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
-content_margin_left = 12.0
-content_margin_top = 6.0
-content_margin_right = 12.0
-content_margin_bottom = 6.0
-bg_color = Color(0.42, 0.14, 0.13, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.78, 0.58, 0.28, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.18, 0.14, 0.11, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.62, 0.5, 0.28, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.32, 0.24, 0.16, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.9, 0.74, 0.4, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
-content_margin_left = 8.0
-content_margin_top = 7.0
-content_margin_right = 8.0
-content_margin_bottom = 7.0
-bg_color = Color(0.1, 0.08, 0.07, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.5, 0.4, 0.22, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[ext_resource type="Texture2D" uid="uid://7knr2n4pn2ge" path="res://sprites/ui/worlds_bg.png" id="2_fundo"]
+[ext_resource type="PackedScene" uid="uid://c8whslots01" path="res://presentation/inventory/warehouse_slots_grid.tscn" id="3_grid"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_normal"]
 content_margin_left = 6.0
@@ -127,34 +52,122 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="WarehousePanel" type="Control"]
-visible = false
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fundo"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+texture = ExtResource("2_fundo")
+texture_margin_left = 21.0
+texture_margin_top = 19.0
+texture_margin_right = 19.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.42, 0.14, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.58, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.18, 0.14, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.5, 0.28, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_pressed"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.1, 0.08, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.4, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao_hover"]
+content_margin_left = 8.0
+content_margin_top = 7.0
+content_margin_right = 8.0
+content_margin_bottom = 7.0
+bg_color = Color(0.32, 0.24, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.74, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort"]
+bg_color = Color(0.06, 0.05, 0.04, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.58, 0.28, 1)
+
+[node name="WarehousePanel" type="Control" unique_id=1546811740]
 custom_minimum_size = Vector2(252, 0)
-layout_mode = 3
-anchors_preset = 0
-size_flags_vertical = 3
-mouse_filter = 0
 clip_contents = true
+layout_mode = 3
+anchor_top = 0.019000001
+anchor_bottom = 0.019000001
+offset_top = -0.34000015
+offset_right = 280.0
+offset_bottom = 508.66
 script = ExtResource("1_armazem")
 style_tab_normal = SubResource("StyleBoxFlat_tab_normal")
 style_tab_active = SubResource("StyleBoxFlat_tab_active")
 style_tab_locked = SubResource("StyleBoxFlat_tab_locked")
 
-[node name="FundoPainel" type="PanelContainer" parent="."]
+[node name="FundoPainel" type="PanelContainer" parent="." unique_id=2079162264]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 1.0450001
+offset_top = 1.0
+offset_bottom = -24.90503
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_fundo_mundos")
+theme_override_styles/panel = SubResource("StyleBoxTexture_fundo")
 
-[node name="Margem" type="MarginContainer" parent="."]
+[node name="Margem" type="MarginContainer" parent="." unique_id=1379684848]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.78900003
+offset_top = -2.0
+offset_bottom = 157.39899
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 21
@@ -162,35 +175,40 @@ theme_override_constants/margin_top = 19
 theme_override_constants/margin_right = 19
 theme_override_constants/margin_bottom = 20
 
-[node name="Conteudo" type="VBoxContainer" parent="Margem"]
+[node name="Conteudo" type="VBoxContainer" parent="Margem" unique_id=1697259142]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-clip_contents = true
 theme_override_constants/separation = 8
 
-[node name="WarehouseHeader" type="HBoxContainer" parent="Margem/Conteudo"]
+[node name="WarehouseHeader" type="HBoxContainer" parent="Margem/Conteudo" unique_id=1858935684]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BannerTitulo" type="PanelContainer" parent="Margem/Conteudo/WarehouseHeader"]
+[node name="BannerTitulo" type="PanelContainer" parent="Margem/Conteudo/WarehouseHeader" unique_id=189379836]
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
-[node name="Titulo" type="Label" parent="Margem/Conteudo/WarehouseHeader/BannerTitulo"]
+[node name="WarehouseTitle" type="Label" parent="Margem/Conteudo/WarehouseHeader/BannerTitulo" unique_id=1409665506]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
 theme_override_font_sizes/font_size = 16
-text = "ARMAZÉM"
+text = "ARMAZÉM 1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CloseWarehouseButton" type="Button" parent="Margem/Conteudo/WarehouseHeader"]
+[node name="CloseWarehouseButton" type="Button" parent="Margem/Conteudo/WarehouseHeader" unique_id=1679935214]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 36)
+custom_minimum_size = Vector2(30, 30)
+custom_maximum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
 theme_override_font_sizes/font_size = 18
@@ -199,145 +217,178 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_botao_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_botao_hover")
 text = "X"
 
-[node name="TabRow" type="GridContainer" parent="Margem/Conteudo"]
+[node name="TabRow" type="GridContainer" parent="Margem/Conteudo" unique_id=1969974410]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 4
 
-[node name="Tab_1" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_1" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1727777698]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
 theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_active")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_active")
 text = "1"
-disabled = false
 
-[node name="Tab_2" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_2" type="Button" parent="Margem/Conteudo/TabRow" unique_id=47365211]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_3" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_3" type="Button" parent="Margem/Conteudo/TabRow" unique_id=223840679]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_4" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_4" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1165766020]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_5" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_5" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1726302741]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_6" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_6" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1731093387]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_7" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_7" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1991653154]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-[node name="Tab_8" type="Button" parent="Margem/Conteudo/TabRow"]
+[node name="Tab_8" type="Button" parent="Margem/Conteudo/TabRow" unique_id=1474807456]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.5, 0.46, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "🔒"
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/hover = SubResource("StyleBoxFlat_tab_locked")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_tab_locked")
 disabled = true
+text = "🔒"
 
-
-[node name="WarehouseGrid" type="GridContainer" parent="Margem/Conteudo"]
+[node name="WarehouseGrid" type="GridContainer" parent="Margem/Conteudo" unique_id=1739222538]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 3
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
-columns = 1
 
-[node name="GradeAba_0" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
-visible = true
+[node name="GradeAba_0" parent="Margem/Conteudo/WarehouseGrid" unique_id=1912664666 instance=ExtResource("3_grid")]
 layout_mode = 2
 
-[node name="GradeAba_1" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_1" parent="Margem/Conteudo/WarehouseGrid" unique_id=13730808 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_2" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_2" parent="Margem/Conteudo/WarehouseGrid" unique_id=178722622 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_3" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_3" parent="Margem/Conteudo/WarehouseGrid" unique_id=2140833088 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_4" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_4" parent="Margem/Conteudo/WarehouseGrid" unique_id=961328521 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_5" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_5" parent="Margem/Conteudo/WarehouseGrid" unique_id=1462835366 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_6" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_6" parent="Margem/Conteudo/WarehouseGrid" unique_id=376335531 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-[node name="GradeAba_7" parent="Margem/Conteudo/WarehouseGrid" instance=ExtResource("10_whgrid")]
+[node name="GradeAba_7" parent="Margem/Conteudo/WarehouseGrid" unique_id=263433068 instance=ExtResource("3_grid")]
 visible = false
 layout_mode = 2
 
-
-[node name="RodapeArmazem" type="HBoxContainer" parent="Margem/Conteudo"]
+[node name="RodapeArmazem" type="HBoxContainer" parent="Margem/Conteudo" unique_id=1774011753]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SortWarehouseButton" type="Button" parent="Margem/Conteudo/RodapeArmazem"]
+[node name="SortWarehouseButton" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=1050740480]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 tooltip_text = "Organizar página"
+theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
+text = "F"
 
-[node name="WarehouseStatusLabel" type="Label" parent="Margem/Conteudo/RodapeArmazem"]
+[node name="SortWarehouseButton2" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=1497759299]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 0)
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
-theme_override_font_sizes/font_size = 11
-text = "Armazém 1"
-horizontal_alignment = 1
-autowrap_mode = 3
+tooltip_text = "Organizar página"
+theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
+text = "F"
+
+[node name="SortWarehouseButton3" type="Button" parent="Margem/Conteudo/RodapeArmazem" unique_id=867499159]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+tooltip_text = "Organizar página"
+theme_override_styles/normal = SubResource("StyleBoxFlat_sort")
+text = "F"

@@ -1,15 +1,22 @@
 class_name WarehouseSlotsGrid
 extends GridContainer
-## Grade de armazém 5×8. Slots bakeados no .tscn; atualize via ItemSlot.set_item().
+## Grade de armazém 5×7. Slots bakeados no .tscn; atualize via ItemSlot.set_item().
 
 const ITEM_SLOT_SCENE := preload("res://presentation/inventory/item_slot.tscn")
 const COLUMNS := 5
-const ROWS := 8
+const ROWS := 7
 const DEFAULT_SLOT_SIZE := Vector2(42, 42)
 
 
 func slots() -> Array[ItemSlot]:
 	return _collect_slots()
+
+
+func _ready() -> void:
+	if get_child_count() != COLUMNS * ROWS or not _children_are_item_slots():
+		ensure_slots(DEFAULT_SLOT_SIZE)
+	else:
+		_apply_layout(DEFAULT_SLOT_SIZE)
 
 
 func ensure_slots(slot_size: Vector2 = DEFAULT_SLOT_SIZE) -> Array[ItemSlot]:
