@@ -20,8 +20,8 @@ const ESCALA_HERO_ART := Vector2(0.55, 0.55)
 const BARRA_STICK := Vector2(-14, -38)
 const HERO_ART_BAR := Vector2(-14, -78)
 const HERO_ART_GROUND_OFFSET := Vector2(0, 15)
-const HERO_ART_DEATH_GROUND_OFFSET := Vector2(0, 22)
 const HERO_ART_FEET_BELOW_CENTER := 37.4
+const HERO_ART_DEATH_FEET_BELOW_CENTER := 37.4
 const STICK_FEET_BELOW_CENTER := 22.0
 
 const ARCHER_ATTACK_RELEASE_INDEX := 9
@@ -119,10 +119,21 @@ static func ground_offset(id_classe: String) -> Vector2:
 	return Vector2.ZERO
 
 
-static func death_ground_offset(id_classe: String) -> Vector2:
+static func death_feet_below_center(id_classe: String) -> float:
 	if _uses_hero_art(id_classe):
-		return HERO_ART_DEATH_GROUND_OFFSET
-	return Vector2.ZERO
+		match id_classe:
+			ID_ARQUEIRO, ID_TANK:
+				return HERO_ART_DEATH_FEET_BELOW_CENTER
+	return STICK_FEET_BELOW_CENTER
+
+
+static func death_ground_offset(id_classe: String) -> Vector2:
+	if not _uses_hero_art(id_classe):
+		return Vector2.ZERO
+	var feet_shift := (
+		feet_below_center(id_classe) - death_feet_below_center(id_classe)
+	) * scale_for(id_classe).y
+	return Vector2(0, feet_shift)
 
 
 static func feet_below_center(id_classe: String) -> float:

@@ -309,6 +309,21 @@ func regroup_to_formation(on_complete: Callable = Callable()) -> void:
 		_flush_regroup_spawn_callback()
 
 
+## Instant left-anchor placement when a stage starts or restarts (no regroup tween).
+func snap_to_formation_start() -> void:
+	for i in SLOTS:
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if sprite.has_method("clear_arrow_state"):
+			sprite.clear_arrow_state()
+	_cancel_march_regroup_tween()
+	_defer_spawn_until_regroup = false
+	_regroup_spawn_callback = Callable()
+	_reset_lane_offsets()
+	end_running()
+	_field_state = PartyFieldState.ENGAGED
+	sync_floor_positions()
+
+
 func sync_floor_y_only() -> void:
 	for i in SLOTS:
 		var floor_y := combat_floor_y_for_slot(i)

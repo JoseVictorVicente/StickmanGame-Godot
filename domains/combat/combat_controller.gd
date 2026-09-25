@@ -229,16 +229,15 @@ func _on_regroup_before_runner() -> void:
 
 
 func _begin_wave_one_entry() -> void:
+	if party != null:
+		party.snap_to_formation_start()
 	if _is_horde_wave(stage_wave):
 		_spawn_wave_enemy(false)
 		if party != null:
 			party.set_field_state(PartyService.PartyFieldState.ENGAGED)
 		return
 	_bind_presentation_bridge()
-	if party != null:
-		party.regroup_to_formation(_begin_runner_wave_spawn)
-	else:
-		_begin_runner_wave_spawn()
+	_begin_runner_wave_spawn()
 
 
 func _begin_runner_wave_spawn() -> void:
@@ -1105,26 +1104,7 @@ func _begin_wave_one_entry_after_defeat(transition_token: int) -> void:
 	if _is_transition_stale(transition_token):
 		_resolvendo_derrota = false
 		return
-	if _is_horde_wave(stage_wave):
-		_spawn_wave_enemy(false)
-		if party != null:
-			party.set_field_state(PartyService.PartyFieldState.ENGAGED)
-		_finish_defeat_reset(transition_token)
-		return
-	_bind_presentation_bridge()
-	if party != null:
-		party.regroup_to_formation(func() -> void:
-			_on_defeat_regroup_spawn(transition_token)
-		)
-	else:
-		_on_defeat_regroup_spawn(transition_token)
-
-
-func _on_defeat_regroup_spawn(transition_token: int) -> void:
-	if _is_transition_stale(transition_token):
-		_resolvendo_derrota = false
-		return
-	_begin_runner_wave_spawn()
+	_begin_wave_one_entry()
 	_finish_defeat_reset(transition_token)
 
 
