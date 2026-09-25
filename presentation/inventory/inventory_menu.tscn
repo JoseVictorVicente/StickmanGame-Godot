@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://c8settings01" path="res://presentation/inventory/settings_panel.tscn" id="21_settings"]
 [ext_resource type="Texture2D" uid="uid://coywhls4n2sxs" path="res://sprites/ui/settings_icon.png" id="22_settings_icon"]
 [ext_resource type="Texture2D" uid="uid://l7irjn35pbs3" path="res://sprites/ui/quit_game_icon.png" id="23_quit_icon"]
+[ext_resource type="Texture2D" uid="uid://dgoldcoin01" path="res://sprites/ui/golden_coin_icon.png" id="24_gold_coin"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_active_side"]
 content_margin_left = 0.0
@@ -35,20 +36,15 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouro"]
-content_margin_left = 6.0
+content_margin_left = 4.0
 content_margin_top = 4.0
-content_margin_right = 6.0
+content_margin_right = 8.0
 content_margin_bottom = 4.0
-bg_color = Color(0.12, 0.1, 0.08, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.78, 0.32, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.05, 0.05, 0.05, 0.72)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_botao"]
 content_margin_left = 8.0
@@ -181,13 +177,15 @@ size_flags_horizontal = 3
 [node name="Header" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar" unique_id=880263128]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 19.0
-offset_top = 20.0
-offset_right = -18.0
-offset_bottom = 16.0
+anchors_preset = -1
+anchor_left = 0.038000003
+anchor_top = 0.5
+anchor_right = 0.96400005
+anchor_bottom = 1.3640001
+offset_left = -0.22800064
+offset_top = -2.0
+offset_right = 0.2159729
+offset_bottom = -0.016002655
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8
@@ -195,15 +193,30 @@ theme_override_constants/separation = 8
 [node name="GoldPanel" type="PanelContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=139883940]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 8
 theme_override_styles/panel = SubResource("StyleBoxFlat_ouro")
 
-[node name="GoldLabel" type="Label" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel" unique_id=97319457]
+[node name="GoldRow" type="HBoxContainer" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel" unique_id=496741557]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="GoldIcon" type="TextureRect" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel/GoldRow" unique_id=557266022]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("24_gold_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldLabel" type="Label" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header/GoldPanel/GoldRow" unique_id=97319457]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.86, 0.38, 1)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93, 0.93, 0.9, 1)
 theme_override_font_sizes/font_size = 13
 text = "Ouro: 12345"
-horizontal_alignment = 1
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="EspacoCabecalho" type="Control" parent="OverlayVBox/MenuArea/HubColumn/HubChromeBar/Header" unique_id=115284155]
 layout_mode = 2
