@@ -156,6 +156,14 @@ func hero_slot_x(slot_index: int) -> float:
 		var x: float = HERO_PARTY_BACK_X + spacing
 		if _class_id_for_slot(slot_index) == "archer":
 			x += ARCHER_ROAD_BACK_EXTRA
+		var rear_slot := _rearmost_living_slot()
+		var front_slot := _frontmost_living_slot()
+		if (
+			slot_index == front_slot
+			and rear_slot != front_slot
+			and _class_id_for_slot(rear_slot) == "archer"
+		):
+			x -= ARCHER_ROAD_BACK_EXTRA
 		return x
 	return spacing
 
@@ -727,6 +735,20 @@ func has_hero_in_slot(slot_index: int) -> bool:
 	if slot_index < 0 or slot_index >= SLOTS:
 		return false
 	return active_party[slot_index] is ClassData
+
+
+func _rearmost_living_slot() -> int:
+	for slot_index in SLOTS:
+		if is_hero_alive(slot_index):
+			return slot_index
+	return 0
+
+
+func _frontmost_living_slot() -> int:
+	for slot_index in range(SLOTS - 1, -1, -1):
+		if is_hero_alive(slot_index):
+			return slot_index
+	return SLOTS - 1
 
 
 func is_hero_alive(slot_index: int) -> bool:

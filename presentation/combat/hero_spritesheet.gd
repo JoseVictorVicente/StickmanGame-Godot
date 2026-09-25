@@ -4,6 +4,7 @@ extends RefCounted
 
 const ID_ARQUEIRO := "archer"
 const ID_TANK := "tank"
+const ID_WARRIOR := "warrior"
 
 const ARCHER_FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
 const ARCHER_RUN_DIR := ARCHER_FRAMES_DIR + "run/"
@@ -12,6 +13,9 @@ const ARCHER_DEATH_DIR := ARCHER_FRAMES_DIR + "death/"
 const TANK_FRAMES_DIR := "res://sprites/heroes/tank_capybara/"
 const TANK_RUN_DIR := TANK_FRAMES_DIR + "run/"
 const TANK_DEATH_DIR := TANK_FRAMES_DIR + "death/"
+
+const WARRIOR_FRAMES_DIR := "res://sprites/heroes/warrior_boar/"
+const WARRIOR_RUN_DIR := WARRIOR_FRAMES_DIR + "run/"
 
 const RUN_FPS := 14.0
 const DEATH_FPS := 10.0
@@ -34,6 +38,12 @@ const TANK_ATTACK_END := 24
 const TANK_HIT_START := 25
 const TANK_HIT_END := 27
 
+const WARRIOR_ATTACK_RELEASE_INDEX := 14
+const WARRIOR_ATTACK_START := 4
+const WARRIOR_ATTACK_END := 17
+const WARRIOR_HIT_START := 18
+const WARRIOR_HIT_END := 20
+
 const ARCHER_ARROW_SPAWN := Vector2(22, -14)
 const ARCHER_ARROW_SPAWN_BY_FRAME := {
 	8: Vector2(24, -12),
@@ -45,6 +55,7 @@ const STICK_ATTACK_FPS := 14.0
 const STICK_ATTACK_FRAMES := 3
 const ARCHER_ATTACK_FPS := 20.0
 const TANK_ATTACK_FPS := 18.0
+const WARRIOR_ATTACK_FPS := 18.0
 const HIT_FPS := 12.0
 const ARCHER_ENGAGE_RANGE := 345.0
 const STICK_ENGAGE_RANGE := 55.0
@@ -66,6 +77,8 @@ static func frames(id_classe: String) -> SpriteFrames:
 			montado = _build_archer()
 		ID_TANK:
 			montado = _build_tank()
+		ID_WARRIOR:
+			montado = _build_warrior()
 	if montado:
 		_frames[id_classe] = montado
 	return montado
@@ -94,6 +107,8 @@ static func attack_release_frame(id_classe: String) -> int:
 			return ARCHER_ATTACK_RELEASE_INDEX
 		ID_TANK:
 			return TANK_ATTACK_RELEASE_INDEX
+		ID_WARRIOR:
+			return WARRIOR_ATTACK_RELEASE_INDEX
 	return 4
 
 
@@ -122,7 +137,7 @@ static func ground_offset(id_classe: String) -> Vector2:
 static func death_feet_below_center(id_classe: String) -> float:
 	if _uses_hero_art(id_classe):
 		match id_classe:
-			ID_ARQUEIRO, ID_TANK:
+			ID_ARQUEIRO, ID_TANK, ID_WARRIOR:
 				return HERO_ART_DEATH_FEET_BELOW_CENTER
 	return STICK_FEET_BELOW_CENTER
 
@@ -158,6 +173,8 @@ static func attack_frame_count(id_classe: String) -> int:
 			return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
 		ID_TANK:
 			return TANK_ATTACK_END - TANK_ATTACK_START + 1
+		ID_WARRIOR:
+			return WARRIOR_ATTACK_END - WARRIOR_ATTACK_START + 1
 	return STICK_ATTACK_FRAMES
 
 
@@ -167,6 +184,8 @@ static func attack_base_fps(id_classe: String) -> float:
 			return ARCHER_ATTACK_FPS
 		ID_TANK:
 			return TANK_ATTACK_FPS
+		ID_WARRIOR:
+			return WARRIOR_ATTACK_FPS
 	return STICK_ATTACK_FPS
 
 
@@ -179,7 +198,7 @@ static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
 
 
 static func _uses_hero_art(id_classe: String) -> bool:
-	return id_classe == ID_ARQUEIRO or id_classe == ID_TANK
+	return id_classe == ID_ARQUEIRO or id_classe == ID_TANK or id_classe == ID_WARRIOR
 
 
 static func _build_archer() -> SpriteFrames:
@@ -195,6 +214,27 @@ static func _build_archer() -> SpriteFrames:
 	)
 	_add_anim(sf, "Hit", _load_frame_range(ARCHER_FRAMES_DIR, 5, 7), false, HIT_FPS)
 	_add_anim(sf, "Morte", _load_dir_frames(ARCHER_DEATH_DIR), false, DEATH_FPS)
+	return sf
+
+
+static func _build_warrior() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_anim(sf, "Idle", _load_frame_range(WARRIOR_FRAMES_DIR, 0, 3), true, 5.0)
+	_add_anim(sf, "Corrida", _load_dir_frames(WARRIOR_RUN_DIR), true, RUN_FPS)
+	_add_anim(
+		sf,
+		"Ataque",
+		_load_frame_range(WARRIOR_FRAMES_DIR, WARRIOR_ATTACK_START, WARRIOR_ATTACK_END),
+		false,
+		WARRIOR_ATTACK_FPS
+	)
+	_add_anim(
+		sf,
+		"Hit",
+		_load_frame_range(WARRIOR_FRAMES_DIR, WARRIOR_HIT_START, WARRIOR_HIT_END),
+		false,
+		HIT_FPS
+	)
 	return sf
 
 

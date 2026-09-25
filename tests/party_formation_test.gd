@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_commit_preserves_visual_x()
 	_test_commit_reads_field_x_after_lane_reset()
 	_test_two_phase_regroup()
+	_test_rear_archer_lane_gaps_even()
 	if _failed:
 		TestLog.suite_complete("PartyFormation", false)
 		quit(1)
@@ -93,6 +94,28 @@ func _test_two_phase_regroup() -> void:
 			_fail("phase 2 should rest at left anchor for slot %d" % i)
 	if committed.lead < 199.0:
 		_fail("commit should retain march lead from max advance")
+
+
+func _test_rear_archer_lane_gaps_even() -> void:
+	var back_x := _road_lane_x(0, "archer", 0, 2)
+	var mid_x := _road_lane_x(1, "warrior", 0, 2)
+	var front_x := _road_lane_x(2, "tank", 0, 2)
+	var gap_rear := mid_x - back_x
+	var gap_front := front_x - mid_x
+	if absf(gap_rear - gap_front) > 0.01:
+		_fail("rear archer formation should keep even lane gaps (got %.1f vs %.1f)" % [gap_rear, gap_front])
+
+
+func _road_lane_x(slot_index: int, class_id: String, rear_slot: int, front_slot: int) -> float:
+	const party_back_x := -72.0
+	const slot_offsets := [-28.0, 0.0, 28.0]
+	const archer_extra := -40.0
+	var x: float = party_back_x + slot_offsets[slot_index]
+	if class_id == "archer":
+		x += archer_extra
+	if slot_index == front_slot and rear_slot != front_slot and rear_slot == 0:
+		x -= archer_extra
+	return x
 
 
 func _lane_x(
