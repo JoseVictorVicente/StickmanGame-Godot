@@ -2,13 +2,15 @@ class_name CombatBackground
 extends Sprite2D
 ## Combat backdrop inside the Combate node; covers the stage panel above y=0.
 
-const SCROLL_SPEED_PX := 140.0
+const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
+const SCROLL_SPEED_PX: float = _Tuning.SCROLL_SPEED_PX
 const UV_WRAP := 1.0
 
 var scrolling: bool = false
 
 var _shader_mat: ShaderMaterial
 var _scroll_offset: float = 0.0
+var _scroll_speed_override: float = -1.0
 var _stage_panel: Control
 
 
@@ -43,7 +45,7 @@ func _process(delta: float) -> void:
 	if not scrolling or texture == null:
 		return
 	var tex_width := texture.get_size().x
-	_scroll_offset = fmod(_scroll_offset + SCROLL_SPEED_PX * delta / tex_width, UV_WRAP)
+	_scroll_offset = fmod(_scroll_offset + _effective_scroll_speed() * delta / tex_width, UV_WRAP)
 	_apply_scroll()
 
 
@@ -56,6 +58,20 @@ func set_background_texture(tex: Texture2D) -> void:
 
 func set_scrolling(active: bool) -> void:
 	scrolling = active
+
+
+func set_scroll_speed_px(speed: float) -> void:
+	_scroll_speed_override = maxf(0.0, speed)
+
+
+func clear_scroll_speed_override() -> void:
+	_scroll_speed_override = -1.0
+
+
+func _effective_scroll_speed() -> float:
+	if _scroll_speed_override >= 0.0:
+		return _scroll_speed_override
+	return SCROLL_SPEED_PX
 
 
 func reset_scroll() -> void:

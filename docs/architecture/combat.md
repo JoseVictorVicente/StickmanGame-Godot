@@ -18,8 +18,38 @@ Combat rules run in a **discrete tick loop** (0.25s, aligned with `PartyService`
 | `CombatActionQueue` | Per-tick action drain (enemy attacks; skills queued incrementally) |
 | `CombatSession` | Wires encounter + simulator + `CombatPresentationBridge` |
 | `CombatPresentationBridge` | Maps `CombatEvent` → sprites, VFX, audio (no combat rules) |
+| `CombatTuning` | Shared scroll/spawn/runner constants for sim + presentation |
 
 `CombatController` keeps **meta-combat** only: stage advance, gold/XP signals, save hooks. It delegates spawn, hero hits, and enemy cadence to `CombatSession`.
+
+### Runner phase (between waves 1–3)
+
+After killing a wave, the party **regroups** into formation, then enters `CombatEncounter.Phase.RUNNING`:
+
+1. `CombatController` calls `PartyService.regroup_to_formation()` — `commit_march_from_combat()` preserves each hero's screen X, then a **two-phase regroup** runs while the runner starts:
+   - **Converge** (`FORMATION_REGROUP_SPREAD_SEC`, 0.8s max): `_march_lead_x` stays fixed; each `_formation_spread_x[slot]` closes to 0 with per-slot catch-up speed (archer fast, front tank slow `FORMATION_REGROUP_FRONT_RUN_SCALE`); BG scrolls at normal `SCROLL_SPEED_PX`.
+   - **Retreat** (`FORMATION_REGROUP_RETREAT_SEC`, 0.6s): spreads are 0; `_march_lead_x` returns to 0 so the whole party slides left to `hero_slot_x` while the BG scrolls at matched `regroup_scroll_speed`.
+2. Callback starts `CombatSimulator.start_runner_phase()` → `PHASE_CHANGED: RUNNING`.
+3. `CombatPresentationBridge` calls `begin_formation_march()` (idempotent) — run animation + background scroll (`CombatTuning.SCROLL_SPEED_PX`).
+4. Next enemy spawns off-screen; `solo_lane_x` advances in the sim until `solo_contact_x`.
+
+### Party field states (presentation)
+
+`PartyService.PartyFieldState` mirrors formation/combat visuals while the sim may still be `RUNNING`:
+
+| State | When | Visual |
+|-------|------|--------|
+| `FORMATION_MARCH` | RUNNING, no enemy in any hero engage range | Heroes in slot offsets + road extras; BG scrolls |
+| `BATTLE_APPROACH` | RUNNING, enemy within range of at least one hero | BG scroll stops; melee slots advance on X; ranged slots attack; enemy stops at `frontline_slot()` (highest X alive), attacks that hero, then advances to the next after a kill |
+| `ENGAGED` | Sim `engage()` / wave 1 on-screen spawn | Scroll stops; full combat |
+
+**Per-slot attack gate:** `CombatController.can_hero_attack_slot(slot)` — during `BATTLE_APPROACH`, only heroes whose `hero_combat_x` is within `HeroSpritesheet.engage_range(class)` may fire timers/skills. Sim sets `CombatEncounter.battle_approach_active` so `apply_hero_hit` accepts damage before melee contact.
+
+On sim engage → `PHASE_CHANGED: ENGAGED` → scroll stops, solo minion cadence via sim ticks (`SWARM_ATTACK` + `ENEMY_HIT_HERO`).
+
+**Lane targets:** `PartyService.engage_lane_slot()` (rightmost living hero X) drives spawn, stop line, and `hero_front_lane_x`. `right_target_index()` remains the damage target for enemy hits.
+
+Wave 1 and horde skips spawn already engaged (no runner/regroup).
 
 ### Horde spawn (unified catalog)
 
@@ -102,12 +132,10 @@ sequenceDiagram
 	loop each frame
 		CC->>CS: advance_frame(delta)
 		CS->>SIM: advance (ticks)
-		SIM-->>BR: SWARM_ATTACK etc.
+		SIM-->>BR: SWARM_ATTACK / ENEMY_HIT_HERO
 		BR->>BR: begin_attack animations
+		BR->>PM: apply_damage_to_hero (from ENEMY_HIT_HERO)
 	end
-
-	Note over CC: attack_impact signal
-	CC->>PM: apply_damage_to_hero(right_target)
 ```
 
 ### Resolution states

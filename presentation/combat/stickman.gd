@@ -28,6 +28,8 @@ var _impact_emitted: bool = false
 var _state: State = State.IDLE
 var _resume_running_after_attack: bool = false
 var _arrow_in_flight: bool = false
+var _battle_advancing: bool = false
+var _regroup_run_scale: float = 1.0
 var _frames_stick: SpriteFrames
 
 
@@ -45,6 +47,8 @@ func _ready() -> void:
 
 
 func set_base_position(pos: Vector2) -> void:
+	if _caido:
+		return
 	_marker_pos = pos
 	_reanchor_position()
 	if _tween_ataque:
@@ -62,6 +66,12 @@ func begin_running() -> void:
 		abort_attack()
 	_state = State.RUNNING
 	_play_running_anim()
+	_apply_regroup_run_scale()
+
+
+func set_regroup_run_scale(scale: float) -> void:
+	_regroup_run_scale = clampf(scale, 0.05, 4.0)
+	_apply_regroup_run_scale()
 
 
 func end_running() -> void:
@@ -69,6 +79,8 @@ func end_running() -> void:
 		return
 	_state = State.IDLE
 	_resume_running_after_attack = false
+	_regroup_run_scale = 1.0
+	speed_scale = 1.0
 	play("Idle")
 
 
@@ -80,9 +92,29 @@ func has_arrow_in_flight() -> bool:
 	return _arrow_in_flight
 
 
+func clear_arrow_state() -> void:
+	_arrow_in_flight = false
+
+
+func set_battle_advancing(active: bool) -> void:
+	_battle_advancing = active
+	if _caido or _state == State.ATTACKING:
+		return
+	if active:
+		_state = State.RUNNING
+		_play_running_anim()
+	elif _state == State.RUNNING:
+		var party := get_parent() as PartyService
+		if party != null and party.is_running():
+			return
+		end_running()
+
+
 func reset_combat_pose() -> void:
 	_resume_running_after_attack = false
 	_arrow_in_flight = false
+	_battle_advancing = false
+	_regroup_run_scale = 1.0
 	if _tween_ataque:
 		_tween_ataque.kill()
 		_tween_ataque = null
@@ -217,6 +249,28 @@ func update_hp(atual: int, maximo: int) -> void:
 		_barra.update(atual, maximo)
 
 
+func hide_slot() -> void:
+	_caido = false
+	_arrow_in_flight = false
+	_resume_running_after_attack = false
+	_battle_advancing = false
+	_regroup_run_scale = 1.0
+	if _state == State.ATTACKING:
+		abort_attack()
+	elif _state == State.RUNNING:
+		_state = State.IDLE
+	if _tween_ataque:
+		_tween_ataque.kill()
+		_tween_ataque = null
+	if _tween_flash:
+		_tween_flash.kill()
+	speed_scale = 1.0
+	visible = false
+	if _barra:
+		_barra.visible = false
+	self_modulate = Color.WHITE
+
+
 func set_fallen(fallen: bool) -> void:
 	_caido = fallen
 	_arrow_in_flight = false
@@ -236,12 +290,15 @@ func set_fallen(fallen: bool) -> void:
 			_barra.visible = false
 		position += HeroSpritesheet.death_ground_offset(_id_classe)
 		if _usar_arte and sprite_frames and sprite_frames.has_animation("Morte"):
+			visible = true
 			self_modulate = Color.WHITE
 			play("Morte")
 		else:
+			visible = false
 			self_modulate = Color(_cor_classe.r * 0.4, _cor_classe.g * 0.4, _cor_classe.b * 0.4, 0.55)
 			play("Idle")
 	else:
+		visible = true
 		if _barra:
 			_barra.visible = true
 		self_modulate = _cor_classe if not _usar_arte else Color.WHITE
@@ -287,6 +344,7 @@ func _slide_attack(scale_factor: float) -> void:
 
 func _on_animation_finished() -> void:
 	if animation == "Morte":
+		visible = false
 		return
 	if animation == "Ataque":
 		_emit_attack_impact()
@@ -340,6 +398,13 @@ func _play_running_anim() -> void:
 		play("Corrida")
 	else:
 		play("Idle")
+	_apply_regroup_run_scale()
+
+
+func _apply_regroup_run_scale() -> void:
+	if _state != State.RUNNING:
+		return
+	speed_scale = _regroup_run_scale
 
 
 func get_arrow_spawn_global() -> Vector2:

@@ -21,6 +21,11 @@ func _init() -> void:
 	_test_horde_spawn_and_kill_chain()
 	_test_swarm_requires_contact()
 	_test_runner_phase_engages()
+	_test_solo_runner_lane_engage()
+	_test_enemy_hit_hero_via_sim()
+	_test_engage_lane_spawn_distance()
+	_test_battle_approach_allows_hero_hit()
+	_test_solo_block_stops_at_frontline()
 	_test_arcane_beat_tick_pulses()
 	_test_arcane_beat_swarm_multiplier()
 	if _failed:
@@ -96,7 +101,7 @@ func _test_swarm_requires_contact() -> void:
 		if event.kind == CombatEventScript.Kind.SWARM_ATTACK:
 			_fail("swarm should not attack before all members reach contact")
 	for i in enc.horde.member_count():
-		enc.horde.mark_member_at_contact(i, enc.contact_lane_x())
+		enc.horde.mark_member_at_contact(i, enc.horde.contact_lane_x)
 	var after := sim.advance(1.0, true, true)
 	var found_swarm := false
 	for event in after:
@@ -109,18 +114,98 @@ func _test_swarm_requires_contact() -> void:
 func _test_runner_phase_engages() -> void:
 	var enc := CombatEncounterScript.new()
 	enc.hero_front_lane_x = -80.0
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0), true)
+	var sim := CombatSimulatorScript.new()
+	sim.configure(enc)
+	sim.start_runner_phase(5.0)
+	if enc.phase != CombatEncounterScript.Phase.RUNNING:
+		_fail("runner phase should set RUNNING")
+	sim.advance(0.05, true, false)
+	if enc.engaged:
+		_fail("runner should not engage before solo lane reaches contact")
+	var steps := 0
+	while not enc.engaged and steps < 200:
+		sim.advance(0.05, true, false)
+		steps += 1
+	if not enc.engaged or enc.phase != CombatEncounterScript.Phase.ENGAGED:
+		_fail("runner should engage when solo lane reaches contact")
+
+
+func _test_solo_runner_lane_engage() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.hero_front_lane_x = 28.0
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0), true)
+	if not enc.solo_runner_active:
+		_fail("off-screen solo spawn should activate runner lanes")
+	if enc.solo_lane_x <= enc.solo_contact_x:
+		_fail("solo spawn lane should start right of contact")
+
+
+func _test_enemy_hit_hero_via_sim() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.hero_front_lane_x = -80.0
 	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0))
 	var sim := CombatSimulatorScript.new()
 	sim.configure(enc)
-	sim.start_runner_phase(0.2)
-	if enc.phase != CombatEncounterScript.Phase.RUNNING:
-		_fail("runner phase should set RUNNING")
-	sim.advance(0.15, true, false)
+	sim.enemy_attack_context = func() -> Dictionary:
+		return {
+			"target_slot": 2,
+			"raw_damage": enc.minion.damage,
+			"hero_hp": 200,
+			"hero_stats": {"evasion": 0.0, "phys_res": 0.0, "arcane_res": 0.0, "elemental_res": 0.0},
+		}
+	var found_hit := false
+	for _step in 12:
+		var events := sim.advance(0.25, true, true)
+		for event in events:
+			if event.kind == CombatEventScript.Kind.ENEMY_HIT_HERO:
+				found_hit = true
+				if int(event.payload.get("damage", 0)) <= 0:
+					_fail("enemy hit should apply positive damage")
+	if not found_hit:
+		_fail("solo engaged combat should emit ENEMY_HIT_HERO from sim")
+
+
+func _test_engage_lane_spawn_distance() -> void:
+	const Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
+	var hero_x := 28.0
+	var spawn_x := Tuning.spawn_lane_x(hero_x, true, false)
+	var contact_x := hero_x + 40.0
+	if spawn_x <= contact_x:
+		_fail("spawn lane should be right of melee contact for engage lane hero")
+
+
+func _test_solo_block_stops_at_frontline() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.hero_front_lane_x = 80.0
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0), true)
+	enc.phase = CombatEncounterScript.Phase.RUNNING
+	enc.engaged = false
+	enc.battle_approach_active = true
+	enc.solo_runner_active = true
+	enc.refresh_solo_block_contact(80.0)
+	enc.solo_lane_x = 300.0
+	var sim := CombatSimulatorScript.new()
+	sim.configure(enc)
+	sim.advance(2.0, true, true)
+	if enc.solo_lane_x < enc.solo_contact_x - 1.0:
+		_fail("enemy should not pass through frontline block contact")
 	if enc.engaged:
-		_fail("runner should not engage before duration elapsed")
-	sim.advance(0.1, true, false)
-	if not enc.engaged or enc.phase != CombatEncounterScript.Phase.ENGAGED:
-		_fail("runner should engage after duration")
+		_fail("battle approach block should not auto-engage while queueing heroes")
+
+
+func _test_battle_approach_allows_hero_hit() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.hero_front_lane_x = -80.0
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0), true)
+	enc.phase = CombatEncounterScript.Phase.RUNNING
+	enc.engaged = false
+	enc.battle_approach_active = true
+	var sim := CombatSimulatorScript.new()
+	sim.configure(enc)
+	var events := sim.apply_hero_hit(10, false)
+	if events.is_empty():
+		_fail("battle approach should allow hero hits before melee engage")
 
 
 func _test_arcane_beat_tick_pulses() -> void:
@@ -156,7 +241,7 @@ func _test_arcane_beat_swarm_multiplier() -> void:
 	var sim := CombatSimulatorScript.new()
 	sim.configure(enc)
 	for i in enc.horde.member_count():
-		enc.horde.mark_member_at_contact(i, enc.contact_lane_x())
+		enc.horde.mark_member_at_contact(i, enc.horde.contact_lane_x)
 	sim.enqueue_arcane_beat(1, 100, 0.0, 0.0)
 	var first_damage := -1
 	for _step in 8:

@@ -32,8 +32,25 @@ func sync_meta(world: int, stage: int, stage_wave: int, difficulty: int, hero_fr
 	encounter.hero_front_lane_x = hero_front_x
 
 
+func refresh_solo_block_from_party(party: PartyService) -> void:
+	if party == null or encounter.has_horde:
+		return
+	if not encounter.solo_runner_active or encounter.phase != _Encounter.Phase.RUNNING:
+		return
+	var slot := party.frontline_slot()
+	if slot < 0:
+		return
+	encounter.refresh_solo_block_contact(party.hero_combat_x(slot))
+
+
 func spawn_wave(base_stats: Dictionary, anchor: Vector2, off_screen: bool) -> void:
-	encounter.spawn_wave(base_stats)
+	encounter.spawn_wave(base_stats, off_screen)
+	if not encounter.has_horde:
+		encounter.configure_solo_lanes(
+			encounter.solo_lane_x,
+			encounter.melee_lane_x(),
+			encounter.solo_runner_active
+		)
 	simulator.configure(encounter)
 	if bridge != null:
 		bridge.configure(encounter)
@@ -47,6 +64,8 @@ func advance_frame(delta: float, can_heroes_act: bool, can_enemies_act: bool) ->
 	if bridge != null:
 		if encounter.has_horde:
 			bridge.sync_horde_lanes()
+		elif encounter.solo_runner_active and encounter.phase == _Encounter.Phase.RUNNING:
+			bridge.sync_solo_lane()
 		bridge.apply_events(events)
 	return events
 

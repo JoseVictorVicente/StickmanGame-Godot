@@ -45,7 +45,7 @@ const DARK_ELITE_ATTACK_START_FRAME := 12
 const RUNNER_DEATH_ANIM_SPEED_SCALE := 4.0
 const RUNNER_DEATH_DRIFT_MULT := 3.0
 const RUNNER_DEATH_FADE_SEC := 0.05
-const HORDE_MELEE_CONTACT := 0.0
+const HORDE_MELEE_CONTACT := -1.0
 
 
 func _ready() -> void:
@@ -385,7 +385,8 @@ func fade_out(drift_with_scroll: bool = false) -> void:
 	_death_finished_emitted = false
 	_death_anim_done = false
 	_hero_was_close_at_death = _distance_to_hero() <= DEATH_PASS_DISTANCE
-	_death_drifting = drift_with_scroll
+	_death_drifting = drift_with_scroll and _party != null and _party.is_runner_syncing()
+	set_sim_controlled(false)
 	_set_state(State.DEAD)
 	if _barra:
 		_barra.visible = false
@@ -401,6 +402,17 @@ func fade_out(drift_with_scroll: bool = false) -> void:
 
 func prepare_spawn(anchor_local: Vector2) -> void:
 	_marker_pos = anchor_local - _spawn_offset()
+
+
+func reset_spawn_position(anchor_local: Vector2) -> void:
+	if _state == State.DEAD or _escort_mode:
+		return
+	prepare_spawn(anchor_local)
+	_velocity = Vector2.ZERO
+	_at_attack_stop = false
+	_reset_attack_range_notify()
+	position = _marker_pos + _spawn_offset()
+	_snap_to_ground(true)
 
 
 func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
@@ -652,7 +664,7 @@ func _hero_world_x() -> float:
 	_ensure_combat_refs()
 	if _party == null:
 		return INF
-	var alvo := _party.front_target_index()
+	var alvo := _party.engage_lane_slot()
 	if alvo < 0:
 		return INF
 	var hero_pos := _party.hero_world_position(alvo)
@@ -665,10 +677,10 @@ func _hero_combat_x() -> float:
 	_ensure_combat_refs()
 	if _party == null:
 		return INF
-	var slot := _party.front_target_index()
+	var slot := _party.engage_lane_slot()
 	if slot < 0:
 		return INF
-	return _party.hero_slot_x(slot)
+	return _party.hero_combat_x(slot)
 
 
 func _self_combat_x() -> float:
@@ -716,14 +728,16 @@ func _horde_stop_combat_x() -> float:
 	var hero_x := _hero_combat_x()
 	if hero_x == INF:
 		return _self_combat_x()
-	return hero_x + HORDE_MELEE_CONTACT
+	if HORDE_MELEE_CONTACT >= 0.0:
+		return hero_x + HORDE_MELEE_CONTACT
+	return hero_x + _attack_range()
 
 
 func _hero_local_pos() -> Variant:
 	_ensure_combat_refs()
 	if _party == null or _combat_root == null:
 		return null
-	var alvo := _party.front_target_index()
+	var alvo := _party.engage_lane_slot()
 	if alvo < 0:
 		return null
 	var hero_pos := _party.hero_world_position(alvo)
@@ -739,7 +753,7 @@ func _ground_y() -> float:
 	if _party != null and _party.is_road_combat_ground():
 		return _party.combat_road_ground_y(_active_feet_below_center()) + _ground_fine_tune()
 	if _party != null:
-		var slot := _party.front_target_index()
+		var slot := _party.engage_lane_slot()
 		if slot >= 0:
 			var classe: Variant = _party.active_party[slot]
 			var class_id := "mage"

@@ -7,8 +7,9 @@ const _ActorGroup := preload("res://domains/combat/sim/combat_actor_group.gd")
 const _Event := preload("res://domains/combat/sim/combat_event.gd")
 const _ActionQueue := preload("res://domains/combat/sim/combat_action_queue.gd")
 const _DamagePipeline := preload("res://domains/combat/sim/damage_pipeline.gd")
+const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
 
-const TICK_SEC := 0.25
+const TICK_SEC: float = _Tuning.TICK_SEC
 const ARCANE_BEAT_ID := "arcane_beat"
 const ARCANE_BEAT_PULSES := 4
 const ARCANE_BEAT_MULT_ENGAGED := 0.60
@@ -21,6 +22,8 @@ var tick_index: int = 0
 var _accumulator: float = 0.0
 var _action_queue: RefCounted
 var _pending_events: Array = []
+## Callable () -> Dictionary with target_slot, raw_damage, hero_hp, hero_stats.
+var enemy_attack_context: Callable = Callable()
 
 
 func _init() -> void:
@@ -56,7 +59,8 @@ func apply_hero_hit(damage: int, is_crit: bool) -> Array:
 	if encounter == null or not encounter.has_living_enemies():
 		return []
 	if encounter.phase == _Encounter.Phase.RUNNING and not encounter.engaged:
-		return []
+		if not encounter.battle_approach_active:
+			return []
 	var target: Enemy = encounter.get_active_enemy()
 	if target == null:
 		return []
@@ -103,6 +107,7 @@ func start_runner_phase(duration: float = 1.2) -> void:
 		return
 	encounter.phase = _Encounter.Phase.RUNNING
 	encounter.engaged = false
+	encounter.battle_approach_active = false
 	encounter.runner_timer = 0.0
 	encounter.runner_duration = maxf(0.1, duration)
 	_pending_events.append(_Event.make(
@@ -117,6 +122,7 @@ func engage() -> void:
 		return
 	encounter.phase = _Encounter.Phase.ENGAGED
 	encounter.engaged = true
+	encounter.battle_approach_active = false
 	encounter.enemy_attack_cooldown = 0.0
 	_pending_events.append(_Event.make(
 		_Event.Kind.ENGAGED,
@@ -133,9 +139,33 @@ func engage() -> void:
 func _advance_runner(delta: float, can_heroes_act: bool) -> void:
 	if encounter.engaged:
 		return
-	encounter.runner_timer += delta
-	if encounter.runner_timer >= encounter.runner_duration and can_heroes_act:
-		engage()
+	if (
+		not encounter.has_horde
+		and encounter.solo_runner_active
+		and encounter.has_living_enemies()
+	):
+		if encounter.solo_at_block_contact():
+			if not encounter.battle_approach_active:
+				engage()
+			return
+		var speed := _solo_move_speed()
+		var contact_x := encounter.solo_contact_x
+		if encounter.solo_lane_x > contact_x + 0.5:
+			encounter.solo_lane_x = maxf(contact_x, encounter.solo_lane_x - speed * delta)
+		elif encounter.solo_lane_x < contact_x - 0.5:
+			encounter.solo_lane_x = minf(contact_x, encounter.solo_lane_x + speed * delta)
+
+
+func _solo_approach_block_tick() -> void:
+	if not encounter.solo_at_block_contact():
+		return
+	var interval := _enemy_attack_interval()
+	encounter.enemy_attack_cooldown = maxf(0.0, encounter.enemy_attack_cooldown - TICK_SEC)
+	if encounter.enemy_attack_cooldown > 0.0:
+		return
+	encounter.enemy_attack_cooldown = interval
+	_action_queue.enqueue({"kind": "enemy_attack", "interval": interval})
+	_resolve_action_queue()
 
 
 func _advance_horde_movement(delta: float) -> void:
@@ -156,6 +186,9 @@ func _step_tick(can_heroes_act: bool, can_enemies_act: bool) -> void:
 	if can_enemies_act and encounter.has_living_enemies():
 		_resolve_scheduled_hero_skill_hits()
 	if not can_enemies_act or not encounter.has_living_enemies():
+		return
+	if encounter.phase == _Encounter.Phase.RUNNING and encounter.battle_approach_active:
+		_solo_approach_block_tick()
 		return
 	if encounter.phase != _Encounter.Phase.ENGAGED or not encounter.engaged:
 		return
@@ -207,12 +240,30 @@ func resolve_enemy_attack(
 
 func _resolve_action_queue() -> void:
 	for action in _action_queue.drain():
-		if str(action.get("kind", "")) == "enemy_attack":
-			_pending_events.append(_Event.make(
-				_Event.Kind.SWARM_ATTACK,
-				tick_index,
-				{"interval": float(action.get("interval", 1.35)), "member_count": 1}
-			))
+		if str(action.get("kind", "")) != "enemy_attack":
+			continue
+		var interval := float(action.get("interval", _Tuning.ENEMY_ATTACK_INTERVAL))
+		_pending_events.append(_Event.make(
+			_Event.Kind.SWARM_ATTACK,
+			tick_index,
+			{"interval": interval, "member_count": 1}
+		))
+		if not enemy_attack_context.is_valid():
+			continue
+		var ctx: Variant = enemy_attack_context.call()
+		if not (ctx is Dictionary):
+			continue
+		var slot := int(ctx.get("target_slot", -1))
+		if slot < 0:
+			continue
+		var hit_events := resolve_enemy_attack(
+			slot,
+			int(ctx.get("raw_damage", 0)),
+			int(ctx.get("hero_hp", 0)),
+			ctx.get("hero_stats", {}) as Dictionary
+		)
+		for hit_event in hit_events:
+			_pending_events.append(hit_event)
 
 
 func consume_pending_events() -> Array:
@@ -225,7 +276,14 @@ func _enemy_attack_interval() -> float:
 	var data: EnemyData = encounter.get_active_enemy_data()
 	if data != null:
 		return data.get_attack_interval()
-	return 1.35
+	return _Tuning.ENEMY_ATTACK_INTERVAL
+
+
+func _solo_move_speed() -> float:
+	var data: EnemyData = encounter.get_active_enemy_data()
+	if data != null and data.visual_profile != null:
+		return float(data.visual_profile.move_speed)
+	return _Tuning.SCROLL_SPEED_PX
 
 
 func _resolve_scheduled_hero_skill_hits() -> void:

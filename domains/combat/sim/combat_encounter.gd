@@ -4,6 +4,7 @@ extends RefCounted
 
 const _ActorGroup := preload("res://domains/combat/sim/combat_actor_group.gd")
 const _Lane := preload("res://domains/combat/sim/combat_lane.gd")
+const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
 
 enum Phase { RUNNING, ENGAGED, RESOLVING }
 
@@ -28,8 +29,12 @@ var horde: _ActorGroup
 var has_horde: bool = false
 var enemy_attack_cooldown: float = 0.0
 var runner_timer: float = 0.0
-var runner_duration: float = 1.2
+var runner_duration: float = _Tuning.RUNNER_DURATION
 var engaged: bool = true
+var solo_lane_x: float = 0.0
+var solo_contact_x: float = 0.0
+var solo_runner_active: bool = false
+var battle_approach_active: bool = false
 
 
 func clear_enemies() -> void:
@@ -101,24 +106,46 @@ func contact_lane_x() -> float:
 	return _Lane.contact_x(hero_front_lane_x)
 
 
-func spawn_wave(base_stats: Dictionary) -> void:
+func melee_lane_x(data: EnemyData = null) -> float:
+	return melee_lane_x_at(hero_front_lane_x, data)
+
+
+func melee_lane_x_at(hero_combat_x: float, data: EnemyData = null) -> float:
+	var gap := 40.0
+	var entry: EnemyData = data if data != null else get_active_enemy_data()
+	if entry != null and entry.visual_profile != null:
+		gap = float(entry.visual_profile.attack_range)
+	return hero_combat_x + gap
+
+
+func refresh_solo_block_contact(hero_combat_x: float) -> void:
+	if has_horde or not solo_runner_active:
+		return
+	solo_contact_x = melee_lane_x_at(hero_combat_x)
+
+
+func solo_at_block_contact() -> bool:
+	return absf(solo_lane_x - solo_contact_x) <= 0.5
+
+
+func spawn_wave(base_stats: Dictionary, off_screen: bool = false) -> void:
 	clear_enemies()
-	var contact_x := contact_lane_x()
 	var horde_entry := EnemyCatalog.resolve_horde(world, stage, stage_wave)
 	if horde_entry != null and horde_entry.horde_count > 1:
-		_spawn_horde(base_stats, horde_entry, contact_x)
+		_spawn_horde(base_stats, horde_entry)
 		return
-	_spawn_solo_wave(base_stats, contact_x)
+	_spawn_solo_wave(base_stats, off_screen)
 
 
-func _spawn_horde(base_stats: Dictionary, data: EnemyData, contact_x: float) -> void:
+func _spawn_horde(base_stats: Dictionary, data: EnemyData) -> void:
 	has_horde = true
 	if horde == null:
 		horde = _ActorGroup.new()
 	var mode := _ActorGroup.AttackMode.SWARM
 	if data.horde_attack_mode == EnemyData.HordeAttackMode.QUEUE:
 		mode = _ActorGroup.AttackMode.QUEUE
-	horde.build(base_stats, data, data.horde_count, world, contact_x, mode)
+	var melee_stop := melee_lane_x(data)
+	horde.build(base_stats, data, data.horde_count, world, melee_stop, mode)
 	minion_data = data
 	minion = horde.active_enemy()
 	var runtime := EnemyCatalog.build_runtime(base_stats, data)
@@ -128,8 +155,15 @@ func _spawn_horde(base_stats: Dictionary, data: EnemyData, contact_x: float) -> 
 	enemy_attack_cooldown = 0.0
 
 
-func _spawn_solo_wave(base_stats: Dictionary, contact_x: float) -> void:
+func configure_solo_lanes(spawn_x: float, contact_x: float, runner_active: bool) -> void:
+	solo_lane_x = spawn_x
+	solo_contact_x = contact_x
+	solo_runner_active = runner_active
+
+
+func _spawn_solo_wave(base_stats: Dictionary, off_screen: bool) -> void:
 	has_horde = false
+	var preserve_runner := phase == Phase.RUNNING and not engaged
 	var minion_role := EnemyCatalog.resolve_role_for_stage(stage, EnemyData.SpawnRole.MINION)
 	minion_data = EnemyCatalog.resolve(world, stage, stage_wave, minion_role)
 	var runtime := EnemyCatalog.build_runtime(base_stats, minion_data)
@@ -169,4 +203,17 @@ func _spawn_solo_wave(base_stats: Dictionary, contact_x: float) -> void:
 				int(flying_runtime["xp"]),
 				int(flying_runtime["damage"])
 			)
+	var contact_x := melee_lane_x()
+	if preserve_runner or off_screen:
+		phase = Phase.RUNNING
+		engaged = false
+		solo_runner_active = true
+		solo_contact_x = contact_x
+		solo_lane_x = _Lane.spawn_x(hero_front_lane_x, off_screen)
+	else:
+		phase = Phase.ENGAGED
+		engaged = true
+		solo_runner_active = false
+		solo_contact_x = contact_x
+		solo_lane_x = contact_x
 	enemy_attack_cooldown = 0.0

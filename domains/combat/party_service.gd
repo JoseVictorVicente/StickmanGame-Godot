@@ -7,6 +7,11 @@ signal hero_attack_windup(slot_index: int)
 signal hero_attacked(slot_index: int, damage: int, is_crit: bool)
 signal hero_skill_used(slot_index: int, skill: SkillResource, hits: Array, heals: Array)
 signal dps_changed(dps: float, dano_grupo: int)
+signal march_regroup_phase_changed(phase_name: String, scroll_speed_px: float)
+signal march_regroup_started(scroll_speed_px: float)
+signal march_regroup_finished
+
+enum RegroupPhase { NONE, CONVERGE, RETREAT }
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
@@ -15,11 +20,10 @@ const HERO_PARTY_BACK_X := -72.0
 const ARCHER_ROAD_BACK_EXTRA := -40.0
 const HERO_FLOOR_OFFSET := 4.0
 const HERO_ROAD_DROP_OFFSET := 16.0
-const ENEMY_ATTACK_GAP := 40.0
-const ENEMY_APPROACH_RUNWAY := 80.0
+const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
 const COMBAT_ACTOR_Z := 2
 const COMBAT_ENEMY_Z := 4
-const OFF_SCREEN_SPAWN_EXTRA_X := 220.0
+enum PartyFieldState { FORMATION_MARCH, BATTLE_APPROACH, ENGAGED }
 
 var active_party: Array = [null, null, null]
 var unlocked_classes: Array[ClassData] = []
@@ -51,6 +55,16 @@ var _pending_attacks: Array = [{}, {}, {}]
 var _running: bool = false
 var runner_sync_active: bool = false
 var runner_sync_engaged: bool = false
+var _road_layout_forced: bool = false
+var _field_state: PartyFieldState = PartyFieldState.ENGAGED
+var _battle_advance_x: Array[float] = [0.0, 0.0, 0.0]
+var _formation_spread_x: Array[float] = [0.0, 0.0, 0.0]
+var _march_lead_x: float = 0.0
+var _regroup_scroll_speed: float = 0.0
+var _regrouping: bool = false
+var _regroup_phase: RegroupPhase = RegroupPhase.NONE
+var _regroup_start_lead: float = 0.0
+var _regroup_phase_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -67,6 +81,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _regroup_phase != RegroupPhase.NONE:
+		_tick_regroup(delta)
 	if _buff_container.tick(delta):
 		recalculate_stats()
 
@@ -101,7 +117,13 @@ func combat_floor_y() -> float:
 	return combat_floor_y_for_slot(1)
 
 
+func set_road_layout_active(active: bool) -> void:
+	_road_layout_forced = active
+
+
 func is_road_combat_ground() -> bool:
+	if _road_layout_forced:
+		return true
 	return (
 		combat_background != null
 		and combat_background.texture != null
@@ -136,10 +158,144 @@ func hero_slot_x(slot_index: int) -> float:
 	return spacing
 
 
-func sync_floor_positions() -> void:
+func field_state() -> PartyFieldState:
+	return _field_state
+
+
+func formation_slot_x(slot_index: int) -> float:
+	return (
+		hero_slot_x(slot_index)
+		+ _march_lead_x
+		+ _formation_spread_x[slot_index]
+		+ _battle_advance_x[slot_index]
+	)
+
+
+func hero_combat_x(slot_index: int) -> float:
+	return formation_slot_x(slot_index)
+
+
+func commit_march_from_combat() -> void:
+	var lead := 0.0
+	var totals: Array[float] = []
+	totals.resize(SLOTS)
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			totals[slot_index] = 0.0
+			continue
+		var total_forward := (
+			_march_lead_x + _formation_spread_x[slot_index] + _battle_advance_x[slot_index]
+		)
+		totals[slot_index] = total_forward
+		lead = maxf(lead, total_forward)
+	_march_lead_x = lead
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			_formation_spread_x[slot_index] = 0.0
+			_battle_advance_x[slot_index] = 0.0
+			continue
+		_formation_spread_x[slot_index] = totals[slot_index] - lead
+		_battle_advance_x[slot_index] = 0.0
+
+
+func hero_engage_range(slot_index: int) -> float:
+	return HeroSpritesheet.engage_range(_class_id_for_slot(slot_index))
+
+
+func is_hero_in_engage_range(slot_index: int, enemy_x: float) -> bool:
+	if not is_hero_alive(slot_index):
+		return false
+	return absf(enemy_x - hero_combat_x(slot_index)) <= hero_engage_range(slot_index)
+
+
+func any_hero_in_engage_range(enemy_x: float) -> bool:
+	for slot_index in SLOTS:
+		if is_hero_in_engage_range(slot_index, enemy_x):
+			return true
+	return false
+
+
+func set_field_state(state: PartyFieldState) -> void:
+	_field_state = state
+	if state == PartyFieldState.ENGAGED:
+		_clear_battle_advance_anims()
+		if _running:
+			end_running()
+
+
+func begin_formation_march() -> void:
+	var already_marching := _field_state == PartyFieldState.FORMATION_MARCH and _running
+	_field_state = PartyFieldState.FORMATION_MARCH
+	if not already_marching:
+		begin_running()
+	_start_march_regroup_if_needed()
+
+
+func is_march_regrouping() -> bool:
+	return _regrouping
+
+
+func regroup_scroll_speed() -> float:
+	return _regroup_scroll_speed if _regroup_phase == RegroupPhase.RETREAT else 0.0
+
+
+func regroup_phase_name() -> String:
+	match _regroup_phase:
+		RegroupPhase.CONVERGE:
+			return "CONVERGE"
+		RegroupPhase.RETREAT:
+			return "RETREAT"
+	return ""
+
+
+func begin_battle_approach() -> void:
+	_cancel_march_regroup_tween()
+	_field_state = PartyFieldState.BATTLE_APPROACH
+	end_running()
+
+
+func advance_battle_positions(enemy_x: float, delta: float) -> void:
+	if _field_state != PartyFieldState.BATTLE_APPROACH:
+		return
+	var speed := _Tuning.SCROLL_SPEED_PX
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			continue
+		if is_hero_in_engage_range(slot_index, enemy_x):
+			_set_slot_battle_anim(slot_index, false)
+			continue
+		_battle_advance_x[slot_index] += speed * delta
+		_refresh_slot_x(slot_index)
+		_set_slot_battle_anim(slot_index, true)
+
+
+func regroup_to_formation(on_complete: Callable = Callable()) -> void:
+	for i in SLOTS:
+		var sprite: AnimatedSprite2D = _sprites[i]
+		if sprite.has_method("clear_arrow_state"):
+			sprite.clear_arrow_state()
+	_cancel_march_regroup_tween()
+	commit_march_from_combat()
+	begin_formation_march()
+	if on_complete.is_valid():
+		on_complete.call()
+
+
+func sync_floor_y_only() -> void:
 	for i in SLOTS:
 		var floor_y := combat_floor_y_for_slot(i)
-		_posicoes[i].position = Vector2(hero_slot_x(i), floor_y)
+		_posicoes[i].position.y = floor_y
+		_apply_slot_position(i)
+
+
+func sync_floor_positions() -> void:
+	var preserve_x := _field_state == PartyFieldState.FORMATION_MARCH or _regrouping
+	for i in SLOTS:
+		var floor_y := combat_floor_y_for_slot(i)
+		if preserve_x:
+			_posicoes[i].position.y = floor_y
+		else:
+			_posicoes[i].position = Vector2(formation_slot_x(i), floor_y)
 		_apply_slot_position(i)
 		if is_road_combat_ground() and i < _sprites.size():
 			_sprites[i].z_index = COMBAT_ACTOR_Z
@@ -160,13 +316,42 @@ func front_target_index() -> int:
 	return right_target_index()
 
 
+## Rightmost living hero on the X axis (first hero the enemy meets when approaching from the right).
+func engage_lane_slot() -> int:
+	var best_slot := -1
+	var best_x := -INF
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			continue
+		var lane_x := hero_combat_x(slot_index)
+		if lane_x > best_x:
+			best_x = lane_x
+			best_slot = slot_index
+	return best_slot
+
+
+func frontline_slot() -> int:
+	return engage_lane_slot()
+
+
+func hero_engage_x() -> float:
+	var slot := engage_lane_slot()
+	if slot < 0:
+		return HERO_PARTY_BACK_X if is_road_combat_ground() else 0.0
+	return hero_combat_x(slot)
+
+
 func get_enemy_spawn_local(off_screen: bool = false) -> Vector2:
-	var front_slot := front_target_index()
-	var front_x: float = hero_slot_x(front_slot) if front_slot >= 0 else HERO_PARTY_BACK_X
-	var base_y := combat_floor_y_for_slot(front_slot)
-	var spawn_x: float = front_x + ENEMY_ATTACK_GAP + ENEMY_APPROACH_RUNWAY
-	if off_screen:
-		spawn_x += OFF_SCREEN_SPAWN_EXTRA_X
+	var engage_slot := engage_lane_slot()
+	if engage_slot < 0:
+		engage_slot = front_target_index()
+	var engage_x: float = hero_engage_x() if engage_slot >= 0 else HERO_PARTY_BACK_X
+	var base_y := combat_floor_y_for_slot(engage_slot if engage_slot >= 0 else 1)
+	var spawn_x: float = _Tuning.spawn_lane_x(
+		engage_x,
+		off_screen,
+		is_road_combat_ground()
+	)
 	return Vector2(spawn_x, base_y)
 
 
@@ -196,7 +381,7 @@ func resume_running_animation() -> void:
 func _set_running_animation(active: bool) -> void:
 	for i in SLOTS:
 		var sprite: AnimatedSprite2D = _sprites[i]
-		if active_party[i] == null or not sprite.visible:
+		if not has_hero_in_slot(i) or not is_hero_alive(i) or not sprite.visible:
 			continue
 		if active and sprite.has_method("begin_running"):
 			sprite.begin_running()
@@ -217,6 +402,8 @@ func end_running() -> void:
 func reset_runner_state() -> void:
 	_running = false
 	set_runner_sync(false, false)
+	_field_state = PartyFieldState.ENGAGED
+	_reset_battle_advance()
 	for i in SLOTS:
 		_pending_attacks[i] = {}
 		var sprite: AnimatedSprite2D = _sprites[i]
@@ -224,12 +411,16 @@ func reset_runner_state() -> void:
 			sprite.reset_combat_pose()
 		elif sprite.has_method("abort_attack"):
 			sprite.abort_attack()
+		if sprite.has_method("clear_arrow_state"):
+			sprite.clear_arrow_state()
 		if sprite.has_method("end_running"):
 			sprite.end_running()
 
 
 func _apply_slot_position(slot_index: int) -> void:
 	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	if not has_hero_in_slot(slot_index) or not is_hero_alive(slot_index):
 		return
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	var pos := _posicoes[slot_index].position
@@ -313,6 +504,9 @@ func remove_from_slot(slot_index: int) -> bool:
 	if not can_remove():
 		return false
 	active_party[slot_index] = null
+	_formation_spread_x[slot_index] = 0.0
+	_battle_advance_x[slot_index] = 0.0
+	_pending_attacks[slot_index] = {}
 	_update_max_hp_slot(slot_index, true)
 	_update_sprite_slot(slot_index)
 	_update_timer_slot(slot_index)
@@ -436,6 +630,12 @@ func party_dps() -> float:
 	return dps
 
 
+func hero_current_hp(slot_index: int) -> int:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return 0
+	return _vida_atual[slot_index]
+
+
 func hero_max_hp(slot_index: int) -> int:
 	if slot_index < 0 or slot_index >= SLOTS:
 		return 0
@@ -477,10 +677,14 @@ func _slot_level(slot_index: int) -> int:
 	return 1
 
 
-func is_hero_alive(slot_index: int) -> bool:
+func has_hero_in_slot(slot_index: int) -> bool:
 	if slot_index < 0 or slot_index >= SLOTS:
 		return false
-	if active_party[slot_index] == null:
+	return active_party[slot_index] is ClassData
+
+
+func is_hero_alive(slot_index: int) -> bool:
+	if not has_hero_in_slot(slot_index):
 		return false
 	return _vida_atual[slot_index] > 0
 
@@ -654,14 +858,13 @@ func _apply_rune_resonance_stacking(slot_index: int, class_id: String) -> bool:
 
 func heal_party() -> void:
 	for i in SLOTS:
-		if active_party[i] == null:
+		if not has_hero_in_slot(i):
 			_vida_atual[i] = 0
 			_vida_max[i] = 0
-			_set_fallen(i, false)
-			_update_bar_slot(i)
+			_update_sprite_slot(i)
+			_timers[i].stop()
 			continue
 		_update_max_hp_slot(i, true)
-		_set_fallen(i, false)
 		_update_sprite_slot(i)
 		_update_timer_slot(i)
 	_emit_dps()
@@ -759,16 +962,22 @@ func _create_hero_visuals() -> void:
 func _update_sprite_slot(slot_index: int) -> void:
 	var sprite: AnimatedSprite2D = _sprites[slot_index]
 	var classe: Variant = active_party[slot_index]
-	if classe == null:
-		sprite.visible = false
-		_set_fallen(slot_index, false)
+	if not has_hero_in_slot(slot_index):
+		if sprite.has_method("hide_slot"):
+			sprite.hide_slot()
+		else:
+			sprite.visible = false
+		_update_bar_slot(slot_index)
+		return
+	if not is_hero_alive(slot_index):
+		_set_fallen(slot_index, true)
 		_update_bar_slot(slot_index)
 		return
 	sprite.visible = true
 	_apply_slot_position(slot_index)
 	if sprite.has_method("apply_class"):
 		sprite.apply_class(classe)
-	_set_fallen(slot_index, not is_hero_alive(slot_index))
+	_set_fallen(slot_index, false)
 	_update_bar_slot(slot_index)
 
 
@@ -850,7 +1059,7 @@ func _set_fallen(slot_index: int, fallen: bool) -> void:
 func _on_hero_timer(slot_index: int) -> void:
 	if not combat_ready:
 		return
-	if can_attack_target.is_valid() and not bool(can_attack_target.call()):
+	if not _can_slot_attack(slot_index):
 		_restart_hero_timer(slot_index)
 		return
 	if combat_paused:
@@ -959,3 +1168,191 @@ func _has_arrow_in_flight(slot_index: int) -> bool:
 
 func _emit_dps() -> void:
 	dps_changed.emit(party_dps(), total_party_damage())
+
+
+func _can_slot_attack(slot_index: int) -> bool:
+	if not can_attack_target.is_valid():
+		return true
+	if can_attack_target.get_argument_count() >= 1:
+		return bool(can_attack_target.call(slot_index))
+	return bool(can_attack_target.call())
+
+
+func _reset_battle_advance() -> void:
+	_reset_lane_offsets()
+
+
+func _reset_lane_offsets() -> void:
+	_cancel_march_regroup_tween()
+	_march_lead_x = 0.0
+	for i in SLOTS:
+		_formation_spread_x[i] = 0.0
+		_battle_advance_x[i] = 0.0
+	_clear_battle_advance_anims()
+
+
+func _cancel_march_regroup_tween() -> void:
+	var was_regrouping := _regrouping
+	_regroup_phase = RegroupPhase.NONE
+	_regrouping = false
+	_regroup_scroll_speed = 0.0
+	_regroup_phase_elapsed = 0.0
+	_clear_regroup_run_scales()
+	if was_regrouping:
+		march_regroup_finished.emit()
+
+
+func _start_march_regroup_if_needed() -> void:
+	if _regrouping:
+		return
+	var start_spreads := _formation_spread_x.duplicate()
+	var start_lead := _march_lead_x
+	var needs_regroup := absf(start_lead) > 0.001
+	var needs_converge := false
+	if not needs_regroup:
+		for spread in start_spreads:
+			if absf(float(spread)) > 0.001:
+				needs_regroup = true
+				needs_converge = true
+				break
+	else:
+		for spread in start_spreads:
+			if absf(float(spread)) > 0.001:
+				needs_converge = true
+				break
+	if not needs_regroup:
+		_regroup_scroll_speed = 0.0
+		return
+	_regrouping = true
+	_regroup_start_lead = start_lead
+	_regroup_phase_elapsed = 0.0
+	if needs_converge:
+		_regroup_phase = RegroupPhase.CONVERGE
+		march_regroup_phase_changed.emit("CONVERGE", 0.0)
+	else:
+		_begin_regroup_retreat()
+
+
+func _tick_regroup(delta: float) -> void:
+	match _regroup_phase:
+		RegroupPhase.CONVERGE:
+			_tick_regroup_converge(delta)
+		RegroupPhase.RETREAT:
+			_tick_regroup_retreat(delta)
+
+
+func _tick_regroup_converge(delta: float) -> void:
+	_regroup_phase_elapsed += delta
+	var time_remaining := maxf(
+		0.001,
+		_Tuning.FORMATION_REGROUP_SPREAD_SEC - _regroup_phase_elapsed
+	)
+	_march_lead_x = _regroup_start_lead
+	var max_spread := 0.0
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			continue
+		max_spread = maxf(max_spread, absf(_formation_spread_x[slot_index]))
+	for slot_index in SLOTS:
+		if not is_hero_alive(slot_index):
+			continue
+		var spread := _formation_spread_x[slot_index]
+		if spread < -0.001:
+			var catch_up := maxf(
+				_Tuning.SCROLL_SPEED_PX * _Tuning.FORMATION_REGROUP_CATCHUP_MULT,
+				absf(spread) / time_remaining
+			)
+			_formation_spread_x[slot_index] = minf(0.0, spread + catch_up * delta)
+			_set_slot_regroup_run_scale(slot_index, _catch_up_run_scale(catch_up))
+		else:
+			_set_slot_regroup_run_scale(
+				slot_index,
+				_Tuning.FORMATION_REGROUP_FRONT_RUN_SCALE
+			)
+		_refresh_slot_x(slot_index)
+	if max_spread <= 0.001 or _regroup_phase_elapsed >= _Tuning.FORMATION_REGROUP_SPREAD_SEC:
+		_begin_regroup_retreat()
+
+
+func _tick_regroup_retreat(delta: float) -> void:
+	_regroup_phase_elapsed += delta
+	var duration := maxf(0.001, _Tuning.FORMATION_REGROUP_RETREAT_SEC)
+	var t := clampf(_regroup_phase_elapsed / duration, 0.0, 1.0)
+	_march_lead_x = lerpf(_regroup_start_lead, 0.0, t)
+	for slot_index in SLOTS:
+		_formation_spread_x[slot_index] = 0.0
+		_set_slot_regroup_run_scale(slot_index, 1.0)
+		_refresh_slot_x(slot_index)
+	if t >= 1.0:
+		_finish_regroup()
+
+
+func _begin_regroup_retreat() -> void:
+	for slot_index in SLOTS:
+		_formation_spread_x[slot_index] = 0.0
+	_regroup_phase = RegroupPhase.RETREAT
+	_regroup_phase_elapsed = 0.0
+	_regroup_start_lead = _march_lead_x
+	_regroup_scroll_speed = absf(_regroup_start_lead) / _Tuning.FORMATION_REGROUP_RETREAT_SEC
+	if _regroup_scroll_speed <= 0.001:
+		_finish_regroup()
+		return
+	march_regroup_phase_changed.emit("RETREAT", _regroup_scroll_speed)
+	march_regroup_started.emit(_regroup_scroll_speed)
+
+
+func _finish_regroup() -> void:
+	_regroup_phase = RegroupPhase.NONE
+	_regrouping = false
+	_march_lead_x = 0.0
+	_regroup_scroll_speed = 0.0
+	_regroup_phase_elapsed = 0.0
+	for slot_index in SLOTS:
+		_formation_spread_x[slot_index] = 0.0
+		_refresh_slot_x(slot_index)
+	_clear_regroup_run_scales()
+	march_regroup_finished.emit()
+
+
+func _refresh_slot_x(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _posicoes.size():
+		return
+	if not has_hero_in_slot(slot_index) or not is_hero_alive(slot_index):
+		return
+	var floor_y := _posicoes[slot_index].position.y
+	_posicoes[slot_index].position = Vector2(formation_slot_x(slot_index), floor_y)
+	_apply_slot_position(slot_index)
+
+
+func _catch_up_run_scale(catch_up_speed: float) -> float:
+	return clampf(catch_up_speed / _Tuning.SCROLL_SPEED_PX, 1.0, 3.5)
+
+
+func _set_slot_regroup_run_scale(slot_index: int, scale: float) -> void:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	if not has_hero_in_slot(slot_index) or not is_hero_alive(slot_index):
+		return
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite.has_method("set_regroup_run_scale"):
+		sprite.set_regroup_run_scale(scale)
+
+
+func _clear_regroup_run_scales() -> void:
+	for slot_index in SLOTS:
+		_set_slot_regroup_run_scale(slot_index, 1.0)
+
+
+func _set_slot_battle_anim(slot_index: int, advancing: bool) -> void:
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return
+	if not has_hero_in_slot(slot_index) or not is_hero_alive(slot_index):
+		return
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite.has_method("set_battle_advancing"):
+		sprite.set_battle_advancing(advancing)
+
+
+func _clear_battle_advance_anims() -> void:
+	for i in SLOTS:
+		_set_slot_battle_anim(i, false)

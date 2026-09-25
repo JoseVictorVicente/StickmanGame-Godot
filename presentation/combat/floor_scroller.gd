@@ -2,7 +2,8 @@ class_name FloorScroller
 extends Sprite2D
 ## Centered floating combat platform; hero anchor sits at x=0 (platform center).
 
-const SCROLL_SPEED_PX := 140.0
+const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
+const SCROLL_SPEED_PX: float = _Tuning.SCROLL_SPEED_PX
 const PLATFORM_SCALE := 1.0
 const UV_WRAP := 1.0
 
@@ -10,6 +11,7 @@ var scrolling: bool = false
 
 var _shader_mat: ShaderMaterial
 var _scroll_offset: float = 0.0
+var _scroll_speed_override: float = -1.0
 
 
 func _ready() -> void:
@@ -27,7 +29,7 @@ func _process(delta: float) -> void:
 	if not scrolling or texture == null:
 		return
 	var tex_width := texture.get_size().x
-	_scroll_offset = fmod(_scroll_offset + SCROLL_SPEED_PX * delta / tex_width, UV_WRAP)
+	_scroll_offset = fmod(_scroll_offset + _effective_scroll_speed() * delta / tex_width, UV_WRAP)
 	_apply_scroll()
 
 
@@ -45,6 +47,20 @@ func platform_half_width() -> float:
 
 func set_scrolling(active: bool) -> void:
 	scrolling = active
+
+
+func set_scroll_speed_px(speed: float) -> void:
+	_scroll_speed_override = maxf(0.0, speed)
+
+
+func clear_scroll_speed_override() -> void:
+	_scroll_speed_override = -1.0
+
+
+func _effective_scroll_speed() -> float:
+	if _scroll_speed_override >= 0.0:
+		return _scroll_speed_override
+	return SCROLL_SPEED_PX
 
 
 func reset_scroll() -> void:
