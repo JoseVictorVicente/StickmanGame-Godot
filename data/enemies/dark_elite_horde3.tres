@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_data.gd" id="1_data"]
+[ext_resource type="Resource" path="res://data/enemy_visual_profiles/dark_elite.tres" id="2_profile"]
+
+[resource]
+script = ExtResource("1_data")
+enemy_id = "dark_elite_horde3"
+name_key = "ENEMY_dark_elite_solo"
+visual_profile = ExtResource("2_profile")
+hp_mult = 1.0
+damage_mult = 1.0
+gold_mult = 1.0
+xp_mult = 1.0
+attack_interval = -1.0
+spawn_role = 0
+world_id = 1
+stage_min = 2
+stage_max = 2
+wave_min = 3
+wave_max = 3
+sort_order = 50
+use_demon_king_name = false
+horde_count = 3
+horde_attack_mode = 1

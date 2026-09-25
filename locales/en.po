@@ -926,3 +926,9 @@ msgstr "Neon Vision"
 
 msgid "SKILL_neon_vision_DESC"
 msgstr "Eyes glow intense neon green, increasing Critical Hit Rate by 30% and making all arrows pierce the first enemy for 4 seconds."
+
+msgid "SKILL_arcane_beat"
+msgstr "Arcane Beat"
+
+msgid "SKILL_arcane_beat_DESC"
+msgstr "Channels 4 arcane pulses over 1 combat second. Full power when engaged; extra damage vs swarms at contact. Grants +12% cooldown reduction for 2s."

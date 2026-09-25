@@ -18,6 +18,7 @@ func _init() -> void:
 	_test_resolve_minion_wave4()
 	_test_resolve_elite_wave4()
 	_test_build_runtime_multipliers()
+	_test_resolve_horde_catalog()
 	_test_fallback_unknown_spawn()
 	if _failed:
 		TestLog.suite_complete("EnemyCatalog", false)
@@ -71,6 +72,12 @@ func _test_build_runtime_multipliers() -> void:
 		_fail("elite hp multiplier not applied")
 	if runtime["gold"] != 0:
 		_fail("elite gold multiplier should zero rewards")
+
+
+func _test_resolve_horde_catalog() -> void:
+	var data: EnemyData = EnemyCatalogScript.resolve_horde(1, 2, 1)
+	if data == null or data.enemy_id != "imp_red_horde7" or data.horde_count != 7:
+		_fail("expected imp_red_horde7 horde entry on world 1 stage 2 wave 1")
 
 
 func _test_fallback_unknown_spawn() -> void:

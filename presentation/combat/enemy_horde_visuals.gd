@@ -65,6 +65,7 @@ func show_wave(
 		visual.prepare_spawn(lane_anchor)
 		visual.set_horde_member(true)
 		visual.set_horde_slot(i)
+		visual.set_sim_controlled(true)
 		visual.set_horde_targetable(i == active_index)
 		visual.show_up(lane_anchor if off_screen else lane_anchor)
 	set_active_target(amount, active_index)
@@ -83,6 +84,7 @@ func set_active_target(count: int, active_index: int) -> void:
 		visual.set_horde_member(true)
 		visual.clear_horde_backup()
 		visual.set_horde_slot(i)
+		visual.set_sim_controlled(true)
 		visual.set_horde_targetable(i == active_index)
 
 

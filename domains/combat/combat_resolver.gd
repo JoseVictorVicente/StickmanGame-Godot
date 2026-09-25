@@ -6,6 +6,8 @@ extends RefCounted
 func resolve_skill(skill: SkillResource, ctx: Dictionary) -> Dictionary:
 	if skill == null or skill.effects.is_empty():
 		return {"hits": [], "buffs": [], "heals": []}
+	if skill.skill_id == "arcane_beat":
+		return _resolve_non_damage_effects(skill)
 	var hits: Array = []
 	var buffs: Array = []
 	var heals: Array = []
@@ -44,6 +46,30 @@ func resolve_skill(skill: SkillResource, ctx: Dictionary) -> Dictionary:
 					"delay_sec": 0.0,
 				})
 	return {"hits": hits, "buffs": buffs, "heals": heals}
+
+
+func _resolve_non_damage_effects(skill: SkillResource) -> Dictionary:
+	var buffs: Array = []
+	var heals: Array = []
+	for effect in skill.effects:
+		if effect is BuffEffect:
+			var buff := effect as BuffEffect
+			if buff.stat_key != "" and buff.duration_sec > 0.0 and buff.stat_value != 0.0:
+				buffs.append({
+					"stat_key": buff.stat_key,
+					"stat_value": buff.stat_value,
+					"duration_sec": buff.duration_sec,
+					"target_scope": buff.target_scope if buff.target_scope != "" else "self",
+				})
+		elif effect is HealEffect:
+			var heal := effect as HealEffect
+			if heal.heal_pct_max_hp > 0.0:
+				heals.append({
+					"target_scope": heal.target_scope,
+					"heal_pct_max_hp": heal.heal_pct_max_hp,
+					"delay_sec": 0.0,
+				})
+	return {"hits": [], "buffs": buffs, "heals": heals}
 
 
 func _append_damage_hits(

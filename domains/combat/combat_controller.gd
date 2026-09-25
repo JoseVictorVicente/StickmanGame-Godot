@@ -20,7 +20,10 @@ const ELITE_WAVE := WAVES_PER_STAGE
 const HORDE_COOLDOWN_SEC := 5.0
 const HORDE_COOLDOWN_RUN_ACCEL := 2.5
 const WorldCatalog := preload("res://data/world_catalog.gd")
-const HordeWaveCatalog := preload("res://data/horde_wave_catalog.gd")
+const _CombatSession := preload("res://domains/combat/combat_session.gd")
+const _PresentationBridge := preload("res://presentation/combat/combat_presentation_bridge.gd")
+const _CombatEvent := preload("res://domains/combat/sim/combat_event.gd")
+const _Encounter := preload("res://domains/combat/sim/combat_encounter.gd")
 
 enum RunPhase { COMBAT, RUNNING }
 
@@ -63,9 +66,10 @@ var _combat_transition_id: int = 0
 var _dying_enemy_visual: EnemyVisual = null
 var _elite_enemy_timer: Timer
 var _flying_demon_enemy_timer: Timer
-var _horde: EnemyHorde
 var _horde_active: bool = false
 var _resolvendo_horde_membro: bool = false
+var _session: _CombatSession
+var _presentation_bridge: _PresentationBridge
 
 
 func _ready() -> void:
@@ -81,29 +85,54 @@ func _ready() -> void:
 	_flying_demon_enemy_timer.one_shot = true
 	_flying_demon_enemy_timer.timeout.connect(_on_flying_demon_attacked)
 	add_child(_flying_demon_enemy_timer)
+	_session = _CombatSession.new()
+	_presentation_bridge = _PresentationBridge.new()
+	_bind_presentation_bridge()
 	set_process(true)
 
 
+func _bind_presentation_bridge() -> void:
+	if _presentation_bridge == null:
+		return
+	_presentation_bridge.party = party
+	_presentation_bridge.enemy_visual = enemy_visual
+	_presentation_bridge.elite_enemy_visual = elite_enemy_visual
+	_presentation_bridge.flying_demon_enemy_visual = flying_demon_enemy_visual
+	_presentation_bridge.horde_visuals = horde_visuals
+	_presentation_bridge.enemy_health_bar = enemy_health_bar
+	if party != null:
+		_presentation_bridge.combat_root = party.get_parent() as Node2D
+	_session.bind_bridge(_presentation_bridge)
+
+
 func _process(delta: float) -> void:
+	if party != null and _session != null:
+		_session.sync_meta(
+			world,
+			stage,
+			stage_wave,
+			difficulty,
+			party.hero_slot_x(party.front_target_index())
+		)
+	var events: Array = _session.advance_frame(delta, can_heroes_attack(), _can_enemies_tick())
+	_consume_sim_meta_events(events)
+	# Presentation + swarm timing handled inside session/bridge via sim events.
 	if _run_phase != RunPhase.RUNNING or _resolvendo_morte or _resolvendo_derrota:
 		return
 	if not has_living_enemies():
 		return
 	_update_running_engagement()
-	_horde_cooldown -= delta * HORDE_COOLDOWN_RUN_ACCEL
-	if _horde_cooldown <= 0.0:
-		_engage_horde()
 
 
 func has_living_enemies() -> bool:
-	if _horde_active and _horde != null:
-		return _horde.has_living()
+	if _session != null and _session.has_living_enemies():
+		return true
 	return _minion_alive() or _elite_alive() or _flying_demon_alive()
 
 
 func get_active_enemy() -> Enemy:
-	if _horde_active and _horde != null:
-		return _horde.active_enemy()
+	if _session != null:
+		return _session.get_active_enemy()
 	if _minion_alive():
 		return current_enemy
 	if _elite_alive():
@@ -114,8 +143,8 @@ func get_active_enemy() -> Enemy:
 
 
 func get_enemy_display_name() -> String:
-	if _horde_active and _horde != null:
-		return _horde.display_name(world)
+	if _session != null:
+		return _session.get_display_name()
 	var nomes: PackedStringArray = []
 	if _minion_alive():
 		nomes.append(current_enemy.display_name)
@@ -139,8 +168,8 @@ func _flying_demon_alive() -> bool:
 
 
 func _get_active_enemy_visual() -> EnemyVisual:
-	if _horde_active and horde_visuals != null and _horde != null:
-		return horde_visuals.get_visual(_horde.active_index())
+	if _horde_active and horde_visuals != null and _session != null and _session.encounter.horde != null:
+		return horde_visuals.get_visual(_session.encounter.horde.active_index)
 	if _minion_alive():
 		return enemy_visual
 	if _elite_alive():
@@ -171,51 +200,13 @@ func start_combat() -> void:
 
 
 func _spawn_wave_enemy(off_screen: bool) -> void:
-	spawn_enemy()
-	if party == null or enemy_visual == null:
-		return
-	var anchor := party.get_enemy_spawn_local(off_screen)
-	_configure_wave_enemies(anchor)
+	spawn_enemy(off_screen)
 	if enemy_health_bar:
 		enemy_health_bar.show_up()
 
 
 func _is_elite_wave() -> bool:
 	return stage_wave == ELITE_WAVE
-
-
-func _configure_wave_enemies(anchor: Vector2) -> void:
-	if _horde_active:
-		_present_horde_wave(anchor, _run_phase == RunPhase.RUNNING)
-		return
-	if _minion_enemy_data != null and _minion_enemy_data.visual_profile != null:
-		enemy_visual.configure(_minion_enemy_data.visual_profile)
-	enemy_visual.prepare_spawn(anchor)
-	enemy_visual.show_up(anchor)
-	if not _is_elite_wave() or WorldCatalog.is_boss_stage(stage):
-		_hide_elite_visual()
-		return
-	if elite_enemy_visual == null or _elite_enemy_data == null:
-		return
-	if _elite_enemy_data.visual_profile != null:
-		elite_enemy_visual.configure(_elite_enemy_data.visual_profile)
-	var escort_offset := Vector2.ZERO
-	if _elite_enemy_data.visual_profile != null:
-		escort_offset = _elite_enemy_data.visual_profile.escort_spawn_offset
-	elite_enemy_visual.set_escort(enemy_visual, escort_offset)
-	elite_enemy_visual.show_up(anchor)
-	if flying_demon_enemy_visual == null or _flying_demon_enemy_data == null:
-		_schedule_elite_attack()
-		return
-	if _flying_demon_enemy_data.visual_profile != null:
-		flying_demon_enemy_visual.configure(_flying_demon_enemy_data.visual_profile)
-	var flying_offset := Vector2.ZERO
-	if _flying_demon_enemy_data.visual_profile != null:
-		flying_offset = _flying_demon_enemy_data.visual_profile.escort_spawn_offset
-	flying_demon_enemy_visual.set_escort(enemy_visual, flying_offset)
-	flying_demon_enemy_visual.show_up(anchor)
-	_schedule_elite_attack()
-	_schedule_flying_demon_attack()
 
 
 func _hide_elite_visual() -> void:
@@ -245,6 +236,8 @@ func _begin_running_phase_visuals() -> void:
 	_run_phase = RunPhase.RUNNING
 	_horde_cooldown = HORDE_COOLDOWN_SEC
 	_running_engaged = false
+	if _session != null:
+		_session.start_runner(HORDE_COOLDOWN_SEC)
 	if party != null:
 		party.begin_running()
 	_sync_party_runner_state()
@@ -263,6 +256,8 @@ func _engage_horde() -> void:
 	_run_phase = RunPhase.COMBAT
 	_horde_cooldown = 0.0
 	_running_engaged = false
+	if _session != null:
+		_session.engage()
 	if party != null:
 		party.end_running()
 		party.can_attack_target = can_heroes_attack
@@ -339,6 +334,17 @@ func on_hero_skill_used(
 		spawn_enemy()
 	var combat_root: Node = enemy_visual.get_parent() if enemy_visual else self
 	_apply_skill_heals(slot_index, heals, combat_root)
+	if skill != null and skill.skill_id == "arcane_beat":
+		var stats := party.hero_stats(slot_index)
+		_session.enqueue_arcane_beat(
+			slot_index,
+			int(stats.get("damage", 1)),
+			float(stats.get("crit_chance", 0.0)),
+			float(stats.get("crit_damage", 0.0))
+		)
+		CombatCueAdapter.play(skill.vfx_id, party, slot_index, _get_active_enemy_visual(), combat_root, 4)
+		hud_refresh.emit()
+		return
 	CombatCueAdapter.play(skill.vfx_id, party, slot_index, _get_active_enemy_visual(), combat_root, hits.size())
 	if hits.is_empty():
 		hud_refresh.emit()
@@ -358,7 +364,7 @@ func on_hero_skill_used(
 			return
 		if _is_transition_stale(transition_token):
 			return
-		var active := get_active_enemy()
+		var active: Enemy = get_active_enemy()
 		if active == null or active.is_dead():
 			break
 		var damage := int(hit.get("damage", 0))
@@ -464,7 +470,9 @@ func on_enemy_attack_finished() -> void:
 
 
 func _request_horde_minion_attack() -> void:
-	if not _horde_active or _horde == null or horde_visuals == null:
+	if _session != null and _horde_active:
+		return
+	if not _horde_active or horde_visuals == null:
 		return
 	if _resolvendo_morte or _resolvendo_derrota or _resolvendo_horde_membro:
 		return
@@ -543,21 +551,8 @@ func _enemy_needs_approach_retry() -> bool:
 
 
 func _schedule_enemy_attack(approach_retry: bool = false) -> void:
-	if _horde_active:
-		return
-	if _enemy_timer == null:
-		return
-	if not _combat_ready:
-		return
-	if _resolvendo_morte or _resolvendo_derrota:
-		return
-	if _run_phase == RunPhase.RUNNING:
-		return
-	var wait_time := _minion_attack_interval()
-	if approach_retry or _enemy_needs_approach_retry():
-		wait_time = 0.1
-	_enemy_timer.wait_time = wait_time
-	_enemy_timer.start()
+	# Enemy attack cadence is driven by CombatSimulator ticks.
+	return
 
 
 func _schedule_elite_attack() -> void:
@@ -672,9 +667,19 @@ func _stop_flying_demon_attack_timer() -> void:
 		_flying_demon_enemy_timer.stop()
 
 
+func on_attack_impact(role: String = "minion") -> void:
+	match role:
+		"elite":
+			await on_elite_attack_impact()
+		"flying":
+			await on_flying_demon_attack_impact()
+		_:
+			await on_enemy_attack_impact()
+
+
 func on_enemy_attack_impact() -> void:
 	if _horde_active:
-		if _horde == null or current_enemy == null or current_enemy.is_dead():
+		if current_enemy == null or current_enemy.is_dead():
 			return
 		await _apply_enemy_damage_to_hero(current_enemy.damage)
 		return
@@ -755,107 +760,77 @@ func _reset_active_combat() -> void:
 	_hide_elite_visual()
 
 
-func spawn_enemy() -> void:
+func spawn_enemy(off_screen: bool = false) -> void:
 	var base_stats := WorldProgress.enemy_stats(world, stage, difficulty)
-	var horde_spec := HordeWaveCatalog.resolve(world, stage, stage_wave)
-	if not horde_spec.is_empty():
-		_spawn_horde_wave(base_stats, horde_spec)
-		return
-	_deactivate_horde()
-	var minion_role := EnemyCatalog.resolve_role_for_stage(stage, EnemyData.SpawnRole.MINION)
-	_minion_enemy_data = EnemyCatalog.resolve(world, stage, stage_wave, minion_role)
-	var runtime := EnemyCatalog.build_runtime(base_stats, _minion_enemy_data)
-	wave = int(runtime.get("level", base_stats.get("level", 1)))
-	current_enemy = Enemy.new()
-	current_enemy.configure(
-		EnemyCatalog.display_name(_minion_enemy_data, world),
-		int(runtime["hp"]),
-		int(runtime["gold"]),
-		int(runtime["xp"]),
-		int(runtime["damage"])
-	)
-	current_elite_enemy = null
-	current_flying_demon_enemy = null
-	_elite_enemy_data = null
-	_flying_demon_enemy_data = null
-	if _is_elite_wave() and not WorldCatalog.is_boss_stage(stage):
-		_elite_enemy_data = EnemyCatalog.resolve(world, stage, stage_wave, EnemyData.SpawnRole.ELITE)
-		if _elite_enemy_data != null:
-			var elite_runtime := EnemyCatalog.build_runtime(base_stats, _elite_enemy_data)
-			current_elite_enemy = Enemy.new()
-			current_elite_enemy.configure(
-				EnemyCatalog.display_name(_elite_enemy_data, world),
-				int(elite_runtime["hp"]),
-				int(elite_runtime["gold"]),
-				int(elite_runtime["xp"]),
-				int(elite_runtime["damage"])
-			)
-		_flying_demon_enemy_data = EnemyCatalog.get_by_id("flying_demon")
-		if _flying_demon_enemy_data != null:
-			var flying_runtime := EnemyCatalog.build_runtime(base_stats, _flying_demon_enemy_data)
-			current_flying_demon_enemy = Enemy.new()
-			current_flying_demon_enemy.configure(
-				EnemyCatalog.display_name(_flying_demon_enemy_data, world),
-				int(flying_runtime["hp"]),
-				int(flying_runtime["gold"]),
-				int(flying_runtime["xp"]),
-				int(flying_runtime["damage"])
-			)
-	enemy_health_bar.initialize_bar(current_enemy.max_hp)
+	if party != null:
+		_bind_presentation_bridge()
+		_session.sync_meta(
+			world,
+			stage,
+			stage_wave,
+			difficulty,
+			party.hero_slot_x(party.front_target_index())
+		)
+	var anchor := party.get_enemy_spawn_local(off_screen) if party != null else Vector2.ZERO
+	_session.spawn_wave(base_stats, anchor, off_screen)
+	_sync_legacy_from_session()
+	wave = _session.level()
+	if enemy_health_bar and current_enemy != null:
+		enemy_health_bar.initialize_bar(current_enemy.max_hp)
 	_emit_enemy_hp()
-	if enemy_visual and enemy_visual.has_method("update_hp"):
+	if enemy_visual and current_enemy != null and enemy_visual.has_method("update_hp"):
 		enemy_visual.update_hp(current_enemy.current_hp, current_enemy.max_hp)
 
 
-func _spawn_horde_wave(base_stats: Dictionary, horde_spec: Dictionary) -> void:
-	_hide_legacy_enemy_visuals()
-	_hide_elite_visual()
-	current_elite_enemy = null
-	current_flying_demon_enemy = null
-	_elite_enemy_data = null
-	_flying_demon_enemy_data = null
-	var enemy_id := str(horde_spec.get("enemy_id", "imp_red"))
-	var count := maxi(1, int(horde_spec.get("count", 1)))
-	var data := EnemyCatalog.get_by_id(enemy_id)
-	if data == null:
-		data = EnemyCatalog.resolve(world, stage, stage_wave, EnemyData.SpawnRole.MINION)
-	_horde = EnemyHorde.new()
-	_horde.build(base_stats, data, count, world)
-	_horde_active = true
-	_run_phase = RunPhase.COMBAT
-	_horde_cooldown = 0.0
-	_running_engaged = false
-	if party != null:
-		party.end_running()
-		party.set_runner_sync(false, false)
-	_minion_enemy_data = data
-	current_enemy = _horde.active_enemy()
-	var runtime := EnemyCatalog.build_runtime(base_stats, data)
-	wave = int(runtime.get("level", base_stats.get("level", 1)))
-	_refresh_horde_hp_bar()
-	_emit_enemy_hp()
+func _sync_legacy_from_session() -> void:
+	var enc: _Encounter = _session.encounter
+	_horde_active = enc.has_horde
+	current_enemy = enc.minion
+	current_elite_enemy = enc.elite
+	current_flying_demon_enemy = enc.flying
+	_minion_enemy_data = enc.minion_data
+	_elite_enemy_data = enc.elite_data
+	_flying_demon_enemy_data = enc.flying_data
+	if enc.has_horde:
+		_horde_active = true
+	else:
+		_deactivate_horde()
 
 
-func _present_horde_wave(anchor: Vector2, off_screen: bool) -> void:
-	if horde_visuals == null or _horde == null or _minion_enemy_data == null:
+func _can_enemies_tick() -> bool:
+	if _resolvendo_morte or _resolvendo_derrota or _resolvendo_horde_membro:
+		return false
+	if party != null and party.combat_paused:
+		return false
+	if _session != null and _session.is_running_phase() and not _session.is_engaged():
+		return false
+	if _run_phase == RunPhase.RUNNING and not _running_engaged:
+		return false
+	return _combat_ready and has_living_enemies()
+
+
+func _on_sim_swarm_attack(payload: Dictionary) -> void:
+	if _resolvendo_morte or _resolvendo_derrota:
 		return
-	var profile := _minion_enemy_data.visual_profile
-	if profile == null:
+	if party.right_target_index() < 0:
 		return
-	horde_visuals.show_wave(
-		profile,
-		anchor,
-		_horde.member_count(),
-		_horde.active_index(),
-		off_screen
-	)
-	_refresh_horde_hp_bar()
+	AudioManager.play_attack_sound()
+	# Impact handled by visual attack_impact signals for solo; horde uses bridge begin_attack
+
+
+func _deactivate_horde() -> void:
+	_horde_active = false
+	if horde_visuals != null:
+		horde_visuals.hide_all()
 
 
 func _refresh_horde_hp_bar() -> void:
-	if not _horde_active or _horde == null:
+	if not _horde_active or _session == null:
 		return
-	var active := _horde.active_enemy()
+	var enc: _Encounter = _session.encounter
+	if enc == null or not enc.has_horde:
+		return
+	var active: Enemy = enc.get_active_enemy()
 	if active == null:
 		return
 	current_enemy = active
@@ -864,13 +839,6 @@ func _refresh_horde_hp_bar() -> void:
 	var visual := _get_active_enemy_visual()
 	if visual != null and visual.has_method("update_hp"):
 		visual.update_hp(active.current_hp, active.max_hp)
-
-
-func _deactivate_horde() -> void:
-	_horde_active = false
-	_horde = null
-	if horde_visuals != null:
-		horde_visuals.hide_all()
 
 
 func _hide_legacy_enemy_visuals() -> void:
@@ -966,8 +934,11 @@ func resync_enemy_anchors() -> void:
 	if party == null:
 		return
 	var anchor := party.get_enemy_spawn_local(false)
-	if _horde_active and horde_visuals != null and _horde != null:
-		horde_visuals.resync_anchors(anchor, _horde.member_count(), _horde.active_index())
+	if _horde_active and horde_visuals != null and _session != null and _session.encounter.horde != null:
+		var enc: _Encounter = _session.encounter
+		horde_visuals.resync_anchors(anchor, enc.horde.member_count(), enc.horde.active_index)
+		if _presentation_bridge != null:
+			_presentation_bridge.sync_horde_lanes()
 		return
 	for visual in [enemy_visual, elite_enemy_visual, flying_demon_enemy_visual]:
 		if visual == null or not visual.visible:
@@ -977,8 +948,9 @@ func resync_enemy_anchors() -> void:
 			visual.snap_to_combat_ground()
 
 
-func _is_horde_wave(wave: int) -> bool:
-	return not HordeWaveCatalog.resolve(world, stage, wave).is_empty()
+func _is_horde_wave(wave_num: int) -> bool:
+	var data: EnemyData = EnemyCatalog.resolve_horde(world, stage, wave_num)
+	return data != null and data.horde_count > 1
 
 
 func _resolve_death() -> void:
@@ -1027,6 +999,8 @@ func _resolve_death() -> void:
 			if party != null:
 				party.end_running()
 				party.reset_runner_state()
+			if _session != null:
+				_session.engage()
 		_spawn_wave_enemy(not horde_skip_run)
 		party.combat_paused = false
 		if horde_skip_run:
@@ -1141,7 +1115,7 @@ func _try_drop() -> void:
 
 
 func _emit_enemy_hp() -> void:
-	var active := get_active_enemy()
+	var active: Enemy = get_active_enemy()
 	if active == null:
 		return
 	enemy_hp_changed.emit(active.current_hp, active.max_hp)
@@ -1156,45 +1130,112 @@ func _resume_party_combat_loop() -> void:
 	party.start_combat()
 
 
-func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
-	var active := get_active_enemy()
-	var visual := _get_active_enemy_visual()
-	if active == null or visual == null:
-		return false
-	var morreu := active.take_damage(damage)
+func _consume_sim_meta_events(events: Array) -> void:
+	if events.is_empty() or _session == null:
+		return
+	var member_died := false
+	var wave_cleared := false
+	for event in events:
+		if not (event is RefCounted):
+			continue
+		if event.kind == _CombatEvent.Kind.HERO_HIT_ENEMY:
+			if str(event.payload.get("skill_id", "")) != "":
+				_feedback_sim_skill_hit(event.payload)
+		elif event.kind == _CombatEvent.Kind.ENEMY_MEMBER_DIED:
+			member_died = true
+		elif event.kind == _CombatEvent.Kind.ENEMY_WAVE_CLEARED:
+			wave_cleared = true
+	_sync_legacy_from_session()
+	if member_died and not _resolvendo_horde_membro and not _resolvendo_morte:
+		_resolve_horde_member_killed()
+	elif wave_cleared and not _resolvendo_morte and not _resolvendo_derrota:
+		_trigger_sim_wave_cleared()
+
+
+func _feedback_sim_skill_hit(payload: Dictionary) -> void:
+	var damage := int(payload.get("damage", 0))
+	var hp := int(payload.get("hp", 0))
+	var max_hp := int(payload.get("max_hp", 1))
+	var is_crit := bool(payload.get("is_crit", false))
 	_emit_enemy_hp()
-	enemy_hit.emit(damage, active.current_hp, active.max_hp)
-	enemy_health_bar.update_hp(active.current_hp)
-	if visual.has_method("update_hp"):
-		visual.update_hp(active.current_hp, active.max_hp)
+	enemy_hit.emit(damage, hp, max_hp)
+	if enemy_health_bar:
+		enemy_health_bar.update_hp(hp)
+	var visual := _get_active_enemy_visual()
+	if visual != null and visual.has_method("update_hp"):
+		visual.update_hp(hp, max_hp)
 	var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
-	DamageNumber.spawn(visual.get_parent(), visual.global_position, damage, cor, is_crit)
+	if visual != null:
+		DamageNumber.spawn(visual.get_parent(), visual.global_position, damage, cor, is_crit)
 	_flash_enemy_hit()
 	AudioManager.play_hit_sound()
-	if not morreu:
-		return false
-	if _horde_active and _horde != null and _horde.living_count() > 0:
-		await _resolve_horde_member_killed()
-		return false
-	if active == current_enemy and (_elite_alive() or _flying_demon_alive()):
-		await _resolve_minion_killed()
-		return false
-	if active == current_elite_enemy and _flying_demon_alive():
-		await _resolve_elite_killed()
-		return false
-	_dying_enemy_visual = visual
+
+
+func _trigger_sim_wave_cleared() -> void:
+	_dying_enemy_visual = _get_active_enemy_visual()
+	if _elite_alive() or _flying_demon_alive():
+		_resolve_minion_killed()
+		return
 	enemy_died.emit()
-	await _resolve_death()
-	return true
+	_resolve_death()
+
+
+func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
+	var target_before: Enemy = get_active_enemy()
+	var visual := _get_active_enemy_visual()
+	var events: Array = _session.apply_hero_hit(damage, is_crit)
+	_sync_legacy_from_session()
+	var active: Enemy = get_active_enemy()
+	for event in events:
+		if not (event is RefCounted):
+			continue
+		if event.kind != _CombatEvent.Kind.HERO_HIT_ENEMY:
+			continue
+		var payload: Dictionary = event.payload
+		var hp := int(payload.get("hp", active.current_hp if active != null else 0))
+		var max_hp := int(payload.get("max_hp", target_before.max_hp if target_before != null else 1))
+		_emit_enemy_hp()
+		enemy_hit.emit(damage, hp, max_hp)
+		if enemy_health_bar:
+			enemy_health_bar.update_hp(hp)
+		if visual != null and visual.has_method("update_hp"):
+			visual.update_hp(hp, max_hp)
+		var cor := Color(1, 0.92, 0.4, 1) if not is_crit else Color(1, 0.78, 0.2, 1)
+		if visual != null:
+			DamageNumber.spawn(visual.get_parent(), visual.global_position, damage, cor, is_crit)
+		_flash_enemy_hit()
+		AudioManager.play_hit_sound()
+	for event in events:
+		if not (event is RefCounted):
+			continue
+		if event.kind == _CombatEvent.Kind.ENEMY_MEMBER_DIED:
+			await _resolve_horde_member_killed()
+			return false
+		if event.kind == _CombatEvent.Kind.ENEMY_WAVE_CLEARED:
+			var cleared_target := target_before if target_before != null else active
+			if cleared_target == current_enemy and (_elite_alive() or _flying_demon_alive()):
+				await _resolve_minion_killed()
+				return false
+			if cleared_target == current_elite_enemy and _flying_demon_alive():
+				await _resolve_elite_killed()
+				return false
+			_dying_enemy_visual = visual
+			enemy_died.emit()
+			await _resolve_death()
+			return true
+	return false
 
 
 func _resolve_horde_member_killed() -> void:
-	if _resolvendo_horde_membro or _horde == null:
+	if _resolvendo_horde_membro:
+		return
+	var enc: _Encounter = _session.encounter
+	if enc == null or not enc.has_horde or enc.horde == null:
 		return
 	_resolvendo_horde_membro = true
-	var dying_index := _horde.active_index()
+	var dying_index: int = enc.horde.active_index
 	var dying_visual := _get_active_enemy_visual()
-	var killed := _horde.active_enemy()
+	var killed: Enemy = enc.horde.active_enemy()
 	if killed == null:
 		_resolvendo_horde_membro = false
 		return
@@ -1213,10 +1254,10 @@ func _resolve_horde_member_killed() -> void:
 	_apply_xp(_apply_xp_bonus(killed.xp_reward))
 	_try_drop()
 	party.apply_on_kill_passives()
-	_horde.advance_after_kill()
-	current_enemy = _horde.active_enemy()
-	if horde_visuals != null:
-		horde_visuals.refresh_active(_horde.active_index(), _horde.member_count())
+	_session.promote_horde_member()
+	_sync_legacy_from_session()
+	if horde_visuals != null and enc.horde != null:
+		horde_visuals.refresh_active(enc.horde.active_index, enc.horde.member_count())
 	_refresh_horde_hp_bar()
 	_emit_enemy_hp()
 	_resolvendo_horde_membro = false

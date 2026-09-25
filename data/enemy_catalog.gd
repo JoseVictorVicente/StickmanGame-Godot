@@ -34,6 +34,22 @@ static func get_by_id(enemy_id: String) -> EnemyData:
 	return _by_id.get(enemy_id, null) as EnemyData
 
 
+static func resolve_horde(world: int, stage: int, wave: int) -> EnemyData:
+	ensure_loaded()
+	var best: EnemyData = null
+	var best_score := -1
+	for entry in _entries:
+		if entry.horde_count <= 1:
+			continue
+		if not entry.matches_spawn(world, stage, wave, EnemyData.SpawnRole.MINION):
+			continue
+		var score := entry.specificity_score(world)
+		if score > best_score:
+			best_score = score
+			best = entry
+	return best
+
+
 static func resolve(world: int, stage: int, wave: int, role: EnemyData.SpawnRole) -> EnemyData:
 	ensure_loaded()
 	var best: EnemyData = null

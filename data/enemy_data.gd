@@ -3,6 +3,7 @@ extends Resource
 ## Data-driven enemy archetype: spawn scope, stat multipliers, visual profile.
 
 enum SpawnRole { MINION, ELITE, BOSS }
+enum HordeAttackMode { SINGLE, SWARM, QUEUE }
 
 @export var enemy_id: String = ""
 @export var name_key: String = ""
@@ -24,6 +25,9 @@ enum SpawnRole { MINION, ELITE, BOSS }
 @export var sort_order: int = 0
 ## When true, display name comes from WorldCatalog.demon_king_name(world).
 @export var use_demon_king_name: bool = false
+## Spawn count for horde waves (>1 enables multi-enemy squad).
+@export var horde_count: int = 1
+@export var horde_attack_mode: HordeAttackMode = HordeAttackMode.SINGLE
 
 
 func matches_spawn(world: int, stage: int, wave: int, role: SpawnRole) -> bool:

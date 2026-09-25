@@ -64,21 +64,21 @@ func _ready() -> void:
 	if not stage_panel.resized.is_connected(_on_stage_panel_resized):
 		stage_panel.resized.connect(_on_stage_panel_resized)
 	call_deferred("_align_initial")
-	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):
-		enemy_visual.attack_impact.connect(_combat.on_enemy_attack_impact)
+	if not enemy_visual.attack_impact.is_connected(_combat.on_attack_impact):
+		enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("minion"))
 	if not enemy_visual.attack_finished.is_connected(_combat.on_enemy_attack_finished):
 		enemy_visual.attack_finished.connect(_combat.on_enemy_attack_finished)
 	if not elite_enemy_visual.attack_impact.is_connected(_combat.on_elite_attack_impact):
-		elite_enemy_visual.attack_impact.connect(_combat.on_elite_attack_impact)
+		elite_enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("elite"))
 	if not elite_enemy_visual.attack_finished.is_connected(_combat.on_elite_attack_finished):
 		elite_enemy_visual.attack_finished.connect(_combat.on_elite_attack_finished)
 	if not flying_demon_enemy_visual.attack_impact.is_connected(_combat.on_flying_demon_attack_impact):
-		flying_demon_enemy_visual.attack_impact.connect(_combat.on_flying_demon_attack_impact)
+		flying_demon_enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("flying"))
 	if not flying_demon_enemy_visual.attack_finished.is_connected(_combat.on_flying_demon_attack_finished):
 		flying_demon_enemy_visual.attack_finished.connect(_combat.on_flying_demon_attack_finished)
 	if horde_visuals != null:
 		horde_visuals.connect_attack_signals(
-			_combat.on_enemy_attack_impact,
+			_combat.on_attack_impact.bind("minion"),
 			_combat.on_enemy_attack_finished,
 			_combat.request_minion_attack
 		)
@@ -165,7 +165,7 @@ func _on_save_needed_log() -> void:
 
 func _build_log_snapshot() -> Dictionary:
 	var enemy_hp := 0
-	var active := _combat.get_active_enemy()
+	var active: Enemy = _combat.get_active_enemy()
 	if active != null:
 		enemy_hp = active.current_hp
 	return {
@@ -366,7 +366,7 @@ func _on_menu_gold_spent(amount: int) -> void:
 
 
 func _update_hud() -> void:
-	var nome := _combat.get_enemy_display_name()
+	var nome: String = _combat.get_enemy_display_name()
 	if nome != "":
 		enemy_label.text = "%s  %s" % [nome, WorldProgress.difficulty_name(_combat.difficulty)]
 	inventory_menu.update_gold(_game_state.get_gold())

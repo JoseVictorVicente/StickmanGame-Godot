@@ -926,3 +926,9 @@ msgstr "Visão Neon"
 
 msgid "SKILL_neon_vision_DESC"
 msgstr "Seus olhos brilham em verde neon intenso, aumentando a Taxa de Acerto Critico em 30% e fazendo todas as flechas atravessarem o primeiro inimigo por 4 segundos."
+
+msgid "SKILL_arcane_beat"
+msgstr "Pulso Arcano"
+
+msgid "SKILL_arcane_beat_DESC"
+msgstr "Canaliza 4 pulsos arcanos (1s de combate). Potencia total ao engajar; dano extra contra hordas no contato. Concede +12% de reducao de cooldown por 2s."

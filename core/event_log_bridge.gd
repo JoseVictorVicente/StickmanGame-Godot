@@ -1,6 +1,7 @@
 class_name EventLogBridge
 extends RefCounted
 ## Connects domain signals to GameLog with throttling and trace IDs.
+## Combat tick sim emits CombatEvent internally; CombatController still exposes the signals below.
 
 const DPS_THROTTLE_SEC := 5.0
 

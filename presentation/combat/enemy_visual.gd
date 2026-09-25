@@ -37,6 +37,7 @@ var _horde_offset: Vector2 = Vector2.ZERO
 var _attack_range_notified: bool = false
 var _at_attack_stop: bool = false
 var _horde_attack_cd: float = 0.0
+var _sim_controlled: bool = false
 
 const DEATH_PASS_DISTANCE := 100.0
 const DEATH_OFFSCREEN_X := -90.0
@@ -91,8 +92,25 @@ func detach_from_leader() -> void:
 	_marker_pos = position
 
 
+func set_sim_controlled(active: bool) -> void:
+	_sim_controlled = active
+
+
+func sim_set_combat_x(combat_x: float) -> void:
+	_set_combat_x(combat_x)
+
+
+func sim_set_at_contact(at_contact: bool) -> void:
+	_at_attack_stop = at_contact
+	if at_contact:
+		_velocity.x = 0.0
+		if _state != State.ATTACKING:
+			_play_in_range_pose()
+
+
 func set_horde_member(active: bool) -> void:
 	_horde_member = active
+	set_sim_controlled(active)
 	if _barra:
 		_barra.visible = false
 	if not active:
@@ -252,6 +270,10 @@ func _process(delta: float) -> void:
 		return
 	if _escort_mode and _escort_leader != null:
 		_sync_escort_to_leader(delta)
+		return
+	if _sim_controlled and _horde_member:
+		if _state == State.ATTACKING and animation == "Ataque":
+			_try_spawn_attack_vfx(frame)
 		return
 	if self_modulate.a < 0.99 and not _allows_runner_sync_while_fading():
 		return
@@ -585,6 +607,8 @@ func _can_notify_attack_range() -> bool:
 
 
 func _try_notify_attack_range() -> void:
+	if _sim_controlled:
+		return
 	if _attack_range_notified or not _can_notify_attack_range():
 		return
 	_attack_range_notified = true
