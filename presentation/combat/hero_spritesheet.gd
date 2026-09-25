@@ -1,29 +1,39 @@
 class_name HeroSpritesheet
 extends RefCounted
-## Monta SpriteFrames do arqueiro (frames individuais) e utilitários de combate.
+## Monta SpriteFrames de heróis com arte (frames individuais) e utilitários de combate.
 
 const ID_ARQUEIRO := "archer"
-const FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
-const RUN_DIR := FRAMES_DIR + "run/"
-const DEATH_DIR := FRAMES_DIR + "death/"
-const ARCHER_RUN_FPS := 14.0
-const ARCHER_DEATH_FPS := 10.0
-const FRAME_COUNT := 21
+const ID_TANK := "tank"
+
+const ARCHER_FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
+const ARCHER_RUN_DIR := ARCHER_FRAMES_DIR + "run/"
+const ARCHER_DEATH_DIR := ARCHER_FRAMES_DIR + "death/"
+
+const TANK_FRAMES_DIR := "res://sprites/heroes/tank_capybara/"
+const TANK_RUN_DIR := TANK_FRAMES_DIR + "run/"
+const TANK_DEATH_DIR := TANK_FRAMES_DIR + "death/"
+
+const RUN_FPS := 14.0
+const DEATH_FPS := 10.0
 const ESCALA_STICK := Vector2(1.25, 1.25)
-const ESCALA_ARQUEIRO := Vector2(0.55, 0.55)
+const ESCALA_HERO_ART := Vector2(0.55, 0.55)
 const BARRA_STICK := Vector2(-14, -38)
-const ARCHER_BAR := Vector2(-14, -78)
-const ARCHER_GROUND_OFFSET := Vector2(0, 15)
-## Extra Y shift while playing death (sprite collapses toward floor).
-const ARCHER_DEATH_GROUND_OFFSET := Vector2(0, 22)
-## Pixels below sprite center to feet at ARCHER scale (frame feet ~y168, center y100).
-const ARCHER_FEET_BELOW_CENTER := 37.4
+const HERO_ART_BAR := Vector2(-14, -78)
+const HERO_ART_GROUND_OFFSET := Vector2(0, 15)
+const HERO_ART_DEATH_GROUND_OFFSET := Vector2(0, 22)
+const HERO_ART_FEET_BELOW_CENTER := 37.4
 const STICK_FEET_BELOW_CENTER := 22.0
 
-## Índice do frame dentro da animação "Ataque" em que a flecha é disparada.
 const ARCHER_ATTACK_RELEASE_INDEX := 9
 const ARCHER_ATTACK_START := 4
 const ARCHER_ATTACK_END := 16
+
+const TANK_ATTACK_RELEASE_INDEX := 10
+const TANK_ATTACK_START := 4
+const TANK_ATTACK_END := 24
+const TANK_HIT_START := 25
+const TANK_HIT_END := 27
+
 const ARCHER_ARROW_SPAWN := Vector2(22, -14)
 const ARCHER_ARROW_SPAWN_BY_FRAME := {
 	8: Vector2(24, -12),
@@ -34,6 +44,8 @@ const ATTACK_INTERVAL_BASE := 1.0
 const STICK_ATTACK_FPS := 14.0
 const STICK_ATTACK_FRAMES := 3
 const ARCHER_ATTACK_FPS := 20.0
+const TANK_ATTACK_FPS := 18.0
+const HIT_FPS := 12.0
 const ARCHER_ENGAGE_RANGE := 345.0
 const STICK_ENGAGE_RANGE := 55.0
 
@@ -48,9 +60,12 @@ static func has_class_art(id_classe: String) -> bool:
 static func frames(id_classe: String) -> SpriteFrames:
 	if _frames.has(id_classe):
 		return _frames[id_classe] as SpriteFrames
-	if id_classe != ID_ARQUEIRO:
-		return null
-	var montado: SpriteFrames = _build_archer()
+	var montado: SpriteFrames = null
+	match id_classe:
+		ID_ARQUEIRO:
+			montado = _build_archer()
+		ID_TANK:
+			montado = _build_tank()
 	if montado:
 		_frames[id_classe] = montado
 	return montado
@@ -62,20 +77,23 @@ static func invalidate_cache() -> void:
 
 
 static func scale_for(id_classe: String) -> Vector2:
-	if id_classe == ID_ARQUEIRO:
-		return ESCALA_ARQUEIRO
+	if _uses_hero_art(id_classe):
+		return ESCALA_HERO_ART
 	return ESCALA_STICK
 
 
 static func health_bar_offset(id_classe: String) -> Vector2:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_BAR
+	if _uses_hero_art(id_classe):
+		return HERO_ART_BAR
 	return BARRA_STICK
 
 
 static func attack_release_frame(id_classe: String) -> int:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_ATTACK_RELEASE_INDEX
+	match id_classe:
+		ID_ARQUEIRO:
+			return ARCHER_ATTACK_RELEASE_INDEX
+		ID_TANK:
+			return TANK_ATTACK_RELEASE_INDEX
 	return 4
 
 
@@ -96,20 +114,20 @@ static func arrow_target_horizontal(origem: Vector2, alvo: Vector2) -> Vector2:
 
 
 static func ground_offset(id_classe: String) -> Vector2:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_GROUND_OFFSET
+	if _uses_hero_art(id_classe):
+		return HERO_ART_GROUND_OFFSET
 	return Vector2.ZERO
 
 
 static func death_ground_offset(id_classe: String) -> Vector2:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_DEATH_GROUND_OFFSET
+	if _uses_hero_art(id_classe):
+		return HERO_ART_DEATH_GROUND_OFFSET
 	return Vector2.ZERO
 
 
 static func feet_below_center(id_classe: String) -> float:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_FEET_BELOW_CENTER
+	if _uses_hero_art(id_classe):
+		return HERO_ART_FEET_BELOW_CENTER
 	return STICK_FEET_BELOW_CENTER
 
 
@@ -124,18 +142,23 @@ static func engage_range(id_classe: String) -> float:
 
 
 static func attack_frame_count(id_classe: String) -> int:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
+	match id_classe:
+		ID_ARQUEIRO:
+			return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
+		ID_TANK:
+			return TANK_ATTACK_END - TANK_ATTACK_START + 1
 	return STICK_ATTACK_FRAMES
 
 
 static func attack_base_fps(id_classe: String) -> float:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_ATTACK_FPS
+	match id_classe:
+		ID_ARQUEIRO:
+			return ARCHER_ATTACK_FPS
+		ID_TANK:
+			return TANK_ATTACK_FPS
 	return STICK_ATTACK_FPS
 
 
-## speed_scale so attack animation duration matches attack cooldown.
 static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
 	var frame_count := attack_frame_count(id_classe)
 	var base_fps := attack_base_fps(id_classe)
@@ -144,18 +167,40 @@ static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
 	return default_duration / maxf(0.01, cooldown)
 
 
+static func _uses_hero_art(id_classe: String) -> bool:
+	return id_classe == ID_ARQUEIRO or id_classe == ID_TANK
+
+
 static func _build_archer() -> SpriteFrames:
 	var sf := SpriteFrames.new()
-	_add_anim(sf, "Idle", _load_frame_range(0, 3), true, 5.0)
-	_add_anim(sf, "Corrida", _load_run_frames(), true, ARCHER_RUN_FPS)
-	_add_anim(sf, "Ataque", _load_frame_range(ARCHER_ATTACK_START, ARCHER_ATTACK_END), false, 20.0)
-	_add_anim(sf, "Hit", _load_frame_range(5, 7), false, 12.0)
-	_add_anim(sf, "Morte", _load_dir_frames(DEATH_DIR), false, ARCHER_DEATH_FPS)
+	_add_anim(sf, "Idle", _load_frame_range(ARCHER_FRAMES_DIR, 0, 3), true, 5.0)
+	_add_anim(sf, "Corrida", _load_dir_frames(ARCHER_RUN_DIR), true, RUN_FPS)
+	_add_anim(
+		sf,
+		"Ataque",
+		_load_frame_range(ARCHER_FRAMES_DIR, ARCHER_ATTACK_START, ARCHER_ATTACK_END),
+		false,
+		ARCHER_ATTACK_FPS
+	)
+	_add_anim(sf, "Hit", _load_frame_range(ARCHER_FRAMES_DIR, 5, 7), false, HIT_FPS)
+	_add_anim(sf, "Morte", _load_dir_frames(ARCHER_DEATH_DIR), false, DEATH_FPS)
 	return sf
 
 
-static func _load_run_frames() -> Array[Texture2D]:
-	return _load_dir_frames(RUN_DIR)
+static func _build_tank() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_anim(sf, "Idle", _load_frame_range(TANK_FRAMES_DIR, 0, 3), true, 5.0)
+	_add_anim(sf, "Corrida", _load_dir_frames(TANK_RUN_DIR), true, RUN_FPS)
+	_add_anim(
+		sf,
+		"Ataque",
+		_load_frame_range(TANK_FRAMES_DIR, TANK_ATTACK_START, TANK_ATTACK_END),
+		false,
+		TANK_ATTACK_FPS
+	)
+	_add_anim(sf, "Hit", _load_frame_range(TANK_FRAMES_DIR, TANK_HIT_START, TANK_HIT_END), false, HIT_FPS)
+	_add_anim(sf, "Morte", _load_dir_frames(TANK_DEATH_DIR), false, DEATH_FPS)
+	return sf
 
 
 static func _load_dir_frames(dir: String) -> Array[Texture2D]:
@@ -173,24 +218,19 @@ static func _file_exists(path: String) -> bool:
 	return FileAccess.file_exists(ProjectSettings.globalize_path(path))
 
 
-static func _load_frame_range(from_frame: int, to_frame: int) -> Array[Texture2D]:
+static func _load_frame_range(base_dir: String, from_frame: int, to_frame: int) -> Array[Texture2D]:
 	var lista: Array[Texture2D] = []
 	if from_frame <= to_frame:
 		for i in range(from_frame, to_frame + 1):
-			var tex := _load_frame(i)
+			var tex := _load_texture("%sframe_%03d.png" % [base_dir, i])
 			if tex:
 				lista.append(tex)
 	else:
 		for i in range(from_frame, to_frame - 1, -1):
-			var tex := _load_frame(i)
+			var tex := _load_texture("%sframe_%03d.png" % [base_dir, i])
 			if tex:
 				lista.append(tex)
 	return lista
-
-
-static func _load_frame(index: int) -> Texture2D:
-	var path := "%sframe_%03d.png" % [FRAMES_DIR, index]
-	return _load_texture(path)
 
 
 static func _add_anim(sf: SpriteFrames, nome: String, texturas: Array[Texture2D], loop: bool, fps: float) -> void:

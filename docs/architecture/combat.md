@@ -49,7 +49,7 @@ On sim engage → `PHASE_CHANGED: ENGAGED` → scroll stops, solo minion cadence
 
 **Lane targets:** `PartyService.engage_lane_slot()` (rightmost living hero X) drives spawn, stop line, and `hero_front_lane_x`. `right_target_index()` remains the damage target for enemy hits.
 
-Wave 1 and horde skips spawn already engaged (no runner/regroup).
+Wave 1 solo uses the same opening runner as later waves (off-screen spawn + formation march). Horde waves still spawn already engaged.
 
 ### Horde spawn (unified catalog)
 

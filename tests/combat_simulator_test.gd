@@ -23,6 +23,8 @@ func _init() -> void:
 	_test_runner_phase_engages()
 	_test_solo_runner_lane_engage()
 	_test_enemy_hit_hero_via_sim()
+	_test_party_defeat_only_on_wipe()
+	_test_elite_pack_partial_kill_event()
 	_test_engage_lane_spawn_distance()
 	_test_battle_approach_allows_hero_hit()
 	_test_solo_block_stops_at_frontline()
@@ -164,6 +166,60 @@ func _test_enemy_hit_hero_via_sim() -> void:
 					_fail("enemy hit should apply positive damage")
 	if not found_hit:
 		_fail("solo engaged combat should emit ENEMY_HIT_HERO from sim")
+
+
+func _test_party_defeat_only_on_wipe() -> void:
+	var sim := CombatSimulatorScript.new()
+	var stats := {
+		"evasion": 0.0,
+		"phys_res": 0.0,
+		"arcane_res": 0.0,
+		"elemental_res": 0.0,
+	}
+	var partial := sim.resolve_enemy_attack(1, 500, 200, stats, 3)
+	var partial_defeat := false
+	for event in partial:
+		if event.kind == CombatEventScript.Kind.PARTY_DEFEATED:
+			partial_defeat = true
+	if partial_defeat:
+		_fail("PARTY_DEFEATED should not fire when other heroes remain alive")
+	var wipe := sim.resolve_enemy_attack(2, 500, 120, stats, 1)
+	var wipe_defeat := false
+	for event in wipe:
+		if event.kind == CombatEventScript.Kind.PARTY_DEFEATED:
+			wipe_defeat = true
+	if not wipe_defeat:
+		_fail("PARTY_DEFEATED should fire when the last living hero dies")
+
+
+func _test_elite_pack_partial_kill_event() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.world = 1
+	enc.stage = 1
+	enc.stage_wave = 4
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0))
+	if enc.elite == null or enc.flying == null:
+		_fail("elite wave 4 should spawn elite and flying escorts")
+	var sim := CombatSimulatorScript.new()
+	sim.configure(enc)
+	var lethal := enc.minion.max_hp + 100
+	var events := sim.apply_hero_hit(lethal, false)
+	var pack_kill := false
+	var wave_cleared := false
+	for event in events:
+		if event.kind == CombatEventScript.Kind.ENEMY_MEMBER_DIED:
+			if bool(event.payload.get("pack_kill", false)):
+				pack_kill = true
+		if event.kind == CombatEventScript.Kind.ENEMY_WAVE_CLEARED:
+			wave_cleared = true
+	if not pack_kill:
+		_fail("minion death with elite alive should emit pack ENEMY_MEMBER_DIED")
+	if wave_cleared:
+		_fail("minion death with elite alive should not emit ENEMY_WAVE_CLEARED")
+	if not enc.minion.is_dead() or enc.elite.is_dead():
+		_fail("only minion should die on the killing blow")
+	if not enc.has_living_enemies():
+		_fail("elite pack should still have living enemies after minion dies")
 
 
 func _test_engage_lane_spawn_distance() -> void:

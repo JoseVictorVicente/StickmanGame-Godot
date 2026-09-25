@@ -93,14 +93,21 @@ func detach_from_leader() -> void:
 
 
 func set_sim_controlled(active: bool) -> void:
+	if _state == State.DEAD:
+		_sim_controlled = false
+		return
 	_sim_controlled = active
 
 
 func sim_set_combat_x(combat_x: float) -> void:
+	if _state == State.DEAD:
+		return
 	_set_combat_x(combat_x)
 
 
 func sim_set_at_contact(at_contact: bool) -> void:
+	if _state == State.DEAD:
+		return
 	_at_attack_stop = at_contact
 	if at_contact:
 		_velocity.x = 0.0
@@ -271,7 +278,7 @@ func _process(delta: float) -> void:
 	if _escort_mode and _escort_leader != null:
 		_sync_escort_to_leader(delta)
 		return
-	if _sim_controlled and _horde_member:
+	if _sim_controlled:
 		if _state == State.ATTACKING and animation == "Ataque":
 			_try_spawn_attack_vfx(frame)
 		return
@@ -467,7 +474,8 @@ func _sync_escort_to_leader(delta: float) -> void:
 		_process_runner_sync(delta)
 	elif _escort_leader_engaged():
 		speed_scale = 1.0
-		_process_moving(delta)
+		_lock_escort_to_leader_x()
+		_sync_escort_animation_to_leader()
 	else:
 		speed_scale = 1.0
 		_process_escort_catch_up(delta)
@@ -480,6 +488,13 @@ func _escort_leader_engaged() -> bool:
 	if _escort_leader == null:
 		return false
 	return _escort_leader.is_in_attack_range() or _escort_leader._state == State.ATTACKING
+
+
+func _lock_escort_to_leader_x() -> void:
+	if _escort_leader == null:
+		return
+	position.x = _escort_leader.position.x + _escort_offset.x
+	_velocity.x = 0.0
 
 
 func _process_escort_catch_up(delta: float) -> void:
@@ -989,6 +1004,7 @@ func _finish_death_sequence() -> void:
 	_tween = create_tween()
 	_tween.tween_property(self, "self_modulate:a", 0.0, fade_sec)
 	_tween.tween_callback(func() -> void:
+		visible = false
 		death_finished.emit()
 	)
 

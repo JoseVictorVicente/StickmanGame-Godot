@@ -145,7 +145,7 @@ func _advance_runner(delta: float, can_heroes_act: bool) -> void:
 		and encounter.has_living_enemies()
 	):
 		if encounter.solo_at_block_contact():
-			if not encounter.battle_approach_active:
+			if not encounter.engaged and not encounter.battle_approach_active:
 				engage()
 			return
 		var speed := _solo_move_speed()
@@ -215,7 +215,8 @@ func resolve_enemy_attack(
 	target_slot: int,
 	raw_damage: int,
 	hero_hp: int,
-	hero_stats: Dictionary
+	hero_stats: Dictionary,
+	living_hero_count: int = 1
 ) -> Array:
 	_pending_events.clear()
 	var result := _DamagePipeline.apply_hero_damage(target_slot, raw_damage, hero_hp, hero_stats)
@@ -229,7 +230,7 @@ func resolve_enemy_attack(
 			"hp": result.get("hp", hero_hp),
 		}
 	))
-	if int(result.get("hp", 0)) <= 0:
+	if int(result.get("hp", 0)) <= 0 and living_hero_count <= 1:
 		_pending_events.append(_Event.make(
 			_Event.Kind.PARTY_DEFEATED,
 			tick_index,
@@ -260,7 +261,8 @@ func _resolve_action_queue() -> void:
 			slot,
 			int(ctx.get("raw_damage", 0)),
 			int(ctx.get("hero_hp", 0)),
-			ctx.get("hero_stats", {}) as Dictionary
+			ctx.get("hero_stats", {}) as Dictionary,
+			int(ctx.get("living_hero_count", 1))
 		)
 		for hit_event in hit_events:
 			_pending_events.append(hit_event)
@@ -353,6 +355,12 @@ func _record_enemy_hit_events(
 				_Event.Kind.ENEMY_MEMBER_DIED,
 				tick_index,
 				{"member_index": encounter.horde.active_index, "skill_id": extra.get("skill_id", "")}
+			))
+		elif encounter.has_living_enemies():
+			_pending_events.append(_Event.make(
+				_Event.Kind.ENEMY_MEMBER_DIED,
+				tick_index,
+				{"pack_kill": true, "skill_id": extra.get("skill_id", "")}
 			))
 		else:
 			_pending_events.append(_Event.make(

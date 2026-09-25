@@ -61,6 +61,7 @@ var _elite_enemy_timer: Timer
 var _flying_demon_enemy_timer: Timer
 var _horde_active: bool = false
 var _resolvendo_horde_membro: bool = false
+var _pending_defeat_after_morte: bool = false
 var _session: _CombatSession
 var _presentation_bridge: _PresentationBridge
 
@@ -185,10 +186,9 @@ func start_combat() -> void:
 		party.reset_runner_state()
 		party.start_combat()
 	_reset_stage_scroll()
-	_spawn_wave_enemy(false)
-	if party != null:
-		party.set_field_state(PartyService.PartyFieldState.ENGAGED)
-	_schedule_elite_attacks_if_needed()
+	_begin_wave_one_entry()
+	if _is_horde_wave(stage_wave):
+		_schedule_elite_attacks_if_needed()
 
 
 func _spawn_wave_enemy(off_screen: bool) -> void:
@@ -225,6 +225,23 @@ func _start_running_phase() -> void:
 
 
 func _on_regroup_before_runner() -> void:
+	_begin_runner_wave_spawn()
+
+
+func _begin_wave_one_entry() -> void:
+	if _is_horde_wave(stage_wave):
+		_spawn_wave_enemy(false)
+		if party != null:
+			party.set_field_state(PartyService.PartyFieldState.ENGAGED)
+		return
+	_bind_presentation_bridge()
+	if party != null:
+		party.regroup_to_formation(_begin_runner_wave_spawn)
+	else:
+		_begin_runner_wave_spawn()
+
+
+func _begin_runner_wave_spawn() -> void:
 	if _session != null:
 		_session.start_runner(_Tuning.RUNNER_DURATION)
 	_spawn_wave_enemy(true)
@@ -720,8 +737,9 @@ func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
 	_apply_combat_floor()
 	_reset_active_combat()
 	party.heal_party()
-	_spawn_wave_enemy(false)
-	_schedule_elite_attacks_if_needed()
+	_begin_wave_one_entry()
+	if _is_horde_wave(stage_wave):
+		_schedule_elite_attacks_if_needed()
 	progression_changed.emit()
 	hud_refresh.emit()
 	save_needed.emit()
@@ -986,7 +1004,7 @@ func _resolve_death() -> void:
 	var runner_started := false
 	var reward_enemy := _enemy_for_death_rewards()
 	if reward_enemy == null:
-		_resolvendo_morte = false
+		_release_morte_resolution()
 		return
 	party.combat_paused = true
 	AudioManager.play_death_sound()
@@ -1013,14 +1031,14 @@ func _resolve_death() -> void:
 		await get_tree().create_timer(0.4).timeout
 	_dying_enemy_visual = null
 	if _is_transition_stale(transition_token):
-		_resolvendo_morte = false
+		_release_morte_resolution()
 		return
 	gold_gained.emit(gold)
 	_apply_xp(_apply_xp_bonus(reward_enemy.xp_reward))
 	_try_drop()
 	party.apply_on_kill_passives()
 	if will_enter_run:
-		_resolvendo_morte = false
+		_release_morte_resolution()
 		party.combat_paused = false
 		if horde_skip_run:
 			stage_wave += 1
@@ -1042,33 +1060,113 @@ func _resolve_death() -> void:
 	_reset_stage_scroll()
 	party.heal_party()
 	_resume_party_combat_loop()
-	_spawn_wave_enemy(false)
-	_resolvendo_morte = false
-	_schedule_elite_attacks_if_needed()
+	_begin_wave_one_entry()
+	_release_morte_resolution()
+	if _is_horde_wave(stage_wave):
+		_schedule_elite_attacks_if_needed()
 	hud_refresh.emit()
 	save_needed.emit()
 
 
 func _resolve_defeat() -> void:
-	if _resolvendo_derrota or _resolvendo_morte:
+	if _resolvendo_derrota:
 		return
+	if _resolvendo_morte:
+		_pending_defeat_after_morte = true
+		return
+	await _run_defeat_sequence()
+
+
+func _run_defeat_sequence() -> void:
 	_resolvendo_derrota = true
+	_bump_combat_transition()
 	var transition_token := _combat_transition_id
-	party.combat_paused = true
+	if party != null:
+		party.combat_paused = true
+	_stop_enemy_attack_timers()
 	AudioManager.play_death_sound()
 	notice.emit(tr(LocaleKeys.UI_TEAM_DEFEATED))
 	await get_tree().create_timer(1.15).timeout
 	if _is_transition_stale(transition_token):
 		_resolvendo_derrota = false
 		return
-	party.heal_party()
+	_abort_encounter_after_defeat()
 	stage_wave = 1
 	_reset_stage_scroll()
-	_resume_party_combat_loop()
-	_spawn_wave_enemy(false)
+	if party != null:
+		party.heal_party()
+		party.reset_runner_state()
+		party.start_combat()
+		party.can_attack_target = can_hero_attack_slot
+	_begin_wave_one_entry_after_defeat(transition_token)
+
+
+func _begin_wave_one_entry_after_defeat(transition_token: int) -> void:
+	if _is_transition_stale(transition_token):
+		_resolvendo_derrota = false
+		return
+	if _is_horde_wave(stage_wave):
+		_spawn_wave_enemy(false)
+		if party != null:
+			party.set_field_state(PartyService.PartyFieldState.ENGAGED)
+		_finish_defeat_reset(transition_token)
+		return
+	_bind_presentation_bridge()
+	if party != null:
+		party.regroup_to_formation(func() -> void:
+			_on_defeat_regroup_spawn(transition_token)
+		)
+	else:
+		_on_defeat_regroup_spawn(transition_token)
+
+
+func _on_defeat_regroup_spawn(transition_token: int) -> void:
+	if _is_transition_stale(transition_token):
+		_resolvendo_derrota = false
+		return
+	_begin_runner_wave_spawn()
+	_finish_defeat_reset(transition_token)
+
+
+func _finish_defeat_reset(transition_token: int) -> void:
+	if _is_transition_stale(transition_token):
+		_resolvendo_derrota = false
+		return
+	if party != null:
+		party.combat_paused = false
 	_resolvendo_derrota = false
-	_schedule_elite_attacks_if_needed()
+	if _is_horde_wave(stage_wave):
+		_schedule_elite_attacks_if_needed()
 	hud_refresh.emit()
+	save_needed.emit()
+
+
+func _stop_enemy_attack_timers() -> void:
+	if _enemy_timer:
+		_enemy_timer.stop()
+	_stop_elite_attack_timer()
+	_stop_flying_demon_attack_timer()
+
+
+func _abort_encounter_after_defeat() -> void:
+	_stop_enemy_attack_timers()
+	_deactivate_horde()
+	if enemy_visual != null and enemy_visual.has_method("hide_escort"):
+		enemy_visual.hide_escort()
+	_hide_elite_visual()
+	if enemy_health_bar != null:
+		enemy_health_bar.fade_out()
+	if _session != null and _session.encounter != null:
+		_session.encounter.clear_enemies()
+	_sync_legacy_from_session()
+	_dying_enemy_visual = null
+
+
+func _try_run_pending_defeat() -> void:
+	if not _pending_defeat_after_morte or _resolvendo_derrota:
+		return
+	_pending_defeat_after_morte = false
+	_resolve_defeat()
 
 
 func _advance_stage() -> void:
@@ -1175,9 +1273,24 @@ func _consume_sim_meta_events(events: Array) -> void:
 			call_deferred("_handle_sim_party_defeated")
 	_sync_legacy_from_session()
 	if member_died and not _resolvendo_horde_membro and not _resolvendo_morte:
-		_resolve_horde_member_killed()
+		if _last_pack_member_died_event(events):
+			_resolve_pack_member_killed()
+		else:
+			_resolve_horde_member_killed()
 	elif wave_cleared and not _resolvendo_morte and not _resolvendo_derrota:
 		_trigger_sim_wave_cleared()
+	if (
+		party != null
+		and party.living_hero_count() <= 0
+		and not _resolvendo_derrota
+		and not _resolvendo_morte
+	):
+		call_deferred("_handle_sim_party_defeated")
+
+
+func _release_morte_resolution() -> void:
+	_resolvendo_morte = false
+	_try_run_pending_defeat()
 
 
 func _enemy_for_death_rewards() -> Enemy:
@@ -1226,11 +1339,34 @@ func _feedback_sim_skill_hit(payload: Dictionary) -> void:
 
 func _trigger_sim_wave_cleared() -> void:
 	_dying_enemy_visual = _get_active_enemy_visual()
-	if _elite_alive() or _flying_demon_alive():
-		_resolve_minion_killed()
-		return
 	enemy_died.emit()
 	_resolve_death()
+
+
+func _last_pack_member_died_event(events: Array) -> bool:
+	for i in range(events.size() - 1, -1, -1):
+		var event: Variant = events[i]
+		if not (event is RefCounted):
+			continue
+		if event.kind != _CombatEvent.Kind.ENEMY_MEMBER_DIED:
+			continue
+		return bool(event.payload.get("pack_kill", false))
+	return false
+
+
+func _resolve_pack_member_killed() -> void:
+	if _session == null or _session.encounter == null:
+		return
+	var enc: _Encounter = _session.encounter
+	if enc.minion != null and enc.minion.is_dead() and (_elite_alive() or _flying_demon_alive()):
+		await _resolve_minion_killed()
+		return
+	if enc.elite != null and enc.elite.is_dead() and _flying_demon_alive():
+		await _resolve_elite_killed()
+		return
+	_dying_enemy_visual = _get_active_enemy_visual()
+	enemy_died.emit()
+	await _resolve_death()
 
 
 func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
@@ -1266,7 +1402,10 @@ func _apply_damage_to_active_enemy(damage: int, is_crit: bool) -> bool:
 		if not (event is RefCounted):
 			continue
 		if event.kind == _CombatEvent.Kind.ENEMY_MEMBER_DIED:
-			await _resolve_horde_member_killed()
+			if bool(event.payload.get("pack_kill", false)):
+				await _resolve_pack_member_killed()
+			else:
+				await _resolve_horde_member_killed()
 			return false
 		if event.kind == _CombatEvent.Kind.ENEMY_WAVE_CLEARED:
 			var cleared_target := target_before if target_before != null else active
@@ -1420,6 +1559,7 @@ func _enemy_attack_context() -> Dictionary:
 		"raw_damage": enemy.damage,
 		"hero_hp": party.hero_current_hp(slot),
 		"hero_stats": party.hero_stats(slot),
+		"living_hero_count": party.living_hero_count(),
 	}
 
 
@@ -1432,5 +1572,7 @@ func _schedule_elite_attacks_if_needed() -> void:
 
 func _handle_sim_party_defeated() -> void:
 	if _resolvendo_derrota or _resolvendo_morte:
+		return
+	if party == null or party.living_hero_count() > 0:
 		return
 	await _resolve_defeat()

@@ -10,6 +10,7 @@ var _failed := false
 
 func _init() -> void:
 	_test_archer_outranges_melee()
+	_test_offscreen_spawn_outranges_archer()
 	_test_commit_preserves_visual_x()
 	_test_two_phase_regroup()
 	if _failed:
@@ -25,6 +26,14 @@ func _test_archer_outranges_melee() -> void:
 	var warrior_range := HeroSpritesheetScript.engage_range("warrior")
 	if archer_range <= warrior_range:
 		_fail("archer engage range should exceed warrior/melee range")
+
+
+func _test_offscreen_spawn_outranges_archer() -> void:
+	var hero_x := 0.0
+	var spawn_x := CombatTuningScript.spawn_lane_x(hero_x, true, false)
+	var archer_range := HeroSpritesheetScript.engage_range("archer")
+	if spawn_x - hero_x <= archer_range + 24.0:
+		_fail("off-screen spawn should start outside archer engage range")
 
 
 func _test_commit_preserves_visual_x() -> void:

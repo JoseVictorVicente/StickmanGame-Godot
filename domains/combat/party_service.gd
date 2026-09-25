@@ -65,6 +65,8 @@ var _regrouping: bool = false
 var _regroup_phase: RegroupPhase = RegroupPhase.NONE
 var _regroup_start_lead: float = 0.0
 var _regroup_phase_elapsed: float = 0.0
+var _regroup_spawn_callback: Callable = Callable()
+var _defer_spawn_until_regroup: bool = false
 
 
 func _ready() -> void:
@@ -202,10 +204,27 @@ func hero_engage_range(slot_index: int) -> float:
 	return HeroSpritesheet.engage_range(_class_id_for_slot(slot_index))
 
 
+func hero_field_combat_x(slot_index: int) -> float:
+	if not has_hero_in_slot(slot_index):
+		return INF
+	if slot_index < 0 or slot_index >= _sprites.size():
+		return INF
+	var sprite: AnimatedSprite2D = _sprites[slot_index]
+	if sprite == null or not sprite.visible:
+		return hero_combat_x(slot_index)
+	var combat_root := get_parent() as Node2D
+	if combat_root == null:
+		return hero_combat_x(slot_index)
+	return combat_root.to_local(sprite.global_position).x
+
+
 func is_hero_in_engage_range(slot_index: int, enemy_x: float) -> bool:
 	if not is_hero_alive(slot_index):
 		return false
-	return absf(enemy_x - hero_combat_x(slot_index)) <= hero_engage_range(slot_index)
+	var hero_x := hero_field_combat_x(slot_index)
+	if hero_x == INF:
+		return false
+	return absf(enemy_x - hero_x) <= hero_engage_range(slot_index)
 
 
 func any_hero_in_engage_range(enemy_x: float) -> bool:
@@ -275,10 +294,12 @@ func regroup_to_formation(on_complete: Callable = Callable()) -> void:
 		if sprite.has_method("clear_arrow_state"):
 			sprite.clear_arrow_state()
 	_cancel_march_regroup_tween()
+	_defer_spawn_until_regroup = false
+	_regroup_spawn_callback = on_complete
 	commit_march_from_combat()
 	begin_formation_march()
-	if on_complete.is_valid():
-		on_complete.call()
+	if not _defer_spawn_until_regroup:
+		_flush_regroup_spawn_callback()
 
 
 func sync_floor_y_only() -> void:
@@ -338,6 +359,9 @@ func hero_engage_x() -> float:
 	var slot := engage_lane_slot()
 	if slot < 0:
 		return HERO_PARTY_BACK_X if is_road_combat_ground() else 0.0
+	var field_x := hero_field_combat_x(slot)
+	if field_x != INF:
+		return field_x
 	return hero_combat_x(slot)
 
 
@@ -687,6 +711,14 @@ func is_hero_alive(slot_index: int) -> bool:
 	if not has_hero_in_slot(slot_index):
 		return false
 	return _vida_atual[slot_index] > 0
+
+
+func living_hero_count() -> int:
+	var total := 0
+	for slot_index in SLOTS:
+		if is_hero_alive(slot_index):
+			total += 1
+	return total
 
 
 func right_target_index() -> int:
@@ -1197,6 +1229,8 @@ func _cancel_march_regroup_tween() -> void:
 	_regrouping = false
 	_regroup_scroll_speed = 0.0
 	_regroup_phase_elapsed = 0.0
+	_defer_spawn_until_regroup = false
+	_regroup_spawn_callback = Callable()
 	_clear_regroup_run_scales()
 	if was_regrouping:
 		march_regroup_finished.emit()
@@ -1220,6 +1254,12 @@ func _start_march_regroup_if_needed() -> void:
 			if absf(float(spread)) > 0.001:
 				needs_converge = true
 				break
+	if not needs_regroup and living_hero_count() == 1:
+		needs_regroup = true
+		needs_converge = false
+		start_lead = _Tuning.SCROLL_SPEED_PX * _Tuning.FORMATION_SOLO_MIN_MARCH_SEC
+		_march_lead_x = start_lead
+		_defer_spawn_until_regroup = true
 	if not needs_regroup:
 		_regroup_scroll_speed = 0.0
 		return
@@ -1307,11 +1347,21 @@ func _finish_regroup() -> void:
 	_march_lead_x = 0.0
 	_regroup_scroll_speed = 0.0
 	_regroup_phase_elapsed = 0.0
+	_defer_spawn_until_regroup = false
 	for slot_index in SLOTS:
 		_formation_spread_x[slot_index] = 0.0
 		_refresh_slot_x(slot_index)
 	_clear_regroup_run_scales()
 	march_regroup_finished.emit()
+	_flush_regroup_spawn_callback()
+
+
+func _flush_regroup_spawn_callback() -> void:
+	if not _regroup_spawn_callback.is_valid():
+		return
+	var callback := _regroup_spawn_callback
+	_regroup_spawn_callback = Callable()
+	callback.call()
 
 
 func _refresh_slot_x(slot_index: int) -> void:

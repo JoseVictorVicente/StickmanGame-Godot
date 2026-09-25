@@ -192,17 +192,17 @@ func _spawn_solo_wave(base_stats: Dictionary, off_screen: bool) -> void:
 				int(elite_runtime["xp"]),
 				int(elite_runtime["damage"])
 			)
-		flying_data = EnemyCatalog.get_by_id("flying_demon")
-		if flying_data != null:
-			var flying_runtime := EnemyCatalog.build_runtime(base_stats, flying_data)
-			flying = Enemy.new()
-			flying.configure(
-				EnemyCatalog.display_name(flying_data, world),
-				int(flying_runtime["hp"]),
-				int(flying_runtime["gold"]),
-				int(flying_runtime["xp"]),
-				int(flying_runtime["damage"])
-			)
+			flying_data = EnemyCatalog.get_by_id("flying_demon")
+			if flying_data != null:
+				var flying_runtime := EnemyCatalog.build_runtime(base_stats, flying_data)
+				flying = Enemy.new()
+				flying.configure(
+					EnemyCatalog.display_name(flying_data, world),
+					int(flying_runtime["hp"]),
+					int(flying_runtime["gold"]),
+					int(flying_runtime["xp"]),
+					int(flying_runtime["damage"])
+				)
 	var contact_x := melee_lane_x()
 	if preserve_runner or off_screen:
 		phase = Phase.RUNNING

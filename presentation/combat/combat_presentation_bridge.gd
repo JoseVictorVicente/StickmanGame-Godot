@@ -65,6 +65,8 @@ func sync_solo_lane() -> void:
 		return
 	if not _encounter.has_living_enemies():
 		return
+	if _encounter.minion != null and _encounter.minion.is_dead():
+		return
 	var pixel_x := _lane_to_pixel(_encounter.solo_lane_x, _encounter.hero_front_lane_x)
 	var at_contact := (
 		not _encounter.solo_runner_active
@@ -98,6 +100,10 @@ func _present_horde(anchor: Vector2, off_screen: bool) -> void:
 func _present_solo(anchor: Vector2, off_screen: bool) -> void:
 	if horde_visuals != null:
 		horde_visuals.hide_all()
+	if elite_enemy_visual != null and (_encounter.elite == null or _encounter.elite_data == null):
+		elite_enemy_visual.hide_escort()
+	if flying_demon_enemy_visual != null and (_encounter.flying == null or _encounter.flying_data == null):
+		flying_demon_enemy_visual.hide_escort()
 	if _encounter.minion_data != null and enemy_visual != null:
 		if _encounter.minion_data.visual_profile != null:
 			enemy_visual.configure(_encounter.minion_data.visual_profile)
@@ -111,7 +117,13 @@ func _present_solo(anchor: Vector2, off_screen: bool) -> void:
 			escort_offset = _encounter.elite_data.visual_profile.escort_spawn_offset
 		elite_enemy_visual.set_escort(enemy_visual, escort_offset)
 		elite_enemy_visual.show_up(anchor + escort_offset)
-	if _encounter.flying_data != null and flying_demon_enemy_visual != null and _encounter.flying != null:
+	if (
+		_encounter.flying_data != null
+		and flying_demon_enemy_visual != null
+		and _encounter.flying != null
+		and _encounter.elite != null
+		and elite_enemy_visual != null
+	):
 		if _encounter.flying_data.visual_profile != null:
 			flying_demon_enemy_visual.configure(_encounter.flying_data.visual_profile)
 		var flying_escort_offset := _flying_escort_offset()

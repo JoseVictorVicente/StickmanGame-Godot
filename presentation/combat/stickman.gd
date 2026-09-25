@@ -75,7 +75,7 @@ func set_regroup_run_scale(scale: float) -> void:
 
 
 func end_running() -> void:
-	if _state != State.RUNNING:
+	if _caido or _state != State.RUNNING:
 		return
 	_state = State.IDLE
 	_resume_running_after_attack = false
@@ -111,6 +111,8 @@ func set_battle_advancing(active: bool) -> void:
 
 
 func reset_combat_pose() -> void:
+	if _caido:
+		return
 	_resume_running_after_attack = false
 	_arrow_in_flight = false
 	_battle_advancing = false
@@ -272,6 +274,8 @@ func hide_slot() -> void:
 
 
 func set_fallen(fallen: bool) -> void:
+	if fallen and _caido and not visible:
+		return
 	_caido = fallen
 	_arrow_in_flight = false
 	_resume_running_after_attack = false

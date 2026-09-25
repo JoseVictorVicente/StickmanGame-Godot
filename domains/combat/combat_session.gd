@@ -40,7 +40,7 @@ func refresh_solo_block_from_party(party: PartyService) -> void:
 	var slot := party.frontline_slot()
 	if slot < 0:
 		return
-	encounter.refresh_solo_block_contact(party.hero_combat_x(slot))
+	encounter.refresh_solo_block_contact(party.hero_engage_x())
 
 
 func spawn_wave(base_stats: Dictionary, anchor: Vector2, off_screen: bool) -> void:
