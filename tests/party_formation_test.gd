@@ -12,6 +12,7 @@ func _init() -> void:
 	_test_archer_outranges_melee()
 	_test_offscreen_spawn_outranges_archer()
 	_test_commit_preserves_visual_x()
+	_test_commit_reads_field_x_after_lane_reset()
 	_test_two_phase_regroup()
 	if _failed:
 		TestLog.suite_complete("PartyFormation", false)
@@ -49,6 +50,14 @@ func _test_commit_preserves_visual_x() -> void:
 		var after := _lane_x(slot_x, committed.lead, committed.spread, committed.advance, i)
 		if absf(before[i] - after) > 0.01:
 			_fail("commit must preserve lane x for slot %d" % i)
+
+
+func _test_commit_reads_field_x_after_lane_reset() -> void:
+	var slot_x := [-72.0, -28.0, -68.0]
+	var field_x := [-72.0 + 200.0, -28.0 + 150.0, -68.0]
+	var committed := _commit_lane_offsets_with_field(0.0, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], slot_x, field_x)
+	if committed.lead < 199.0:
+		_fail("commit should read forward field x after lane offsets were reset")
 
 
 func _test_two_phase_regroup() -> void:
@@ -101,10 +110,22 @@ func _commit_lane_offsets(
 	spread: Array,
 	advance: Array
 ) -> Dictionary:
+	return _commit_lane_offsets_with_field(march_lead, spread, advance, [], [])
+
+
+func _commit_lane_offsets_with_field(
+	march_lead: float,
+	spread: Array,
+	advance: Array,
+	slot_x: Array,
+	field_x: Array
+) -> Dictionary:
 	var lead := march_lead
 	var totals: Array[float] = []
 	for i in 3:
 		var total_forward: float = march_lead + spread[i] + advance[i]
+		if i < slot_x.size() and i < field_x.size():
+			total_forward = maxf(total_forward, float(field_x[i]) - float(slot_x[i]))
 		totals.append(total_forward)
 		lead = maxf(lead, total_forward)
 	var new_spread: Array[float] = []

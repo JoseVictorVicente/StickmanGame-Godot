@@ -25,6 +25,7 @@ func _init() -> void:
 	_test_enemy_hit_hero_via_sim()
 	_test_party_defeat_only_on_wipe()
 	_test_elite_pack_partial_kill_event()
+	_test_elite_pack_elite_kill_event()
 	_test_engage_lane_spawn_distance()
 	_test_battle_approach_allows_hero_hit()
 	_test_solo_block_stops_at_frontline()
@@ -220,6 +221,40 @@ func _test_elite_pack_partial_kill_event() -> void:
 		_fail("only minion should die on the killing blow")
 	if not enc.has_living_enemies():
 		_fail("elite pack should still have living enemies after minion dies")
+
+
+func _test_elite_pack_elite_kill_event() -> void:
+	var enc := CombatEncounterScript.new()
+	enc.world = 1
+	enc.stage = 1
+	enc.stage_wave = 4
+	enc.spawn_wave(WorldProgressScript.enemy_stats(1, 1, 0))
+	if enc.elite == null or enc.flying == null:
+		_fail("elite wave 4 should spawn elite and flying escorts")
+	var sim := CombatSimulatorScript.new()
+	sim.configure(enc)
+	var minion_lethal := enc.minion.max_hp + 100
+	sim.apply_hero_hit(minion_lethal, false)
+	if not enc.minion.is_dead() or enc.elite.is_dead():
+		_fail("minion setup should leave elite alive")
+	var elite_lethal := enc.elite.max_hp + 100
+	var events := sim.apply_hero_hit(elite_lethal, false)
+	var pack_kill := false
+	var wave_cleared := false
+	for event in events:
+		if event.kind == CombatEventScript.Kind.ENEMY_MEMBER_DIED:
+			if bool(event.payload.get("pack_kill", false)):
+				pack_kill = true
+		if event.kind == CombatEventScript.Kind.ENEMY_WAVE_CLEARED:
+			wave_cleared = true
+	if not pack_kill:
+		_fail("elite death with flying alive should emit pack ENEMY_MEMBER_DIED")
+	if wave_cleared:
+		_fail("elite death with flying alive should not emit ENEMY_WAVE_CLEARED")
+	if not enc.elite.is_dead() or enc.flying.is_dead():
+		_fail("only elite should die on the second killing blow")
+	if not enc.has_living_enemies():
+		_fail("flying demon should remain alive after elite dies")
 
 
 func _test_engage_lane_spawn_distance() -> void:

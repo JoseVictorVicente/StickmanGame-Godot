@@ -1358,11 +1358,12 @@ func _resolve_pack_member_killed() -> void:
 	if _session == null or _session.encounter == null:
 		return
 	var enc: _Encounter = _session.encounter
-	if enc.minion != null and enc.minion.is_dead() and (_elite_alive() or _flying_demon_alive()):
-		await _resolve_minion_killed()
-		return
+	# Elite must be checked before minion: imp is already dead when elite dies.
 	if enc.elite != null and enc.elite.is_dead() and _flying_demon_alive():
 		await _resolve_elite_killed()
+		return
+	if enc.minion != null and enc.minion.is_dead() and (_elite_alive() or _flying_demon_alive()):
+		await _resolve_minion_killed()
 		return
 	_dying_enemy_visual = _get_active_enemy_visual()
 	enemy_died.emit()
@@ -1497,12 +1498,18 @@ func _resolve_minion_killed() -> void:
 
 
 func _resolve_elite_killed() -> void:
+	_stop_elite_attack_timer()
 	if flying_demon_enemy_visual != null:
 		flying_demon_enemy_visual.detach_from_leader()
-	elite_enemy_visual.fade_out(false)
-	enemy_health_bar.fade_out()
-	if elite_enemy_visual.has_signal("death_finished"):
-		await elite_enemy_visual.death_finished
+	if elite_enemy_visual != null:
+		elite_enemy_visual.detach_from_leader()
+		elite_enemy_visual.clear_escort()
+		elite_enemy_visual.fade_out(false)
+		enemy_health_bar.fade_out()
+		if elite_enemy_visual.has_signal("death_finished"):
+			await elite_enemy_visual.death_finished
+	elif enemy_health_bar != null:
+		enemy_health_bar.fade_out()
 	if flying_demon_enemy_visual != null and current_flying_demon_enemy != null:
 		flying_demon_enemy_visual.clear_escort()
 		enemy_health_bar.initialize_bar(current_flying_demon_enemy.max_hp)

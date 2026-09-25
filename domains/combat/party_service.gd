@@ -188,6 +188,10 @@ func commit_march_from_combat() -> void:
 		var total_forward := (
 			_march_lead_x + _formation_spread_x[slot_index] + _battle_advance_x[slot_index]
 		)
+		var baseline := hero_slot_x(slot_index)
+		var field_x := hero_field_combat_x(slot_index)
+		if field_x != INF:
+			total_forward = maxf(total_forward, field_x - baseline)
 		totals[slot_index] = total_forward
 		lead = maxf(lead, total_forward)
 	_march_lead_x = lead
@@ -198,6 +202,9 @@ func commit_march_from_combat() -> void:
 			continue
 		_formation_spread_x[slot_index] = totals[slot_index] - lead
 		_battle_advance_x[slot_index] = 0.0
+	for slot_index in SLOTS:
+		if is_hero_alive(slot_index):
+			_refresh_slot_x(slot_index)
 
 
 func hero_engage_range(slot_index: int) -> float:

@@ -223,6 +223,8 @@ func clear_escort() -> void:
 	_escort_offset = Vector2.ZERO
 	_marker_pos = position
 	z_index = PartyService.COMBAT_ENEMY_Z
+	if _barra and not _horde_member:
+		_barra.visible = true
 
 
 func hide_escort() -> void:
