@@ -5,6 +5,7 @@ extends AnimatedSprite2D
 signal attack_impact
 signal attack_finished
 signal death_finished
+signal ready_to_attack
 
 enum State { MOVING, ATTACKING, DEAD }
 
@@ -27,10 +28,23 @@ var _escort_mode: bool = false
 var _escort_leader: EnemyVisual = null
 var _escort_offset: Vector2 = Vector2.ZERO
 var _attack_vfx_spawned: bool = false
+var _horde_targetable: bool = true
+var _horde_member: bool = false
+var _horde_slot_index: int = 0
+var _horde_backup: bool = false
+var _horde_leader: EnemyVisual = null
+var _horde_offset: Vector2 = Vector2.ZERO
+var _attack_range_notified: bool = false
+var _at_attack_stop: bool = false
+var _horde_attack_cd: float = 0.0
 
 const DEATH_PASS_DISTANCE := 100.0
 const DEATH_OFFSCREEN_X := -90.0
 const DARK_ELITE_ATTACK_START_FRAME := 12
+const RUNNER_DEATH_ANIM_SPEED_SCALE := 4.0
+const RUNNER_DEATH_DRIFT_MULT := 3.0
+const RUNNER_DEATH_FADE_SEC := 0.05
+const HORDE_MELEE_CONTACT := 0.0
 
 
 func _ready() -> void:
@@ -41,8 +55,7 @@ func _ready() -> void:
 	animation_finished.connect(_on_animation_finished)
 	animation_changed.connect(_on_animation_changed)
 	frame_changed.connect(_on_frame_changed)
-	_combat_root = get_parent() as Node2D
-	_party = _combat_root.get_node_or_null("PartyService") as PartyService if _combat_root else null
+	_ensure_combat_refs()
 	_marker_pos = position
 	_barra = HeroHealthBar.new()
 	add_child(_barra)
@@ -78,11 +91,91 @@ func detach_from_leader() -> void:
 	_marker_pos = position
 
 
+func set_horde_member(active: bool) -> void:
+	_horde_member = active
+	if _barra:
+		_barra.visible = false
+	if not active:
+		clear_horde_backup()
+
+
+func set_horde_slot(slot_index: int) -> void:
+	_horde_slot_index = slot_index
+	z_index = PartyService.COMBAT_ENEMY_Z + slot_index
+
+
+func set_horde_targetable(active: bool) -> void:
+	var was_targetable := _horde_targetable
+	_horde_targetable = active
+	if active:
+		clear_horde_backup()
+		_attack_range_notified = false
+		_horde_attack_cd = 0.0
+		if not was_targetable:
+			_at_attack_stop = false
+		call_deferred("_on_horde_promoted")
+	elif _horde_member and _state == State.MOVING and _at_attack_stop:
+		_try_horde_auto_attack()
+	elif _state == State.MOVING and _at_attack_stop:
+		_play_in_range_pose()
+
+
+func _on_horde_promoted() -> void:
+	if not _horde_targetable:
+		return
+	var front_stop := _horde_stop_combat_x()
+	if _self_combat_x() > front_stop + 0.5:
+		_at_attack_stop = false
+		return
+	_set_combat_x(front_stop)
+	_velocity.x = 0.0
+	_at_attack_stop = true
+	_try_notify_attack_range()
+	_try_horde_auto_attack()
+	if _state != State.ATTACKING:
+		_play_in_range_pose()
+
+
+func set_horde_backup(leader: EnemyVisual, offset: Vector2) -> void:
+	_horde_backup = leader != null
+	_horde_leader = leader
+	_horde_offset = offset
+	if _barra:
+		_barra.visible = false
+
+
+func clear_horde_backup() -> void:
+	_horde_backup = false
+	_horde_leader = null
+	_horde_offset = Vector2.ZERO
+
+
+func is_horde_backup() -> bool:
+	return _horde_backup
+
+
+func is_dead_state() -> bool:
+	return _state == State.DEAD
+
+
+func is_field_alive() -> bool:
+	return visible and _state != State.DEAD
+
+
 func is_targetable() -> bool:
-	return visible and _state != State.DEAD and self_modulate.a > 0.9
+	if _state == State.DEAD or not visible:
+		return false
+	if _horde_member and _horde_targetable:
+		return true
+	return _horde_targetable and self_modulate.a > 0.9
 
 
 static func pick_arrow_target(combat_root: Node) -> Node2D:
+	var horde := combat_root.get_node_or_null("HordeEnemies") as EnemyHordeVisuals
+	if horde != null:
+		var horde_target := horde.pick_target()
+		if horde_target != null:
+			return horde_target
 	var minion := combat_root.get_node_or_null("EnemyVisual") as EnemyVisual
 	var elite := combat_root.get_node_or_null("EliteEnemyVisual") as EnemyVisual
 	var flying := combat_root.get_node_or_null("FlyingDemonEnemyVisual") as EnemyVisual
@@ -109,6 +202,8 @@ func clear_escort() -> void:
 
 func hide_escort() -> void:
 	clear_escort()
+	clear_horde_backup()
+	_reset_attack_range_notify()
 	visible = false
 	if _tween:
 		_tween.kill()
@@ -127,10 +222,33 @@ func is_escort() -> bool:
 	return _escort_mode
 
 
+func _ensure_combat_refs() -> void:
+	if _party != null and _combat_root != null:
+		if _combat_root.get_node_or_null("PartyService") != null:
+			return
+	var node: Node = self
+	while node != null:
+		var party_node := node.get_node_or_null("PartyService")
+		if party_node is PartyService:
+			_combat_root = node as Node2D
+			_party = party_node as PartyService
+			return
+		node = node.get_parent()
+
+
 func _process(delta: float) -> void:
+	_ensure_combat_refs()
+	if _horde_attack_cd > 0.0:
+		_horde_attack_cd = maxf(0.0, _horde_attack_cd - delta)
 	if _state == State.DEAD:
+		var accelerate_death := _should_accelerate_death()
+		if accelerate_death and not _death_anim_done:
+			speed_scale = RUNNER_DEATH_ANIM_SPEED_SCALE
 		if _death_drifting:
-			_process_death_drift(delta)
+			var drift_delta := delta
+			if accelerate_death:
+				drift_delta *= RUNNER_DEATH_DRIFT_MULT
+			_process_death_drift(drift_delta)
 		return
 	if _escort_mode and _escort_leader != null:
 		_sync_escort_to_leader(delta)
@@ -149,16 +267,42 @@ func _process(delta: float) -> void:
 		_try_spawn_attack_vfx(frame)
 
 
+func is_at_attack_stop_line() -> bool:
+	return _at_attack_stop
+
+
+func is_at_attack_stop() -> bool:
+	if _at_attack_stop:
+		return true
+	var hero_x := _hero_combat_x()
+	if hero_x == INF:
+		return false
+	return _self_combat_x() <= _horde_stop_combat_x() + 0.5
+
+
 func is_in_attack_range() -> bool:
-	return _distance_to_hero() <= _attack_range()
+	if _horde_member:
+		return _at_attack_stop
+	if _at_attack_stop:
+		return true
+	var offset_x := _hero_combat_offset_x()
+	if offset_x == INF:
+		return false
+	var range_px := _attack_range()
+	return absf(offset_x) <= range_px + 2.0
 
 
 func begin_attack(cooldown: float = -1.0) -> bool:
 	if _state == State.DEAD or _escort_mode:
 		return false
-	if not is_in_attack_range():
+	if _horde_member:
+		if not _at_attack_stop:
+			return false
+	elif not _at_attack_stop and not is_in_attack_range():
 		return false
 	if _state == State.ATTACKING:
+		if _horde_member:
+			return true
 		abort_attack()
 	var intervalo := cooldown if cooldown > 0.0 else _attack_cooldown()
 	_start_attack(intervalo)
@@ -191,7 +335,7 @@ func play_attack() -> void:
 
 
 func update_hp(atual: int, maximo: int) -> void:
-	if _escort_mode:
+	if _escort_mode or _horde_member:
 		return
 	if _barra:
 		_barra.update(atual, maximo)
@@ -223,7 +367,9 @@ func fade_out(drift_with_scroll: bool = false) -> void:
 	_set_state(State.DEAD)
 	if _barra:
 		_barra.visible = false
-	position.y = _ground_y() + _death_ground_offset()
+	var death_drop := _death_ground_offset()
+	if absf(death_drop) > 0.001:
+		position.y = _snap_y_target() + death_drop
 	if sprite_frames != null and sprite_frames.has_animation("Morte"):
 		play("Morte")
 		return
@@ -238,6 +384,7 @@ func prepare_spawn(anchor_local: Vector2) -> void:
 func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 	if _tween:
 		_tween.kill()
+	_reset_attack_range_notify()
 	_velocity = Vector2.ZERO
 	_impact_frames_hit.clear()
 	_death_drifting = false
@@ -257,7 +404,7 @@ func show_up(anchor_local: Vector2 = Vector2.INF) -> void:
 		_snap_to_ground(true)
 	self_modulate = Color(1, 1, 1, 0)
 	if _barra:
-		_barra.visible = not _escort_mode
+		_barra.visible = not _escort_mode and not _horde_member
 	_tween = create_tween()
 	_tween.tween_property(self, "self_modulate", Color.WHITE, 0.2)
 	_tween.tween_callback(func() -> void:
@@ -278,9 +425,8 @@ func _sync_escort_to_leader(delta: float) -> void:
 		if _state == State.MOVING:
 			_process_moving(delta)
 		return
-	_apply_gravity(delta)
 	if _state == State.ATTACKING:
-		position.y = _ground_y()
+		position.y = _snap_y_target()
 		_update_escort_z_index()
 		return
 	if _party != null and _party.is_runner_syncing():
@@ -363,6 +509,10 @@ func _runner_sync_speed_scale() -> float:
 
 
 func _process_runner_sync(delta: float) -> void:
+	if _horde_member:
+		_process_moving(delta)
+		return
+	_at_attack_stop = false
 	_velocity.x = -FloorScroller.SCROLL_SPEED_PX
 	speed_scale = _runner_sync_speed_scale()
 	if _escort_mode and _escort_leader != null:
@@ -376,16 +526,69 @@ func _process_runner_sync(delta: float) -> void:
 
 func _process_moving(delta: float) -> void:
 	speed_scale = 1.0
-	var distancia := _distance_to_hero()
-	if distancia <= _attack_range():
+	var hero_x := _hero_combat_x()
+	if hero_x == INF:
+		_at_attack_stop = false
+		_set_combat_x(_self_combat_x() - _move_speed() * delta)
+		_velocity.x = -_move_speed()
+		flip_h = false
+		_play_run()
+		return
+	var stop_x := _horde_stop_combat_x()
+	var self_x := _self_combat_x()
+	if self_x <= stop_x:
+		_set_combat_x(stop_x)
 		_velocity.x = 0.0
 		flip_h = false
-		_play_in_range_pose()
+		_at_attack_stop = true
+		_try_notify_attack_range()
+		_try_horde_auto_attack()
+		if _state != State.ATTACKING:
+			_play_in_range_pose()
 		return
+	_at_attack_stop = false
+	_set_combat_x(maxf(stop_x, self_x - _move_speed() * delta))
 	_velocity.x = -_move_speed()
-	position.x += _velocity.x * delta
 	flip_h = false
 	_play_run()
+
+
+func _reset_attack_range_notify() -> void:
+	_attack_range_notified = false
+	_at_attack_stop = false
+	_horde_attack_cd = 0.0
+
+
+func _try_horde_auto_attack() -> void:
+	if not _horde_member and not _horde_targetable:
+		return
+	if _state != State.MOVING or not _at_attack_stop:
+		return
+	if _horde_attack_cd > 0.0:
+		return
+	if _escort_mode or _state == State.DEAD:
+		return
+	if _party != null and _party.combat_paused:
+		return
+	if _horde_member:
+		_try_notify_attack_range()
+		return
+	_start_attack(_attack_cooldown())
+
+
+func _can_notify_attack_range() -> bool:
+	if _state == State.DEAD or _escort_mode:
+		return false
+	if _horde_member and not _horde_targetable:
+		return false
+	return _at_attack_stop or is_in_attack_range()
+
+
+func _try_notify_attack_range() -> void:
+	if _attack_range_notified or not _can_notify_attack_range():
+		return
+	_attack_range_notified = true
+	ready_to_attack.emit()
 
 
 func _start_attack(cooldown: float) -> void:
@@ -395,14 +598,17 @@ func _start_attack(cooldown: float) -> void:
 	_set_state(State.ATTACKING)
 	speed_scale = _attack_speed_scale(cooldown)
 	if sprite_frames == null or not sprite_frames.has_animation("Ataque"):
-		if not _escort_mode:
+		if not _escort_mode and not (_horde_member and not _horde_targetable):
 			_emit_attack_impact()
 		_finish_attack()
 		return
 	play("Ataque")
+	if not _uses_run_ready_pose():
+		frame = 0
 	_apply_attack_start_frame()
+	frame_progress = 0.0
 	if animation != "Ataque":
-		if not _escort_mode:
+		if not _escort_mode and not (_horde_member and not _horde_targetable):
 			_emit_attack_impact()
 		_finish_attack()
 
@@ -412,13 +618,85 @@ func _set_state(novo: State) -> void:
 
 
 func _distance_to_hero() -> float:
-	var hero_local: Variant = _hero_local_pos()
-	if hero_local == null:
+	var offset_x := _hero_combat_offset_x()
+	if offset_x == INF:
 		return INF
-	return absf(position.x - (hero_local as Vector2).x)
+	return absf(offset_x)
+
+
+func _hero_world_x() -> float:
+	_ensure_combat_refs()
+	if _party == null:
+		return INF
+	var alvo := _party.front_target_index()
+	if alvo < 0:
+		return INF
+	var hero_pos := _party.hero_world_position(alvo)
+	if hero_pos == Vector2.ZERO:
+		return INF
+	return hero_pos.x
+
+
+func _hero_combat_x() -> float:
+	_ensure_combat_refs()
+	if _party == null:
+		return INF
+	var slot := _party.front_target_index()
+	if slot < 0:
+		return INF
+	return _party.hero_slot_x(slot)
+
+
+func _self_combat_x() -> float:
+	_ensure_combat_refs()
+	if _combat_root == null:
+		return position.x
+	var parent_node := get_parent() as Node2D
+	if parent_node == null or parent_node == _combat_root:
+		return position.x
+	return _combat_root.to_local(global_position).x
+
+
+func _set_combat_x(combat_x: float) -> void:
+	_ensure_combat_refs()
+	if _combat_root == null:
+		position.x = combat_x
+		return
+	var parent_node := get_parent() as Node2D
+	if parent_node == null or parent_node == _combat_root:
+		position.x = combat_x
+		return
+	var local_y := _combat_root.to_local(global_position).y
+	var global_pt := _combat_root.to_global(Vector2(combat_x, local_y))
+	var local_pos := parent_node.to_local(global_pt)
+	position.x = local_pos.x
+
+
+func _hero_combat_offset_x() -> float:
+	var hero_x := _hero_combat_x()
+	if hero_x == INF:
+		return INF
+	return _self_combat_x() - hero_x
+
+
+func _attack_stop_combat_x() -> float:
+	var hero_x := _hero_combat_x()
+	if hero_x == INF:
+		return _self_combat_x()
+	return hero_x + _attack_range()
+
+
+func _horde_stop_combat_x() -> float:
+	if not _horde_member:
+		return _attack_stop_combat_x()
+	var hero_x := _hero_combat_x()
+	if hero_x == INF:
+		return _self_combat_x()
+	return hero_x + HORDE_MELEE_CONTACT
 
 
 func _hero_local_pos() -> Variant:
+	_ensure_combat_refs()
 	if _party == null or _combat_root == null:
 		return null
 	var alvo := _party.front_target_index()
@@ -427,12 +705,15 @@ func _hero_local_pos() -> Variant:
 	var hero_pos := _party.hero_world_position(alvo)
 	if hero_pos == Vector2.ZERO:
 		return null
-	return _combat_root.to_local(hero_pos)
+	var space_root := get_parent() as Node2D
+	if space_root == null:
+		return _combat_root.to_local(hero_pos)
+	return space_root.to_local(hero_pos)
 
 
 func _ground_y() -> float:
 	if _party != null and _party.is_road_combat_ground():
-		return _party.combat_road_ground_y(_active_feet_below_center())
+		return _party.combat_road_ground_y(_active_feet_below_center()) + _ground_fine_tune()
 	if _party != null:
 		var slot := _party.front_target_index()
 		if slot >= 0:
@@ -507,10 +788,13 @@ func _play_run() -> void:
 
 
 func _uses_run_ready_pose() -> bool:
-	return _profile.profile_id == "dark_elite"
+	return _profile.profile_id == "dark_elite" or _profile.profile_id == "flying_demon"
 
 
 func _play_in_range_pose() -> void:
+	if _horde_member:
+		_play_horde_idle()
+		return
 	if _uses_run_ready_pose():
 		_hold_corrida_pose()
 		return
@@ -537,6 +821,16 @@ func _apply_attack_start_frame() -> void:
 	if total <= DARK_ELITE_ATTACK_START_FRAME:
 		return
 	frame = DARK_ELITE_ATTACK_START_FRAME
+
+
+func _play_horde_idle() -> void:
+	if sprite_frames == null or not sprite_frames.has_animation("Idle"):
+		return
+	if animation == "Idle" and is_playing():
+		return
+	play("Idle")
+	frame_progress = 0.0
+	_snap_to_ground(true)
 
 
 func _play_idle() -> void:
@@ -575,6 +869,8 @@ func _on_frame_changed() -> void:
 	if _impact_frames_hit.has(frame):
 		return
 	_impact_frames_hit.append(frame)
+	if _horde_member and not _horde_targetable:
+		return
 	attack_impact.emit()
 
 
@@ -583,6 +879,7 @@ func _emit_attack_impact() -> void:
 
 
 func _finish_attack() -> void:
+	var chain_horde_swing := _horde_member and _at_attack_stop and animation == "Ataque"
 	_impact_frames_hit.clear()
 	speed_scale = 1.0
 	if _state == State.ATTACKING:
@@ -602,6 +899,14 @@ func _finish_attack() -> void:
 	else:
 		_play_run()
 	attack_finished.emit()
+	if not _at_attack_stop:
+		return
+	if chain_horde_swing:
+		_horde_attack_cd = 0.0
+		_attack_range_notified = false
+		call_deferred("_try_horde_auto_attack")
+	elif _horde_member or _horde_targetable:
+		_horde_attack_cd = _attack_cooldown()
 
 
 func _process_death_drift(delta: float) -> void:
@@ -616,8 +921,15 @@ func _corpse_passed_hero() -> bool:
 	return position.x <= (hero_local as Vector2).x - 24.0
 
 
+func _should_accelerate_death() -> bool:
+	return _party != null and _party.is_runner_syncing()
+
+
 func _check_death_complete() -> void:
 	if _death_finished_emitted or not _death_anim_done:
+		return
+	if _should_accelerate_death():
+		_finish_death_sequence()
 		return
 	if _death_drifting:
 		if _hero_was_close_at_death:
@@ -635,8 +947,9 @@ func _finish_death_sequence() -> void:
 	_death_drifting = false
 	if _tween:
 		_tween.kill()
+	var fade_sec := RUNNER_DEATH_FADE_SEC if _should_accelerate_death() else 0.12
 	_tween = create_tween()
-	_tween.tween_property(self, "self_modulate:a", 0.0, 0.12)
+	_tween.tween_property(self, "self_modulate:a", 0.0, fade_sec)
 	_tween.tween_callback(func() -> void:
 		death_finished.emit()
 	)

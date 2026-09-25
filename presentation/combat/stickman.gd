@@ -132,9 +132,14 @@ func begin_attack(_cooldown: float, attack_speed: float) -> bool:
 		_emit_attack_impact()
 		_finish_attack()
 		return true
-	if not _usar_arte:
+	if not _usar_arte and not _uses_road_attack_pose():
 		_slide_attack(speed_scale)
 	return true
+
+
+func _uses_road_attack_pose() -> bool:
+	var party := get_parent() as PartyService
+	return party != null and party.is_road_combat_ground()
 
 
 func is_attacking() -> bool:

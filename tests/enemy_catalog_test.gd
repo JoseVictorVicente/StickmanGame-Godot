@@ -11,8 +11,11 @@ var _failed := false
 
 func _init() -> void:
 	EnemyCatalogScript.reload_for_tests()
-	_test_resolve_minion_world1()
+	_test_resolve_minion_wave1()
+	_test_resolve_minion_wave2()
+	_test_resolve_minion_wave3()
 	_test_resolve_boss_world1()
+	_test_resolve_minion_wave4()
 	_test_resolve_elite_wave4()
 	_test_build_runtime_multipliers()
 	_test_fallback_unknown_spawn()
@@ -24,10 +27,28 @@ func _init() -> void:
 	quit(0)
 
 
-func _test_resolve_minion_world1() -> void:
+func _test_resolve_minion_wave1() -> void:
+	var data: EnemyData = EnemyCatalogScript.resolve(1, 3, 1, EnemyDataScript.SpawnRole.MINION)
+	if data == null or data.enemy_id != "imp_red":
+		_fail("expected imp_red minion on wave 1")
+
+
+func _test_resolve_minion_wave2() -> void:
 	var data: EnemyData = EnemyCatalogScript.resolve(1, 3, 2, EnemyDataScript.SpawnRole.MINION)
 	if data == null or data.enemy_id != "cerberus_pup":
-		_fail("expected cerberus_pup minion for world 1 stage 3 wave 2")
+		_fail("expected cerberus_pup minion on wave 2")
+
+
+func _test_resolve_minion_wave3() -> void:
+	var data: EnemyData = EnemyCatalogScript.resolve(1, 3, 3, EnemyDataScript.SpawnRole.MINION)
+	if data == null or data.enemy_id != "dark_elite_solo":
+		_fail("expected dark_elite_solo minion on wave 3")
+
+
+func _test_resolve_minion_wave4() -> void:
+	var data: EnemyData = EnemyCatalogScript.resolve(1, 3, 4, EnemyDataScript.SpawnRole.MINION)
+	if data == null or data.enemy_id != "imp_red":
+		_fail("expected imp_red minion on wave 4 test roster")
 
 
 func _test_resolve_boss_world1() -> void:

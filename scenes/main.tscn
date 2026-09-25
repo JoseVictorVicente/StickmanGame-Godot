@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://qrjq2r1aebta" path="res://sprites/environment/grass_floor.png" id="7_chao"]
 [ext_resource type="Script" path="res://presentation/combat/floor_scroller.gd" id="8_floor"]
 [ext_resource type="Script" path="res://presentation/combat/combat_background.gd" id="9_bg"]
+[ext_resource type="Script" path="res://presentation/combat/enemy_horde_visuals.gd" id="10_horde"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_batalha"]
 content_margin_left = 8.0
@@ -140,6 +141,9 @@ script = ExtResource("5_inimigo")
 position = Vector2(160, -52)
 visible = false
 script = ExtResource("5_inimigo")
+
+[node name="HordeEnemies" type="Node2D" parent="BattleHud/Combate"]
+script = ExtResource("10_horde")
 
 [node name="BattlePanel" type="PanelContainer" parent="BattleHud" unique_id=179778745]
 custom_minimum_size = Vector2(320, 0)

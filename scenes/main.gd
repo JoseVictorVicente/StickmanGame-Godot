@@ -19,6 +19,7 @@ extends Node2D
 @onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
 @onready var elite_enemy_visual: EnemyVisual = $BattleHud/Combate/EliteEnemyVisual
 @onready var flying_demon_enemy_visual: EnemyVisual = $BattleHud/Combate/FlyingDemonEnemyVisual
+@onready var horde_visuals: EnemyHordeVisuals = $BattleHud/Combate/HordeEnemies
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -51,6 +52,7 @@ func _ready() -> void:
 	_combat.enemy_visual = enemy_visual
 	_combat.elite_enemy_visual = elite_enemy_visual
 	_combat.flying_demon_enemy_visual = flying_demon_enemy_visual
+	_combat.horde_visuals = horde_visuals
 	_combat.enemy_health_bar = enemy_health_bar
 	elite_enemy_visual.hide_escort()
 	flying_demon_enemy_visual.hide_escort()
@@ -74,6 +76,14 @@ func _ready() -> void:
 		flying_demon_enemy_visual.attack_impact.connect(_combat.on_flying_demon_attack_impact)
 	if not flying_demon_enemy_visual.attack_finished.is_connected(_combat.on_flying_demon_attack_finished):
 		flying_demon_enemy_visual.attack_finished.connect(_combat.on_flying_demon_attack_finished)
+	if horde_visuals != null:
+		horde_visuals.connect_attack_signals(
+			_combat.on_enemy_attack_impact,
+			_combat.on_enemy_attack_finished,
+			_combat.request_minion_attack
+		)
+	if not enemy_visual.ready_to_attack.is_connected(_combat.request_minion_attack):
+		enemy_visual.ready_to_attack.connect(_combat.request_minion_attack)
 	_combat.hero_progress = _hero_progress
 	_combat.get_character_index = func() -> int: return inventory_menu.current_character_index()
 	_combat.get_gold_destination = _gold_destination
