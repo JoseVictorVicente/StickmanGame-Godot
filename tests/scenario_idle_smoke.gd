@@ -41,6 +41,8 @@ func _run_smoke() -> void:
 		_fail("expected at least 1 hero attack")
 	if counters.get("deaths", 0) < 1:
 		_fail("expected at least 1 enemy death")
+	if counters.get("attacks", 0) < 5:
+		_fail("expected sustained hero attacks during smoke window")
 	if counters.get("gold_events", 0) < 1:
 		_fail("expected at least 1 gold gained event")
 
@@ -53,6 +55,7 @@ func _finish(counters: Dictionary) -> void:
 		{"suite": "idle_smoke", "passed": not _failed, "counters": counters},
 	)
 	if _failed:
+		print("[TEST FAIL] IdleSmoke")
 		quit(1)
 	print("[TEST PASS] IdleSmoke")
 	quit(0)

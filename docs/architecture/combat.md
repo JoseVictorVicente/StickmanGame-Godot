@@ -2,14 +2,40 @@
 
 Combat is **fully automatic**: three hero slots attack on independent timers; the enemy counter-attacks the rightmost living hero. There is no attack input — the player influences outcomes via party composition, equipment, skill tree, and selected stage.
 
-**Code:** rules in `domains/combat/`; visuals in `presentation/combat/`.
+**Code:** rules in `domains/combat/` (simulation + orchestration); visuals in `presentation/combat/`.
+
+## Tick-based simulation (`domains/combat/sim/`)
+
+Combat rules run in a **discrete tick loop** (0.25s, aligned with `PartyService` minimum attack interval). Presentation mirrors simulation state; it never applies damage.
+
+| Class / file | Role |
+|--------------|------|
+| `CombatEncounter` | Serializable encounter state (party targets, horde squad, runner phase) |
+| `CombatSimulator` | Tick advance, horde lane movement, swarm cadence, hero-hit resolution |
+| `CombatEvent` | Domain events (`HERO_HIT_ENEMY`, `SWARM_ATTACK`, `ENEMY_WAVE_CLEARED`, …) |
+| `CombatActorGroup` | Horde / queue squad with abstract lane positions |
+| `DamagePipeline` | Single-pass hero/enemy damage (uses `CombatMath`) |
+| `CombatActionQueue` | Per-tick action drain (enemy attacks; skills queued incrementally) |
+| `CombatSession` | Wires encounter + simulator + `CombatPresentationBridge` |
+| `CombatPresentationBridge` | Maps `CombatEvent` → sprites, VFX, audio (no combat rules) |
+
+`CombatController` keeps **meta-combat** only: stage advance, gold/XP signals, save hooks. It delegates spawn, hero hits, and enemy cadence to `CombatSession`.
+
+### Horde spawn (unified catalog)
+
+`EnemyData.horde_count` + `horde_attack_mode` (`SWARM` | `QUEUE`) replace the legacy horde wave catalog. `EnemyCatalog.resolve_horde()` is the single spawn entry for multi-enemy waves.
+
+### Observable events (assisted logging)
+
+Structured logging still listens to **controller/party signals** (`hero_attacked`, `enemy_hit`, `enemy_died`, …). The simulator emits `CombatEvent` internally; the controller translates them into the existing signal contract for `EventLogBridge`.
 
 ## Core components
 
 | Class / file | Role |
 |--------------|------|
 | `PartyService` | Party of up to 3 heroes, timers, DPS, HP, serialization |
-| `CombatController` | Combat loop, enemy death, defeat, stage advance |
+| `CombatController` | Meta-combat: death/defeat, stage advance, economy signals |
+| `CombatSession` | Simulation orchestration for the active encounter |
 | `DropManager` | Gold variance and item drop chance |
 | `Enemy` | HP, damage, rewards |
 | `HeroProgress` | XP/level per class (used after death) |
@@ -53,29 +79,35 @@ func serializar() -> Dictionary  # {"classes": [...], "desbloqueadas": [...]}
 
 `combate_pausado` blocks timers during death/defeat resolution.
 
-## Combat loop (`CombatController`)
+## Combat loop (`CombatController` + `CombatSession`)
 
 ```mermaid
 sequenceDiagram
 	participant PM as PartyService
 	participant CC as CombatController
-	participant EN as Enemy
+	participant CS as CombatSession
+	participant SIM as CombatSimulator
+	participant BR as CombatPresentationBridge
 
-	PM->>CC: heroi_atacou(slot, dano)
-	CC->>EN: take_damage(dano)
-	alt enemy died
-		CC->>CC: _resolver_morte
+	PM->>CC: hero_attacked(slot, damage)
+	CC->>CS: apply_hero_hit(damage)
+	CS->>SIM: apply_hero_hit
+	SIM-->>CS: CombatEvent[]
+	CS->>BR: apply_events
+	alt enemy wave cleared
+		CC->>CC: _resolve_death
 		Note over CC: gold, XP, drop, advance stage
-		CC->>PM: curar_equipe
-		CC->>CC: gerar_inimigo
 	end
 
-	Note over CC: Enemy timer (1.35s)
-	CC->>PM: aplicar_dano_no_heroi(right_target)
-	alt all heroes down
-		CC->>CC: _resolver_derrota
-		CC->>PM: curar_equipe
+	loop each frame
+		CC->>CS: advance_frame(delta)
+		CS->>SIM: advance (ticks)
+		SIM-->>BR: SWARM_ATTACK etc.
+		BR->>BR: begin_attack animations
 	end
+
+	Note over CC: attack_impact signal
+	CC->>PM: apply_damage_to_hero(right_target)
 ```
 
 ### Resolution states

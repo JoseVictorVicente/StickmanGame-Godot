@@ -10,7 +10,15 @@ signal dps_changed(dps: float, dano_grupo: int)
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
-const ENEMY_SPAWN_X_BASE := 190.0
+const HERO_SLOT_OFFSETS := [-28.0, 0.0, 28.0]
+const HERO_PARTY_BACK_X := -72.0
+const ARCHER_ROAD_BACK_EXTRA := -40.0
+const HERO_FLOOR_OFFSET := 4.0
+const HERO_ROAD_DROP_OFFSET := 16.0
+const ENEMY_ATTACK_GAP := 40.0
+const ENEMY_APPROACH_RUNWAY := 80.0
+const COMBAT_ACTOR_Z := 2
+const COMBAT_ENEMY_Z := 4
 const OFF_SCREEN_SPAWN_EXTRA_X := 220.0
 
 var active_party: Array = [null, null, null]
@@ -41,6 +49,8 @@ var _active_runtime := ActiveSkillRuntime.new()
 var _combat_resolver := CombatResolver.new()
 var _pending_attacks: Array = [{}, {}, {}]
 var _running: bool = false
+var runner_sync_active: bool = false
+var runner_sync_engaged: bool = false
 
 
 func _ready() -> void:
@@ -83,16 +93,90 @@ func is_running() -> bool:
 	return _running
 
 
+var floor_scroller: FloorScroller
+var combat_background: CombatBackground
+
+
 func combat_floor_y() -> float:
-	return _posicoes[0].position.y if not _posicoes.is_empty() else -46.0
+	return combat_floor_y_for_slot(1)
+
+
+func is_road_combat_ground() -> bool:
+	return (
+		combat_background != null
+		and combat_background.texture != null
+		and combat_background.visible
+	)
+
+
+func combat_road_ground_y(feet_below_center: float) -> float:
+	var road_y := combat_background.walk_surface_y()
+	return road_y - feet_below_center + HERO_ROAD_DROP_OFFSET
+
+
+func combat_floor_y_for_slot(slot_index: int) -> float:
+	if is_road_combat_ground():
+		var class_id := _class_id_for_slot(slot_index)
+		return (
+			combat_road_ground_y(HeroSpritesheet.feet_below_center(class_id))
+			- HeroSpritesheet.ground_offset(class_id).y
+		)
+	if floor_scroller != null and floor_scroller.visible:
+		return floor_scroller.platform_top_y() + HERO_FLOOR_OFFSET
+	return _posicoes[slot_index].position.y if slot_index < _posicoes.size() else -30.0
+
+
+func hero_slot_x(slot_index: int) -> float:
+	var spacing: float = HERO_SLOT_OFFSETS[slot_index] if slot_index >= 0 and slot_index < SLOTS else 0.0
+	if is_road_combat_ground():
+		var x: float = HERO_PARTY_BACK_X + spacing
+		if _class_id_for_slot(slot_index) == "archer":
+			x += ARCHER_ROAD_BACK_EXTRA
+		return x
+	return spacing
+
+
+func sync_floor_positions() -> void:
+	for i in SLOTS:
+		var floor_y := combat_floor_y_for_slot(i)
+		_posicoes[i].position = Vector2(hero_slot_x(i), floor_y)
+		_apply_slot_position(i)
+		if is_road_combat_ground() and i < _sprites.size():
+			_sprites[i].z_index = COMBAT_ACTOR_Z
+
+
+func _class_id_for_slot(slot_index: int) -> String:
+	if slot_index < 0 or slot_index >= SLOTS:
+		return "warrior"
+	var classe: Variant = active_party[slot_index]
+	if classe is ClassData:
+		return (classe as ClassData).id
+	return "warrior"
+
+
+func front_target_index() -> int:
+	if is_hero_alive(1):
+		return 1
+	return right_target_index()
 
 
 func get_enemy_spawn_local(off_screen: bool = false) -> Vector2:
-	var base_y := combat_floor_y()
-	var spawn_x := ENEMY_SPAWN_X_BASE
+	var front_slot := front_target_index()
+	var front_x: float = hero_slot_x(front_slot) if front_slot >= 0 else HERO_PARTY_BACK_X
+	var base_y := combat_floor_y_for_slot(front_slot)
+	var spawn_x: float = front_x + ENEMY_ATTACK_GAP + ENEMY_APPROACH_RUNWAY
 	if off_screen:
 		spawn_x += OFF_SCREEN_SPAWN_EXTRA_X
 	return Vector2(spawn_x, base_y)
+
+
+func set_runner_sync(active: bool, engaged: bool = false) -> void:
+	runner_sync_active = active
+	runner_sync_engaged = engaged
+
+
+func is_runner_syncing() -> bool:
+	return runner_sync_active and not runner_sync_engaged
 
 
 func begin_running() -> void:
@@ -132,6 +216,7 @@ func end_running() -> void:
 
 func reset_runner_state() -> void:
 	_running = false
+	set_runner_sync(false, false)
 	for i in SLOTS:
 		_pending_attacks[i] = {}
 		var sprite: AnimatedSprite2D = _sprites[i]
@@ -263,9 +348,13 @@ func hero_stats(slot_index: int) -> Dictionary:
 	var classe: Variant = active_party[slot_index]
 	if classe == null or not (classe is ClassData):
 		return StatCalculator._empty()
-	if stat_calculator != null:
-		return _apply_buff_overlay(slot_index, classe as ClassData, stat_calculator.compute(slot_index, classe as ClassData))
-	return StatCalculator._empty()
+	if stat_calculator == null:
+		return StatCalculator._empty()
+	return _apply_buff_overlay(
+		slot_index,
+		classe as ClassData,
+		stat_calculator.compute(slot_index, classe as ClassData)
+	)
 
 
 func get_hero_sprite(slot_index: int) -> AnimatedSprite2D:
@@ -342,8 +431,7 @@ func party_dps() -> float:
 			continue
 		var classe: ClassData = active_party[i]
 		var bonus := _skill_tree_bonus(i)
-		var vel := classe.attack_speed * (1.0 + float(bonus.get("attack_speed", 0.0)) / 100.0)
-		var intervalo := INTERVALO_BASE / maxf(0.25, vel)
+		var intervalo := INTERVALO_BASE / maxf(0.25, _hero_attack_speed(i))
 		dps += float(hero_damage(i)) / intervalo
 	return dps
 
@@ -632,7 +720,10 @@ func _ensure_unlocked_catalog() -> void:
 
 func _ensure_positions() -> void:
 	var nomes := ["Posicao1", "Posicao2", "Posicao3"]
-	var locais := [Vector2(-118, -46), Vector2(-72, -46), Vector2(-26, -46)]
+	var floor_y := -44.0
+	var locais: Array[Vector2] = []
+	for offset_x in HERO_SLOT_OFFSETS:
+		locais.append(Vector2(offset_x, floor_y))
 	for i in SLOTS:
 		var marcador := get_node_or_null(nomes[i]) as Marker2D
 		if marcador == null:
@@ -681,15 +772,21 @@ func _update_sprite_slot(slot_index: int) -> void:
 	_update_bar_slot(slot_index)
 
 
+func _hero_attack_speed(slot_index: int) -> float:
+	return float(hero_stats(slot_index).get("attack_speed", 1.0))
+
+
+func _hero_attack_interval(slot_index: int) -> float:
+	return HeroSpritesheet.attack_cooldown(_hero_attack_speed(slot_index))
+
+
 func _update_timer_slot(slot_index: int) -> void:
 	var timer: Timer = _timers[slot_index]
 	var classe: Variant = active_party[slot_index]
 	if classe == null or not is_hero_alive(slot_index):
 		timer.stop()
 		return
-	var stats := hero_stats(slot_index)
-	var vel := float(stats.get("attack_speed", 1.0))
-	timer.wait_time = HeroSpritesheet.attack_cooldown(vel)
+	timer.wait_time = _hero_attack_interval(slot_index)
 	if not combat_ready:
 		timer.stop()
 		return
@@ -711,10 +808,8 @@ func _restart_hero_timer(slot_index: int) -> void:
 	if classe == null or not is_hero_alive(slot_index):
 		_timers[slot_index].stop()
 		return
-	var stats := hero_stats(slot_index)
-	var vel := float(stats.get("attack_speed", 1.0))
 	var timer: Timer = _timers[slot_index]
-	timer.wait_time = HeroSpritesheet.attack_cooldown(vel)
+	timer.wait_time = _hero_attack_interval(slot_index)
 	timer.start()
 
 
@@ -771,8 +866,8 @@ func _on_hero_timer(slot_index: int) -> void:
 		if sprite.has_method("abort_attack"):
 			sprite.abort_attack()
 	var stats := hero_stats(slot_index)
-	var vel := float(stats.get("attack_speed", 1.0))
-	var cooldown := HeroSpritesheet.attack_cooldown(vel)
+	var vel := _hero_attack_speed(slot_index)
+	var cooldown := _hero_attack_interval(slot_index)
 	var class_data := classe as ClassData
 	var cdr_pct := cooldown_reduction_pct(slot_index)
 	var skill := _active_runtime.try_cast(slot_index, class_data.id, cdr_pct)

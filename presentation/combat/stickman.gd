@@ -113,7 +113,7 @@ func is_marching() -> bool:
 func begin_attack(_cooldown: float, attack_speed: float) -> bool:
 	if _caido:
 		return false
-	if _arrow_in_flight:
+	if _arrow_in_flight and _attack_speed < 8.0:
 		return false
 	if _state == State.ATTACKING:
 		abort_attack()
@@ -132,9 +132,14 @@ func begin_attack(_cooldown: float, attack_speed: float) -> bool:
 		_emit_attack_impact()
 		_finish_attack()
 		return true
-	if not _usar_arte:
+	if not _usar_arte and not _uses_road_attack_pose():
 		_slide_attack(speed_scale)
 	return true
+
+
+func _uses_road_attack_pose() -> bool:
+	var party := get_parent() as PartyService
+	return party != null and party.is_road_combat_ground()
 
 
 func is_attacking() -> bool:
@@ -359,9 +364,14 @@ func _fire_arrow_deferred_impact() -> bool:
 	var origem := get_arrow_spawn_global()
 	var destino := _resolve_arrow_target(combat_root)
 	_arrow_in_flight = true
-	ArrowProjectile.fire(combat_root, origem, destino, func() -> void:
-		_arrow_in_flight = false
-		attack_impact.emit()
+	ArrowProjectile.fire(
+		combat_root,
+		origem,
+		destino,
+		func() -> void:
+			_arrow_in_flight = false
+			attack_impact.emit(),
+		maxf(1.0, _attack_speed)
 	)
 	return true
 

@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://d3eb0eg6ln5cl" path="res://presentation/shared/coin_effect.gd" id="6_moedas"]
 [ext_resource type="Texture2D" uid="uid://qrjq2r1aebta" path="res://sprites/environment/grass_floor.png" id="7_chao"]
 [ext_resource type="Script" path="res://presentation/combat/floor_scroller.gd" id="8_floor"]
+[ext_resource type="Script" path="res://presentation/combat/combat_background.gd" id="9_bg"]
+[ext_resource type="Script" path="res://presentation/combat/enemy_horde_visuals.gd" id="10_horde"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_batalha"]
 content_margin_left = 8.0
@@ -92,55 +94,56 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -240.0
-offset_top = -232.0
+offset_top = -308.0
 offset_right = 240.0
 offset_bottom = -108.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Floor" type="TextureRect" parent="BattleHud/StageArea" unique_id=96424052]
-unique_name_in_owner = true
-texture_filter = 1
-script = ExtResource("8_floor")
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -48.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-texture = ExtResource("7_chao")
-expand_mode = 1
-
 [node name="Combate" type="Node2D" parent="BattleHud" unique_id=159732699]
+
+[node name="StageBackground" type="Sprite2D" parent="BattleHud/Combate" unique_id=1983746521]
+unique_name_in_owner = true
+visible = false
+z_index = -15
+texture_filter = 0
+script = ExtResource("9_bg")
+
+[node name="Floor" type="Sprite2D" parent="BattleHud/Combate" unique_id=96424052]
+unique_name_in_owner = true
+visible = false
+texture_filter = 0
+texture = ExtResource("7_chao")
+script = ExtResource("8_floor")
 
 [node name="PartyService" type="Node2D" parent="BattleHud/Combate" unique_id=1016565227]
 script = ExtResource("4_party")
 
 [node name="Posicao1" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=650096794]
-position = Vector2(-118, -46)
+position = Vector2(-36, -44)
 
 [node name="Posicao2" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=663998246]
-position = Vector2(-72, -46)
+position = Vector2(0, -44)
 
 [node name="Posicao3" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=947033902]
-position = Vector2(-26, -46)
+position = Vector2(36, -44)
 
 [node name="EnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate" unique_id=1178503625]
-position = Vector2(102, -46)
+position = Vector2(88, -44)
 script = ExtResource("5_inimigo")
 
 [node name="EliteEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate"]
-position = Vector2(180, -46)
+position = Vector2(130, -44)
 visible = false
 script = ExtResource("5_inimigo")
 
 [node name="FlyingDemonEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate"]
-position = Vector2(258, -56)
+position = Vector2(160, -52)
 visible = false
 script = ExtResource("5_inimigo")
+
+[node name="HordeEnemies" type="Node2D" parent="BattleHud/Combate"]
+script = ExtResource("10_horde")
 
 [node name="BattlePanel" type="PanelContainer" parent="BattleHud" unique_id=179778745]
 custom_minimum_size = Vector2(320, 0)

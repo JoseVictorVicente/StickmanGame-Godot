@@ -19,5 +19,5 @@ stage_min = 1
 stage_max = 8
 wave_min = 1
 wave_max = 4
-sort_order = 0
+sort_order = 5
 use_demon_king_name = false

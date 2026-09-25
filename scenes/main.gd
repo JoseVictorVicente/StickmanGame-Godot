@@ -13,11 +13,13 @@ extends Node2D
 @onready var notice_label: Label = %NoticeLabel
 @onready var stage_panel: Control = $BattleHud/StageArea
 @onready var floor: FloorScroller = %Floor
+@onready var stage_background: CombatBackground = %StageBackground
 @onready var combat_root: Node2D = $BattleHud/Combate
 @onready var party: PartyService = $BattleHud/Combate/PartyService
 @onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
 @onready var elite_enemy_visual: EnemyVisual = $BattleHud/Combate/EliteEnemyVisual
 @onready var flying_demon_enemy_visual: EnemyVisual = $BattleHud/Combate/FlyingDemonEnemyVisual
+@onready var horde_visuals: EnemyHordeVisuals = $BattleHud/Combate/HordeEnemies
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -37,7 +39,6 @@ func _ready() -> void:
 	_window_manager.battle_panel = battle_panel
 	_window_manager.menu_button_area = menu_button_area
 	_window_manager.combat_root = combat_root
-	_window_manager.floor = floor
 	_window_manager.open_inventory_button = open_inventory_button
 	_window_manager.get_menu_rects = func() -> Array[Rect2]: return inventory_menu.get_clickable_rects()
 	_window_manager.is_menu_visible = func() -> bool: return inventory_menu.visible
@@ -51,22 +52,38 @@ func _ready() -> void:
 	_combat.enemy_visual = enemy_visual
 	_combat.elite_enemy_visual = elite_enemy_visual
 	_combat.flying_demon_enemy_visual = flying_demon_enemy_visual
+	_combat.horde_visuals = horde_visuals
 	_combat.enemy_health_bar = enemy_health_bar
 	elite_enemy_visual.hide_escort()
 	flying_demon_enemy_visual.hide_escort()
 	_combat.floor_scroller = floor
-	if not enemy_visual.attack_impact.is_connected(_combat.on_enemy_attack_impact):
-		enemy_visual.attack_impact.connect(_combat.on_enemy_attack_impact)
+	_combat.combat_background = stage_background
+	party.floor_scroller = floor
+	party.combat_background = stage_background
+	stage_background.configure_stage_panel(stage_panel)
+	if not stage_panel.resized.is_connected(_on_stage_panel_resized):
+		stage_panel.resized.connect(_on_stage_panel_resized)
+	call_deferred("_align_initial")
+	if not enemy_visual.attack_impact.is_connected(_combat.on_attack_impact):
+		enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("minion"))
 	if not enemy_visual.attack_finished.is_connected(_combat.on_enemy_attack_finished):
 		enemy_visual.attack_finished.connect(_combat.on_enemy_attack_finished)
 	if not elite_enemy_visual.attack_impact.is_connected(_combat.on_elite_attack_impact):
-		elite_enemy_visual.attack_impact.connect(_combat.on_elite_attack_impact)
+		elite_enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("elite"))
 	if not elite_enemy_visual.attack_finished.is_connected(_combat.on_elite_attack_finished):
 		elite_enemy_visual.attack_finished.connect(_combat.on_elite_attack_finished)
 	if not flying_demon_enemy_visual.attack_impact.is_connected(_combat.on_flying_demon_attack_impact):
-		flying_demon_enemy_visual.attack_impact.connect(_combat.on_flying_demon_attack_impact)
+		flying_demon_enemy_visual.attack_impact.connect(_combat.on_attack_impact.bind("flying"))
 	if not flying_demon_enemy_visual.attack_finished.is_connected(_combat.on_flying_demon_attack_finished):
 		flying_demon_enemy_visual.attack_finished.connect(_combat.on_flying_demon_attack_finished)
+	if horde_visuals != null:
+		horde_visuals.connect_attack_signals(
+			_combat.on_attack_impact.bind("minion"),
+			_combat.on_enemy_attack_finished,
+			_combat.request_minion_attack
+		)
+	if not enemy_visual.ready_to_attack.is_connected(_combat.request_minion_attack):
+		enemy_visual.ready_to_attack.connect(_combat.request_minion_attack)
 	_combat.hero_progress = _hero_progress
 	_combat.get_character_index = func() -> int: return inventory_menu.current_character_index()
 	_combat.get_gold_destination = _gold_destination
@@ -135,7 +152,6 @@ func _ready() -> void:
 	stage_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	stage_panel.gui_input.connect(_window_manager.on_drag_area)
 	battle_panel.gui_input.connect(_window_manager.on_drag_area)
-	call_deferred("_align_initial")
 	call_deferred("_emit_boot_log_snapshot")
 
 
@@ -149,7 +165,7 @@ func _on_save_needed_log() -> void:
 
 func _build_log_snapshot() -> Dictionary:
 	var enemy_hp := 0
-	var active := _combat.get_active_enemy()
+	var active: Enemy = _combat.get_active_enemy()
 	if active != null:
 		enemy_hp = active.current_hp
 	return {
@@ -164,6 +180,30 @@ func _build_log_snapshot() -> Dictionary:
 func _align_initial() -> void:
 	_window_manager.align_combat()
 	_window_manager.update_click_through()
+	_sync_combat_positions()
+
+
+func _on_stage_panel_resized() -> void:
+	_sync_combat_positions()
+
+
+func _sync_combat_positions() -> void:
+	_apply_combat_draw_order()
+	if stage_background != null:
+		stage_background.configure_stage_panel(stage_panel)
+	if _combat != null:
+		_combat.sync_combat_floor()
+	else:
+		party.sync_floor_positions()
+
+
+func _apply_combat_draw_order() -> void:
+	if stage_background != null:
+		stage_background.z_index = -10
+	combat_root.z_index = 1
+	for visual in [enemy_visual, elite_enemy_visual, flying_demon_enemy_visual]:
+		if visual != null:
+			visual.z_index = PartyService.COMBAT_ENEMY_Z
 
 
 func get_equipped_damage_slot(slot_index: int) -> int:
@@ -206,6 +246,7 @@ func recalculate_attributes() -> void:
 	party.recalculate_stats()
 	total_damage = party.total_party_damage()
 	_update_hud()
+	inventory_menu.refresh_attributes_if_open()
 
 
 func _on_dps_changed(dps: float, dano_grupo: int) -> void:
@@ -325,7 +366,7 @@ func _on_menu_gold_spent(amount: int) -> void:
 
 
 func _update_hud() -> void:
-	var nome := _combat.get_enemy_display_name()
+	var nome: String = _combat.get_enemy_display_name()
 	if nome != "":
 		enemy_label.text = "%s  %s" % [nome, WorldProgress.difficulty_name(_combat.difficulty)]
 	inventory_menu.update_gold(_game_state.get_gold())

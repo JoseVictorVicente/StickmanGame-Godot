@@ -34,7 +34,7 @@ const ATTACK_INTERVAL_BASE := 1.0
 const STICK_ATTACK_FPS := 14.0
 const STICK_ATTACK_FRAMES := 3
 const ARCHER_ATTACK_FPS := 20.0
-const ARCHER_ENGAGE_RANGE := 100.0
+const ARCHER_ENGAGE_RANGE := 345.0
 const STICK_ENGAGE_RANGE := 55.0
 
 static var _frames: Dictionary = {}

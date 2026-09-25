@@ -24,6 +24,13 @@ extends Resource
 @export var attack_base_fps: float = 33.0
 @export var death_fps: float = 18.0
 @export var attack_impact_frames: PackedInt32Array = PackedInt32Array([12, 24, 36])
+## Optional one-shot burst played on the first attack impact frame (local VFX).
+@export var attack_vfx_dir: String = ""
+## Frame index that spawns attack_vfx_dir once per attack; < 0 disables.
+@export var attack_vfx_start_frame: int = -1
+@export var attack_vfx_offset: Vector2 = Vector2.ZERO
+@export var attack_vfx_scale: Vector2 = Vector2(1, 1)
+@export var attack_vfx_fps: float = 12.0
 ## Empty = load every frame in idle/; otherwise only these indices.
 @export var idle_frame_indices: PackedInt32Array = PackedInt32Array()
 

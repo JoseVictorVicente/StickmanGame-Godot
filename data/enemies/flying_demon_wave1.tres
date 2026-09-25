@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_data.gd" id="1_data"]
+[ext_resource type="Resource" path="res://data/enemy_visual_profiles/flying_demon.tres" id="2_profile"]
+
+[resource]
+script = ExtResource("1_data")
+enemy_id = "flying_demon_wave1"
+name_key = "ENEMY_flying_demon"
+visual_profile = ExtResource("2_profile")
+hp_mult = 3.0
+damage_mult = 1.5
+gold_mult = 1.0
+xp_mult = 1.0
+attack_interval = -1.0
+spawn_role = 0
+world_id = 99
+stage_min = 1
+stage_max = 9
+wave_min = 1
+wave_max = 4
+sort_order = 0
+use_demon_king_name = false

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyVisualProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_visual_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+profile_id = "cerberus_pup"
+base_dir = "res://sprites/enemies/cerberus_pup/"
+scale = Vector2(0.62, 0.62)
+health_bar_offset = Vector2(-14, -36)
+feet_align_fallback = 27.0
+feet_below_center = 27.0
+idle_feet_below_center = 27.0
+ground_fine_tune = -4.0
+death_ground_offset = 8.0
+spawn_offset = Vector2(88, 0)
+escort_spawn_offset = Vector2(0, 0)
+escort_behind_gap = 0.0
+move_speed = 90.0
+attack_range = 40.0
+gravity = 520.0
+attack_interval = 1.35
+run_fps = 14.0
+idle_fps = 6.0
+attack_base_fps = 12.0
+death_fps = 10.0
+attack_impact_frames = PackedInt32Array(9, 10, 11)
+attack_vfx_dir = "res://sprites/vfx/cerberus_fire_burst/"
+attack_vfx_start_frame = 8
+attack_vfx_offset = Vector2(-42, -10)
+attack_vfx_scale = Vector2(1.0, 1.0)
+attack_vfx_fps = 14.0
+idle_frame_indices = PackedInt32Array()
