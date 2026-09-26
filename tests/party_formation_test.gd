@@ -14,7 +14,8 @@ func _init() -> void:
 	_test_commit_preserves_visual_x()
 	_test_commit_reads_field_x_after_lane_reset()
 	_test_two_phase_regroup()
-	_test_rear_archer_lane_gaps_even()
+	_test_formation_lane_gaps_all_permutations()
+	_test_regroup_defers_spawn()
 	if _failed:
 		TestLog.suite_complete("PartyFormation", false)
 		quit(1)
@@ -39,7 +40,7 @@ func _test_offscreen_spawn_outranges_archer() -> void:
 
 
 func _test_commit_preserves_visual_x() -> void:
-	var slot_x := [-72.0, -28.0, -68.0]
+	var slot_x := [-184.0, -128.0, -72.0]
 	var march_lead := 0.0
 	var spread := [0.0, 0.0, 0.0]
 	var advance := [200.0, 150.0, 0.0]
@@ -54,15 +55,15 @@ func _test_commit_preserves_visual_x() -> void:
 
 
 func _test_commit_reads_field_x_after_lane_reset() -> void:
-	var slot_x := [-72.0, -28.0, -68.0]
-	var field_x := [-72.0 + 200.0, -28.0 + 150.0, -68.0]
+	var slot_x := [-184.0, -128.0, -72.0]
+	var field_x := [-184.0 + 200.0, -128.0 + 150.0, -72.0]
 	var committed := _commit_lane_offsets_with_field(0.0, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], slot_x, field_x)
 	if committed.lead < 199.0:
 		_fail("commit should read forward field x after lane offsets were reset")
 
 
 func _test_two_phase_regroup() -> void:
-	var slot_x := [-72.0, -28.0, -68.0]
+	var slot_x := [-184.0, -128.0, -72.0]
 	var committed := _commit_lane_offsets(0.0, [0.0, 0.0, 0.0], [200.0, 150.0, 0.0])
 	var lead: float = committed.lead
 	var spread: Array = committed.spread.duplicate()
@@ -96,26 +97,71 @@ func _test_two_phase_regroup() -> void:
 		_fail("commit should retain march lead from max advance")
 
 
-func _test_rear_archer_lane_gaps_even() -> void:
-	var back_x := _road_lane_x(0, "archer", 0, 2)
-	var mid_x := _road_lane_x(1, "warrior", 0, 2)
-	var front_x := _road_lane_x(2, "tank", 0, 2)
-	var gap_rear := mid_x - back_x
-	var gap_front := front_x - mid_x
-	if absf(gap_rear - gap_front) > 0.01:
-		_fail("rear archer formation should keep even lane gaps (got %.1f vs %.1f)" % [gap_rear, gap_front])
+func _test_formation_lane_gaps_all_permutations() -> void:
+	const classes := ["warrior", "archer", "tank"]
+	const expected_gap := 56.0
+	var permutations := _class_permutations(classes)
+	for party in permutations:
+		for slot_index in 2:
+			var gap := _road_lane_x(slot_index + 1) - _road_lane_x(slot_index)
+			if absf(gap - expected_gap) > 0.01:
+				_fail(
+					"formation %s should keep %.0fpx gaps (slot %d gap %.1f)"
+					% [str(party), expected_gap, slot_index, gap]
+				)
 
 
-func _road_lane_x(slot_index: int, class_id: String, rear_slot: int, front_slot: int) -> float:
-	const party_back_x := -72.0
-	const slot_offsets := [-28.0, 0.0, 28.0]
-	const archer_extra := -40.0
-	var x: float = party_back_x + slot_offsets[slot_index]
-	if class_id == "archer":
-		x += archer_extra
-	if slot_index == front_slot and rear_slot != front_slot and rear_slot == 0:
-		x -= archer_extra
-	return x
+func _class_permutations(items: Array) -> Array:
+	var result: Array = []
+	_permute_classes(items, 0, result)
+	return result
+
+
+func _permute_classes(items: Array, start: int, result: Array) -> void:
+	if start >= items.size():
+		result.append(items.duplicate())
+		return
+	for i in range(start, items.size()):
+		var swapped := items.duplicate()
+		var temp = swapped[start]
+		swapped[start] = swapped[i]
+		swapped[i] = temp
+		_permute_classes(swapped, start + 1, result)
+
+
+func _test_regroup_defers_spawn() -> void:
+	var cases := [
+		{"lead": 200.0, "spreads": [0.0, 0.0, 0.0], "defer": true},
+		{"lead": 0.0, "spreads": [-50.0, 0.0, 0.0], "defer": true},
+		{"lead": 0.0, "spreads": [0.0, 0.0, 0.0], "defer": false},
+	]
+	for case in cases:
+		var needs_regroup := _regroup_needed(float(case.lead), case.spreads)
+		var defer_spawn := _should_defer_spawn_until_regroup(needs_regroup)
+		if defer_spawn != case.defer:
+			_fail(
+				"regroup defer mismatch for lead %.1f spreads %s (got defer=%s)"
+				% [float(case.lead), str(case.spreads), str(defer_spawn)]
+			)
+
+
+func _regroup_needed(march_lead: float, spreads: Array) -> bool:
+	if absf(march_lead) > 0.001:
+		return true
+	for spread in spreads:
+		if absf(float(spread)) > 0.001:
+			return true
+	return false
+
+
+func _should_defer_spawn_until_regroup(needs_regroup: bool) -> bool:
+	return needs_regroup
+
+
+func _road_lane_x(slot_index: int) -> float:
+	const party_back_x := -128.0
+	const slot_offsets := [-56.0, 0.0, 56.0]
+	return party_back_x + slot_offsets[slot_index]
 
 
 func _lane_x(

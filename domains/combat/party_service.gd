@@ -15,9 +15,8 @@ enum RegroupPhase { NONE, CONVERGE, RETREAT }
 
 const INTERVALO_BASE := 1.0
 const SLOTS := 3
-const HERO_SLOT_OFFSETS := [-28.0, 0.0, 28.0]
-const HERO_PARTY_BACK_X := -72.0
-const ARCHER_ROAD_BACK_EXTRA := -40.0
+const HERO_SLOT_OFFSETS := [-56.0, 0.0, 56.0]
+const HERO_PARTY_BACK_X := -128.0
 const HERO_FLOOR_OFFSET := 4.0
 const HERO_ROAD_DROP_OFFSET := 16.0
 const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
@@ -153,18 +152,7 @@ func combat_floor_y_for_slot(slot_index: int) -> float:
 func hero_slot_x(slot_index: int) -> float:
 	var spacing: float = HERO_SLOT_OFFSETS[slot_index] if slot_index >= 0 and slot_index < SLOTS else 0.0
 	if is_road_combat_ground():
-		var x: float = HERO_PARTY_BACK_X + spacing
-		if _class_id_for_slot(slot_index) == "archer":
-			x += ARCHER_ROAD_BACK_EXTRA
-		var rear_slot := _rearmost_living_slot()
-		var front_slot := _frontmost_living_slot()
-		if (
-			slot_index == front_slot
-			and rear_slot != front_slot
-			and _class_id_for_slot(rear_slot) == "archer"
-		):
-			x -= ARCHER_ROAD_BACK_EXTRA
-		return x
+		return HERO_PARTY_BACK_X + spacing
 	return spacing
 
 
@@ -513,6 +501,8 @@ func scale_character(slot_index: int, new_class: ClassData = null) -> void:
 			_update_timer_slot(slot_index)
 			_update_sprite_slot(ocupado)
 			_update_timer_slot(ocupado)
+			_refresh_slot_x(slot_index)
+			_refresh_slot_x(ocupado)
 			_emit_dps()
 			party_changed.emit()
 			return
@@ -520,6 +510,7 @@ func scale_character(slot_index: int, new_class: ClassData = null) -> void:
 	_update_max_hp_slot(slot_index, true)
 	_update_sprite_slot(slot_index)
 	_update_timer_slot(slot_index)
+	_refresh_slot_x(slot_index)
 	_emit_dps()
 	party_changed.emit()
 
@@ -1303,11 +1294,11 @@ func _start_march_regroup_if_needed() -> void:
 		needs_converge = false
 		start_lead = _Tuning.SCROLL_SPEED_PX * _Tuning.FORMATION_SOLO_MIN_MARCH_SEC
 		_march_lead_x = start_lead
-		_defer_spawn_until_regroup = true
 	if not needs_regroup:
 		_regroup_scroll_speed = 0.0
 		return
 	_regrouping = true
+	_defer_spawn_until_regroup = true
 	_regroup_start_lead = start_lead
 	_regroup_phase_elapsed = 0.0
 	if needs_converge:
