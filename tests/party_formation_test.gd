@@ -10,6 +10,7 @@ var _failed := false
 
 func _init() -> void:
 	_test_archer_outranges_melee()
+	_test_mage_outranges_melee()
 	_test_offscreen_spawn_outranges_archer()
 	_test_commit_preserves_visual_x()
 	_test_commit_reads_field_x_after_lane_reset()
@@ -30,6 +31,15 @@ func _test_archer_outranges_melee() -> void:
 	var warrior_range := HeroSpritesheetScript.engage_range("warrior")
 	if archer_range <= warrior_range:
 		_fail("archer engage range should exceed warrior/melee range")
+
+
+func _test_mage_outranges_melee() -> void:
+	var mage_range := HeroSpritesheetScript.engage_range("mage")
+	var warrior_range := HeroSpritesheetScript.engage_range("warrior")
+	if mage_range <= warrior_range:
+		_fail("mage engage range should exceed warrior/melee range")
+	if mage_range != HeroSpritesheetScript.engage_range("archer"):
+		_fail("mage engage range should match archer ranged engage range")
 
 
 func _test_offscreen_spawn_outranges_archer() -> void:

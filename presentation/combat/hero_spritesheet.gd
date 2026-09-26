@@ -3,6 +3,7 @@ extends RefCounted
 ## Monta SpriteFrames de heróis com arte (frames individuais) e utilitários de combate.
 
 const ID_ARQUEIRO := "archer"
+const ID_MAGE := "mage"
 const ID_TANK := "tank"
 const ID_WARRIOR := "warrior"
 
@@ -17,10 +18,19 @@ const TANK_DEATH_DIR := TANK_FRAMES_DIR + "death/"
 const WARRIOR_FRAMES_DIR := "res://sprites/heroes/warrior_boar/"
 const WARRIOR_RUN_DIR := WARRIOR_FRAMES_DIR + "run/"
 
+const MAGE_FRAMES_DIR := "res://sprites/heroes/mage_rabbit/"
+const MAGE_RUN_DIR := MAGE_FRAMES_DIR + "run/"
+const MAGE_DEATH_DIR := MAGE_FRAMES_DIR + "death/"
+
 const RUN_FPS := 14.0
 const DEATH_FPS := 10.0
 const ESCALA_STICK := Vector2(1.25, 1.25)
 const ESCALA_HERO_ART := Vector2(0.55, 0.55)
+const HERO_ART_FRAME_SIZE := 160.0
+const MAGE_ART_FRAME_SIZE := 68.0
+const ESCALA_MAGE_ART := Vector2.ONE * (
+	ESCALA_HERO_ART.x * (HERO_ART_FRAME_SIZE / MAGE_ART_FRAME_SIZE)
+)
 const BARRA_STICK := Vector2(-14, -38)
 const HERO_ART_BAR := Vector2(-14, -78)
 const HERO_ART_GROUND_OFFSET := Vector2(0, 15)
@@ -44,11 +54,23 @@ const WARRIOR_ATTACK_END := 17
 const WARRIOR_HIT_START := 18
 const WARRIOR_HIT_END := 20
 
+const MAGE_ATTACK_RELEASE_INDEX := 10
+const MAGE_ATTACK_START := 4
+const MAGE_ATTACK_END := 14
+const MAGE_HIT_START := 15
+const MAGE_HIT_END := 17
+
 const ARCHER_ARROW_SPAWN := Vector2(22, -14)
 const ARCHER_ARROW_SPAWN_BY_FRAME := {
 	8: Vector2(24, -12),
 	9: Vector2(30, -10),
 	10: Vector2(34, -10),
+}
+const MAGE_ORB_SPAWN := Vector2(30, -14)
+const MAGE_ORB_SPAWN_BY_FRAME := {
+	8: Vector2(32, -12),
+	9: Vector2(36, -10),
+	10: Vector2(40, -8),
 }
 const ATTACK_INTERVAL_BASE := 1.0
 const STICK_ATTACK_FPS := 14.0
@@ -56,8 +78,11 @@ const STICK_ATTACK_FRAMES := 3
 const ARCHER_ATTACK_FPS := 20.0
 const TANK_ATTACK_FPS := 18.0
 const WARRIOR_ATTACK_FPS := 18.0
+const MAGE_ATTACK_FPS := 16.0
 const HIT_FPS := 12.0
-const ARCHER_ENGAGE_RANGE := 345.0
+const RANGED_ENGAGE_RANGE := 345.0
+const ARCHER_ENGAGE_RANGE := RANGED_ENGAGE_RANGE
+const MAGE_ENGAGE_RANGE := RANGED_ENGAGE_RANGE
 const STICK_ENGAGE_RANGE := 55.0
 
 static var _frames: Dictionary = {}
@@ -75,6 +100,8 @@ static func frames(id_classe: String) -> SpriteFrames:
 	match id_classe:
 		ID_ARQUEIRO:
 			montado = _build_archer()
+		ID_MAGE:
+			montado = _build_mage()
 		ID_TANK:
 			montado = _build_tank()
 		ID_WARRIOR:
@@ -90,12 +117,17 @@ static func invalidate_cache() -> void:
 
 
 static func scale_for(id_classe: String) -> Vector2:
+	if id_classe == ID_MAGE:
+		return ESCALA_MAGE_ART
 	if _uses_hero_art(id_classe):
 		return ESCALA_HERO_ART
 	return ESCALA_STICK
 
 
 static func health_bar_offset(id_classe: String) -> Vector2:
+	if id_classe == ID_MAGE:
+		var ratio := ESCALA_HERO_ART.y / ESCALA_MAGE_ART.y
+		return Vector2(HERO_ART_BAR.x, HERO_ART_BAR.y * ratio)
 	if _uses_hero_art(id_classe):
 		return HERO_ART_BAR
 	return BARRA_STICK
@@ -105,6 +137,8 @@ static func attack_release_frame(id_classe: String) -> int:
 	match id_classe:
 		ID_ARQUEIRO:
 			return ARCHER_ATTACK_RELEASE_INDEX
+		ID_MAGE:
+			return MAGE_ATTACK_RELEASE_INDEX
 		ID_TANK:
 			return TANK_ATTACK_RELEASE_INDEX
 		ID_WARRIOR:
@@ -113,14 +147,19 @@ static func attack_release_frame(id_classe: String) -> int:
 
 
 static func arrow_spawn_offset(id_classe: String) -> Vector2:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_ARROW_SPAWN
+	match id_classe:
+		ID_ARQUEIRO:
+			return ARCHER_ARROW_SPAWN
+		ID_MAGE:
+			return MAGE_ORB_SPAWN
 	return Vector2(18, -8)
 
 
 static func arrow_spawn_offset_for_frame(id_classe: String, frame_idx: int) -> Vector2:
 	if id_classe == ID_ARQUEIRO and ARCHER_ARROW_SPAWN_BY_FRAME.has(frame_idx):
 		return ARCHER_ARROW_SPAWN_BY_FRAME[frame_idx]
+	if id_classe == ID_MAGE and MAGE_ORB_SPAWN_BY_FRAME.has(frame_idx):
+		return MAGE_ORB_SPAWN_BY_FRAME[frame_idx]
 	return arrow_spawn_offset(id_classe)
 
 
@@ -137,7 +176,7 @@ static func ground_offset(id_classe: String) -> Vector2:
 static func death_feet_below_center(id_classe: String) -> float:
 	if _uses_hero_art(id_classe):
 		match id_classe:
-			ID_ARQUEIRO, ID_TANK, ID_WARRIOR:
+			ID_ARQUEIRO, ID_MAGE, ID_TANK, ID_WARRIOR:
 				return HERO_ART_DEATH_FEET_BELOW_CENTER
 	return STICK_FEET_BELOW_CENTER
 
@@ -162,8 +201,11 @@ static func attack_cooldown(attack_speed: float) -> float:
 
 
 static func engage_range(id_classe: String) -> float:
-	if id_classe == ID_ARQUEIRO:
-		return ARCHER_ENGAGE_RANGE
+	match id_classe:
+		ID_ARQUEIRO:
+			return ARCHER_ENGAGE_RANGE
+		ID_MAGE:
+			return MAGE_ENGAGE_RANGE
 	return STICK_ENGAGE_RANGE
 
 
@@ -171,6 +213,8 @@ static func attack_frame_count(id_classe: String) -> int:
 	match id_classe:
 		ID_ARQUEIRO:
 			return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
+		ID_MAGE:
+			return MAGE_ATTACK_END - MAGE_ATTACK_START + 1
 		ID_TANK:
 			return TANK_ATTACK_END - TANK_ATTACK_START + 1
 		ID_WARRIOR:
@@ -182,6 +226,8 @@ static func attack_base_fps(id_classe: String) -> float:
 	match id_classe:
 		ID_ARQUEIRO:
 			return ARCHER_ATTACK_FPS
+		ID_MAGE:
+			return MAGE_ATTACK_FPS
 		ID_TANK:
 			return TANK_ATTACK_FPS
 		ID_WARRIOR:
@@ -198,7 +244,12 @@ static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
 
 
 static func _uses_hero_art(id_classe: String) -> bool:
-	return id_classe == ID_ARQUEIRO or id_classe == ID_TANK or id_classe == ID_WARRIOR
+	return (
+		id_classe == ID_ARQUEIRO
+		or id_classe == ID_MAGE
+		or id_classe == ID_TANK
+		or id_classe == ID_WARRIOR
+	)
 
 
 static func _build_archer() -> SpriteFrames:
@@ -214,6 +265,22 @@ static func _build_archer() -> SpriteFrames:
 	)
 	_add_anim(sf, "Hit", _load_frame_range(ARCHER_FRAMES_DIR, 5, 7), false, HIT_FPS)
 	_add_anim(sf, "Morte", _load_dir_frames(ARCHER_DEATH_DIR), false, DEATH_FPS)
+	return sf
+
+
+static func _build_mage() -> SpriteFrames:
+	var sf := SpriteFrames.new()
+	_add_anim(sf, "Idle", _load_frame_range(MAGE_FRAMES_DIR, 0, 3), true, 5.0)
+	_add_anim(sf, "Corrida", _load_dir_frames(MAGE_RUN_DIR), true, RUN_FPS)
+	_add_anim(
+		sf,
+		"Ataque",
+		_load_frame_range(MAGE_FRAMES_DIR, MAGE_ATTACK_START, MAGE_ATTACK_END),
+		false,
+		MAGE_ATTACK_FPS
+	)
+	_add_anim(sf, "Hit", _load_frame_range(MAGE_FRAMES_DIR, MAGE_HIT_START, MAGE_HIT_END), false, HIT_FPS)
+	_add_anim(sf, "Morte", _load_dir_frames(MAGE_DEATH_DIR), false, DEATH_FPS)
 	return sf
 
 

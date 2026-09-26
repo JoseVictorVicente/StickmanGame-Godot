@@ -85,7 +85,13 @@ func end_running() -> void:
 
 
 func uses_deferred_arrow_impact() -> bool:
-	return _usar_arte and _id_classe == HeroSpritesheet.ID_ARQUEIRO
+	return (
+		_usar_arte
+		and (
+			_id_classe == HeroSpritesheet.ID_ARQUEIRO
+			or _id_classe == HeroSpritesheet.ID_MAGE
+		)
+	)
 
 
 func has_arrow_in_flight() -> bool:
@@ -376,9 +382,9 @@ func _emit_attack_impact() -> void:
 	if _impact_emitted:
 		return
 	_impact_emitted = true
-	if _usar_arte and _id_classe == HeroSpritesheet.ID_ARQUEIRO and not _flecha_solta:
+	if _usar_arte and uses_deferred_arrow_impact() and not _flecha_solta:
 		_flecha_solta = true
-		if _fire_arrow_deferred_impact():
+		if _fire_deferred_projectile():
 			return
 	attack_impact.emit()
 
@@ -424,7 +430,7 @@ func _resolve_arrow_target(combat_root: Node) -> Vector2:
 	return origem + Vector2(90, 0)
 
 
-func _fire_arrow_deferred_impact() -> bool:
+func _fire_deferred_projectile() -> bool:
 	var combat_root: Node = get_parent()
 	if combat_root:
 		combat_root = combat_root.get_parent()
@@ -433,15 +439,17 @@ func _fire_arrow_deferred_impact() -> bool:
 	var origem := get_arrow_spawn_global()
 	var destino := _resolve_arrow_target(combat_root)
 	_arrow_in_flight = true
-	ArrowProjectile.fire(
-		combat_root,
-		origem,
-		destino,
-		func() -> void:
-			_arrow_in_flight = false
-			attack_impact.emit(),
-		maxf(1.0, _attack_speed)
-	)
+	var on_hit := func() -> void:
+		_arrow_in_flight = false
+		attack_impact.emit()
+	var speed_mult := maxf(1.0, _attack_speed)
+	if _id_classe == HeroSpritesheet.ID_MAGE:
+		MageProjectile.fire(combat_root, origem, destino, on_hit, speed_mult)
+	elif _id_classe == HeroSpritesheet.ID_ARQUEIRO:
+		ArrowProjectile.fire(combat_root, origem, destino, on_hit, speed_mult)
+	else:
+		_arrow_in_flight = false
+		return false
 	return true
 
 
