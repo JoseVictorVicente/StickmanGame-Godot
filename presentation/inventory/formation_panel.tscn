@@ -221,10 +221,10 @@ metadata/class_id = "priest"
 layout_mode = 2
 custom_minimum_size = Vector2(86, 98)
 metadata/class_id = "tank"
-[node name="Hero_assassin" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
+[node name="Hero_barbarian" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
 layout_mode = 2
 custom_minimum_size = Vector2(86, 98)
-metadata/class_id = "assassin"
+metadata/class_id = "barbarian"
 [node name="Hero_archer" parent="Conteudo/CorpoFormacao/HeroScroll/FormationHeroGrid" instance=ExtResource("12_hero_btn")]
 layout_mode = 2
 custom_minimum_size = Vector2(86, 98)

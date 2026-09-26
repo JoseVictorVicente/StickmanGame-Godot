@@ -54,7 +54,7 @@ PascalCase for class_name only
 | Item instance | `{model_id}_{ticks}` | `espada_1703123456789` |
 | Skill tree node | sequential `int` in catalog | `0`, `42` |
 
-All six playable classes: `warrior`, `mage`, `archer`, `assassin`, `tank`, `priest`.
+All six playable classes: `warrior`, `mage`, `archer`, `barbarian`, `tank`, `priest`.
 
 ## Signals — preferred vocabulary
 

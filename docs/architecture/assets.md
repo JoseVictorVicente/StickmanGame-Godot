@@ -16,7 +16,7 @@ sprites/
 		├── warrior/
 		├── mage/
 		├── archer/
-		├── assassin/
+		├── barbarian/
 		├── tank/
 		└── priest/
 ```

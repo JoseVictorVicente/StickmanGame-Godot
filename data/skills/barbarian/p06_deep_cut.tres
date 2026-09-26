@@ -4,14 +4,14 @@
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "shadow_reflexes"
-name_key = "SKILL_shadow_reflexes"
-description_key = "SKILL_shadow_reflexes_DESC"
+skill_id = "deep_cut"
+name_key = "SKILL_deep_cut"
+description_key = "SKILL_deep_cut_DESC"
 type = 1
 cooldown = 0.0
-icon_path = "res://sprites/ui/skills/assassin/shadow_reflexes.png"
-sort_order = 1
-stat_bonus_key = "crit_chance"
-stat_value = 5.0
+icon_path = "res://sprites/ui/skills/barbarian/deep_cut.png"
+sort_order = 6
+stat_bonus_key = "attack"
+stat_value = 4.0
 vfx_id = ""
 effects = []

@@ -18,7 +18,7 @@ const LEGACY_ID_MAP := {
 	"warrior": "warrior",
 	"mage": "mage",
 	"archer": "archer",
-	"assassin": "assassin",
+	"assassin": "barbarian",
 	"tank": "tank",
 	"priest": "priest",
 }
@@ -36,8 +36,8 @@ func get_localized_name() -> String:
 			return tr(LocaleKeys.CLASS_MAGE)
 		"archer":
 			return tr(LocaleKeys.CLASS_ARCHER)
-		"assassin":
-			return tr(LocaleKeys.CLASS_ASSASSIN)
+		"barbarian":
+			return tr(LocaleKeys.CLASS_BARBARIAN)
 		"tank":
 			return tr(LocaleKeys.CLASS_TANK)
 		"priest":
@@ -76,12 +76,12 @@ static func create(
 
 static func catalog() -> Array[ClassData]:
 	return [
-		create("priest", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.RequiredClass.PRIEST, 32, "res://sprites/heroes/px_priest2.jpg", 4, 2),
-		create("tank", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.RequiredClass.TANK, 60, "res://sprites/heroes/px_tank2.jpg", 9, 1),
-		create("assassin", "Assassino", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.RequiredClass.ASSASSIN, 26, "res://sprites/heroes/px_assassin2.jpg", 6, 1),
+		create("priest", "Sacerdote", 3, 1.1, 0.9, Color(0.86, 0.78, 0.32), ItemData.RequiredClass.PRIEST, 32, "res://sprites/heroes/px_priest2.png", 4, 2),
+		create("tank", "Tanque", 6, 0.85, 0.7, Color(0.22, 0.32, 0.72), ItemData.RequiredClass.TANK, 60, "res://sprites/heroes/px_tank2.png", 9, 1),
+		create("barbarian", "Bárbaro", 4, 1.25, 1.45, Color(0.18, 0.18, 0.18), ItemData.RequiredClass.BARBARIAN, 26, "res://sprites/heroes/px_barbarian2.png", 6, 1),
 		create("archer", "Arqueiro", 4, 1.15, 2.0, Color(0.16, 0.42, 0.2), ItemData.RequiredClass.ARCHER, 30, "res://sprites/heroes/px_archer2.png", 4, 2),
-		create("mage", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.RequiredClass.MAGE, 24, "res://sprites/heroes/px_mage2.jpg", 4, 2),
-		create("warrior", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.RequiredClass.WARRIOR, 42, "res://sprites/heroes/px_warrior2.jpg", 7, 1),
+		create("mage", "Mago", 3, 1.4, 0.85, Color(0.28, 0.18, 0.62), ItemData.RequiredClass.MAGE, 24, "res://sprites/heroes/px_mage2.png", 4, 2),
+		create("warrior", "Guerreiro", 5, 1.0, 1.0, Color(0.72, 0.16, 0.14), ItemData.RequiredClass.WARRIOR, 42, "res://sprites/heroes/px_warrior2.png", 7, 1),
 	]
 
 

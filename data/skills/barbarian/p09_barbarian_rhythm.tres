@@ -4,14 +4,14 @@
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "adrenaline"
-name_key = "SKILL_adrenaline"
-description_key = "SKILL_adrenaline_DESC"
+skill_id = "barbarian_rhythm"
+name_key = "SKILL_barbarian_rhythm"
+description_key = "SKILL_barbarian_rhythm_DESC"
 type = 1
 cooldown = 0.0
-icon_path = "res://sprites/ui/skills/assassin/adrenaline.png"
-sort_order = 8
+icon_path = "res://sprites/ui/skills/barbarian/barbarian_rhythm.png"
+sort_order = 9
 stat_bonus_key = "attack_speed"
-stat_value = 5.0
+stat_value = 10.0
 vfx_id = ""
 effects = []

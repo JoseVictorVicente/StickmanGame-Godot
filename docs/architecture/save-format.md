@@ -203,7 +203,7 @@ Array of **49** elements (5 rows × 10 cols inventory grid; 49 usable slots, slo
 ```json
 {
   "classes": ["warrior", "mage", "archer"],
-  "desbloqueadas": ["warrior", "mage", "archer", "assassin", ...]
+  "desbloqueadas": ["warrior", "mage", "archer", "barbarian", ...]
 }
 ```
 

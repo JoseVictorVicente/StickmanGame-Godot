@@ -93,7 +93,7 @@ msgstr ""
 msgid "CLASS_ARCHER"
 msgstr ""
 
-msgid "CLASS_ASSASSIN"
+msgid "CLASS_BARBARIAN"
 msgstr ""
 
 msgid "CLASS_TANK"

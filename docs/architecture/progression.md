@@ -37,7 +37,7 @@ Player-facing **portals / dimensions** use names from `WorldCatalog` (`data/worl
 
 ## XP and level (`HeroProgress`)
 
-Progress is **per class** (`ClassData.id`), not per slot. Canonical IDs: `warrior`, `mage`, `archer`, plus `assassin`, `tank`, `priest`.
+Progress is **per class** (`ClassData.id`), not per slot. Canonical IDs: `warrior`, `mage`, `archer`, plus `barbarian`, `tank`, `priest`.
 
 | Field | Description |
 |-------|-------------|

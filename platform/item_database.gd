@@ -86,7 +86,7 @@ func _populate_catalog() -> void:
 	var G := ItemData.RequiredClass.WARRIOR
 	var M := ItemData.RequiredClass.MAGE
 	var A := ItemData.RequiredClass.ARCHER
-	var S := ItemData.RequiredClass.ASSASSIN
+	var B := ItemData.RequiredClass.BARBARIAN
 	var T := ItemData.RequiredClass.TANK
 	var C := ItemData.RequiredClass.PRIEST
 	# Warrior
@@ -122,16 +122,16 @@ func _populate_catalog() -> void:
 	items.append(_create("archer_boots", ItemData.Type.BOOTS, 1, 4, A))
 	items.append(_create("companion_falcon", ItemData.Type.PET, 3, 2, A))
 	items.append(_create("precision_ring", ItemData.Type.RING, 3, 0, A))
-	# Assassin
-	items.append(_create("shadow_dagger", ItemData.Type.WEAPON, 6, 0, S))
-	items.append(_create("twin_dagger", ItemData.Type.OFFHAND, 5, 0, S))
-	items.append(_create("assassin_hood", ItemData.Type.HELMET, 3, 2, S))
-	items.append(_create("shadow_chestplate", ItemData.Type.CHEST, 2, 5, S))
-	items.append(_create("assassin_gloves", ItemData.Type.GLOVES, 3, 2, S))
-	items.append(_create("assassin_pants", ItemData.Type.PANTS, 2, 4, S))
-	items.append(_create("assassin_boots", ItemData.Type.BOOTS, 1, 3, S))
-	items.append(_create("shadow_belt", ItemData.Type.BELT, 2, 2, S))
-	items.append(_create("shadow_bracelet", ItemData.Type.BRACELET, 3, 1, S))
+	# Barbarian
+	items.append(_create("shadow_dagger", ItemData.Type.WEAPON, 6, 0, B))
+	items.append(_create("twin_dagger", ItemData.Type.OFFHAND, 5, 0, B))
+	items.append(_create("barbarian_hood", ItemData.Type.HELMET, 3, 2, B))
+	items.append(_create("shadow_chestplate", ItemData.Type.CHEST, 2, 5, B))
+	items.append(_create("barbarian_gloves", ItemData.Type.GLOVES, 3, 2, B))
+	items.append(_create("barbarian_pants", ItemData.Type.PANTS, 2, 4, B))
+	items.append(_create("barbarian_boots", ItemData.Type.BOOTS, 1, 3, B))
+	items.append(_create("shadow_belt", ItemData.Type.BELT, 2, 2, B))
+	items.append(_create("shadow_bracelet", ItemData.Type.BRACELET, 3, 1, B))
 	# Tank
 	items.append(_create("heavy_mace", ItemData.Type.WEAPON, 8, 4, T))
 	items.append(_create("tower_shield", ItemData.Type.OFFHAND, 1, 14, T))

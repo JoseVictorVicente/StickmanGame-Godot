@@ -4,14 +4,14 @@
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "venomous_vein"
-name_key = "SKILL_venomous_vein"
-description_key = "SKILL_venomous_vein_DESC"
+skill_id = "shadow_reflexes"
+name_key = "SKILL_shadow_reflexes"
+description_key = "SKILL_shadow_reflexes_DESC"
 type = 1
 cooldown = 0.0
-icon_path = "res://sprites/ui/skills/assassin/venomous_vein.png"
-sort_order = 3
-stat_bonus_key = "crit_damage"
-stat_value = 12.0
+icon_path = "res://sprites/ui/skills/barbarian/shadow_reflexes.png"
+sort_order = 1
+stat_bonus_key = "crit_chance"
+stat_value = 5.0
 vfx_id = ""
 effects = []

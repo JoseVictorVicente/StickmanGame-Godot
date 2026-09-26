@@ -5,21 +5,21 @@
 
 [sub_resource type="Resource" id="Effect_0"]
 script = ExtResource("effect_0")
-effect_type = "damage_multi"
-multiplier = 1.0
-hits = 2
+effect_type = "damage_burst"
+multiplier = 1.5
+hits = 1
 force_crit = false
 armor_pen_pct = 0.0
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "corte_duplo_rapido"
-name_key = "SKILL_quick_twin_cut"
-description_key = "SKILL_quick_twin_cut_DESC"
+skill_id = "decaptacao_celerada"
+name_key = "SKILL_swift_decapitation"
+description_key = "SKILL_swift_decapitation_DESC"
 type = 0
-cooldown = 6.0
-icon_path = "res://sprites/ui/skills/assassin/corte_duplo_rapido.png"
-sort_order = 3
+cooldown = 12.0
+icon_path = "res://sprites/ui/skills/barbarian/decaptacao_celerada.png"
+sort_order = 5
 stat_bonus_key = ""
 stat_value = 0.0
 vfx_id = ""

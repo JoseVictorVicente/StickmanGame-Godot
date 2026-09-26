@@ -138,7 +138,22 @@ static func migrate_domain_ids(payload: Dictionary) -> Dictionary:
 	migrated["inventory"] = _migrate_item_list(migrated.get("inventory", []))
 	migrated["warehouse"] = _migrate_warehouse(migrated.get("warehouse", []))
 	migrated["equipment"] = _migrate_equipment_items(migrated.get("equipment", {}))
+	migrated["progress"] = _migrate_progress_class_ids(migrated.get("progress", {}))
 	return migrated
+
+
+static func _migrate_progress_class_ids(progress: Variant) -> Variant:
+	if progress is Dictionary:
+		var result := {}
+		for raw_id in progress.keys():
+			var class_id := ClassData.normalize_id(str(raw_id))
+			var entry: Variant = progress[raw_id]
+			if entry is Dictionary:
+				result[class_id] = _migrate_progress_entry(entry)
+			else:
+				result[class_id] = entry
+		return result
+	return progress
 
 
 static func _migrate_party_ids(party: Dictionary) -> Dictionary:

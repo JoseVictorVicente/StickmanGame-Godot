@@ -102,8 +102,8 @@ msgstr "Mago"
 msgid "CLASS_ARCHER"
 msgstr "Arqueiro"
 
-msgid "CLASS_ASSASSIN"
-msgstr "Assassino"
+msgid "CLASS_BARBARIAN"
+msgstr "Bárbaro"
 
 msgid "CLASS_TANK"
 msgstr "Tanque"
@@ -941,3 +941,9 @@ msgstr "Pulso Arcano"
 
 msgid "SKILL_arcane_beat_DESC"
 msgstr "Canaliza 4 pulsos arcanos (1s de combate). Potencia total ao engajar; dano extra contra hordas no contato. Concede +12% de reducao de cooldown por 2s."
+
+msgid "SKILL_barbarian_rhythm"
+msgstr "Ritmo Bárbaro"
+
+msgid "SKILL_barbarian_rhythm_DESC"
+msgstr "Cada acerto de habilidade ativa adiciona um acúmulo de 10% de Velocidade de Ataque (acumula até 5 vezes, totalizando +50% por 4s)."

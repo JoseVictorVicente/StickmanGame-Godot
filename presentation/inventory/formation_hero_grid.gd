@@ -7,7 +7,7 @@ const COLUMNS := 3
 const DEFAULT_BUTTON_SIZE := Vector2(86, 98)
 
 const CLASS_IDS: Array[String] = [
-	"priest", "tank", "assassin", "archer", "mage", "warrior",
+	"priest", "tank", "barbarian", "archer", "mage", "warrior",
 ]
 
 

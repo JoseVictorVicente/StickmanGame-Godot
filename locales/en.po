@@ -102,8 +102,8 @@ msgstr "Mage"
 msgid "CLASS_ARCHER"
 msgstr "Archer"
 
-msgid "CLASS_ASSASSIN"
-msgstr "Assassin"
+msgid "CLASS_BARBARIAN"
+msgstr "Barbarian"
 
 msgid "CLASS_TANK"
 msgstr "Tank"
@@ -941,3 +941,9 @@ msgstr "Arcane Beat"
 
 msgid "SKILL_arcane_beat_DESC"
 msgstr "Channels 4 arcane pulses over 1 combat second. Full power when engaged; extra damage vs swarms at contact. Grants +12% cooldown reduction for 2s."
+
+msgid "SKILL_barbarian_rhythm"
+msgstr "Barbarian Rhythm"
+
+msgid "SKILL_barbarian_rhythm_DESC"
+msgstr "Each active skill hit adds 10% Attack Speed (stacks up to 5 times, +50% for 4s)."

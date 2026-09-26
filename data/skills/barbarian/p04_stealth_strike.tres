@@ -4,14 +4,14 @@
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "assassin_rhythm"
-name_key = "SKILL_assassin_rhythm"
-description_key = "SKILL_assassin_rhythm_DESC"
+skill_id = "stealth_strike"
+name_key = "SKILL_stealth_strike"
+description_key = "SKILL_stealth_strike_DESC"
 type = 1
 cooldown = 0.0
-icon_path = "res://sprites/ui/skills/assassin/assassin_rhythm.png"
-sort_order = 9
-stat_bonus_key = "attack_speed"
+icon_path = "res://sprites/ui/skills/barbarian/stealth_strike.png"
+sort_order = 4
+stat_bonus_key = "crit_damage"
 stat_value = 10.0
 vfx_id = ""
 effects = []

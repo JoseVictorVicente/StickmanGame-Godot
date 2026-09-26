@@ -4,13 +4,13 @@
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "weak_point_mapping"
-name_key = "SKILL_weak_point_mapping"
-description_key = "SKILL_weak_point_mapping_DESC"
+skill_id = "lethal_execution"
+name_key = "SKILL_lethal_execution"
+description_key = "SKILL_lethal_execution_DESC"
 type = 1
 cooldown = 0.0
-icon_path = "res://sprites/ui/skills/assassin/weak_point_mapping.png"
-sort_order = 7
+icon_path = "res://sprites/ui/skills/barbarian/lethal_execution.png"
+sort_order = 5
 stat_bonus_key = "attack_pct"
 stat_value = 8.0
 vfx_id = ""

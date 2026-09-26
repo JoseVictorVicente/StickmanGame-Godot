@@ -50,7 +50,7 @@ enum RequiredClass {
 	WARRIOR,
 	MAGE,
 	ARCHER,
-	ASSASSIN,
+	BARBARIAN,
 	TANK,
 	PRIEST,
 }
@@ -565,8 +565,8 @@ func required_class_display_name() -> String:
 			return TranslationServer.translate(LocaleKeys.CLASS_MAGE)
 		RequiredClass.ARCHER:
 			return TranslationServer.translate(LocaleKeys.CLASS_ARCHER)
-		RequiredClass.ASSASSIN:
-			return TranslationServer.translate(LocaleKeys.CLASS_ASSASSIN)
+		RequiredClass.BARBARIAN:
+			return TranslationServer.translate(LocaleKeys.CLASS_BARBARIAN)
 		RequiredClass.TANK:
 			return TranslationServer.translate(LocaleKeys.CLASS_TANK)
 		RequiredClass.PRIEST:

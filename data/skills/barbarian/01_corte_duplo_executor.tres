@@ -5,21 +5,21 @@
 
 [sub_resource type="Resource" id="Effect_0"]
 script = ExtResource("effect_0")
-effect_type = "damage_burst"
-multiplier = 1.3
-hits = 1
+effect_type = "damage_multi"
+multiplier = 1.0
+hits = 2
 force_crit = false
 armor_pen_pct = 0.0
 
 [resource]
 script = ExtResource("1_skill")
-skill_id = "marca_da_presa"
-name_key = "SKILL_prey_mark"
-description_key = "SKILL_prey_mark_DESC"
+skill_id = "corte_duplo_executor"
+name_key = "SKILL_twin_execution_cut"
+description_key = "SKILL_twin_execution_cut_DESC"
 type = 0
-cooldown = 16.0
-icon_path = "res://sprites/ui/skills/assassin/marca_da_presa.png"
-sort_order = 2
+cooldown = 5.0
+icon_path = "res://sprites/ui/skills/barbarian/corte_duplo_executor.png"
+sort_order = 1
 stat_bonus_key = ""
 stat_value = 0.0
 vfx_id = ""
