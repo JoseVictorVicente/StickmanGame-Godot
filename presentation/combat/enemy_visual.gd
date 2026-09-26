@@ -43,7 +43,6 @@ const DEATH_PASS_DISTANCE := 100.0
 const DEATH_OFFSCREEN_X := -90.0
 const DARK_ELITE_ATTACK_START_FRAME := 12
 const RUNNER_DEATH_ANIM_SPEED_SCALE := 4.0
-const RUNNER_DEATH_DRIFT_MULT := 3.0
 const RUNNER_DEATH_FADE_SEC := 0.05
 const HORDE_MELEE_CONTACT := -1.0
 
@@ -268,14 +267,12 @@ func _process(delta: float) -> void:
 	if _horde_attack_cd > 0.0:
 		_horde_attack_cd = maxf(0.0, _horde_attack_cd - delta)
 	if _state == State.DEAD:
-		var accelerate_death := _should_accelerate_death()
+		var scroll_speed := _scenario_scroll_speed_px()
+		var accelerate_death := scroll_speed > 0.0 or _should_accelerate_death()
 		if accelerate_death and not _death_anim_done:
 			speed_scale = RUNNER_DEATH_ANIM_SPEED_SCALE
-		if _death_drifting:
-			var drift_delta := delta
-			if accelerate_death:
-				drift_delta *= RUNNER_DEATH_DRIFT_MULT
-			_process_death_drift(drift_delta)
+		if scroll_speed > 0.0:
+			_process_death_drift(delta, scroll_speed)
 		return
 	if _escort_mode and _escort_leader != null:
 		_sync_escort_to_leader(delta)
@@ -394,7 +391,7 @@ func fade_out(drift_with_scroll: bool = false) -> void:
 	_death_finished_emitted = false
 	_death_anim_done = false
 	_hero_was_close_at_death = _distance_to_hero() <= DEATH_PASS_DISTANCE
-	_death_drifting = drift_with_scroll and _party != null and _party.is_runner_syncing()
+	_death_drifting = drift_with_scroll
 	set_sim_controlled(false)
 	_set_state(State.DEAD)
 	if _barra:
@@ -964,8 +961,19 @@ func _finish_attack() -> void:
 		_horde_attack_cd = _attack_cooldown()
 
 
-func _process_death_drift(delta: float) -> void:
-	position.x -= FloorScroller.SCROLL_SPEED_PX * delta
+func _scenario_scroll_speed_px() -> float:
+	if _party == null:
+		return 0.0
+	var speed := 0.0
+	if _party.floor_scroller != null:
+		speed = maxf(speed, _party.floor_scroller.scroll_speed_px())
+	if _party.combat_background != null:
+		speed = maxf(speed, _party.combat_background.scroll_speed_px())
+	return speed
+
+
+func _process_death_drift(delta: float, scroll_speed: float) -> void:
+	position.x -= scroll_speed * delta
 	_check_death_complete()
 
 
@@ -983,15 +991,6 @@ func _should_accelerate_death() -> bool:
 func _check_death_complete() -> void:
 	if _death_finished_emitted or not _death_anim_done:
 		return
-	if _should_accelerate_death():
-		_finish_death_sequence()
-		return
-	if _death_drifting:
-		if _hero_was_close_at_death:
-			if not _corpse_passed_hero():
-				return
-		elif position.x > DEATH_OFFSCREEN_X:
-			return
 	_finish_death_sequence()
 
 
@@ -1002,7 +1001,11 @@ func _finish_death_sequence() -> void:
 	_death_drifting = false
 	if _tween:
 		_tween.kill()
-	var fade_sec := RUNNER_DEATH_FADE_SEC if _should_accelerate_death() else 0.12
+	var fade_sec := (
+		RUNNER_DEATH_FADE_SEC
+		if _scenario_scroll_speed_px() > 0.0 or _should_accelerate_death()
+		else 0.12
+	)
 	_tween = create_tween()
 	_tween.tween_property(self, "self_modulate:a", 0.0, fade_sec)
 	_tween.tween_callback(func() -> void:

@@ -30,6 +30,12 @@ msgstr "Advance to next stage"
 msgid "UI_DPS_FORMAT"
 msgstr "DPS %.1f"
 
+msgid "UI_BATTLE_STAGE_FORMAT"
+msgstr "Stage %d-%d"
+
+msgid "UI_STAGE_ENEMY_PROGRESS"
+msgstr "(%d/%d)"
+
 msgid "UI_LEVEL_FORMAT"
 msgstr "Lv.%d  %d/%d"
 

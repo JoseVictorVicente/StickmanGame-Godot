@@ -10,7 +10,7 @@ const STAGE_HEIGHT := UiConstants.STAGE_HEIGHT
 const PALCO_BASE_JANELA := UiConstants.PALCO_BASE_JANELA
 const PANEL_HEIGHT := UiConstants.BATTLE_PANEL_HEIGHT
 const BATTLE_PANEL_BOTTOM_MARGIN := UiConstants.BATTLE_PANEL_BOTTOM_MARGIN
-const BUTTON_SIZE := 80
+const BUTTON_SIZE := UiConstants.INVENTORY_BUTTON_SIZE
 const INVENTORY_PANEL_WIDTH := 580  # nominal hub width; actual width comes from MenuRow
 
 var stage_panel: Control
@@ -115,7 +115,15 @@ func anchor_combat_to_top(no_topo: bool) -> void:
 			160,
 			-BATTLE_PANEL_BOTTOM_MARGIN
 		)
-		_position_inventory_button(1.0, 1.0, -96, -16)
+		var band := _inventory_button_bottom_band_offsets()
+		_position_inventory_button(1.0, 1.0, band.x, band.y)
+
+
+func _inventory_button_bottom_band_offsets() -> Vector2i:
+	var inset := int((PANEL_HEIGHT - BUTTON_SIZE) * 0.5)
+	var top_offset := -(PALCO_BASE_JANELA - inset)
+	var bottom_offset := -(BATTLE_PANEL_BOTTOM_MARGIN + inset)
+	return Vector2i(top_offset, bottom_offset)
 
 
 func _horizontal_button_offsets() -> Vector2i:

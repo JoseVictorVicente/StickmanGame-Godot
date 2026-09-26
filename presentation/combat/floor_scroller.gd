@@ -57,6 +57,12 @@ func clear_scroll_speed_override() -> void:
 	_scroll_speed_override = -1.0
 
 
+func scroll_speed_px() -> float:
+	if not scrolling:
+		return 0.0
+	return _effective_scroll_speed()
+
+
 func _effective_scroll_speed() -> float:
 	if _scroll_speed_override >= 0.0:
 		return _scroll_speed_override

@@ -5,9 +5,9 @@ extends Node2D
 @onready var menu_button_area: ColorRect = $ButtonHud/MenuButtonArea
 @onready var open_inventory_button: Button = $ButtonHud/MenuButtonArea/OpenInventoryButton
 @onready var battle_panel: PanelContainer = $BattleHud/BattlePanel
-@onready var enemy_label: Label = %EnemyLabel
 @onready var enemy_health_bar: ProgressBar = %EnemyHealthBar
-@onready var level_label: Label = %LevelLabel
+@onready var stage_title_label: Label = %StageTitleLabel
+@onready var stage_progress_label: Label = %StageProgressLabel
 @onready var damage_label: Label = %DamageLabel
 @onready var repeat_stage_button: Button = %RepeatStageButton
 @onready var notice_label: Label = %NoticeLabel
@@ -317,6 +317,7 @@ func _on_item_dropped(item: ItemData) -> void:
 
 func _on_progression_changed() -> void:
 	inventory_menu.update_world_progress(_combat.world, _combat.stage, _combat.difficulty, _combat.unlocked_stages)
+	_update_hud()
 
 
 func _on_hero_level_changed(stage_index: int, level: int) -> void:
@@ -366,21 +367,16 @@ func _on_menu_gold_spent(amount: int) -> void:
 
 
 func _update_hud() -> void:
-	var nome: String = _combat.get_enemy_display_name()
-	if nome != "":
-		enemy_label.text = "%s  %s" % [nome, WorldProgress.difficulty_name(_combat.difficulty)]
 	inventory_menu.update_gold(_game_state.get_gold())
 	var hero_progress: Dictionary = _hero_progress.at_index(inventory_menu.current_character_index(), party.active_party)
-	level_label.text = tr(LocaleKeys.UI_LEVEL_FORMAT) % [
-		int(hero_progress["level"]),
-		int(hero_progress["xp"]),
-		int(hero_progress["xp_next"]),
-	]
 	inventory_menu.update_displayed_level(
 		int(hero_progress["level"]),
 		int(hero_progress["xp"]),
 		int(hero_progress["xp_next"]),
 	)
+	stage_title_label.text = tr(LocaleKeys.UI_BATTLE_STAGE_FORMAT) % [_combat.world, _combat.stage]
+	var enemy_progress: Vector2i = _combat.get_stage_enemy_progress()
+	stage_progress_label.text = tr(LocaleKeys.UI_STAGE_ENEMY_PROGRESS) % [enemy_progress.x, enemy_progress.y]
 	damage_label.text = tr(LocaleKeys.UI_DPS_FORMAT) % party.party_dps()
 
 

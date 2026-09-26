@@ -66,6 +66,30 @@ static func resolve(world: int, stage: int, wave: int, role: EnemyData.SpawnRole
 	return get_by_id(DEFAULT_ENEMY_ID)
 
 
+const WAVES_PER_STAGE := 4
+const ELITE_WAVE := WAVES_PER_STAGE
+
+
+static func count_enemies_in_wave(world: int, stage: int, wave: int) -> int:
+	var horde := resolve_horde(world, stage, wave)
+	if horde != null and horde.horde_count > 1:
+		return horde.horde_count
+	var count := 1
+	if wave == ELITE_WAVE and not _WorldCatalog.is_boss_stage(stage):
+		if resolve(world, stage, wave, EnemyData.SpawnRole.ELITE) != null:
+			count += 1
+		if get_by_id("flying_demon") != null:
+			count += 1
+	return count
+
+
+static func count_enemies_in_stage(world: int, stage: int) -> int:
+	var total := 0
+	for wave in range(1, WAVES_PER_STAGE + 1):
+		total += count_enemies_in_wave(world, stage, wave)
+	return total
+
+
 static func resolve_role_for_stage(stage: int, role: EnemyData.SpawnRole) -> EnemyData.SpawnRole:
 	if _WorldCatalog.is_boss_stage(stage) and role == EnemyData.SpawnRole.MINION:
 		return EnemyData.SpawnRole.BOSS

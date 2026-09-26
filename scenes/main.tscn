@@ -13,9 +13,9 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_batalha"]
 content_margin_left = 8.0
-content_margin_top = 6.0
+content_margin_top = 4.0
 content_margin_right = 8.0
-content_margin_bottom = 6.0
+content_margin_bottom = 4.0
 bg_color = Color(0.09, 0.08, 0.07, 0.94)
 border_width_left = 2
 border_width_top = 2
@@ -94,9 +94,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -240.0
-offset_top = -308.0
+offset_top = -256.0
 offset_right = 240.0
-offset_bottom = -108.0
+offset_bottom = -56.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -153,34 +153,74 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -160.0
-offset_top = -108.0
+offset_top = -56.0
 offset_right = 160.0
-offset_bottom = -8.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_batalha")
 
-[node name="InfoBatalha" type="VBoxContainer" parent="BattleHud/BattlePanel" unique_id=525316390]
+[node name="PanelContent" type="VBoxContainer" parent="BattleHud/BattlePanel" unique_id=525316391]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="EnemyLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha" unique_id=300680211]
+[node name="InfoBatalha" type="HBoxContainer" parent="BattleHud/BattlePanel/PanelContent" unique_id=525316390]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="StageColumn" type="VBoxContainer" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha" unique_id=641032324]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="StageTitleLabel" type="Label" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha/StageColumn" unique_id=300680211]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.86, 0.45, 1)
+theme_override_colors/font_color = Color(0.95, 0.28, 0.22, 1)
 theme_override_font_sizes/font_size = 13
-text = "Inimigo"
-horizontal_alignment = 1
+text = "Fase 1-1"
 
-[node name="EnemyHealthBar" type="ProgressBar" parent="BattleHud/BattlePanel/InfoBatalha" unique_id=915998859]
+[node name="StageProgressLabel" type="Label" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha/StageColumn" unique_id=1435878227]
 unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.28, 0.22, 1)
+theme_override_font_sizes/font_size = 11
+text = "(0/0)"
+
+[node name="StatsColumn" type="HBoxContainer" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha" unique_id=641032323]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="DamageLabel" type="Label" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha/StatsColumn" unique_id=1452963077]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.88, 0.78, 1)
+theme_override_font_sizes/font_size = 11
+text = "DPS 0.0"
+
+[node name="RepeatStageButton" type="Button" parent="BattleHud/BattlePanel/PanelContent/InfoBatalha/StatsColumn" unique_id=1410271459]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Repetir fase"
+focus_mode = 0
+icon_alignment = 1
+expand_icon = true
+
+[node name="EnemyHealthBar" type="ProgressBar" parent="BattleHud/BattlePanel/PanelContent" unique_id=915998859]
+unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 script = ExtResource("3_barra")
 
-[node name="LabelHP" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/EnemyHealthBar" unique_id=1804653134]
+[node name="LabelHP" type="Label" parent="BattleHud/BattlePanel/PanelContent/EnemyHealthBar" unique_id=1804653134]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -193,36 +233,7 @@ text = "20 / 20"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LinhaStatus" type="HBoxContainer" parent="BattleHud/BattlePanel/InfoBatalha" unique_id=641032323]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="LevelLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus" unique_id=1435878227]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.9, 0.75, 1)
-theme_override_font_sizes/font_size = 11
-text = "Nv. 1   XP 0/20"
-
-[node name="DamageLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus" unique_id=1452963077]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.74, 0.55, 1)
-theme_override_font_sizes/font_size = 11
-text = "Dano  5"
-
-[node name="RepeatStageButton" type="Button" parent="BattleHud/BattlePanel/InfoBatalha/LinhaStatus" unique_id=1410271459]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(22, 22)
-layout_mode = 2
-size_flags_vertical = 4
-tooltip_text = "Repetir fase"
-focus_mode = 0
-icon_alignment = 1
-expand_icon = true
-
-[node name="NoticeLabel" type="Label" parent="BattleHud/BattlePanel/InfoBatalha" unique_id=56622575]
+[node name="NoticeLabel" type="Label" parent="BattleHud/BattlePanel/PanelContent" unique_id=56622575]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -255,10 +266,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = 210.0
-offset_top = -96.0
+offset_left = 242.0
+offset_top = -54.0
 offset_right = 290.0
-offset_bottom = -16.0
+offset_bottom = -6.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
@@ -271,10 +282,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -28.0
-offset_top = -28.0
-offset_right = 28.0
-offset_bottom = 28.0
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_botao")
@@ -293,30 +304,30 @@ mouse_filter = 2
 [node name="IconeGrade" type="GridContainer" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone" unique_id=2100456785]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/h_separation = 5
-theme_override_constants/v_separation = 5
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
 columns = 2
 
 [node name="Quadrado1" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456786]
-custom_minimum_size = Vector2(10, 10)
+custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
 [node name="Quadrado2" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456787]
-custom_minimum_size = Vector2(10, 10)
+custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
 [node name="Quadrado3" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456788]
-custom_minimum_size = Vector2(10, 10)
+custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")
 
 [node name="Quadrado4" type="Panel" parent="ButtonHud/MenuButtonArea/OpenInventoryButton/CentralizarIcone/IconeGrade" unique_id=2100456789]
-custom_minimum_size = Vector2(10, 10)
+custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_quadrado")

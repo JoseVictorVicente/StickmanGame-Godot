@@ -62,6 +62,7 @@ var _flying_demon_enemy_timer: Timer
 var _horde_active: bool = false
 var _resolvendo_horde_membro: bool = false
 var _pending_defeat_after_morte: bool = false
+var _stage_enemies_defeated: int = 0
 var _session: _CombatSession
 var _presentation_bridge: _PresentationBridge
 
@@ -179,6 +180,7 @@ func is_running_phase() -> bool:
 
 func start_combat() -> void:
 	_combat_ready = true
+	_reset_stage_enemy_progress()
 	stage_wave = 1
 	_apply_combat_floor()
 	if party != null:
@@ -266,6 +268,8 @@ func can_heroes_act_for_sim() -> bool:
 func can_hero_attack_slot(slot: int) -> bool:
 	if party == null or not has_living_enemies():
 		return false
+	if party.is_march_regrouping():
+		return false
 	if _session == null:
 		return true
 	if _session.is_engaged():
@@ -292,6 +296,8 @@ func _enemy_visual_combat_x(visual: Node2D) -> float:
 func _begin_battle_approach_phase() -> void:
 	if party == null or _session == null:
 		return
+	if party.is_march_regrouping():
+		return
 	party.begin_battle_approach()
 	_session.encounter.battle_approach_active = true
 	_set_stage_scrolling(false)
@@ -309,6 +315,8 @@ func _is_wave_transition_runner() -> bool:
 
 func _update_party_field_combat(delta: float) -> void:
 	if party == null or _session == null or not has_living_enemies():
+		return
+	if party.is_march_regrouping():
 		return
 	if _resolvendo_derrota or _horde_active:
 		return
@@ -732,6 +740,7 @@ func start_stage(new_world: int, new_stage: int, new_difficulty: int) -> void:
 	world = m
 	stage = f
 	difficulty = d
+	_reset_stage_enemy_progress()
 	stage_wave = 1
 	_apply_combat_floor()
 	_reset_active_combat()
@@ -821,7 +830,7 @@ func _sync_legacy_from_session() -> void:
 
 
 func _death_corpse_should_drift() -> bool:
-	return party != null and party.is_runner_syncing()
+	return false
 
 
 func _enemy_can_attack_during_approach() -> bool:
@@ -899,6 +908,31 @@ func _flying_escort_offset() -> Vector2:
 func toggle_repeat() -> void:
 	repeat_stage = not repeat_stage
 	save_needed.emit()
+
+
+func get_stage_enemy_progress() -> Vector2i:
+	var total := EnemyCatalog.count_enemies_in_stage(world, stage)
+	if total <= 0:
+		return Vector2i.ZERO
+	return Vector2i(clampi(_stage_enemies_defeated, 0, total), total)
+
+
+func _reset_stage_enemy_progress() -> void:
+	_stage_enemies_defeated = 0
+
+
+func _register_stage_enemy_defeat() -> void:
+	var total := EnemyCatalog.count_enemies_in_stage(world, stage)
+	if total <= 0:
+		return
+	_stage_enemies_defeated = mini(_stage_enemies_defeated + 1, total)
+
+
+func _resolve_death_counts_for_progress() -> bool:
+	if _session == null or _session.encounter == null:
+		return true
+	var enc: _Encounter = _session.encounter
+	return not enc.has_horde or enc.horde == null
 
 
 func apply_state(dados: Dictionary) -> void:
@@ -1005,6 +1039,8 @@ func _resolve_death() -> void:
 	if reward_enemy == null:
 		_release_morte_resolution()
 		return
+	if _resolve_death_counts_for_progress():
+		_register_stage_enemy_defeat()
 	party.combat_paused = true
 	AudioManager.play_death_sound()
 	var gold := _drops.gold_with_variance(reward_enemy.gold_reward)
@@ -1055,6 +1091,7 @@ func _resolve_death() -> void:
 		save_needed.emit()
 		return
 	_advance_stage()
+	_reset_stage_enemy_progress()
 	stage_wave = 1
 	_reset_stage_scroll()
 	party.heal_party()
@@ -1090,6 +1127,7 @@ func _run_defeat_sequence() -> void:
 		_resolvendo_derrota = false
 		return
 	_abort_encounter_after_defeat()
+	_reset_stage_enemy_progress()
 	stage_wave = 1
 	_reset_stage_scroll()
 	if party != null:
@@ -1416,6 +1454,7 @@ func _resolve_horde_member_killed() -> void:
 	if killed == null:
 		_resolvendo_horde_membro = false
 		return
+	_register_stage_enemy_defeat()
 	AudioManager.play_death_sound()
 	var gold := _drops.gold_with_variance(killed.gold_reward)
 	gold = _apply_gold_bonus(gold)
@@ -1444,6 +1483,7 @@ func _resolve_horde_member_killed() -> void:
 
 
 func _resolve_minion_killed() -> void:
+	_register_stage_enemy_defeat()
 	if elite_enemy_visual != null:
 		elite_enemy_visual.detach_from_leader()
 	if flying_demon_enemy_visual != null:
@@ -1478,6 +1518,7 @@ func _resolve_minion_killed() -> void:
 
 
 func _resolve_elite_killed() -> void:
+	_register_stage_enemy_defeat()
 	_stop_elite_attack_timer()
 	if flying_demon_enemy_visual != null:
 		flying_demon_enemy_visual.detach_from_leader()
