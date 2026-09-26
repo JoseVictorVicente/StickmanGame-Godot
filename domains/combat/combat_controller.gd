@@ -22,6 +22,7 @@ const _PresentationBridge := preload("res://presentation/combat/combat_presentat
 const _CombatEvent := preload("res://domains/combat/sim/combat_event.gd")
 const _Encounter := preload("res://domains/combat/sim/combat_encounter.gd")
 const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
+const UiConstants := preload("res://presentation/shared/ui_constants.gd")
 
 var world: int = 1
 var stage: int = 1
@@ -45,6 +46,7 @@ var horde_visuals: EnemyHordeVisuals
 var enemy_health_bar: ProgressBar
 var floor_scroller: FloorScroller
 var combat_background: CombatBackground
+var combat_actors: Node2D
 var hero_progress: HeroProgress
 var get_character_index: Callable
 var get_gold_destination: Callable
@@ -65,6 +67,7 @@ var _pending_defeat_after_morte: bool = false
 var _stage_enemies_defeated: int = 0
 var _session: _CombatSession
 var _presentation_bridge: _PresentationBridge
+var _edge_scroll_current: float = 0.0
 
 
 func _ready() -> void:
@@ -83,6 +86,7 @@ func _ready() -> void:
 	_session = _CombatSession.new()
 	_presentation_bridge = _PresentationBridge.new()
 	_bind_presentation_bridge()
+	process_priority = 10
 	set_process(true)
 
 
@@ -98,7 +102,7 @@ func _bind_presentation_bridge() -> void:
 	_presentation_bridge.floor_scroller = floor_scroller
 	_presentation_bridge.combat_background = combat_background
 	if party != null:
-		_presentation_bridge.combat_root = party.get_parent() as Node2D
+		_presentation_bridge.combat_root = combat_actors if combat_actors != null else party.get_parent() as Node2D
 		_presentation_bridge.ensure_party_regroup_wiring()
 	_session.bind_bridge(_presentation_bridge)
 	_session.simulator.enemy_attack_context = _enemy_attack_context
@@ -114,6 +118,7 @@ func _process(delta: float) -> void:
 			party.hero_engage_x()
 		)
 		_session.refresh_solo_block_from_party(party)
+		_update_combat_edge_scroll(delta)
 	var events: Array = _session.advance_frame(delta, can_heroes_act_for_sim(), _can_enemies_tick())
 	_consume_sim_meta_events(events)
 	_update_party_field_combat(delta)
@@ -995,6 +1000,32 @@ func _reset_stage_scroll() -> void:
 		combat_background.reset_scroll()
 	if floor_scroller != null:
 		floor_scroller.reset_scroll()
+	_reset_combat_edge_scroll()
+
+
+func _update_combat_edge_scroll(delta: float) -> void:
+	var target := 0.0
+	if party != null:
+		target = party.combat_edge_scroll_px(
+			UiConstants.STAGE_WIDTH_HALF,
+			_Tuning.COMBAT_EDGE_MARGIN
+		)
+	var lerp_sec := maxf(0.001, _Tuning.COMBAT_EDGE_SCROLL_LERP_SEC)
+	var weight := clampf(delta / lerp_sec, 0.0, 1.0)
+	_edge_scroll_current = lerpf(_edge_scroll_current, target, weight)
+	_apply_combat_edge_scroll()
+
+
+func _apply_combat_edge_scroll() -> void:
+	if combat_background != null:
+		combat_background.set_combat_edge_scroll_px(_edge_scroll_current)
+	if floor_scroller != null:
+		floor_scroller.set_combat_edge_scroll_px(_edge_scroll_current)
+
+
+func _reset_combat_edge_scroll() -> void:
+	_edge_scroll_current = 0.0
+	_apply_combat_edge_scroll()
 
 
 func resync_enemy_anchors() -> void:

@@ -383,6 +383,22 @@ func hero_engage_x() -> float:
 	return hero_combat_x(slot)
 
 
+func combat_edge_scroll_px(view_half_width: float, edge_margin: float) -> float:
+	if not is_road_combat_ground():
+		return 0.0
+	if (
+		_field_state != PartyFieldState.BATTLE_APPROACH
+		and _field_state != PartyFieldState.ENGAGED
+	):
+		return 0.0
+	var slot := engage_lane_slot()
+	if slot < 0:
+		return 0.0
+	var front_x := hero_combat_x(slot)
+	var safe_right := view_half_width - edge_margin
+	return maxf(0.0, front_x - safe_right)
+
+
 func get_enemy_spawn_local(off_screen: bool = false) -> Vector2:
 	var engage_slot := engage_lane_slot()
 	if engage_slot < 0:

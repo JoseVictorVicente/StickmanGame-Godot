@@ -116,33 +116,36 @@ texture_filter = 0
 texture = ExtResource("7_chao")
 script = ExtResource("8_floor")
 
-[node name="PartyService" type="Node2D" parent="BattleHud/Combate" unique_id=1016565227]
+[node name="CombatActors" type="Node2D" parent="BattleHud/Combate"]
+unique_name_in_owner = true
+
+[node name="PartyService" type="Node2D" parent="BattleHud/Combate/CombatActors" unique_id=1016565227]
 script = ExtResource("4_party")
 
-[node name="Posicao1" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=650096794]
+[node name="Posicao1" type="Marker2D" parent="BattleHud/Combate/CombatActors/PartyService" unique_id=650096794]
 position = Vector2(-36, -44)
 
-[node name="Posicao2" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=663998246]
+[node name="Posicao2" type="Marker2D" parent="BattleHud/Combate/CombatActors/PartyService" unique_id=663998246]
 position = Vector2(0, -44)
 
-[node name="Posicao3" type="Marker2D" parent="BattleHud/Combate/PartyService" unique_id=947033902]
+[node name="Posicao3" type="Marker2D" parent="BattleHud/Combate/CombatActors/PartyService" unique_id=947033902]
 position = Vector2(36, -44)
 
-[node name="EnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate" unique_id=1178503625]
+[node name="EnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate/CombatActors" unique_id=1178503625]
 position = Vector2(88, -44)
 script = ExtResource("5_inimigo")
 
-[node name="EliteEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate"]
+[node name="EliteEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate/CombatActors"]
 position = Vector2(130, -44)
 visible = false
 script = ExtResource("5_inimigo")
 
-[node name="FlyingDemonEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate"]
+[node name="FlyingDemonEnemyVisual" type="AnimatedSprite2D" parent="BattleHud/Combate/CombatActors"]
 position = Vector2(160, -52)
 visible = false
 script = ExtResource("5_inimigo")
 
-[node name="HordeEnemies" type="Node2D" parent="BattleHud/Combate"]
+[node name="HordeEnemies" type="Node2D" parent="BattleHud/Combate/CombatActors"]
 script = ExtResource("10_horde")
 
 [node name="BattlePanel" type="PanelContainer" parent="BattleHud" unique_id=179778745]

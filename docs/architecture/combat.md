@@ -40,8 +40,8 @@ After killing a wave, the party **regroups** into formation, then enters `Combat
 | State | When | Visual |
 |-------|------|--------|
 | `FORMATION_MARCH` | RUNNING, no enemy in any hero engage range | Heroes in slot offsets + road extras; BG scrolls |
-| `BATTLE_APPROACH` | RUNNING, enemy within range of at least one hero | BG scroll stops; melee slots advance on X; ranged slots attack; enemy stops at `frontline_slot()` (highest X alive), attacks that hero, then advances to the next after a kill |
-| `ENGAGED` | Sim `engage()` / wave 1 on-screen spawn | Scroll stops; full combat |
+| `BATTLE_APPROACH` | RUNNING, enemy within range of at least one hero | Auto BG scroll stops; edge-scroll kicks in when `engage_lane_slot()` X exceeds `STAGE_WIDTH_HALF - COMBAT_EDGE_MARGIN` (BG UV advances, frame fixed); melee advance on X; ranged slots attack; enemy stops at `frontline_slot()` (highest X alive), attacks that hero, then advances to the next after a kill |
+| `ENGAGED` | Sim `engage()` / wave 1 on-screen spawn | Auto scroll stops; edge-scroll holds heroes inside the road BG; full combat |
 
 **Per-slot attack gate:** `CombatController.can_hero_attack_slot(slot)` — during `BATTLE_APPROACH`, only heroes whose `hero_combat_x` is within `HeroSpritesheet.engage_range(class)` may fire timers/skills. Sim sets `CombatEncounter.battle_approach_active` so `apply_hero_hit` accepts damage before melee contact.
 

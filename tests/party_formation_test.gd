@@ -16,6 +16,7 @@ func _init() -> void:
 	_test_two_phase_regroup()
 	_test_formation_lane_gaps_all_permutations()
 	_test_regroup_defers_spawn()
+	_test_combat_edge_scroll_px()
 	if _failed:
 		TestLog.suite_complete("PartyFormation", false)
 		quit(1)
@@ -156,6 +157,52 @@ func _regroup_needed(march_lead: float, spreads: Array) -> bool:
 
 func _should_defer_spawn_until_regroup(needs_regroup: bool) -> bool:
 	return needs_regroup
+
+
+func _test_combat_edge_scroll_px() -> void:
+	const field_march := 0
+	const field_approach := 1
+	const field_engaged := 2
+	const view_half := 240.0
+	const edge_margin := 64.0
+	const safe_right := view_half - edge_margin
+	var cases := [
+		{"road": true, "state": field_march, "combat_x": 200.0, "expected": 0.0},
+		{"road": false, "state": field_approach, "combat_x": 200.0, "expected": 0.0},
+		{"road": true, "state": field_approach, "combat_x": 100.0, "expected": 0.0},
+		{"road": true, "state": field_approach, "combat_x": 200.0, "expected": 200.0 - safe_right},
+		{"road": true, "state": field_engaged, "combat_x": 200.0, "expected": 200.0 - safe_right},
+	]
+	for case in cases:
+		var scroll := _combat_edge_scroll_px(
+			bool(case.road),
+			int(case.state),
+			view_half,
+			edge_margin,
+			float(case.combat_x)
+		)
+		if absf(scroll - float(case.expected)) > 0.01:
+			_fail(
+				"combat edge scroll mismatch for state %d (got %.1f expected %.1f)"
+				% [int(case.state), scroll, float(case.expected)]
+			)
+
+
+func _combat_edge_scroll_px(
+	road_layout: bool,
+	field_state: int,
+	view_half_width: float,
+	edge_margin: float,
+	front_combat_x: float
+) -> float:
+	const field_approach := 1
+	const field_engaged := 2
+	if not road_layout:
+		return 0.0
+	if field_state != field_approach and field_state != field_engaged:
+		return 0.0
+	var safe_right := view_half_width - edge_margin
+	return maxf(0.0, front_combat_x - safe_right)
 
 
 func _road_lane_x(slot_index: int) -> float:

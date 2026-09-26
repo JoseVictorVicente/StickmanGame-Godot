@@ -15,11 +15,12 @@ extends Node2D
 @onready var floor: FloorScroller = %Floor
 @onready var stage_background: CombatBackground = %StageBackground
 @onready var combat_root: Node2D = $BattleHud/Combate
-@onready var party: PartyService = $BattleHud/Combate/PartyService
-@onready var enemy_visual: EnemyVisual = $BattleHud/Combate/EnemyVisual
-@onready var elite_enemy_visual: EnemyVisual = $BattleHud/Combate/EliteEnemyVisual
-@onready var flying_demon_enemy_visual: EnemyVisual = $BattleHud/Combate/FlyingDemonEnemyVisual
-@onready var horde_visuals: EnemyHordeVisuals = $BattleHud/Combate/HordeEnemies
+@onready var combat_actors: Node2D = %CombatActors
+@onready var party: PartyService = %CombatActors/PartyService
+@onready var enemy_visual: EnemyVisual = %CombatActors/EnemyVisual
+@onready var elite_enemy_visual: EnemyVisual = %CombatActors/EliteEnemyVisual
+@onready var flying_demon_enemy_visual: EnemyVisual = %CombatActors/FlyingDemonEnemyVisual
+@onready var horde_visuals: EnemyHordeVisuals = %CombatActors/HordeEnemies
 @onready var coin_effect_layer: Control = $BattleHud/EffectsLayer
 
 var total_damage: int = 5
@@ -58,6 +59,7 @@ func _ready() -> void:
 	flying_demon_enemy_visual.hide_escort()
 	_combat.floor_scroller = floor
 	_combat.combat_background = stage_background
+	_combat.combat_actors = combat_actors
 	party.floor_scroller = floor
 	party.combat_background = stage_background
 	stage_background.configure_stage_panel(stage_panel)

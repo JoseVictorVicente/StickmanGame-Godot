@@ -11,6 +11,7 @@ var scrolling: bool = false
 
 var _shader_mat: ShaderMaterial
 var _scroll_offset: float = 0.0
+var _edge_scroll_uv: float = 0.0
 var _scroll_speed_override: float = -1.0
 
 
@@ -69,9 +70,18 @@ func _effective_scroll_speed() -> float:
 	return SCROLL_SPEED_PX
 
 
+func set_combat_edge_scroll_px(scroll_px: float) -> void:
+	if texture == null or texture.get_size().x <= 0.0:
+		_edge_scroll_uv = 0.0
+	else:
+		_edge_scroll_uv = scroll_px / texture.get_size().x
+	_apply_scroll()
+
+
 func reset_scroll() -> void:
 	scrolling = false
 	_scroll_offset = 0.0
+	_edge_scroll_uv = 0.0
 	_apply_scroll()
 
 
@@ -99,4 +109,7 @@ func _apply_layout() -> void:
 
 func _apply_scroll() -> void:
 	if _shader_mat:
-		_shader_mat.set_shader_parameter("scroll_offset", _scroll_offset)
+		_shader_mat.set_shader_parameter(
+			"scroll_offset",
+			fmod(_scroll_offset + _edge_scroll_uv, UV_WRAP)
+		)
