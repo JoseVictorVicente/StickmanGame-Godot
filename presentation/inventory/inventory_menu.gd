@@ -680,41 +680,6 @@ func drag_window_from_event(event: InputEvent) -> void:
 	_on_header_gui_input(event)
 
 
-func _generate_initial_item() -> void:
-	var espada := ItemData.new()
-	espada.id = "wooden_sword"
-	espada.display_name = ""
-	espada.name_key = "ITEM_wooden_sword"
-	espada.item_type = ItemData.Type.WEAPON
-	espada.rarity = ItemData.Rarity.COMMON
-	espada.item_level = ItemData.ITEM_LEVELS[0]
-	espada.damage_bonus = 5
-	espada.required_class = ItemData.RequiredClass.ALL
-	espada.icone = _create_wooden_sword_icon()
-	var slot := first_empty_inventory_slot()
-	if slot == null:
-		slot = inventory_slots_grid.usable_slots()[0] if inventory_slots_grid else inventory_slot_list[0]
-	slot.set_item(espada)
-
-
-func _create_wooden_sword_icon() -> Texture2D:
-	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var lamina := Color(0.72, 0.5, 0.22, 1)
-	var cabo := Color(0.38, 0.22, 0.1, 1)
-	var guarda := Color(0.28, 0.18, 0.08, 1)
-	for y in range(3, 22):
-		for x in range(14, 18):
-			img.set_pixel(x, y, lamina)
-	for x in range(10, 22):
-		img.set_pixel(x, 21, guarda)
-		img.set_pixel(x, 22, guarda)
-	for y in range(23, 30):
-		for x in range(14, 18):
-			img.set_pixel(x, y, cabo)
-	return ImageTexture.create_from_image(img)
-
-
 func _on_slot_clicked(slot: ItemSlot) -> void:
 	_drag.on_slot_clicked(slot)
 
@@ -913,7 +878,6 @@ func fill_initial_item_if_empty() -> void:
 	for slot in inventory_slots_grid.usable_slots() if inventory_slots_grid else inventory_slot_list:
 		if slot.item:
 			return
-	_generate_initial_item()
 
 
 func serialize_inventory() -> Array:

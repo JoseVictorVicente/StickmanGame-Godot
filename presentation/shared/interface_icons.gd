@@ -127,6 +127,40 @@ static func base_gem() -> Texture2D:
 	return _load_texture("gem.png")
 
 
+static func warrior_sword_icon(raridade: ItemData.Rarity) -> Texture2D:
+	const FILES: Array[String] = [
+		"items/warrior/common_sword.png",
+		"items/warrior/uncommon_sword.png",
+		"items/warrior/rare_sword.png",
+		"items/warrior/epic_sword.png",
+		"items/warrior/legendary_sword.png",
+		"items/warrior/mythic_sword.png",
+		"items/warrior/primordial_sword.png",
+		"items/warrior/astral_sword.png",
+		"items/warrior/divine_sword.png",
+		"items/warrior/transcendental_sword.png",
+	]
+	var idx := clampi(int(raridade), 0, FILES.size() - 1)
+	return _load_texture(FILES[idx])
+
+
+static func slot_border_for_rarity(raridade: ItemData.Rarity) -> Texture2D:
+	const FILES: Array[String] = [
+		"items/slots/slot_border.png",
+		"items/slots/uncommon_slot_border.png",
+		"items/slots/rare_slot_border.png",
+		"items/slots/epic_slot_border.png",
+		"items/slots/legendary_slot_border.png",
+		"items/slots/mythic_slot_border.png",
+		"items/slots/primordial_slot_border.png",
+		"items/slots/astral_slot_border.png",
+		"items/slots/divine_slot_border.png",
+		"items/slots/transcendental_slot_border.png",
+	]
+	var idx := clampi(int(raridade), 0, FILES.size() - 1)
+	return _load_texture(FILES[idx])
+
+
 static func gem_icon(raridade: ItemData.Rarity) -> Texture2D:
 	var chave := "gema_raridade:%d" % int(raridade)
 	if _cache.has(chave):

@@ -624,6 +624,12 @@ func type_abbreviation() -> String:
 	return sigla_do_tipo(item_type)
 
 
+func shows_type_abbreviation_in_slot() -> bool:
+	if item_type == Type.WEAPON and required_class == RequiredClass.WARRIOR:
+		return false
+	return true
+
+
 static func sigla_do_tipo(p_tipo: Type) -> String:
 	match p_tipo:
 		Type.WEAPON:
@@ -699,6 +705,10 @@ static func from_dictionary(dados: Dictionary) -> ItemData:
 func generate_icon() -> Texture2D:
 	if is_gem():
 		return _generate_gem_icon()
+	if item_type == Type.WEAPON and required_class == RequiredClass.WARRIOR:
+		var custom := InterfaceIcons.warrior_sword_icon(rarity)
+		if custom:
+			return custom
 	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	for y in range(6, 26):

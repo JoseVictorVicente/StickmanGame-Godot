@@ -15,9 +15,9 @@ const SLOT_FRAME_BLEED_BASE_SIZE := 42.0
 const SLOT_FRAME_BLEED_BASE_PX := 2.0
 const SLOT_ICON_INSET_BASE_SIZE := 42.0
 const SLOT_ICON_INSET_BASE_PX := 5.0
+const HOVER_OUTLINE_INSET_BASE_PX := 1.0
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
-const HOVER_FRAME_COLOR := Color(1.0, 0.88, 0.42, 1.0)
 const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BELT,
 	ItemData.Type.PENDANT,
@@ -39,6 +39,7 @@ var validar_drop_extra: Callable
 var forge_reserved: bool = false
 var icone_rect: TextureRect
 var slot_frame: TextureRect
+var _hover_outline: Panel
 var _label_sigla: Label
 var _selecionado: bool = false
 var _hovered: bool = false
@@ -50,6 +51,8 @@ func _ready() -> void:
 		icone_rect = get_icon_rect()
 	if slot_frame == null:
 		slot_frame = get_node_or_null("%SlotFrame") as TextureRect
+	if _hover_outline == null:
+		_hover_outline = get_node_or_null("%HoverOutline") as Panel
 	if slot_frame and slot_frame.texture == null:
 		slot_frame.texture = SLOT_FRAME_TEXTURE
 	_sync_slot_chrome_layout()
@@ -79,6 +82,12 @@ func _sync_slot_chrome_layout() -> void:
 		slot_frame.offset_top = -bleed
 		slot_frame.offset_right = bleed
 		slot_frame.offset_bottom = bleed
+	if _hover_outline:
+		var hover_inset := maxf(HOVER_OUTLINE_INSET_BASE_PX, HOVER_OUTLINE_INSET_BASE_PX * scale)
+		_hover_outline.offset_left = hover_inset
+		_hover_outline.offset_top = hover_inset
+		_hover_outline.offset_right = -hover_inset
+		_hover_outline.offset_bottom = -hover_inset
 	if icone_rect:
 		var inset := maxf(SLOT_ICON_INSET_BASE_PX, SLOT_ICON_INSET_BASE_PX * scale)
 		icone_rect.offset_left = inset
@@ -144,9 +153,13 @@ func update_visual(selecionado: bool = _selecionado) -> void:
 		return
 	if _label_sigla:
 		if item:
-			_label_sigla.text = item.type_abbreviation()
-			_label_sigla.add_theme_color_override("font_color", item.get_rarity_color())
-			_label_sigla.visible = true
+			if item.shows_type_abbreviation_in_slot():
+				_label_sigla.text = item.type_abbreviation()
+				_label_sigla.add_theme_color_override("font_color", item.get_rarity_color())
+				_label_sigla.visible = true
+			else:
+				_label_sigla.text = ""
+				_label_sigla.visible = false
 		else:
 			_label_sigla.text = ""
 			_label_sigla.visible = false
@@ -425,19 +438,28 @@ func _ensure_abbreviation() -> void:
 func _apply_frame_modulate() -> void:
 	if slot_frame == null:
 		slot_frame = get_node_or_null("%SlotFrame") as TextureRect
+	if _hover_outline == null:
+		_hover_outline = get_node_or_null("%HoverOutline") as Panel
 	if slot_frame == null:
 		return
+	var frame_tex := SLOT_FRAME_TEXTURE
+	if item and not is_expand_placeholder and _uses_rarity_frame():
+		var rarity_frame := InterfaceIcons.slot_border_for_rarity(item.rarity)
+		if rarity_frame:
+			frame_tex = rarity_frame
+	slot_frame.texture = frame_tex
 	var cor := Color.WHITE
-	if item:
-		var raridade := item.get_rarity_color()
-		cor = Color(
-			lerpf(1.0, raridade.r, 0.45),
-			lerpf(1.0, raridade.g, 0.45),
-			lerpf(1.0, raridade.b, 0.45),
-			1.0
-		)
-	if _selecionado or _hovered:
-		cor = HOVER_FRAME_COLOR
 	if forge_reserved:
-		cor = cor * Color(0.55, 0.55, 0.55, 0.85)
+		cor = Color(0.55, 0.55, 0.55, 0.85)
 	slot_frame.modulate = cor
+	if _hover_outline:
+		_hover_outline.visible = (_hovered or _selecionado) and not is_expand_placeholder
+
+
+func _uses_rarity_frame() -> bool:
+	var node: Node = self
+	while node:
+		if node is InventorySlotsGrid:
+			return true
+		node = node.get_parent()
+	return false
