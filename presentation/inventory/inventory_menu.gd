@@ -880,6 +880,66 @@ func fill_initial_item_if_empty() -> void:
 			return
 
 
+func add_armor_rarity_preview() -> void:
+	const PREVIEW_PREFIX := "preview_armor_"
+	const PREVIEW_TYPES: Array[ItemData.Type] = [
+		ItemData.Type.HELMET,
+		ItemData.Type.CHEST,
+		ItemData.Type.GLOVES,
+		ItemData.Type.PANTS,
+		ItemData.Type.BOOTS,
+	]
+	var slots := _inventory_sort_slots()
+	if slots.is_empty():
+		call_deferred("add_armor_rarity_preview")
+		return
+	var existing: Dictionary = {}
+	for slot in slots:
+		if slot.item and slot.item.id.begins_with(PREVIEW_PREFIX):
+			existing["%d_%d" % [int(slot.item.item_type), int(slot.item.rarity)]] = true
+	for armor_type in PREVIEW_TYPES:
+		for rarity_index in range(int(ItemData.Rarity.UNCOMMON), ItemData.Rarity.size()):
+			var key := "%d_%d" % [int(armor_type), rarity_index]
+			if existing.has(key):
+				continue
+			if not try_add_inventory_item(_create_preview_armor_item(armor_type, rarity_index as ItemData.Rarity)):
+				push_warning("Inventory full — could not add all armor rarity previews.")
+				return
+	notify_items_changed()
+
+
+func _create_preview_armor_item(armor_type: ItemData.Type, rarity: ItemData.Rarity) -> ItemData:
+	var item := ItemData.new()
+	item.id = "preview_armor_%d_%d" % [int(armor_type), int(rarity)]
+	item.item_type = armor_type
+	item.rarity = rarity
+	item.item_level = ItemData.ITEM_LEVELS[0]
+	item.required_class = ItemData.RequiredClass.ALL
+	match armor_type:
+		ItemData.Type.HELMET:
+			item.name_key = "ITEM_warrior_helmet"
+			item.damage_bonus = 3
+			item.hp_bonus = 6
+		ItemData.Type.CHEST:
+			item.name_key = "ITEM_warrior_chestplate"
+			item.damage_bonus = 2
+			item.hp_bonus = 10
+		ItemData.Type.GLOVES:
+			item.name_key = "ITEM_warrior_gloves"
+			item.damage_bonus = 2
+			item.hp_bonus = 4
+		ItemData.Type.PANTS:
+			item.name_key = "ITEM_warrior_pants"
+			item.damage_bonus = 2
+			item.hp_bonus = 6
+		ItemData.Type.BOOTS:
+			item.name_key = "ITEM_warrior_boots"
+			item.damage_bonus = 1
+			item.hp_bonus = 5
+	item.icone = item.generate_icon()
+	return item
+
+
 func serialize_inventory() -> Array:
 	return _persistence.serialize_inventory(self)
 

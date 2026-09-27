@@ -625,9 +625,15 @@ func type_abbreviation() -> String:
 
 
 func shows_type_abbreviation_in_slot() -> bool:
+	return not uses_custom_item_icon()
+
+
+func uses_custom_item_icon() -> bool:
 	if item_type == Type.WEAPON and required_class == RequiredClass.WARRIOR:
-		return false
-	return true
+		return InterfaceIcons.warrior_sword_icon(rarity) != null
+	if item_type in [Type.HELMET, Type.CHEST, Type.GLOVES, Type.PANTS, Type.BOOTS]:
+		return InterfaceIcons.armor_icon(item_type, rarity) != null
+	return false
 
 
 static func sigla_do_tipo(p_tipo: Type) -> String:
@@ -706,9 +712,13 @@ func generate_icon() -> Texture2D:
 	if is_gem():
 		return _generate_gem_icon()
 	if item_type == Type.WEAPON and required_class == RequiredClass.WARRIOR:
-		var custom := InterfaceIcons.warrior_sword_icon(rarity)
-		if custom:
-			return custom
+		var sword := InterfaceIcons.warrior_sword_icon(rarity)
+		if sword:
+			return sword
+	if item_type in [Type.HELMET, Type.CHEST, Type.GLOVES, Type.PANTS, Type.BOOTS]:
+		var armor := InterfaceIcons.armor_icon(item_type, rarity)
+		if armor:
+			return armor
 	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	for y in range(6, 26):

@@ -144,6 +144,43 @@ static func warrior_sword_icon(raridade: ItemData.Rarity) -> Texture2D:
 	return _load_texture(FILES[idx])
 
 
+static func armor_icon(item_type: ItemData.Type, raridade: ItemData.Rarity) -> Texture2D:
+	var folder := ""
+	var suffix := ""
+	match item_type:
+		ItemData.Type.HELMET:
+			folder = "helmets"
+			suffix = "helmet"
+		ItemData.Type.CHEST:
+			folder = "chestplates"
+			suffix = "chestplate"
+		ItemData.Type.GLOVES:
+			folder = "gloves"
+			suffix = "gloves"
+		ItemData.Type.PANTS:
+			folder = "pants"
+			suffix = "pants"
+		ItemData.Type.BOOTS:
+			folder = "boots"
+			suffix = "boots"
+		_:
+			return null
+	const PREFIXES: Array[String] = [
+		"common",
+		"uncommon",
+		"rare",
+		"epic",
+		"legendary",
+		"mythic",
+		"primordial",
+		"astral",
+		"divine",
+		"transcendental",
+	]
+	var idx := clampi(int(raridade), 0, PREFIXES.size() - 1)
+	return _load_texture("items/armor/%s/%s_%s.png" % [folder, PREFIXES[idx], suffix])
+
+
 static func slot_border_for_rarity(raridade: ItemData.Rarity) -> Texture2D:
 	const FILES: Array[String] = [
 		"items/slots/slot_border.png",
