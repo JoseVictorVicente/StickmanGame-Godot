@@ -6,31 +6,28 @@ const ID_ARQUEIRO := "archer"
 const ID_MAGE := "mage"
 const ID_TANK := "tank"
 const ID_WARRIOR := "warrior"
+const ID_BARBARIAN := "barbarian"
+const ID_PRIEST := "priest"
 
-const ARCHER_FRAMES_DIR := "res://sprites/heroes/archer_fennec/"
-const ARCHER_RUN_DIR := ARCHER_FRAMES_DIR + "run/"
-const ARCHER_DEATH_DIR := ARCHER_FRAMES_DIR + "death/"
-
-const TANK_FRAMES_DIR := "res://sprites/heroes/tank_capybara/"
-const TANK_RUN_DIR := TANK_FRAMES_DIR + "run/"
-const TANK_DEATH_DIR := TANK_FRAMES_DIR + "death/"
-
-const WARRIOR_FRAMES_DIR := "res://sprites/heroes/warrior_boar/"
-const WARRIOR_RUN_DIR := WARRIOR_FRAMES_DIR + "run/"
+const HERO_PX_CLASSES := [
+	ID_ARQUEIRO,
+	ID_TANK,
+	ID_WARRIOR,
+	ID_BARBARIAN,
+	ID_PRIEST,
+]
 
 const MAGE_FRAMES_DIR := "res://sprites/heroes/mage_rabbit/"
 const MAGE_RUN_DIR := MAGE_FRAMES_DIR + "run/"
 const MAGE_DEATH_DIR := MAGE_FRAMES_DIR + "death/"
 
 const RUN_FPS := 14.0
+const IDLE_FPS := 5.0
 const DEATH_FPS := 10.0
 const ESCALA_STICK := Vector2(1.25, 1.25)
-const ESCALA_HERO_ART := Vector2(0.55, 0.55)
 const HERO_ART_FRAME_SIZE := 160.0
 const MAGE_ART_FRAME_SIZE := 68.0
-const ESCALA_MAGE_ART := Vector2.ONE * (
-	ESCALA_HERO_ART.x * (HERO_ART_FRAME_SIZE / MAGE_ART_FRAME_SIZE)
-)
+const ESCALA_MAGE_ART := Vector2.ONE * (0.55 * (HERO_ART_FRAME_SIZE / MAGE_ART_FRAME_SIZE))
 const BARRA_STICK := Vector2(-14, -38)
 const HERO_ART_BAR := Vector2(-14, -78)
 const HERO_ART_GROUND_OFFSET := Vector2(0, 15)
@@ -38,33 +35,17 @@ const HERO_ART_FEET_BELOW_CENTER := 37.4
 const HERO_ART_DEATH_FEET_BELOW_CENTER := 37.4
 const STICK_FEET_BELOW_CENTER := 22.0
 
-const ARCHER_ATTACK_RELEASE_INDEX := 9
-const ARCHER_ATTACK_START := 4
-const ARCHER_ATTACK_END := 16
-
-const TANK_ATTACK_RELEASE_INDEX := 10
-const TANK_ATTACK_START := 4
-const TANK_ATTACK_END := 24
-const TANK_HIT_START := 25
-const TANK_HIT_END := 27
-
-const WARRIOR_ATTACK_RELEASE_INDEX := 14
-const WARRIOR_ATTACK_START := 4
-const WARRIOR_ATTACK_END := 17
-const WARRIOR_HIT_START := 18
-const WARRIOR_HIT_END := 20
-
 const MAGE_ATTACK_RELEASE_INDEX := 10
 const MAGE_ATTACK_START := 4
 const MAGE_ATTACK_END := 14
 const MAGE_HIT_START := 15
 const MAGE_HIT_END := 17
 
-const ARCHER_ARROW_SPAWN := Vector2(22, -14)
+const ARCHER_ARROW_SPAWN := Vector2(10, -8)
 const ARCHER_ARROW_SPAWN_BY_FRAME := {
-	8: Vector2(24, -12),
-	9: Vector2(30, -10),
-	10: Vector2(34, -10),
+	8: Vector2(12, -7),
+	9: Vector2(14, -6),
+	10: Vector2(16, -6),
 }
 const MAGE_ORB_SPAWN := Vector2(30, -14)
 const MAGE_ORB_SPAWN_BY_FRAME := {
@@ -75,9 +56,7 @@ const MAGE_ORB_SPAWN_BY_FRAME := {
 const ATTACK_INTERVAL_BASE := 1.0
 const STICK_ATTACK_FPS := 14.0
 const STICK_ATTACK_FRAMES := 3
-const ARCHER_ATTACK_FPS := 20.0
-const TANK_ATTACK_FPS := 18.0
-const WARRIOR_ATTACK_FPS := 18.0
+const PX_ATTACK_FPS := 18.0
 const MAGE_ATTACK_FPS := 16.0
 const HIT_FPS := 12.0
 const RANGED_ENGAGE_RANGE := 345.0
@@ -87,6 +66,8 @@ const STICK_ENGAGE_RANGE := 55.0
 
 static var _frames: Dictionary = {}
 static var _textures: Dictionary = {}
+static var _attack_release_cache: Dictionary = {}
+static var _attack_count_cache: Dictionary = {}
 
 
 static func has_class_art(id_classe: String) -> bool:
@@ -98,14 +79,10 @@ static func frames(id_classe: String) -> SpriteFrames:
 		return _frames[id_classe] as SpriteFrames
 	var montado: SpriteFrames = null
 	match id_classe:
-		ID_ARQUEIRO:
-			montado = _build_archer()
 		ID_MAGE:
 			montado = _build_mage()
-		ID_TANK:
-			montado = _build_tank()
-		ID_WARRIOR:
-			montado = _build_warrior()
+		ID_ARQUEIRO, ID_TANK, ID_WARRIOR, ID_BARBARIAN, ID_PRIEST:
+			montado = _build_px_hero(id_classe)
 	if montado:
 		_frames[id_classe] = montado
 	return montado
@@ -114,36 +91,31 @@ static func frames(id_classe: String) -> SpriteFrames:
 static func invalidate_cache() -> void:
 	_frames.clear()
 	_textures.clear()
+	_attack_release_cache.clear()
+	_attack_count_cache.clear()
 
 
 static func scale_for(id_classe: String) -> Vector2:
-	if id_classe == ID_MAGE:
-		return ESCALA_MAGE_ART
 	if _uses_hero_art(id_classe):
-		return ESCALA_HERO_ART
+		return ESCALA_MAGE_ART
 	return ESCALA_STICK
 
 
 static func health_bar_offset(id_classe: String) -> Vector2:
-	if id_classe == ID_MAGE:
-		var ratio := ESCALA_HERO_ART.y / ESCALA_MAGE_ART.y
-		return Vector2(HERO_ART_BAR.x, HERO_ART_BAR.y * ratio)
 	if _uses_hero_art(id_classe):
 		return HERO_ART_BAR
 	return BARRA_STICK
 
 
 static func attack_release_frame(id_classe: String) -> int:
-	match id_classe:
-		ID_ARQUEIRO:
-			return ARCHER_ATTACK_RELEASE_INDEX
-		ID_MAGE:
-			return MAGE_ATTACK_RELEASE_INDEX
-		ID_TANK:
-			return TANK_ATTACK_RELEASE_INDEX
-		ID_WARRIOR:
-			return WARRIOR_ATTACK_RELEASE_INDEX
-	return 4
+	if id_classe == ID_MAGE:
+		return MAGE_ATTACK_RELEASE_INDEX
+	if _attack_release_cache.has(id_classe):
+		return _attack_release_cache[id_classe]
+	var count := attack_frame_count(id_classe)
+	var release := maxi(0, int(floor(float(count - 1) * 0.65)))
+	_attack_release_cache[id_classe] = release
+	return release
 
 
 static func arrow_spawn_offset(id_classe: String) -> Vector2:
@@ -175,9 +147,7 @@ static func ground_offset(id_classe: String) -> Vector2:
 
 static func death_feet_below_center(id_classe: String) -> float:
 	if _uses_hero_art(id_classe):
-		match id_classe:
-			ID_ARQUEIRO, ID_MAGE, ID_TANK, ID_WARRIOR:
-				return HERO_ART_DEATH_FEET_BELOW_CENTER
+		return HERO_ART_DEATH_FEET_BELOW_CENTER
 	return STICK_FEET_BELOW_CENTER
 
 
@@ -210,28 +180,23 @@ static func engage_range(id_classe: String) -> float:
 
 
 static func attack_frame_count(id_classe: String) -> int:
+	if _attack_count_cache.has(id_classe):
+		return _attack_count_cache[id_classe]
+	var count := STICK_ATTACK_FRAMES
 	match id_classe:
-		ID_ARQUEIRO:
-			return ARCHER_ATTACK_END - ARCHER_ATTACK_START + 1
 		ID_MAGE:
-			return MAGE_ATTACK_END - MAGE_ATTACK_START + 1
-		ID_TANK:
-			return TANK_ATTACK_END - TANK_ATTACK_START + 1
-		ID_WARRIOR:
-			return WARRIOR_ATTACK_END - WARRIOR_ATTACK_START + 1
-	return STICK_ATTACK_FRAMES
+			count = MAGE_ATTACK_END - MAGE_ATTACK_START + 1
+		ID_ARQUEIRO, ID_TANK, ID_WARRIOR, ID_BARBARIAN, ID_PRIEST:
+			count = maxi(1, _count_frames_in_dir(_px_anim_dir(id_classe, "attack")))
+	_attack_count_cache[id_classe] = count
+	return count
 
 
 static func attack_base_fps(id_classe: String) -> float:
-	match id_classe:
-		ID_ARQUEIRO:
-			return ARCHER_ATTACK_FPS
-		ID_MAGE:
-			return MAGE_ATTACK_FPS
-		ID_TANK:
-			return TANK_ATTACK_FPS
-		ID_WARRIOR:
-			return WARRIOR_ATTACK_FPS
+	if id_classe == ID_MAGE:
+		return MAGE_ATTACK_FPS
+	if _uses_hero_art(id_classe):
+		return PX_ATTACK_FPS
 	return STICK_ATTACK_FPS
 
 
@@ -244,33 +209,37 @@ static func attack_speed_scale(id_classe: String, attack_speed: float) -> float:
 
 
 static func _uses_hero_art(id_classe: String) -> bool:
-	return (
-		id_classe == ID_ARQUEIRO
-		or id_classe == ID_MAGE
-		or id_classe == ID_TANK
-		or id_classe == ID_WARRIOR
-	)
+	return HERO_PX_CLASSES.has(id_classe) or id_classe == ID_MAGE
 
 
-static func _build_archer() -> SpriteFrames:
+static func _px_base_dir(id_classe: String) -> String:
+	return "res://sprites/heroes/%s/" % id_classe
+
+
+static func _px_anim_dir(id_classe: String, anim: String) -> String:
+	return _px_base_dir(id_classe).trim_suffix("/") + "/%s/" % anim
+
+
+static func _build_px_hero(id_classe: String) -> SpriteFrames:
 	var sf := SpriteFrames.new()
-	_add_anim(sf, "Idle", _load_frame_range(ARCHER_FRAMES_DIR, 0, 3), true, 5.0)
-	_add_anim(sf, "Corrida", _load_dir_frames(ARCHER_RUN_DIR), true, RUN_FPS)
+	_add_anim(sf, "Idle", _load_dir_frames(_px_anim_dir(id_classe, "idle")), true, IDLE_FPS)
+	_add_anim(sf, "Corrida", _load_dir_frames(_px_anim_dir(id_classe, "run")), true, RUN_FPS)
 	_add_anim(
 		sf,
 		"Ataque",
-		_load_frame_range(ARCHER_FRAMES_DIR, ARCHER_ATTACK_START, ARCHER_ATTACK_END),
+		_load_dir_frames(_px_anim_dir(id_classe, "attack")),
 		false,
-		ARCHER_ATTACK_FPS
+		PX_ATTACK_FPS
 	)
-	_add_anim(sf, "Hit", _load_frame_range(ARCHER_FRAMES_DIR, 5, 7), false, HIT_FPS)
-	_add_anim(sf, "Morte", _load_dir_frames(ARCHER_DEATH_DIR), false, DEATH_FPS)
+	_add_anim(sf, "Morte", _load_dir_frames(_px_anim_dir(id_classe, "death")), false, DEATH_FPS)
+	if not sf.has_animation("Idle"):
+		return null
 	return sf
 
 
 static func _build_mage() -> SpriteFrames:
 	var sf := SpriteFrames.new()
-	_add_anim(sf, "Idle", _load_frame_range(MAGE_FRAMES_DIR, 0, 3), true, 5.0)
+	_add_anim(sf, "Idle", _load_frame_range(MAGE_FRAMES_DIR, 0, 3), true, IDLE_FPS)
 	_add_anim(sf, "Corrida", _load_dir_frames(MAGE_RUN_DIR), true, RUN_FPS)
 	_add_anim(
 		sf,
@@ -284,51 +253,20 @@ static func _build_mage() -> SpriteFrames:
 	return sf
 
 
-static func _build_warrior() -> SpriteFrames:
-	var sf := SpriteFrames.new()
-	_add_anim(sf, "Idle", _load_frame_range(WARRIOR_FRAMES_DIR, 0, 3), true, 5.0)
-	_add_anim(sf, "Corrida", _load_dir_frames(WARRIOR_RUN_DIR), true, RUN_FPS)
-	_add_anim(
-		sf,
-		"Ataque",
-		_load_frame_range(WARRIOR_FRAMES_DIR, WARRIOR_ATTACK_START, WARRIOR_ATTACK_END),
-		false,
-		WARRIOR_ATTACK_FPS
-	)
-	_add_anim(
-		sf,
-		"Hit",
-		_load_frame_range(WARRIOR_FRAMES_DIR, WARRIOR_HIT_START, WARRIOR_HIT_END),
-		false,
-		HIT_FPS
-	)
-	return sf
-
-
-static func _build_tank() -> SpriteFrames:
-	var sf := SpriteFrames.new()
-	_add_anim(sf, "Idle", _load_frame_range(TANK_FRAMES_DIR, 0, 3), true, 5.0)
-	_add_anim(sf, "Corrida", _load_dir_frames(TANK_RUN_DIR), true, RUN_FPS)
-	_add_anim(
-		sf,
-		"Ataque",
-		_load_frame_range(TANK_FRAMES_DIR, TANK_ATTACK_START, TANK_ATTACK_END),
-		false,
-		TANK_ATTACK_FPS
-	)
-	_add_anim(sf, "Hit", _load_frame_range(TANK_FRAMES_DIR, TANK_HIT_START, TANK_HIT_END), false, HIT_FPS)
-	_add_anim(sf, "Morte", _load_dir_frames(TANK_DEATH_DIR), false, DEATH_FPS)
-	return sf
+static func _count_frames_in_dir(dir: String) -> int:
+	var total := 0
+	while ResourceLoader.exists("%sframe_%03d.png" % [dir, total]) or _file_exists("%sframe_%03d.png" % [dir, total]):
+		total += 1
+	return total
 
 
 static func _load_dir_frames(dir: String) -> Array[Texture2D]:
 	var lista: Array[Texture2D] = []
-	var index := 0
-	while ResourceLoader.exists("%sframe_%03d.png" % [dir, index]) or _file_exists("%sframe_%03d.png" % [dir, index]):
-		var tex := _load_texture("%sframe_%03d.png" % [dir, index])
+	var count := _count_frames_in_dir(dir)
+	for i in count:
+		var tex := _load_texture("%sframe_%03d.png" % [dir, i])
 		if tex:
 			lista.append(tex)
-		index += 1
 	return lista
 
 
