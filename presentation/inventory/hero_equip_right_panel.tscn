@@ -38,7 +38,7 @@ layout_mode = 2
 [node name="SlotBracelet" parent="MainGrid" unique_id=1933086272 instance=ExtResource("2_slot")]
 layout_mode = 2
 
-[node name="SlotBelt" parent="MainGrid" unique_id=1293321618 instance=ExtResource("2_slot")]
+[node name="SlotRing2" parent="MainGrid" unique_id=1293321618 instance=ExtResource("2_slot")]
 layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="." unique_id=1267397833]

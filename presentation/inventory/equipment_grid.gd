@@ -14,7 +14,7 @@ const LEFT_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.BOOTS,
 ]
 const RIGHT_TYPES: Array[ItemData.Type] = [
-	ItemData.Type.BELT,
+	ItemData.Type.RING2,
 	ItemData.Type.PENDANT,
 	ItemData.Type.RING,
 	ItemData.Type.BRACELET,
@@ -42,7 +42,10 @@ func build_slots(tipos: Array[ItemData.Type], layout: InventoryLayout) -> Array[
 	for tipo in tipos:
 		var slot := _create_slot(tipo, layout)
 		add_child(slot)
-		slot.configure(null, tipo, false)
+		if tipo == ItemData.Type.RING2:
+			slot.configure(null, ItemData.Type.RING, false, ItemData.Type.RING2)
+		else:
+			slot.configure(null, tipo, false)
 		criados.append(slot)
 	return criados
 
@@ -57,7 +60,10 @@ func _apply_layout(layout: InventoryLayout, tipos: Array[ItemData.Type]) -> void
 		slot.custom_minimum_size = layout.equip_slot_size
 		slot.slot_label = tr(ItemData.equip_slot_label_key(tipos[i]))
 		if slot.item == null:
-			slot.configure(null, tipos[i], false)
+			if tipos[i] == ItemData.Type.RING2:
+				slot.configure(null, ItemData.Type.RING, false, ItemData.Type.RING2)
+			else:
+				slot.configure(null, tipos[i], false)
 
 
 func _create_slot(tipo: ItemData.Type, layout: InventoryLayout) -> ItemSlot:

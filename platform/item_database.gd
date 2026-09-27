@@ -110,7 +110,7 @@ func _populate_catalog() -> void:
 	items.append(_create("mage_gloves", ItemData.Type.GLOVES, 3, 2, M))
 	items.append(_create("mage_pants", ItemData.Type.PANTS, 2, 5, M))
 	items.append(_create("mage_boots", ItemData.Type.BOOTS, 1, 4, M))
-	items.append(_create("arcane_belt", ItemData.Type.BELT, 2, 3, M))
+	items.append(_create("arcane_ring", ItemData.Type.RING, 2, 3, M))
 	items.append(_create("mana_pendant", ItemData.Type.PENDANT, 2, 4, M))
 	# Archer
 	items.append(_create("short_bow", ItemData.Type.WEAPON, 7, 0, A))
@@ -130,7 +130,7 @@ func _populate_catalog() -> void:
 	items.append(_create("barbarian_gloves", ItemData.Type.GLOVES, 3, 2, B))
 	items.append(_create("barbarian_pants", ItemData.Type.PANTS, 2, 4, B))
 	items.append(_create("barbarian_boots", ItemData.Type.BOOTS, 1, 3, B))
-	items.append(_create("shadow_belt", ItemData.Type.BELT, 2, 2, B))
+	items.append(_create("shadow_ring", ItemData.Type.RING, 2, 2, B))
 	items.append(_create("shadow_bracelet", ItemData.Type.BRACELET, 3, 1, B))
 	# Tank
 	items.append(_create("heavy_mace", ItemData.Type.WEAPON, 8, 4, T))
@@ -156,7 +156,7 @@ func _populate_catalog() -> void:
 	items.append(_create("cloth_gloves", ItemData.Type.GLOVES, 2, 2))
 	items.append(_create("leather_pants", ItemData.Type.PANTS, 2, 5))
 	items.append(_create("travel_boots", ItemData.Type.BOOTS, 1, 3))
-	items.append(_create("simple_belt", ItemData.Type.BELT, 1, 2))
+	items.append(_create("simple_ring", ItemData.Type.RING, 1, 2))
 	items.append(_create("rough_ring", ItemData.Type.RING, 2, 0))
 	items.append(_create("iron_bracelet", ItemData.Type.BRACELET, 2, 1))
 	items.append(_create("travel_hood", ItemData.Type.HELMET, 1, 3))

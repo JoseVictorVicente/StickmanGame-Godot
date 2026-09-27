@@ -24,12 +24,10 @@ static func equipment_slot(tipo: ItemData.Type) -> Texture2D:
 			arquivo = "pants.png"
 		ItemData.Type.BOOTS:
 			arquivo = "boots.png"
-		ItemData.Type.BELT:
-			arquivo = "belt.png"
+		ItemData.Type.RING2, ItemData.Type.RING:
+			arquivo = "ring.png"
 		ItemData.Type.PENDANT:
 			arquivo = "pendant.png"
-		ItemData.Type.RING:
-			arquivo = "ring.png"
 		ItemData.Type.BRACELET:
 			arquivo = "bracelet.png"
 		ItemData.Type.PET:
@@ -142,6 +140,37 @@ static func warrior_sword_icon(raridade: ItemData.Rarity) -> Texture2D:
 	]
 	var idx := clampi(int(raridade), 0, FILES.size() - 1)
 	return _load_texture(FILES[idx])
+
+
+static func accessory_icon(item_type: ItemData.Type, raridade: ItemData.Rarity) -> Texture2D:
+	var folder := ""
+	var suffix := ""
+	match item_type:
+		ItemData.Type.PENDANT:
+			folder = "pendant"
+			suffix = "pendant"
+		ItemData.Type.RING:
+			folder = "ring"
+			suffix = "ring"
+		ItemData.Type.BRACELET:
+			folder = "bracelet"
+			suffix = "bracelet"
+		_:
+			return null
+	const PREFIXES: Array[String] = [
+		"common",
+		"uncommon",
+		"rare",
+		"epic",
+		"legendary",
+		"mythic",
+		"primordial",
+		"astral",
+		"divine",
+		"transcendental",
+	]
+	var idx := clampi(int(raridade), 0, PREFIXES.size() - 1)
+	return _load_texture("items/accessories/%s/%s_%s.png" % [folder, PREFIXES[idx], suffix])
 
 
 static func armor_icon(item_type: ItemData.Type, raridade: ItemData.Rarity) -> Texture2D:

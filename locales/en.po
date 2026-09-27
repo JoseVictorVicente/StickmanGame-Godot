@@ -216,8 +216,8 @@ msgstr "Pants"
 msgid "INV_SLOT_BOOTS"
 msgstr "Boots"
 
-msgid "INV_SLOT_BELT"
-msgstr "Belt"
+msgid "INV_SLOT_RING2"
+msgstr "Ring"
 
 msgid "INV_SLOT_PENDANT"
 msgstr "Pendant"

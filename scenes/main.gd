@@ -146,7 +146,6 @@ func _ready() -> void:
 	SaveSystem.register(self)
 	if not SaveSystem.load_game():
 		inventory_menu.fill_initial_item_if_empty()
-	inventory_menu.call_deferred("add_armor_rarity_preview")
 
 	_on_progression_changed()
 	recalculate_attributes()

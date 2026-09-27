@@ -19,12 +19,15 @@ const HOVER_OUTLINE_INSET_BASE_PX := 1.0
 const CAMADA_TOOLTIP := 128
 const Z_INDEX_TOOLTIP := 100
 const EQUIP_RIGHT_TYPES: Array[ItemData.Type] = [
-	ItemData.Type.BELT,
+	ItemData.Type.RING2,
 	ItemData.Type.PENDANT,
 	ItemData.Type.RING,
 	ItemData.Type.BRACELET,
 	ItemData.Type.PET,
 ]
+
+var equip_storage_type: ItemData.Type = ItemData.Type.WEAPON
+var _has_equip_storage_override: bool = false
 
 static var _camada_legenda: CanvasLayer
 static var _caixa_legenda: PanelContainer
@@ -99,7 +102,8 @@ func _sync_slot_chrome_layout() -> void:
 func configure(
 	p_icone: TextureRect = null,
 	p_tipo: ItemData.Type = ItemData.Type.WEAPON,
-	p_qualquer: bool = true
+	p_qualquer: bool = true,
+	p_storage_type: int = -1
 ) -> void:
 	icone_rect = p_icone if p_icone else get_icon_rect()
 	slot_frame = get_node_or_null("%SlotFrame") as TextureRect
@@ -107,13 +111,27 @@ func configure(
 		slot_frame.texture = SLOT_FRAME_TEXTURE
 	accepted_type = p_tipo
 	accepts_any = p_qualquer
+	if p_storage_type >= 0:
+		equip_storage_type = p_storage_type as ItemData.Type
+		_has_equip_storage_override = true
+	else:
+		_has_equip_storage_override = false
 	if not accepts_any:
-		_textura_vazia = InterfaceIcons.equipment_slot(accepted_type)
+		var empty_type := get_storage_type()
+		if empty_type == ItemData.Type.RING2:
+			empty_type = ItemData.Type.RING
+		_textura_vazia = InterfaceIcons.equipment_slot(empty_type)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_ensure_abbreviation()
 	_apply_icon()
 	update_visual()
+
+
+func get_storage_type() -> ItemData.Type:
+	if _has_equip_storage_override:
+		return equip_storage_type
+	return accepted_type
 
 
 func set_item(novo: ItemData) -> void:

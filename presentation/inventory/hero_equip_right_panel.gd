@@ -9,13 +9,19 @@ const JEWELRY_SLOT_NAMES: PackedStringArray = [
 	"SlotRing",
 	"SlotPendant",
 	"SlotBracelet",
-	"SlotBelt",
+	"SlotRing2",
 ]
-const JEWELRY_TYPES: Array[ItemData.Type] = [
+const JEWELRY_ACCEPT_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.RING,
 	ItemData.Type.PENDANT,
 	ItemData.Type.BRACELET,
-	ItemData.Type.BELT,
+	ItemData.Type.RING,
+]
+const JEWELRY_STORAGE_TYPES: Array[ItemData.Type] = [
+	ItemData.Type.RING,
+	ItemData.Type.PENDANT,
+	ItemData.Type.BRACELET,
+	ItemData.Type.RING2,
 ]
 
 @onready var slot_passiva_0: HubSkillSlot = %SlotSkillMenuPassiva0
@@ -98,8 +104,13 @@ func _configure_item_slots() -> void:
 		var slot := get_node_or_null("MainGrid/%s" % JEWELRY_SLOT_NAMES[i]) as ItemSlot
 		if slot == null:
 			continue
-		slot.configure(null, JEWELRY_TYPES[i], false)
-		slot.slot_label = tr(ItemData.equip_slot_label_key(JEWELRY_TYPES[i]))
+		var accept_type := JEWELRY_ACCEPT_TYPES[i]
+		var storage_type := JEWELRY_STORAGE_TYPES[i]
+		if storage_type != accept_type:
+			slot.configure(null, accept_type, false, storage_type)
+		else:
+			slot.configure(null, accept_type, false)
+		slot.slot_label = tr(ItemData.equip_slot_label_key(storage_type))
 	if slot_pet:
 		slot_pet.configure(null, ItemData.Type.PET, false)
 		slot_pet.slot_label = tr(ItemData.equip_slot_label_key(ItemData.Type.PET))

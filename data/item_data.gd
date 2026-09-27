@@ -10,7 +10,7 @@ enum Type {
 	GLOVES,
 	PANTS,
 	BOOTS,
-	BELT,
+	RING2,
 	PENDANT,
 	RING,
 	BRACELET,
@@ -128,8 +128,8 @@ static func type_display_name(p_tipo: Type) -> String:
 			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_PANTS)
 		Type.BOOTS:
 			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_BOOTS)
-		Type.BELT:
-			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_BELT)
+		Type.RING2:
+			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_RING)
 		Type.PENDANT:
 			return TranslationServer.translate(LocaleKeys.ITEM_TYPE_PENDANT)
 		Type.RING:
@@ -160,8 +160,8 @@ static func equip_slot_label_key(p_tipo: Type) -> String:
 			return LocaleKeys.INV_SLOT_PANTS
 		Type.BOOTS:
 			return LocaleKeys.INV_SLOT_BOOTS
-		Type.BELT:
-			return LocaleKeys.INV_SLOT_BELT
+		Type.RING2:
+			return LocaleKeys.INV_SLOT_RING2
 		Type.PENDANT:
 			return LocaleKeys.INV_SLOT_PENDANT
 		Type.RING:
@@ -340,7 +340,7 @@ static func categoria_do_tipo(p_tipo: Type) -> Category:
 	if p_tipo == Type.GEM:
 		return Category.GEM
 	match p_tipo:
-		Type.BELT, Type.PENDANT, Type.RING, Type.BRACELET:
+		Type.PENDANT, Type.RING, Type.BRACELET:
 			return Category.ACCESSORY
 		_:
 			return Category.EQUIPMENT
@@ -633,6 +633,8 @@ func uses_custom_item_icon() -> bool:
 		return InterfaceIcons.warrior_sword_icon(rarity) != null
 	if item_type in [Type.HELMET, Type.CHEST, Type.GLOVES, Type.PANTS, Type.BOOTS]:
 		return InterfaceIcons.armor_icon(item_type, rarity) != null
+	if item_type in [Type.PENDANT, Type.RING, Type.BRACELET]:
+		return InterfaceIcons.accessory_icon(item_type, rarity) != null
 	return false
 
 
@@ -652,8 +654,8 @@ static func sigla_do_tipo(p_tipo: Type) -> String:
 			return "CAL"
 		Type.BOOTS:
 			return "BOT"
-		Type.BELT:
-			return "CIN"
+		Type.RING2:
+			return "ANL"
 		Type.PENDANT:
 			return "PIN"
 		Type.RING:
@@ -687,13 +689,22 @@ func to_dictionary() -> Dictionary:
 	return dados
 
 
+static func migrate_saved_item_type(raw_type: int, item_id: String = "") -> Type:
+	# Legacy belt items used enum index 7 before RING2 replaced BELT.
+	if raw_type == int(Type.RING2):
+		return Type.RING
+	if item_id.ends_with("_belt"):
+		return Type.RING
+	return raw_type as Type
+
+
 static func from_dictionary(dados: Dictionary) -> ItemData:
 	if dados.is_empty():
 		return null
 	var item := ItemData.new()
-	item.id = str(dados.get("id", ""))
+	item.id = IdMigration.migrate_item_id(str(dados.get("id", "")))
 	item.display_name = str(dados.get("display_name", ""))
-	item.item_type = int(dados.get("item_type", Type.WEAPON)) as Type
+	item.item_type = migrate_saved_item_type(int(dados.get("item_type", Type.WEAPON)), item.id)
 	item.rarity = migrate_saved_rarity(int(dados.get("rarity", Rarity.COMMON)))
 	item.item_level = normalize_item_level(int(dados.get("item_level", ITEM_LEVELS[0])))
 	item.damage_bonus = int(dados.get("damage_bonus", 0))
@@ -719,6 +730,10 @@ func generate_icon() -> Texture2D:
 		var armor := InterfaceIcons.armor_icon(item_type, rarity)
 		if armor:
 			return armor
+	if item_type in [Type.PENDANT, Type.RING, Type.BRACELET]:
+		var accessory := InterfaceIcons.accessory_icon(item_type, rarity)
+		if accessory:
+			return accessory
 	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	for y in range(6, 26):

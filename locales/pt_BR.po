@@ -216,8 +216,8 @@ msgstr "Calça"
 msgid "INV_SLOT_BOOTS"
 msgstr "Botas"
 
-msgid "INV_SLOT_BELT"
-msgstr "Cinto"
+msgid "INV_SLOT_RING2"
+msgstr "Anel"
 
 msgid "INV_SLOT_PENDANT"
 msgstr "Pingente"

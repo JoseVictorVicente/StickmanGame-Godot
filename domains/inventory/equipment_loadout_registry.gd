@@ -10,7 +10,7 @@ const EQUIP_TYPES: Array[ItemData.Type] = [
 	ItemData.Type.GLOVES,
 	ItemData.Type.PANTS,
 	ItemData.Type.BOOTS,
-	ItemData.Type.BELT,
+	ItemData.Type.RING2,
 	ItemData.Type.PENDANT,
 	ItemData.Type.RING,
 	ItemData.Type.BRACELET,
