@@ -5,6 +5,9 @@ extends Sprite2D
 const _Tuning := preload("res://domains/combat/sim/combat_tuning.gd")
 const SCROLL_SPEED_PX: float = _Tuning.SCROLL_SPEED_PX
 const UV_WRAP := 1.0
+## Pixels cropped from the stage viewport edges (zooms into the road art).
+const VERTICAL_CROP_TOP_PX := 18.0
+const VERTICAL_CROP_BOTTOM_PX := 26.0
 
 var scrolling: bool = false
 
@@ -99,17 +102,11 @@ func reset_scroll() -> void:
 func walk_surface_y() -> float:
 	if texture == null or _stage_panel == null:
 		return -62.0
-	var stage_h := _stage_panel.size.y
-	var stage_w := _stage_panel.size.x
-	if stage_h <= 0.0 or stage_w <= 0.0:
+	var layout := _layout_metrics(_stage_panel.size)
+	if layout.is_empty():
 		return -62.0
-	var tex_size := texture.get_size()
-	var cover_scale := maxf(stage_w / tex_size.x, stage_h / tex_size.y)
-	var road_y_tex := tex_size.y * 0.5
-	var scaled_h := tex_size.y * cover_scale
-	var crop_top := (scaled_h - stage_h) * 0.5
-	var road_y_from_top := road_y_tex * cover_scale - crop_top
-	return -(stage_h - road_y_from_top)
+	var road_y_tex := texture.get_size().y * 0.5
+	return layout["sprite_center_y"] + (road_y_tex * layout["cover_scale"] - layout["scaled_h"] * 0.5)
 
 
 func _needs_deferred_layout() -> bool:
@@ -125,13 +122,28 @@ func _on_stage_resized() -> void:
 func _apply_layout() -> void:
 	if texture == null or _stage_panel == null:
 		return
-	var stage_size := _stage_panel.size
-	if stage_size.x <= 0.0 or stage_size.y <= 0.0:
+	var layout := _layout_metrics(_stage_panel.size)
+	if layout.is_empty():
 		return
+	scale = Vector2.ONE * layout["cover_scale"]
+	position = Vector2(0.0, layout["sprite_center_y"])
+
+
+func _layout_metrics(stage_size: Vector2) -> Dictionary:
+	if texture == null or stage_size.x <= 0.0 or stage_size.y <= 0.0:
+		return {}
 	var tex_size := texture.get_size()
-	var cover_scale := maxf(stage_size.x / tex_size.x, stage_size.y / tex_size.y)
-	scale = Vector2.ONE * cover_scale
-	position = Vector2(0.0, -stage_size.y * 0.5)
+	var crop_top := VERTICAL_CROP_TOP_PX
+	var crop_bottom := VERTICAL_CROP_BOTTOM_PX
+	var visible_h := maxf(1.0, stage_size.y - crop_top - crop_bottom)
+	var cover_scale := maxf(stage_size.x / tex_size.x, visible_h / tex_size.y)
+	var scaled_h := tex_size.y * cover_scale
+	var sprite_center_y := -(crop_bottom + visible_h * 0.5)
+	return {
+		"cover_scale": cover_scale,
+		"scaled_h": scaled_h,
+		"sprite_center_y": sprite_center_y,
+	}
 
 
 func _apply_scroll() -> void:

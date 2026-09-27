@@ -45,6 +45,9 @@ func _process(_delta: float) -> void:
 func align_combat() -> void:
 	if stage_panel == null or combat_root == null:
 		return
+	if combat_root.get_parent() == stage_panel:
+		combat_root.position = Vector2(stage_panel.size.x * 0.5, stage_panel.size.y)
+		return
 	var rect := stage_panel.get_global_rect()
 	combat_root.position = Vector2(rect.get_center().x, rect.end.y)
 
