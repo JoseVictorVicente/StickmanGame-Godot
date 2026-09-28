@@ -631,6 +631,10 @@ func shows_type_abbreviation_in_slot() -> bool:
 func uses_custom_item_icon() -> bool:
 	if item_type == Type.WEAPON and required_class == RequiredClass.WARRIOR:
 		return InterfaceIcons.warrior_sword_icon(rarity) != null
+	if item_type == Type.WEAPON and required_class == RequiredClass.MAGE:
+		return InterfaceIcons.mage_staff_icon(rarity) != null
+	if item_type == Type.OFFHAND and required_class == RequiredClass.MAGE:
+		return InterfaceIcons.mage_grimoire_icon(rarity) != null
 	if item_type in [Type.HELMET, Type.CHEST, Type.GLOVES, Type.PANTS, Type.BOOTS]:
 		return InterfaceIcons.armor_icon(item_type, rarity) != null
 	if item_type in [Type.PENDANT, Type.RING, Type.BRACELET]:
@@ -726,6 +730,14 @@ func generate_icon() -> Texture2D:
 		var sword := InterfaceIcons.warrior_sword_icon(rarity)
 		if sword:
 			return sword
+	if item_type == Type.WEAPON and required_class == RequiredClass.MAGE:
+		var staff := InterfaceIcons.mage_staff_icon(rarity)
+		if staff:
+			return staff
+	if item_type == Type.OFFHAND and required_class == RequiredClass.MAGE:
+		var grimoire := InterfaceIcons.mage_grimoire_icon(rarity)
+		if grimoire:
+			return grimoire
 	if item_type in [Type.HELMET, Type.CHEST, Type.GLOVES, Type.PANTS, Type.BOOTS]:
 		var armor := InterfaceIcons.armor_icon(item_type, rarity)
 		if armor:

@@ -479,5 +479,7 @@ func _uses_rarity_frame() -> bool:
 	while node:
 		if node is InventorySlotsGrid:
 			return true
+		if node is HeroEquipLeftPanel or node is HeroEquipRightPanel or node is EquipmentGrid:
+			return true
 		node = node.get_parent()
 	return false
